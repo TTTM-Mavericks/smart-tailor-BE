@@ -1,0 +1,24 @@
+package com.smart.tailor.constant;
+
+public class APIConstant {
+    /**
+     * Default API
+     */
+    public static final String API = "/api/v1";
+
+    /**
+     * Authentication API
+     */
+    public class AuthenticationAPI {
+
+        public static final String AUTHENTICATION = APIConstant.API + "/auth";
+        public static final String REGISTER = "/register";
+        public static final String GOOGLE_REGISTER = "/google-register";
+        public static final String FACEBOOK_REGISTER = "/facebook-register";
+        public static final String LOGIN = "/login";
+        public static final String GOOGLE_LOGIN = "/google-login";
+        public static final String FACEBOOK_LOGIN = "/facebook-login";
+        public static final String LOG_OUT = "/log-out";
+        public static final String REFRESH_TOKEN = "/refresh-token";
+    }
+}
