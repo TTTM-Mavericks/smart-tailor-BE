@@ -2,7 +2,9 @@ package com.smart.tailor.service;
 
 
 import com.smart.tailor.constant.APIConstant;
+import com.smart.tailor.entities.Image;
 import com.smart.tailor.entities.User;
+import com.smart.tailor.entities.UsingImage;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
@@ -14,21 +16,18 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
 public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
     private final UserService userService;
+    private final ImageService imageService;
     private final Logger logger = LoggerFactory.getLogger(OAuthLoginSuccessHandler.class);
 
     @Override
@@ -40,17 +39,26 @@ public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
         logger.info("{}", oauth2ClientName);
 
         String email = oauth2User.getAttribute("email");
+        String imageUrl = (String) oauth2User.getAttribute("picture");
+        String language = (String) oauth2User.getAttribute("locale");
         User user = userService.getUserByEmail(email);
         String targetUrl = APIConstant.AuthenticationAPI.AUTHENTICATION;
         if (user == null) {
             targetUrl += APIConstant.AuthenticationAPI.GOOGLE_REGISTER;
             String fullName = oauth2User.getAttribute("name").toString();
-            UserRequest  userRequest = UserRequest.builder()
+            UserRequest userRequest = UserRequest.builder()
                     .email(email)
                     .password("12345")
                     .fullName(fullName)
                     .provider(Provider.GOOGLE)
+                    .language(language)
                     .build();
+
+            Image img = Image.builder()
+                    .imageUrl(imageUrl)
+                    .name(fullName + " AVATAR")
+                    .build();
+            img = imageService.saveImage(img);
 
             if(oauth2ClientName.equalsIgnoreCase(Provider.FACEBOOK.name()))
             {
@@ -58,6 +66,7 @@ public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
             }
 
             request.setAttribute("authRequest", userRequest);
+            request.setAttribute("img", img);
 
         } else {
             targetUrl += APIConstant.AuthenticationAPI.GOOGLE_LOGIN;

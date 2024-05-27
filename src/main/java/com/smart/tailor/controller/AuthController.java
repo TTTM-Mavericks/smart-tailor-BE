@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.smart.tailor.constant.APIConstant;
+import com.smart.tailor.entities.Image;
+import com.smart.tailor.entities.UsingImage;
 import com.smart.tailor.service.AuthenticationService;
+import com.smart.tailor.service.UsingImageService;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
+    private final UsingImageService usingImageService;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping(APIConstant.AuthenticationAPI.REGISTER)
@@ -44,11 +48,25 @@ public class AuthController {
     public ObjectNode googleRegister(HttpServletRequest request) {
         ObjectMapper objectMapper = new ObjectMapper();
         UserRequest u = (UserRequest) request.getAttribute("authRequest");
+        Image img = (Image) request.getAttribute("img");
         logger.info("{}",  u);
+        logger.info("{}",  img);
         try {
-            return register(
-                    u
-            );
+            AuthenticationResponse authenticationResponse = authenticationService.register(u);
+            if(authenticationResponse != null){
+                usingImageService.saveUsingImage(
+                        UsingImage.builder()
+                                .image(img)
+                                .type("AVATAR")
+                                .relationID(authenticationResponse.getUser().getUserID())
+                                .build()
+                );
+            }
+            ObjectNode respon = objectMapper.createObjectNode();
+            respon.put("success", 200);
+            respon.put("message", "Register New Users Successfully");
+            respon.set("data", objectMapper.valueToTree(authenticationResponse));
+            return respon;
         } catch (Exception ex) {
             ObjectNode respon = objectMapper.createObjectNode();
             respon.put("error", -1);
