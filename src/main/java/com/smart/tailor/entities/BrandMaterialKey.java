@@ -4,10 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -17,6 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BrandMaterialKey implements Serializable {
     @Column(name = "material_id", nullable = false)
     private UUID materialID;

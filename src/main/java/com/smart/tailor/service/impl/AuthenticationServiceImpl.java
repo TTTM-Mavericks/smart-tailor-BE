@@ -31,6 +31,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse register(UserRequest userRequest) {
         userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        userRequest.setProvider(Provider.LOCAL);
         var user = userService.registerNewUsers(userRequest);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);

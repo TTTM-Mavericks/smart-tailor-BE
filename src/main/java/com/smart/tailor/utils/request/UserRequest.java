@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 
 @Data
@@ -25,9 +26,6 @@ public class UserRequest {
 
     private String address;
 
-    private String province;
-
+    @JsonIgnore
     private Provider provider;
-
-    private String district;
 }

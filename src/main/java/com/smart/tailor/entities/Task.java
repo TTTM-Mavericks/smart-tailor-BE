@@ -1,10 +1,8 @@
 package com.smart.tailor.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -19,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Task extends AuditEntity implements Serializable {
     @Id
     @Column(name = "task_id", unique = true, nullable = false)
