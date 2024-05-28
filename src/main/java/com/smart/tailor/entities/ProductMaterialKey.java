@@ -11,24 +11,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class ProductDesignKey implements Serializable {
+public class ProductMaterialKey implements Serializable {
     @Column(name = "product_id", nullable = false)
-    private Integer productID;
+    private UUID productID;
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "product_id", nullable = false, insertable = false, updatable = false)
     private Product product;
 
-    @Column(name = "design_id", nullable = false)
-    private Integer designID;
+    @Column(name = "material_id", nullable = false)
+    private UUID materialID;
 
     @ManyToOne
-    @JoinColumn(name = "design_id", referencedColumnName = "design_id", nullable = false, insertable = false, updatable = false)
-    private Design design;
+    @JoinColumn(name = "material_id", referencedColumnName = "material_id", nullable = false, insertable = false, updatable = false)
+    private Material material;
 }

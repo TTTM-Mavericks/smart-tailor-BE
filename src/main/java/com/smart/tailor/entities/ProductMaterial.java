@@ -10,13 +10,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "product_design")
+@Table(name = "product_material")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class ProductDesign extends AuditEntity implements Serializable {
+public class ProductMaterial extends AuditEntity implements Serializable {
     @EmbeddedId
-    private ProductDesignKey productDesignKey;
+    private ProductMaterialKey productMaterialKey;
 }

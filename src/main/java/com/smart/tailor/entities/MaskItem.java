@@ -1,35 +1,40 @@
 package com.smart.tailor.entities;
 
-import com.smart.tailor.enums.StampName;
+import com.smart.tailor.enums.MaskItemName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
-@Table(name = "mask_stamp")
+@Table(name = "mask_item")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class MaskStamp extends AuditEntity implements Serializable {
+public class MaskItem extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "stamp_id", unique = true, nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer stampID;
+    @Column(name = "item_id", unique = true, nullable = false)
+    @UuidGenerator
+    private UUID itemID;
 
     @ManyToOne
     @JoinColumn(name = "part_of_design_id", referencedColumnName = "part_of_design_id")
     private PartOfDesign partOfDesign;
 
-    @Column(name = "stamp_name")
+    @Column(name = "mask_item_name")
     @Enumerated(EnumType.STRING)
-    private StampName stampName;
+    private MaskItemName maskItemName;
+
+    @Column(name = "type_of_item")
+    private String typeOfItem;
 
     @Column(name = "position_x")
     private Float positionX;

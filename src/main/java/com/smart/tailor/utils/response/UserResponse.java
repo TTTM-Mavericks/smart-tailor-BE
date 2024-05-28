@@ -7,16 +7,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
-    private Integer userID;
+    private UUID userID;
 
     private String email;
 
     private String password;
+
+    private String fullName;
 
     private String language;
 
@@ -24,13 +28,5 @@ public class UserResponse {
 
     private Provider provider;
 
-    private String fullName;
-
     private Boolean userStatus;
-
-    private String address;
-
-    private String province;
-
-    private String district;
 }

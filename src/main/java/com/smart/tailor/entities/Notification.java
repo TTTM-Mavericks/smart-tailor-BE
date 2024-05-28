@@ -9,27 +9,32 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "using_image")
+@Table(name = "notification")
 @Data
-@Builder
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class UsingImage extends AuditEntity implements Serializable {
+public class Notification extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "using_image_id", unique = true, nullable = false)
+    @Column(name = "notification_id", unique = true, nullable = false)
     @UuidGenerator
-    private UUID usingImageID;
+    private UUID notificationID;
 
     @ManyToOne
-    @JoinColumn(name = "image_id", referencedColumnName = "image_id")
-    private Image image;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
 
-    @Column(name = "relation_id")
-    private UUID relationID;
+    private String action;
 
-    private String type;
+    private Boolean status;
+
+    private String detail;
+
+    @Column(name = "date_time")
+    private LocalDateTime dateTime;
 }

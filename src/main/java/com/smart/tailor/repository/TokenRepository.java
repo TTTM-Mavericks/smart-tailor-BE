@@ -8,12 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface TokenRepository extends JpaRepository<Token, Integer> {
+public interface TokenRepository extends JpaRepository<Token, UUID> {
     @Query(value = "select t.* from token t join users u on t.user_id = u.user_id " +
             "where u.user_id = ?1 and (t.expired = 'false' or t.revoked = 'false')", nativeQuery = true)
-    List<Token> findAllValidTokenByUser(Integer userID);
+    List<Token> findAllValidTokenByUser(UUID userID);
 
     Optional<Token> findByToken(String token);
 }

@@ -6,10 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -21,12 +23,8 @@ import java.math.BigDecimal;
 public class Order extends AuditEntity implements Serializable {
     @Id
     @Column(name = "order_id", unique = true, nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer orderID;
-
-    @OneToOne
-    @JoinColumn(name = "payment_id", referencedColumnName = "payment_id")
-    private Payment payment;
+    @UuidGenerator
+    private UUID orderID;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", referencedColumnName = "brand_id")
@@ -36,21 +34,25 @@ public class Order extends AuditEntity implements Serializable {
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
     private Customer customer;
 
+    @OneToOne
+    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
+    private Employee employee;
+
     @Column(name = "status_order")
     @Enumerated(EnumType.STRING)
     private StatusOrder statusOrder;
 
-    @Column(name = "is_cash")
-    private Boolean isCash;
+    @Column(name = "order_type")
+    private String orderType;
 
     private String address;
 
-    private BigDecimal phone;
-
-    @Column(name = "user_name")
-    private String userName;
+    private String province;
 
     private String district;
 
-    private String province;
+    private String phone;
+
+    @Column(name = "user_name")
+    private String userName;
 }
