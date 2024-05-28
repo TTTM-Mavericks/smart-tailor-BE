@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 @AllArgsConstructor
@@ -18,14 +19,14 @@ import java.io.Serializable;
 @Builder
 public class OrderDetailKey implements Serializable {
     @Column(name = "order_id", nullable = false)
-    private Integer orderID;
+    private UUID orderID;
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = false, insertable = false, updatable = false)
     private Order order;
 
     @Column(name = "product_id", nullable = false)
-    private Integer productID;
+    private UUID productID;
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "product_id", nullable = false, insertable = false, updatable = false)

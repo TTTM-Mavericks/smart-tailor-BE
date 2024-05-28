@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Table(name = "image")
@@ -19,8 +21,8 @@ import java.io.Serializable;
 public class Image extends AuditEntity implements Serializable {
     @Id
     @Column(name = "image_id", unique = true, nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer imageID;
+    @UuidGenerator
+    private UUID imageID;
 
     private String name;
 

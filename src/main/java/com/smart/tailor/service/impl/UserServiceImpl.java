@@ -49,9 +49,6 @@ public class UserServiceImpl implements UserService {
                     .userStatus(true)
                     .fullName(userRequest.getFullName())
                     .phoneNumber(userRequest.getPhoneNumber())
-                    .address(userRequest.getAddress())
-                    .province(userRequest.getProvince())
-                    .district(userRequest.getDistrict())
                     .roles(roleService.findRoleByRoleName("CUSTOMER").get())
                     .build());
         }
@@ -77,9 +74,6 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .provider(user.getProvider())
                 .userStatus(user.getUserStatus())
-                .address(user.getAddress())
-                .province(user.getProvince())
-                .district(user.getDistrict())
                 .build();
     }
 

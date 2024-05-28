@@ -1,7 +1,9 @@
 package com.smart.tailor.entities;
 
-
-import jakarta.persistence.*;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,19 +13,17 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "order_detail")
+@Table(name = "brand_material")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class OrderDetail extends AuditEntity implements Serializable {
+public class BrandMaterial extends AuditEntity implements Serializable {
     @EmbeddedId
-    private OrderDetailKey orderDetailKey;
+    private BrandMaterialKey brandMaterialKey;
 
-    private Integer quantity;
+    private String unit;
 
-    @OneToOne
-    @JoinColumn(name = "discount_product_id", referencedColumnName = "discount_product_id")
-    private DiscountProduct discountProduct;
+    private Double price;
 }

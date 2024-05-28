@@ -5,10 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 
 @Entity
@@ -21,7 +23,8 @@ import java.util.Date;
 public class Customer extends AuditEntity implements Serializable {
     @Id
     @Column(name = "customer_id", unique = true, nullable = false)
-    private Integer customerID;
+    @UuidGenerator
+    private UUID customerID;
 
     @OneToOne
     @MapsId
@@ -36,7 +39,12 @@ public class Customer extends AuditEntity implements Serializable {
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    private Double height;
+    private String address;
 
-    private Double weight;
+    private String province;
+
+    private String district;
+
+    @Column(name = "number_of_violations")
+    private Integer numberOfViolations;
 }

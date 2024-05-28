@@ -12,24 +12,18 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "using_image")
+@Table(name = "category")
 @Data
-@Builder
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class UsingImage extends AuditEntity implements Serializable {
+public class Category extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "using_image_id", unique = true, nullable = false)
+    @Column(name = "category_id", unique = true, nullable = false)
     @UuidGenerator
-    private UUID usingImageID;
+    private UUID categoryID;
 
-    @ManyToOne
-    @JoinColumn(name = "image_id", referencedColumnName = "image_id")
-    private Image image;
-
-    @Column(name = "relation_id")
-    private UUID relationID;
-
-    private String type;
+    @Column(name = "category_name")
+    private String categoryName;
 }

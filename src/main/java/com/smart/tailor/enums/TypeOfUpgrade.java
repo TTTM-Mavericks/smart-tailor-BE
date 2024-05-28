@@ -1,5 +1,5 @@
 package com.smart.tailor.enums;
 
-public enum StampName {
+public enum TypeOfUpgrade {
     SAMPLE
 }
