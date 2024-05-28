@@ -16,6 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,108 +29,115 @@ public class AuthController {
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping(APIConstant.AuthenticationAPI.REGISTER)
-    public ObjectNode register(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<ObjectNode> register(@RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
         try {
-            ObjectNode respon = objectMapper.createObjectNode();
+            AuthenticationResponse authenticationResponse = authenticationService.register(userRequest);
+            if (authenticationResponse == null) {
+                respon.put("error", 200);
+                respon.put("message", "Error: Failed to register new user.");
+                return ResponseEntity.ok(respon);
+            }
             respon.put("success", 200);
             respon.put("message", "Register New Users Successfully");
-            respon.set("data", objectMapper.valueToTree(authenticationService.register(userRequest)));
-            return respon;
+            respon.set("data", objectMapper.valueToTree(authenticationResponse));
+            return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            ObjectNode respon = objectMapper.createObjectNode();
             respon.put("error", -1);
             respon.put("message", ex.getMessage());
-            respon.set("data", null);
-            return respon;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
         }
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.GOOGLE_REGISTER)
-    public ObjectNode googleRegister(HttpServletRequest request) {
+    public ResponseEntity<ObjectNode> googleRegister(HttpServletRequest request) {
         ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
         UserRequest u = (UserRequest) request.getAttribute("authRequest");
         Image img = (Image) request.getAttribute("img");
-        logger.info("{}",  u);
-        logger.info("{}",  img);
+        logger.info("{}", u);
+        logger.info("{}", img);
         try {
             AuthenticationResponse authenticationResponse = authenticationService.register(u);
-            if(authenticationResponse != null){
-                usingImageService.saveUsingImage(
-                        UsingImage.builder()
-                                .image(img)
-                                .type("AVATAR")
-                                .relationID(authenticationResponse.getUser().getUserID())
-                                .build()
-                );
+            if (authenticationResponse == null) {
+                respon.put("error", 200);
+                respon.put("message", "Error: Failed to register new user.");
+                return ResponseEntity.ok(respon);
             }
-            ObjectNode respon = objectMapper.createObjectNode();
+            usingImageService.saveUsingImage(
+                    UsingImage.builder()
+                            .image(img)
+                            .type("AVATAR")
+                            .relationID(authenticationResponse.getUser().getUserID())
+                            .build()
+            );
             respon.put("success", 200);
             respon.put("message", "Register New Users Successfully");
             respon.set("data", objectMapper.valueToTree(authenticationResponse));
-            return respon;
+            return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            ObjectNode respon = objectMapper.createObjectNode();
             respon.put("error", -1);
             respon.put("message", ex.getMessage());
-            respon.set("data", null);
-            return respon;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
         }
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.LOGIN)
-    public ObjectNode login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<ObjectNode> login(@RequestBody AuthenticationRequest authenticationRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
         try {
-            ObjectNode respon = objectMapper.createObjectNode();
-            AuthenticationResponse authenticationResponse = authenticationService.login(
-                    authenticationRequest);
+            AuthenticationResponse authenticationResponse = authenticationService.login(authenticationRequest);
+            if (authenticationResponse == null) {
+                respon.put("error", 200);
+                respon.put("message", "Error: Login failed.");
+                return ResponseEntity.ok(respon);
+            }
             respon.put("success", 200);
             respon.put("message", "Login Successfully");
             respon.set("data", objectMapper.valueToTree(authenticationResponse));
-            return respon;
+            return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            ObjectNode respon = objectMapper.createObjectNode();
             respon.put("error", -1);
             respon.put("message", ex.getMessage());
-            respon.set("data", null);
-            return respon;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
         }
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.GOOGLE_LOGIN)
-    public ObjectNode googleLogin(HttpServletRequest request) {
+    public ResponseEntity<ObjectNode> googleLogin(HttpServletRequest request) {
         ObjectMapper objectMapper = new ObjectMapper();
         System.out.println(request);
         try {
-            return login(
-                    (AuthenticationRequest) request.getAttribute("authRequest")
-            );
+            return login((AuthenticationRequest) request.getAttribute("authRequest"));
         } catch (Exception ex) {
             ObjectNode respon = objectMapper.createObjectNode();
             respon.put("error", -1);
             respon.put("message", ex.getMessage());
-            respon.set("data", null);
-            return respon;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
         }
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.REFRESH_TOKEN)
-    public ObjectNode login(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<ObjectNode> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
         try {
-            ObjectNode respon = objectMapper.createObjectNode();
+            AuthenticationResponse authenticationResponse = authenticationService.refreshToken(request, response);
+            if (authenticationResponse == null) {
+                respon.put("error", 200);
+                respon.put("message", "Error: Failed to refresh token.");
+                return ResponseEntity.ok(respon);
+            }
             respon.put("success", 200);
             respon.put("message", "Login Successfully");
-            respon.set("data",
-                    objectMapper.valueToTree(authenticationService.refreshToken(request, response)));
-            return respon;
+            respon.set("data", objectMapper.valueToTree(authenticationResponse));
+            return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            ObjectNode respon = objectMapper.createObjectNode();
             respon.put("error", -1);
             respon.put("message", ex.getMessage());
-            respon.set("data", null);
-            return respon;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
         }
     }
 }
