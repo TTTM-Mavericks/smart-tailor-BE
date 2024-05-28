@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -28,10 +29,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
     private final JwtService jwtService;
     private final TokenService tokenService;
+
     @Override
     public AuthenticationResponse register(UserRequest userRequest) {
         userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        userRequest.setProvider(Provider.LOCAL);
+        userRequest.setProvider(userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL);
         var user = userService.registerNewUsers(userRequest);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -70,8 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .refreshToken(refreshToken)
                     .user(userService.convertToUserResponse(user))
                     .build();
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
         return null;

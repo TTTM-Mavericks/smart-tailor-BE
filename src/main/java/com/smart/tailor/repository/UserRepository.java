@@ -13,6 +13,6 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
-    @Query(value = "select user_id, email, password, full_name, language, phone_number, provider, role_id, last_modified_date, create_date, user_status from users where email = ?1", nativeQuery = true)
+    @Query(value = "select u.* from users u where u.email = ?1", nativeQuery = true)
     User getByEmail(String email);
 }

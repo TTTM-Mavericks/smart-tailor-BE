@@ -12,11 +12,13 @@ import com.smart.tailor.entities.User;
 import com.smart.tailor.entities.UsingImage;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.service.AuthenticationService;
+import com.smart.tailor.service.ImageService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.service.UsingImageService;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
+import com.smart.tailor.utils.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ import java.util.Map;
 public class AuthController {
     private final AuthenticationService authenticationService;
     private final UsingImageService usingImageService;
+    private final ImageService imageService;
     private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
@@ -113,7 +116,7 @@ public class AuthController {
                             .name(fullName + " AVATAR")
                             .build();
 
-                    return register(
+                    ResponseEntity<ObjectNode> response = register(
                             UserRequest
                                     .builder()
                                     .email(email)
@@ -123,6 +126,37 @@ public class AuthController {
                                     .fullName(fullName)
                                     .build()
                     );
+
+                    if (response.getStatusCode().is2xxSuccessful() && response.getBody().get("success") != null) {
+                        Image i = imageService.saveImage(img);
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        UserResponse userResponse = objectMapper.treeToValue(response.getBody().get("data").get("user"), UserResponse.class);
+                        usingImageService.saveUsingImage(
+                                UsingImage
+                                        .builder()
+                                        .image(i)
+                                        .type("AVATAR")
+                                        .relationID(userResponse.getUserID())
+                                        .build()
+                        );
+
+                        userResponse.setAvatar(
+                                imageService.getImageUrl(
+                                        usingImageService.getImage("AVATAR", userResponse.getUserID())
+                                )
+                        );
+
+                        AuthenticationResponse authenticationResponse = objectMapper.treeToValue(
+                                response.getBody().get("data"), AuthenticationResponse.class
+                        );
+                        authenticationResponse.setUser(userResponse);
+                        ObjectNode respon = objectMapper.createObjectNode();
+                        respon.put("success", 200);
+                        respon.put("message", "Register New Users Successfully");
+                        respon.set("data", objectMapper.valueToTree(authenticationResponse));
+                        return ResponseEntity.ok(respon);
+                    }
+                    return response;
                 }
                 return login(
                         AuthenticationRequest

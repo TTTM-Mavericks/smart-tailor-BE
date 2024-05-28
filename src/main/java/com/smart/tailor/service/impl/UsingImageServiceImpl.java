@@ -6,6 +6,9 @@ import com.smart.tailor.service.UsingImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UsingImageServiceImpl implements UsingImageService {
@@ -15,4 +18,14 @@ public class UsingImageServiceImpl implements UsingImageService {
     public UsingImage saveUsingImage(UsingImage usingImage) {
         return usingImageRepository.save(usingImage);
     }
+
+    @Override
+    public UUID getImage(String type, UUID relationID) {
+        Optional<UsingImage> usingImage = usingImageRepository.getUsingImageByTypeAndRelationID(type, relationID);
+        if (usingImage.isPresent()) {
+            return usingImage.get().getImage().getImageID();
+        }
+        return null;
+    }
+
 }

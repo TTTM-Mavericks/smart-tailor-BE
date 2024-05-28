@@ -32,4 +32,6 @@ public class UserResponse {
     private Boolean userStatus;
 
     private String roleName;
+
+    private String avatar;
 }
