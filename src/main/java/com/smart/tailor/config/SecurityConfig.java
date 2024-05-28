@@ -1,6 +1,5 @@
 package com.smart.tailor.config;
 
-
 import com.smart.tailor.service.CustomOAuth2UserService;
 import com.smart.tailor.service.OAuthLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +8,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
 
 @Configuration
@@ -39,19 +40,21 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests()
                 .requestMatchers(WHITE_LIST_URL)
                 .permitAll()
-                .anyRequest()
-                .authenticated()
+//                .anyRequest()
+//                .authenticated()
+//                .and()
+//                .oauth2Login()
+//                .userInfoEndpoint()
+//                .userService(oauth2UserService)
+//                .and()
+//                .successHandler(oauthLoginSuccessHandler)
                 .and()
-                .oauth2Login()
-                .userInfoEndpoint()
-                .userService(oauth2UserService)
-                .and()
-                .successHandler(oauthLoginSuccessHandler)
-                .and()
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new SimpleCORSFilter(), WebAsyncManagerIntegrationFilter.class);
         return httpSecurity.build();
     }
 }
