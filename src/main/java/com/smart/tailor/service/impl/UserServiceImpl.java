@@ -3,6 +3,7 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
 import com.smart.tailor.service.UserService;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final RoleService roleService;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public Optional<User> getUserDetailByEmail(String email) {
@@ -61,20 +63,6 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserResponse convertToUserResponse(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        return UserResponse.builder()
-                .userID(user.getUserID())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .password(user.getPassword())
-                .language(user.getLanguage())
-                .phoneNumber(user.getPhoneNumber())
-                .provider(user.getProvider())
-                .userStatus(user.getUserStatus())
-                .build();
+        return userMapper.mapperToUserResponse(user);
     }
-
 }

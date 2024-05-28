@@ -1,6 +1,7 @@
 package com.smart.tailor.utils.response;
 
 
+import com.smart.tailor.entities.Roles;
 import com.smart.tailor.enums.Provider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +30,6 @@ public class UserResponse {
     private Provider provider;
 
     private Boolean userStatus;
+
+    private String roleName;
 }

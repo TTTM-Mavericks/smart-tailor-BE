@@ -2,10 +2,8 @@ package com.smart.tailor.entities;
 
 import com.smart.tailor.enums.Provider;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -18,6 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
 public class Brand extends AuditEntity implements Serializable {
     @Id

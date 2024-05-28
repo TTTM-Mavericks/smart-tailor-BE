@@ -2,10 +2,8 @@ package com.smart.tailor.entities;
 
 import com.smart.tailor.enums.TypeOfUpgrade;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -20,6 +18,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomerUpgrade extends AuditEntity implements Serializable {
     @Id
     @Column(name = "customer_upgrade_id", unique = true, nullable = false)
