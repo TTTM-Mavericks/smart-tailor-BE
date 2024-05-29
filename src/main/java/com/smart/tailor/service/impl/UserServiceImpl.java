@@ -1,15 +1,15 @@
 package com.smart.tailor.service.impl;
 
 
+import com.smart.tailor.entities.Token;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
-import com.smart.tailor.service.ImageService;
-import com.smart.tailor.service.RoleService;
-import com.smart.tailor.service.UserService;
-import com.smart.tailor.service.UsingImageService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     private final RoleService roleService;
     private final UserRepository userRepository;
+    private final TokenService tokenService;
     private final UserMapper userMapper;
     private final UsingImageService usingImageService;
     private final ImageService imageService;
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService {
                             .password(userRequest.getPassword())
                             .language(userRequest.getLanguage())
                             .provider(userRequest.getProvider())
-                            .userStatus(true)
+                            .userStatus(false)
                             .fullName(userRequest.getFullName())
                             .phoneNumber(userRequest.getPhoneNumber())
                             .roles(roleService.findRoleByRoleName("CUSTOMER").get())
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse convertToUserResponse(User user) {
         UserResponse userResponse = userMapper.mapperToUserResponse(user);
         UUID imageID = usingImageService.getImage("AVATAR", userResponse.getUserID());
-        System.out.println(imageID);
+//        System.out.println(imageID);
         if (imageID != null) {
             String url = imageService.getImageUrl(imageID);
             if (url != null) {
@@ -78,5 +79,17 @@ public class UserServiceImpl implements UserService {
             System.out.println(url);
         }
         return userResponse;
+    }
+
+    @Override
+    public Boolean updateStatusAccount(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isPresent())
+        {
+            user.get().setUserStatus(user.get().getUserStatus() == true ? false : true);
+            userRepository.save(user.get());
+            return true;
+        }
+        return false;
     }
 }
