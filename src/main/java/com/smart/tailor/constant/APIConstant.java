@@ -13,6 +13,10 @@ public class APIConstant {
 
         public static final String AUTHENTICATION = APIConstant.API + "/auth";
         public static final String REGISTER = "/register";
+        public static final String VERIFY = "/verify";
+        public static final String VERIFY_PASSWORD = "/verify-password";
+        public static final String FORGOT_PASSWORD = "/forgot-password";
+        public static final String UPDATE_PASWORD = "/update-password";
         public static final String GOOGLE_REGISTER = "/google-register";
         public static final String FACEBOOK_REGISTER = "/facebook-register";
         public static final String LOGIN = "/login";

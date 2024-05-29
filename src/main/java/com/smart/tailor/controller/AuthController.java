@@ -11,31 +11,27 @@ import com.smart.tailor.entities.Image;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.entities.UsingImage;
 import com.smart.tailor.enums.Provider;
-import com.smart.tailor.service.AuthenticationService;
-import com.smart.tailor.service.ImageService;
-import com.smart.tailor.service.UserService;
-import com.smart.tailor.service.UsingImageService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(APIConstant.AuthenticationAPI.AUTHENTICATION)
@@ -45,24 +41,78 @@ public class AuthController {
     private final UsingImageService usingImageService;
     private final ImageService imageService;
     private final UserService userService;
+    private final EmailSenderService emailService;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String clientId;
 
+    @GetMapping(APIConstant.AuthenticationAPI.VERIFY)
+    public ResponseEntity<String> verifyAccount(@RequestParam("email") String email, @RequestParam("token") String token) {
+        boolean isVerified = authenticationService.verifyUser(email, token);
+        if (isVerified) {
+            return ResponseEntity.ok("Account verified successfully!");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token!");
+        }
+    }
+
+    @GetMapping (APIConstant.AuthenticationAPI.VERIFY_PASSWORD)
+    public ResponseEntity<String> verifyPassword(@RequestParam("email") String email, @RequestParam("token") String token) {
+        boolean isVerified = authenticationService.verifyPassword(email, token);
+        if (isVerified) {
+            return ResponseEntity.ok("Account verified successfully!");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token!");
+        }
+    }
+
     @PostMapping(APIConstant.AuthenticationAPI.REGISTER)
-    public ResponseEntity<ObjectNode> register(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<ObjectNode> register(@RequestBody UserRequest userRequest, HttpSession session) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             AuthenticationResponse authenticationResponse = authenticationService.register(userRequest);
             if (authenticationResponse == null) {
                 respon.put("error", 200);
-                respon.put("message", "Error: Failed to register new user.");
+                respon.put("message", "Error: Duplicate Email!");
                 return ResponseEntity.ok(respon);
             }
             respon.put("success", 200);
             respon.put("message", "Register New Users Successfully");
             respon.set("data", objectMapper.valueToTree(authenticationResponse));
+
+            return ResponseEntity.ok(respon);
+        } catch (Exception ex) {
+            respon.put("error", -1);
+            respon.put("message", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
+        }
+    }
+
+    @GetMapping(APIConstant.AuthenticationAPI.FORGOT_PASSWORD)
+    public ResponseEntity<ObjectNode> forgotPassword(@RequestParam("email") String email) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        authenticationService.forgotPassword(email);
+        respon.put("error", 200);
+        respon.put("message", "Success: Check Mail For Update Password.");
+        return ResponseEntity.ok(respon);
+    }
+
+    @PostMapping(APIConstant.AuthenticationAPI.UPDATE_PASWORD)
+    public ResponseEntity<ObjectNode> updatePassword(@RequestBody UserRequest userRequest) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            UserResponse userResponse = authenticationService.updatePassword(userRequest);
+            if (userResponse == null) {
+                respon.put("error", 200);
+                respon.put("message", "Error: Update failed.");
+                return ResponseEntity.ok(respon);
+            }
+            respon.put("success", 200);
+            respon.put("message", "Update Password Successfully");
+            respon.set("data", objectMapper.valueToTree(userResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("error", -1);
@@ -94,7 +144,7 @@ public class AuthController {
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.GOOGLE_LOGIN)
-    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload, HttpServletRequest request, HttpSession session) {
         String token = payload.get("authRequest");
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance())
                 .setAudience(Collections.singletonList(clientId))
@@ -124,7 +174,8 @@ public class AuthController {
                                     .provider(Provider.GOOGLE)
                                     .language(language)
                                     .fullName(fullName)
-                                    .build()
+                                    .build(),
+                            session
                     );
 
                     if (response.getStatusCode().is2xxSuccessful() && response.getBody().get("success") != null) {
