@@ -26,6 +26,9 @@ public class APIConstant {
         public static final String REFRESH_TOKEN = "/refresh-token";
     }
 
+    /**
+     * Role API
+     */
     public class RoleAPI {
         public static final String ROLE = APIConstant.API + "/roles";
         public static final String GET_ALL_ROLES = "/get-all-roles";

@@ -7,28 +7,29 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.smart.tailor.constant.APIConstant;
+import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Image;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.entities.UsingImage;
 import com.smart.tailor.enums.Provider;
-import com.smart.tailor.service.*;
+import com.smart.tailor.service.AuthenticationService;
+import com.smart.tailor.service.ImageService;
+import com.smart.tailor.service.UserService;
+import com.smart.tailor.service.UsingImageService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -40,28 +41,53 @@ public class AuthController {
     private final UsingImageService usingImageService;
     private final ImageService imageService;
     private final UserService userService;
-    private final EmailSenderService emailService;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String clientId;
 
     @GetMapping(APIConstant.AuthenticationAPI.VERIFY)
-    public ResponseEntity<String> verifyAccount(@RequestParam("email") String email, @RequestParam("token") String token) {
-        boolean isVerified = authenticationService.verifyUser(email, token);
-        if (isVerified) {
-            return ResponseEntity.ok("Account verified successfully!");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token!");
+    public ResponseEntity<ObjectNode> verifyAccount(@RequestParam("email") String email, @RequestParam("token") String token) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            boolean isVerified = authenticationService.verifyUser(email, token);
+            if (isVerified) {
+                respon.put("status", 200);
+                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
+                return ResponseEntity.ok(respon);
+            } else {
+                respon.put("status", 401);
+                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
+                return ResponseEntity.ok(respon);
+            }
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
         }
     }
 
-    @GetMapping (APIConstant.AuthenticationAPI.VERIFY_PASSWORD)
-    public ResponseEntity<String> verifyPassword(@RequestParam("email") String email, @RequestParam("token") String token) {
-        boolean isVerified = authenticationService.verifyPassword(email, token);
-        if (isVerified) {
-            return ResponseEntity.ok("Account verified successfully!");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token!");
+    @GetMapping(APIConstant.AuthenticationAPI.VERIFY_PASSWORD)
+    public ResponseEntity<ObjectNode> verifyPassword(@RequestParam("email") String email, @RequestParam("token") String token) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            boolean isVerified = authenticationService.verifyPassword(email, token);
+            if (isVerified) {
+                respon.put("status", 200);
+                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
+                return ResponseEntity.ok(respon);
+            } else {
+                respon.put("status", 401);
+                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
+                return ResponseEntity.ok(respon);
+            }
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN VERIFY UPDATE PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
         }
     }
 
@@ -70,21 +96,54 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            AuthenticationResponse authenticationResponse = authenticationService.register(userRequest);
-            if (authenticationResponse == null) {
-                respon.put("error", -1);
-                respon.put("message", "Error: Duplicate Email!");
+            // Check if enough argument?
+            if (userRequest == null || userRequest.getEmail() == null) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.MISSING_ARGUMENT);
                 return ResponseEntity.ok(respon);
             }
-            respon.put("success", 200);
-            respon.put("message", "Register New Users Successfully");
-            respon.set("data", objectMapper.valueToTree(authenticationResponse));
 
+            String email = userRequest.getEmail();
+            String password = userRequest.getPassword();
+
+            // Check email is valid?
+            if (!Utilities.isValidEmail(email)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.INVALID_EMAIL);
+                return ResponseEntity.ok(respon);
+            }
+
+            // Check password is valid? Only check when it's not google registration
+            if (userRequest.getProvider() != Provider.GOOGLE) {
+                if (!Utilities.isValidPassword(password)) {
+                    respon.put("status", 400);
+                    respon.put("message", MessageConstant.INVALID_PASSWORD);
+                    return ResponseEntity.ok(respon);
+                }
+            }
+
+            // Check email is duplicated?
+            if (userService.getUserByEmail(userRequest.getEmail()) != null) {
+                respon.put("status", 409);
+                respon.put("message", MessageConstant.DUPLICATE_REGISTERED_EMAIL);
+                return ResponseEntity.ok(respon);
+            }
+
+            AuthenticationResponse authenticationResponse = authenticationService.register(userRequest);
+            if (authenticationResponse == null) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.REGISTER_NEW_USER_FAILED);
+                return ResponseEntity.ok(respon);
+            }
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
+            respon.set("data", objectMapper.valueToTree(authenticationResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("error", -1);
-            respon.put("message", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN REGISTER ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
         }
     }
 
@@ -92,10 +151,18 @@ public class AuthController {
     public ResponseEntity<ObjectNode> forgotPassword(@RequestParam("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
-        authenticationService.forgotPassword(email);
-        respon.put("error", 200);
-        respon.put("message", "Success: Check Mail For Update Password.");
-        return ResponseEntity.ok(respon);
+        try {
+            authenticationService.forgotPassword(email);
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
+            return ResponseEntity.ok(respon);
+
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN SEND MAIL FORGOT PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.UPDATE_PASWORD)
@@ -105,18 +172,19 @@ public class AuthController {
         try {
             UserResponse userResponse = authenticationService.updatePassword(userRequest);
             if (userResponse == null) {
-                respon.put("error", 200);
-                respon.put("message", "Error: Update failed.");
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.UPDATE_PASSWORD_FAILED);
                 return ResponseEntity.ok(respon);
             }
-            respon.put("success", 200);
-            respon.put("message", "Update Password Successfully");
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.UPDATE_PASSWORD_SUCCESSFULLY);
             respon.set("data", objectMapper.valueToTree(userResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("error", -1);
-            respon.put("message", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN UPDATE PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
         }
     }
 
@@ -127,29 +195,29 @@ public class AuthController {
         try {
             AuthenticationResponse authenticationResponse = authenticationService.login(authenticationRequest);
             if (authenticationResponse == null) {
-                respon.put("error", 200);
-                respon.put("message", "Error: Login failed.");
+                respon.put("status", 401);
+                respon.put("message", MessageConstant.INVALID_EMAIL_OR_PASSWORD);
                 return ResponseEntity.ok(respon);
             }
-            respon.put("success", 200);
-            respon.put("message", "Login Successfully");
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.LOGIN_SUCCESSFULLY);
             respon.set("data", objectMapper.valueToTree(authenticationResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("error", -1);
-            respon.put("message", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN LOGIN. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
         }
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.GOOGLE_LOGIN)
-    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload, HttpServletRequest request, HttpSession session) {
-        String token = payload.get("authRequest");
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance())
-                .setAudience(Collections.singletonList(clientId))
-                .build();
-
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
         try {
+            String token = payload.get("authRequest");
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance()).setAudience(Collections.singletonList(clientId)).build();
             GoogleIdToken idToken = verifier.verify(token);
             if (idToken != null) {
                 GoogleIdToken.Payload googlePayload = idToken.getPayload();
@@ -157,69 +225,39 @@ public class AuthController {
                 String fullName = (String) googlePayload.get("name");
                 String imageUrl = (String) googlePayload.get("picture");
                 String language = (String) googlePayload.get("locale");
-                logger.info(fullName + " " + imageUrl);
                 User user = userService.getUserByEmail(email);
                 if (user == null) {
-                    Image img = Image.builder()
-                            .imageUrl(imageUrl)
-                            .name(fullName + " AVATAR")
-                            .build();
+                    Image img = Image.builder().imageUrl(imageUrl).name(fullName + " AVATAR").build();
 
-                    ResponseEntity<ObjectNode> response = register(
-                            UserRequest
-                                    .builder()
-                                    .email(email)
-                                    .password(clientId)
-                                    .provider(Provider.GOOGLE)
-                                    .language(language)
-                                    .fullName(fullName)
-                                    .build()
-                    );
+                    ResponseEntity<ObjectNode> response = register(UserRequest.builder().email(email).password(clientId).provider(Provider.GOOGLE).language(language).fullName(fullName).build());
 
                     if (response.getStatusCode().is2xxSuccessful() && response.getBody().get("success") != null) {
                         Image i = imageService.saveImage(img);
-                        ObjectMapper objectMapper = new ObjectMapper();
                         UserResponse userResponse = objectMapper.treeToValue(response.getBody().get("data").get("user"), UserResponse.class);
-                        usingImageService.saveUsingImage(
-                                UsingImage
-                                        .builder()
-                                        .image(i)
-                                        .type("AVATAR")
-                                        .imageRelationID(userResponse.getUserID())
-                                        .build()
-                        );
+                        usingImageService.saveUsingImage(UsingImage.builder().image(i).type("AVATAR").imageRelationID(userResponse.getUserID()).build());
 
-                        userResponse.setAvatar(
-                                imageService.getImageUrl(
-                                        usingImageService.getImage("AVATAR", userResponse.getUserID())
-                                )
-                        );
+                        userResponse.setAvatar(imageService.getImageUrl(usingImageService.getImage("AVATAR", userResponse.getUserID())));
 
-                        AuthenticationResponse authenticationResponse = objectMapper.treeToValue(
-                                response.getBody().get("data"), AuthenticationResponse.class
-                        );
+                        AuthenticationResponse authenticationResponse = objectMapper.treeToValue(response.getBody().get("data"), AuthenticationResponse.class);
                         authenticationResponse.setUser(userResponse);
-                        ObjectNode respon = objectMapper.createObjectNode();
-                        respon.put("success", 200);
-                        respon.put("message", "Register New Users Successfully");
+                        respon.put("status", 200);
+                        respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
                         respon.set("data", objectMapper.valueToTree(authenticationResponse));
                         return ResponseEntity.ok(respon);
                     }
                     return response;
                 }
-                return login(
-                        AuthenticationRequest
-                                .builder()
-                                .provider(Provider.GOOGLE)
-                                .email(email)
-                                .password(clientId)
-                                .build()
-                );
+                return login(AuthenticationRequest.builder().provider(Provider.GOOGLE).email(email).password(clientId).build());
             }
-        } catch (GeneralSecurityException | IOException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Google token");
+            respon.put("status", 401);
+            respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
+            return ResponseEntity.ok(respon);
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GOOGLE LOGIN. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Google token");
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.REFRESH_TOKEN)
@@ -229,18 +267,19 @@ public class AuthController {
         try {
             AuthenticationResponse authenticationResponse = authenticationService.refreshToken(request, response);
             if (authenticationResponse == null) {
-                respon.put("error", 200);
-                respon.put("message", "Error: Failed to refresh token.");
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.REFRESH_TOKEN_FAILED);
                 return ResponseEntity.ok(respon);
             }
-            respon.put("success", 200);
-            respon.put("message", "Login Successfully");
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.REFRESH_TOKEN_SUCCESSFULLY);
             respon.set("data", objectMapper.valueToTree(authenticationResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("error", -1);
-            respon.put("message", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respon);
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN REFRESH TOKEN. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
         }
     }
 }
