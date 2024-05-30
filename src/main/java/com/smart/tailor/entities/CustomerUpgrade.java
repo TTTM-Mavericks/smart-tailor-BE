@@ -25,14 +25,11 @@ public class CustomerUpgrade extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID customerUpgradeID;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
     private Customer customer;
 
     @Column(name = "type_of_upgrade")
     @Enumerated(EnumType.STRING)
     private TypeOfUpgrade typeOfUpgrade;
-
-    @Column(name = "upgrade_date_time")
-    private LocalDateTime upgradeDateTime;
 }

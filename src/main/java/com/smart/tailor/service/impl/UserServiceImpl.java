@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
                             .password(userRequest.getPassword())
                             .language(userRequest.getLanguage())
                             .provider(userRequest.getProvider())
-                            .userStatus(false)
+                            .userStatus(true)
                             .fullName(userRequest.getFullName())
                             .phoneNumber(userRequest.getPhoneNumber())
                             .roles(roleService.findRoleByRoleName("CUSTOMER").get())

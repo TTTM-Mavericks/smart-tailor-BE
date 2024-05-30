@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface UsingImageRepository extends JpaRepository<UsingImage, UUID> {
-    Optional<UsingImage> getUsingImageByTypeAndRelationID(String type, UUID relationID);
+    Optional<UsingImage> getUsingImageByTypeAndImageRelationID(String type, UUID imageRelationID);
 }

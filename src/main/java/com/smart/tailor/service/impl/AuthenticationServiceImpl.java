@@ -12,6 +12,7 @@ import com.smart.tailor.utils.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,13 +22,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -35,6 +36,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final EmailSenderService emailSenderService;
+    private final Map<String, Object> storageObject = new HashMap<>();
     private final Map<String, String> verifyAccount = new HashMap<>();
     private final Map<String, String> expiredTimeLink = new HashMap<>();
     private final Map<String, String> forgotAccount = new HashMap<>();
@@ -47,27 +49,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         {
             return null;
         }
+
         userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
         userRequest.setProvider(provider);
-        var user = userService.registerNewUsers(userRequest);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        saveUserToken(user, jwtToken);
 
         if(provider == Provider.LOCAL){
+            // Store Object Class to HashMap
+            storageObject.put(userRequest.getEmail(), (Object) userRequest);
+
             String token = UUID.randomUUID().toString();
-            verifyAccount.put(userRequest.getEmail() + " verify", token);
+            verifyAccount.put(userRequest.getEmail(), token);
 
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime expiredLinkVerify = now.plusMinutes(1);
             expiredTimeLink.put(userRequest.getEmail() + " expiredTime", expiredLinkVerify.toString());
 
-            System.out.println("BEFORE MAIL" + verifyAccount.get(userRequest.getEmail() + " verify"));
+            logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
 
             String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
                     + "?email=" + userRequest.getEmail()
                     + "&token=" + token;
+
             String emailText = "<!DOCTYPE html>" +
                     "<html>" +
                     "<head>" +
@@ -96,7 +99,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     "</body>" +
                     "</html>";
             emailSenderService.sendEmail(userRequest.getEmail(), "Account Verification", emailText);
+            return new AuthenticationResponse();
         }
+
+        // When Register with Provider Google, Facebook, Github,...
+        var user = userService.registerNewUsers(userRequest);
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(user, jwtToken);
+
         return AuthenticationResponse
                 .builder()
                 .accessToken(jwtToken)
@@ -106,13 +117,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
+    public AuthenticationResponse login(AuthenticationRequest authenticationRequest){
         try {
             if (authenticationRequest.getProvider() != Provider.GOOGLE) {
                 if (authenticationRequest.getPassword().isBlank() || authenticationRequest.getPassword().isEmpty() ||
                         authenticationRequest.getEmail().isEmpty() || authenticationRequest.getEmail().isBlank()) {
                     throw new Exception("MISSING ARGUMENT");
                 }
+                User existedUser = userService.getUserByEmail(authenticationRequest.getEmail());
+                if(existedUser == null){
+                    throw new Exception("USER IS NOT EXISTED");
+                }
+
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 authenticationRequest.getEmail(),
@@ -175,11 +191,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(currentTime.isAfter(expiredTime)){
             return false;
         }
-        String oldToken = verifyAccount.get(email + " verify");
+        String oldToken = verifyAccount.get(email);
         logger.info(" Get Token From HashMap {}", oldToken);
         if(oldToken.equals(token))
         {
-            userService.updateStatusAccount(email);
+            UserRequest userRequest = (UserRequest) storageObject.get(email);
+            var user = userService.registerNewUsers(userRequest);
+            // Clear storage
+            storageObject.remove(email);
             verifyAccount.remove(oldToken);
             expiredTimeLink.remove(expiredTime);
             return true;
@@ -190,13 +209,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void forgotPassword(String email) {
         String token = UUID.randomUUID().toString();
-        forgotAccount.put(email + " forgotPassword", token);
+        forgotAccount.put(email, token);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredLinkVerify = now.plusMinutes(1);
 
         expiredTimeLink.put(email + " expiredTimeForgotPassword", expiredLinkVerify.toString());
 
-        System.out.println("BEFORE MAIL " + forgotAccount.get(email + " forgotPassword"));
+        logger.info("Before Mail Email : {}, token : {}", email, forgotAccount.get(email));
+
         String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify-password"
                 + "?email=" + email
                 + "&token=" + token;
@@ -238,7 +258,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(currentTime.isAfter(expiredTime)){
             return false;
         }
-        String oldToken = forgotAccount.get(email + " forgotPassword");
+        String oldToken = forgotAccount.get(email);
         logger.info(" Get Token From HashMap {}", oldToken);
         if(oldToken.equals(token))
         {

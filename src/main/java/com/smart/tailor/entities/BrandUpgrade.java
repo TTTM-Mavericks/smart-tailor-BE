@@ -32,7 +32,4 @@ public class BrandUpgrade extends AuditEntity implements Serializable {
     @Column(name = "type_of_upgrade")
     @Enumerated(EnumType.STRING)
     private TypeOfUpgrade typeOfUpgrade;
-
-    @Column(name = "upgrade_date_time")
-    private LocalDateTime upgradeDateTime;
 }

@@ -24,8 +24,12 @@ public class Payment extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID paymentID;
 
-    @Column(name = "relation_id")
-    private UUID relationID;
+    @Column(name = "upgrade_relation_id")
+    private UUID upgradeRelationID;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
+    private Order order;
 
     @Column(name = "status")
     private Boolean status;
@@ -36,8 +40,4 @@ public class Payment extends AuditEntity implements Serializable {
 
     @Column(name = "payment_goods")
     private String paymentGoods;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
-    private Order order;
 }
