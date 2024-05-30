@@ -44,17 +44,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse register(UserRequest userRequest) {
-        User existedUser = userService.getUserByEmail(userRequest.getEmail());
-        if(existedUser != null)
-        {
-            return null;
-        }
-
         userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
         userRequest.setProvider(provider);
 
-        if(provider == Provider.LOCAL){
+        if (provider == Provider.LOCAL) {
+            // check if Object exist in HashMap
+            UserRequest checkUserRequest = (UserRequest) storageObject.get(userRequest.getEmail());
+            if (checkUserRequest != null) {
+                String oldToken = verifyAccount.get(userRequest.getEmail());
+                LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(userRequest.getEmail() + " expiredTime"));
+                verifyAccount.remove(oldToken);
+                expiredTimeLink.remove(expiredTime);
+                storageObject.remove(userRequest.getEmail());
+            }
+
             // Store Object Class to HashMap
             storageObject.put(userRequest.getEmail(), (Object) userRequest);
 
@@ -117,7 +121,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse login(AuthenticationRequest authenticationRequest){
+    public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
         try {
             if (authenticationRequest.getProvider() != Provider.GOOGLE) {
                 if (authenticationRequest.getPassword().isBlank() || authenticationRequest.getPassword().isEmpty() ||
@@ -125,7 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     throw new Exception("MISSING ARGUMENT");
                 }
                 User existedUser = userService.getUserByEmail(authenticationRequest.getEmail());
-                if(existedUser == null){
+                if (existedUser == null) {
                     throw new Exception("USER IS NOT EXISTED");
                 }
 
@@ -188,13 +192,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public Boolean verifyUser(String email, String token) {
         LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTime"));
         LocalDateTime currentTime = LocalDateTime.now();
-        if(currentTime.isAfter(expiredTime)){
+        String oldToken = verifyAccount.get(email);
+        if (currentTime.isAfter(expiredTime)) {
+            verifyAccount.remove(oldToken);
+            expiredTimeLink.remove(expiredTime);
+            storageObject.remove(email);
             return false;
         }
-        String oldToken = verifyAccount.get(email);
         logger.info(" Get Token From HashMap {}", oldToken);
-        if(oldToken.equals(token))
-        {
+        if (oldToken.equals(token)) {
             UserRequest userRequest = (UserRequest) storageObject.get(email);
             var user = userService.registerNewUsers(userRequest);
             // Clear storage
@@ -255,13 +261,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public Boolean verifyPassword(String email, String token) {
         LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTimeForgotPassword"));
         LocalDateTime currentTime = LocalDateTime.now();
-        if(currentTime.isAfter(expiredTime)){
+        String oldToken = forgotAccount.get(email);
+        if (currentTime.isAfter(expiredTime)) {
+            forgotAccount.remove(oldToken);
+            expiredTimeLink.remove(expiredTime);
             return false;
         }
-        String oldToken = forgotAccount.get(email);
         logger.info(" Get Token From HashMap {}", oldToken);
-        if(oldToken.equals(token))
-        {
+        if (oldToken.equals(token)) {
             forgotAccount.remove(oldToken);
             expiredTimeLink.remove(expiredTime);
             return true;
