@@ -1,5 +1,6 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Token;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -126,11 +128,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (authenticationRequest.getProvider() != Provider.GOOGLE) {
                 if (authenticationRequest.getPassword().isBlank() || authenticationRequest.getPassword().isEmpty() ||
                         authenticationRequest.getEmail().isEmpty() || authenticationRequest.getEmail().isBlank()) {
-                    throw new Exception("MISSING ARGUMENT");
+                    throw new Exception(MessageConstant.MISSING_ARGUMENT);
                 }
                 User existedUser = userService.getUserByEmail(authenticationRequest.getEmail());
                 if (existedUser == null) {
-                    throw new Exception("USER IS NOT EXISTED");
+                    throw new Exception(MessageConstant.USER_NOT_FOUND);
                 }
 
                 authenticationManager.authenticate(
@@ -185,6 +187,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String userEmail;
+        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+            return new AuthenticationResponse();
+        }
+        refreshToken = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail != null) {
+            User user = null;
+            try {
+                user = userService.getUserByEmail(userEmail);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            if (jwtService.isValidToken(refreshToken, user)) {
+                var accessToken = jwtService.generateToken(user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, accessToken);
+                var authResponse = AuthenticationResponse
+                        .builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .user(userService.convertToUserResponse(user))
+                        .build();
+
+                return authResponse;
+            }
+        }
         return null;
     }
 

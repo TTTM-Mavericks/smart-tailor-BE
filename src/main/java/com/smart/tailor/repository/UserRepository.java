@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query(value = "select u.* from users u where u.email = ?1", nativeQuery = true)
     User getByEmail(String email);
+
+    Optional<User> findByPhoneNumber(String phoneNumber);
 }

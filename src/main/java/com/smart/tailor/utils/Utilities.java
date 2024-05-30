@@ -44,4 +44,8 @@ public class Utilities {
             return false;
         }
     }
+
+    public static boolean isValidString(String str){
+        return !str.isBlank() && !str.isEmpty();
+    }
 }

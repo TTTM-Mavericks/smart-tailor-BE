@@ -1,6 +1,7 @@
 package com.smart.tailor.entities;
 
 
+import com.smart.tailor.enums.ERole;
 import com.smart.tailor.enums.Provider;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,10 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 @Entity
@@ -63,7 +61,7 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roles.getRoleName()));
     }
 
     @Override

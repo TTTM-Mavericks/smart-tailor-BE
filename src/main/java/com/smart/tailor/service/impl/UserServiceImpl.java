@@ -3,6 +3,7 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.entities.Token;
 import com.smart.tailor.entities.User;
+import com.smart.tailor.enums.ERole;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.*;
@@ -91,5 +92,14 @@ public class UserServiceImpl implements UserService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public UserResponse getUserByPhoneNumber(String phoneNumber) {
+        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+        if(user.isPresent()){
+            return userMapper.mapperToUserResponse(user.get());
+        }
+        return null;
     }
 }

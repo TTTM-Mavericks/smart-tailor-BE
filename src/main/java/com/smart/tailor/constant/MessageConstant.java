@@ -13,6 +13,7 @@ public class MessageConstant {
      */
     public static final String INVALID_EMAIL = "Invalid Email!";
     public static final String INVALID_PASSWORD = "Invalid Password!";
+    public static final String INVALID_PHONE_NUMBER_FORMAT = "Invalid phone Number format!";
 
 
     /**
@@ -39,4 +40,11 @@ public class MessageConstant {
     public static final String UPDATE_PASSWORD_FAILED = "Failed To Update Password!";
     public static final String REGISTER_NEW_USER_FAILED = "Failed To Register New User!";
     public static final String REFRESH_TOKEN_FAILED = "Failed To Refresh Token!";
+
+    /**
+     * USER
+     */
+    /*    FAIL     */
+    public static final String USER_NOT_FOUND = "User Not Found!";
+    public static final String DUPLICATE_REGISTER_PHONE = "Duplicate Register Phone!";
 }

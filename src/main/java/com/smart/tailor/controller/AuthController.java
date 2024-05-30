@@ -28,10 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(APIConstant.AuthenticationAPI.AUTHENTICATION)
@@ -50,6 +52,18 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
+            if (!Utilities.isValidString(email) || !Utilities.isValidString(token)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(respon);
+            }
+
+            if (!Utilities.isValidEmail(email)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.INVALID_EMAIL);
+                return ResponseEntity.ok(respon);
+            }
+
             boolean isVerified = authenticationService.verifyUser(email, token);
             if (isVerified) {
                 respon.put("status", 200);
@@ -73,6 +87,18 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
+            if (!Utilities.isValidString(email) || !Utilities.isValidString(token)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(respon);
+            }
+
+            if (!Utilities.isValidEmail(email)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.INVALID_EMAIL);
+                return ResponseEntity.ok(respon);
+            }
+
             boolean isVerified = authenticationService.verifyPassword(email, token);
             if (isVerified) {
                 respon.put("status", 200);
@@ -122,6 +148,25 @@ public class AuthController {
                 }
             }
 
+            // Check PhoneNumber is Exist or Not
+            var phoneOptional = Optional.ofNullable(userRequest.getPhoneNumber());
+            if(phoneOptional.isPresent()){
+
+                var phone = phoneOptional.get();
+                if(!Utilities.isValidVietnamesePhoneNumber(phone)){
+                    respon.put("status", 409);
+                    respon.put("message", MessageConstant.INVALID_PHONE_NUMBER_FORMAT);
+                    return ResponseEntity.ok(respon);
+                }
+
+                var userResponse = userService.getUserByPhoneNumber(phone);
+                if(userResponse != null){
+                    respon.put("status", 409);
+                    respon.put("message", MessageConstant.DUPLICATE_REGISTER_PHONE);
+                    return ResponseEntity.ok(respon);
+                }
+            }
+
             // Check email is duplicated?
             if (userService.getUserByEmail(userRequest.getEmail()) != null) {
                 respon.put("status", 409);
@@ -152,6 +197,19 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
+            if (!Utilities.isValidString(email)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(respon);
+            }
+
+            // Check email is valid?
+            if (!Utilities.isValidEmail(email)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.INVALID_EMAIL);
+                return ResponseEntity.ok(respon);
+            }
+
             authenticationService.forgotPassword(email);
             respon.put("status", 200);
             respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
@@ -170,6 +228,13 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
+            // Check email is valid?
+            if (!Utilities.isValidString(userRequest.getPassword())) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(respon);
+            }
+
             UserResponse userResponse = authenticationService.updatePassword(userRequest);
             if (userResponse == null) {
                 respon.put("status", 400);
