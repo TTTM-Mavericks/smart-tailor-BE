@@ -27,8 +27,8 @@ public class UsingImage extends AuditEntity implements Serializable {
     @JoinColumn(name = "image_id", referencedColumnName = "image_id")
     private Image image;
 
-    @Column(name = "relation_id")
-    private UUID relationID;
+    @Column(name = "image_relation_id")
+    private UUID imageRelationID;
 
     private String type;
 }

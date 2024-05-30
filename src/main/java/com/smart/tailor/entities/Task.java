@@ -38,9 +38,6 @@ public class Task extends AuditEntity implements Serializable {
 
     private String detail;
 
-    @Column(name = "date_time")
-    private LocalDateTime dateTime;
-
     @Column(name = "task_status")
     private Boolean taskStatus;
 

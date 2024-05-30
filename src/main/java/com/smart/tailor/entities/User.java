@@ -42,6 +42,7 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
 
     private String language;
 
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @ManyToOne
@@ -52,6 +53,7 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
+    @Column(name = "user_status")
     private Boolean userStatus;
 
     @Override

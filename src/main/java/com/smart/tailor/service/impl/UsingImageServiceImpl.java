@@ -21,11 +21,10 @@ public class UsingImageServiceImpl implements UsingImageService {
 
     @Override
     public UUID getImage(String type, UUID relationID) {
-        Optional<UsingImage> usingImage = usingImageRepository.getUsingImageByTypeAndRelationID(type, relationID);
+        Optional<UsingImage> usingImage = usingImageRepository.getUsingImageByTypeAndImageRelationID(type, relationID);
         if (usingImage.isPresent()) {
             return usingImage.get().getImage().getImageID();
         }
         return null;
     }
-
 }

@@ -33,7 +33,4 @@ public class Notification extends AuditEntity implements Serializable {
     private Boolean status;
 
     private String detail;
-
-    @Column(name = "date_time")
-    private LocalDateTime dateTime;
 }

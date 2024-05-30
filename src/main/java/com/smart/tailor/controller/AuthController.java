@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(APIConstant.AuthenticationAPI.AUTHENTICATION)
@@ -67,13 +66,13 @@ public class AuthController {
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.REGISTER)
-    public ResponseEntity<ObjectNode> register(@RequestBody UserRequest userRequest, HttpSession session) {
+    public ResponseEntity<ObjectNode> register(@RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             AuthenticationResponse authenticationResponse = authenticationService.register(userRequest);
             if (authenticationResponse == null) {
-                respon.put("error", 200);
+                respon.put("error", -1);
                 respon.put("message", "Error: Duplicate Email!");
                 return ResponseEntity.ok(respon);
             }
@@ -174,8 +173,7 @@ public class AuthController {
                                     .provider(Provider.GOOGLE)
                                     .language(language)
                                     .fullName(fullName)
-                                    .build(),
-                            session
+                                    .build()
                     );
 
                     if (response.getStatusCode().is2xxSuccessful() && response.getBody().get("success") != null) {
@@ -187,7 +185,7 @@ public class AuthController {
                                         .builder()
                                         .image(i)
                                         .type("AVATAR")
-                                        .relationID(userResponse.getUserID())
+                                        .imageRelationID(userResponse.getUserID())
                                         .build()
                         );
 

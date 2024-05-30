@@ -25,4 +25,10 @@ public class APIConstant {
         public static final String LOG_OUT = "/log-out";
         public static final String REFRESH_TOKEN = "/refresh-token";
     }
+
+    public class RoleAPI {
+        public static final String ROLE = APIConstant.API + "/roles";
+        public static final String GET_ALL_ROLES = "/get-all-roles";
+        public static final String ADD_NEW_ROLES = "/add-new-roles";
+    }
 }

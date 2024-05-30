@@ -40,7 +40,4 @@ public class Report extends AuditEntity implements Serializable {
     private TypeOfReport typeOfReport;
 
     private String content;
-
-    @Column(name = "report_date_time")
-    private LocalDateTime reportDateTime;
 }
