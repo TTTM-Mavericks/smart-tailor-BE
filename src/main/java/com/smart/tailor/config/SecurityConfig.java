@@ -3,16 +3,19 @@ package com.smart.tailor.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
-
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -20,7 +23,10 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final RestAccessDenyEntryPoint restAccessDenyEntryPoint;
+    private final RestUnauthorizedEntryPoint restUnauthorizedEntryPoint;
     private final LogoutHandler logoutHandler;
+    private final AuthenticationProvider authenticationProvider;
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/auth/**",
             "/v2/api-docs",
@@ -36,32 +42,41 @@ public class SecurityConfig {
             "/ws/**"
     };
 
+    private static final String[] authenticatedRole = {
+         "ADMIN", "MANAGER", "ACCOUNTANT", "CUSTOMER", "EMPLOYEE"
+    };
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeRequests()
-                .requestMatchers(WHITE_LIST_URL)
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                .exceptionHandling(access -> {
+                            access.accessDeniedHandler(restAccessDenyEntryPoint);
+                            access.authenticationEntryPoint(restUnauthorizedEntryPoint);
+                })
+                .authorizeHttpRequests(auth -> {
+                            auth.requestMatchers("/api/v1/auth/update-password").hasAnyRole(authenticatedRole);
+                            auth.requestMatchers(WHITE_LIST_URL).permitAll();
+                            auth.anyRequest().authenticated();
+                    }
+                )
+//                .authorizeRequests()
+//                .requestMatchers(WHITE_LIST_URL)
+//                .permitAll()
+//                .anyRequest()
+//                .authenticated()
 //                .and()
 //                .oauth2Login()
 //                .userInfoEndpoint()
 //                .userService(oauth2UserService)
 //                .and()
 //                .successHandler(oauthLoginSuccessHandler)
-                .and()
+//                .and()
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .httpBasic(Customizer.withDefaults())
+                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new SimpleCORSFilter(), WebAsyncManagerIntegrationFilter.class)
-                .logout(logout ->
-                        logout.logoutUrl("/api/v1/auth/log-out")
-                                .addLogoutHandler(logoutHandler)
-                                .logoutSuccessHandler(
-                                        (request, response, authentication) -> SecurityContextHolder.clearContext()
-                                )
-                );
-        ;
+                .addFilterBefore(new SimpleCORSFilter(), WebAsyncManagerIntegrationFilter.class);
         return httpSecurity.build();
     }
 }

@@ -23,4 +23,6 @@ public interface UserService {
     List<UserResponse> getAllUserResponse();
 
     Boolean updateStatusAccount(String email);
+
+    UserResponse getUserByPhoneNumber(String phoneNumber);
 }

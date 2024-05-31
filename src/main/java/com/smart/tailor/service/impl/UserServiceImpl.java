@@ -92,4 +92,13 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
+
+    @Override
+    public UserResponse getUserByPhoneNumber(String phoneNumber) {
+        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+        if(user.isPresent()){
+            return userMapper.mapperToUserResponse(user.get());
+        }
+        return null;
+    }
 }
