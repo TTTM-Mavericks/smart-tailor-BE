@@ -1,7 +1,5 @@
 package com.smart.tailor.config;
 
-import com.smart.tailor.service.CustomOAuth2UserService;
-import com.smart.tailor.service.OAuthLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,8 +7,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
 
@@ -19,9 +19,8 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 @RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private final CustomOAuth2UserService oauth2UserService;
-    private final OAuthLoginSuccessHandler oauthLoginSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final LogoutHandler logoutHandler;
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/auth/**",
             "/v2/api-docs",
@@ -44,8 +43,8 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers(WHITE_LIST_URL)
                 .permitAll()
-//                .anyRequest()
-//                .authenticated()
+                .anyRequest()
+                .authenticated()
 //                .and()
 //                .oauth2Login()
 //                .userInfoEndpoint()
@@ -54,7 +53,15 @@ public class SecurityConfig {
 //                .successHandler(oauthLoginSuccessHandler)
                 .and()
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new SimpleCORSFilter(), WebAsyncManagerIntegrationFilter.class);
+                .addFilterBefore(new SimpleCORSFilter(), WebAsyncManagerIntegrationFilter.class)
+                .logout(logout ->
+                        logout.logoutUrl("/api/v1/auth/log-out")
+                                .addLogoutHandler(logoutHandler)
+                                .logoutSuccessHandler(
+                                        (request, response, authentication) -> SecurityContextHolder.clearContext()
+                                )
+                );
+        ;
         return httpSecurity.build();
     }
 }

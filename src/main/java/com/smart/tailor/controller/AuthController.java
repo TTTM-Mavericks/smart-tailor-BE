@@ -91,6 +91,52 @@ public class AuthController {
         }
     }
 
+    @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY + "/{email}")
+    public ResponseEntity<ObjectNode> checkVerify(@PathVariable("email") String email) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            boolean isVerified = authenticationService.checkVerify(email);
+            if (isVerified) {
+                respon.put("status", 200);
+                respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
+                return ResponseEntity.ok(respon);
+            } else {
+                respon.put("status", 401);
+                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                return ResponseEntity.ok(respon);
+            }
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN CHECK VERIFY PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
+    @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_PASSWORD + "/{email}")
+    public ResponseEntity<ObjectNode> checkVerifyPassword(@PathVariable("email") String email) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            boolean isVerified = authenticationService.checkVerifyPassword(email);
+            if (isVerified) {
+                respon.put("status", 200);
+                respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
+                return ResponseEntity.ok(respon);
+            } else {
+                respon.put("status", 401);
+                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                return ResponseEntity.ok(respon);
+            }
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN CHECK VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
     @PostMapping(APIConstant.AuthenticationAPI.REGISTER)
     public ResponseEntity<ObjectNode> register(@RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -170,6 +216,37 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
+            if (userRequest == null) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.BAD_REQUEST);
+                return ResponseEntity.ok(respon);
+            }
+
+            if (userRequest.getEmail() == null) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(respon);
+            }
+
+            String email = userRequest.getEmail();
+            if (!Utilities.isValidEmail(email)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.INVALID_EMAIL);
+                return ResponseEntity.ok(respon);
+            }
+
+            if (userRequest.getPassword() == null) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(respon);
+            }
+            String password = userRequest.getPassword();
+            if (!Utilities.isValidPassword(password)) {
+                respon.put("status", 400);
+                respon.put("message", MessageConstant.INVALID_PASSWORD);
+                return ResponseEntity.ok(respon);
+            }
+
             UserResponse userResponse = authenticationService.updatePassword(userRequest);
             if (userResponse == null) {
                 respon.put("status", 400);
@@ -224,14 +301,14 @@ public class AuthController {
                 String email = googlePayload.getEmail();
                 String fullName = (String) googlePayload.get("name");
                 String imageUrl = (String) googlePayload.get("picture");
-                String language = (String) googlePayload.get("locale");
+                String language = (String) googlePayload.get("language");
                 User user = userService.getUserByEmail(email);
                 if (user == null) {
                     Image img = Image.builder().imageUrl(imageUrl).name(fullName + " AVATAR").build();
 
                     ResponseEntity<ObjectNode> response = register(UserRequest.builder().email(email).password(clientId).provider(Provider.GOOGLE).language(language).fullName(fullName).build());
 
-                    if (response.getStatusCode().is2xxSuccessful() && response.getBody().get("success") != null) {
+                    if (response.getStatusCode().is2xxSuccessful()) {
                         Image i = imageService.saveImage(img);
                         UserResponse userResponse = objectMapper.treeToValue(response.getBody().get("data").get("user"), UserResponse.class);
                         usingImageService.saveUsingImage(UsingImage.builder().image(i).type("AVATAR").imageRelationID(userResponse.getUserID()).build());

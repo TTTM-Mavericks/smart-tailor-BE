@@ -26,4 +26,8 @@ public interface AuthenticationService {
     void forgotPassword(String email);
 
     Boolean verifyPassword(String email, String token);
+
+    Boolean checkVerify(String email);
+
+    Boolean checkVerifyPassword(String email);
 }
