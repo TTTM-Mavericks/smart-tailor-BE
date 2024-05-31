@@ -66,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             verifyAccount.put(userRequest.getEmail(), token);
 
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime expiredLinkVerify = now.plusMinutes(1);
+            LocalDateTime expiredLinkVerify = now.plusMinutes(5);
             expiredTimeLink.put(userRequest.getEmail() + " expiredTime", expiredLinkVerify.toString());
 
             logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
@@ -215,9 +215,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void forgotPassword(String email) {
         String token = UUID.randomUUID().toString();
+
+        if (expiredTimeLink.get(email + " expiredTimeForgotPassword") != null) {
+            LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTimeForgotPassword"));
+            String oldToken = forgotAccount.get(email);
+            forgotAccount.remove(oldToken);
+            expiredTimeLink.remove(expiredTime);
+        }
+
         forgotAccount.put(email, token);
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiredLinkVerify = now.plusMinutes(1);
+        LocalDateTime expiredLinkVerify = now.plusMinutes(5);
 
         expiredTimeLink.put(email + " expiredTimeForgotPassword", expiredLinkVerify.toString());
 
@@ -263,15 +271,40 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         LocalDateTime currentTime = LocalDateTime.now();
         String oldToken = forgotAccount.get(email);
         if (currentTime.isAfter(expiredTime)) {
-            forgotAccount.remove(oldToken);
-            expiredTimeLink.remove(expiredTime);
             return false;
         }
         logger.info(" Get Token From HashMap {}", oldToken);
         if (oldToken.equals(token)) {
-            forgotAccount.remove(oldToken);
+            forgotAccount.remove(email);
             expiredTimeLink.remove(expiredTime);
             return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean checkVerify(String email) {
+        try {
+            var registerUser = userService.getUserByEmail(email);
+            return registerUser != null && registerUser.getUserStatus();
+        } catch (Exception ex) {
+            logger.error("ERROR IN AuthenticationServiceImpl - checkVerify: {}", ex.getMessage());
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean checkVerifyPassword(String email) {
+        try {
+            String timeLinkObject = expiredTimeLink.get(email + " expiredTimeForgotPassword");
+            if (timeLinkObject == null) {
+                return false;
+            }
+            String oldToken = forgotAccount.get(email);
+            return oldToken == null || oldToken.isEmpty() || oldToken.isBlank();
+
+        } catch (Exception ex) {
+            logger.error("ERROR IN AuthenticationServiceImpl - checkVerifyPassword: {}", ex.getMessage());
         }
         return false;
     }

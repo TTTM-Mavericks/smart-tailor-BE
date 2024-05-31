@@ -31,6 +31,8 @@ public class MessageConstant {
     public static final String UPDATE_PASSWORD_SUCCESSFULLY = "Update Password Successfully!";
     public static final String LOGIN_SUCCESSFULLY = "Login Successfully!";
     public static final String ACCOUNT_VERIFIED_SUCCESSFULLY = "Account Verified Successfully!";
+    public static final String ACCOUNT_IS_VERIFIED = "Account Is Verified!";
+    public static final String ACCOUNT_NOT_VERIFIED = "Account Is Not Verified!";
     public static final String REFRESH_TOKEN_SUCCESSFULLY = "Refresh Token Successfully!";
     /*    FAIL     */
     public static final String DUPLICATE_REGISTERED_EMAIL = "Duplicate Registered Email!";
