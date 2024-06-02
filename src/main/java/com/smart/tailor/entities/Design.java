@@ -35,4 +35,8 @@ public class Design extends AuditEntity implements Serializable {
 
     @Column(name = "public_status")
     private Boolean publicStatus;
+
+    @Lob
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
 }

@@ -31,5 +31,5 @@ public class UserResponse {
 
     private String roleName;
 
-    private String avatar;
+    private String imageUrl;
 }

@@ -53,8 +53,4 @@ public class Brand extends AuditEntity implements Serializable {
 
     @Column(name = "number_of_violations")
     private Integer numberOfViolations;
-
-    @ManyToOne
-    @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id")
-    private ExpertTailoring expertTailoring;
 }

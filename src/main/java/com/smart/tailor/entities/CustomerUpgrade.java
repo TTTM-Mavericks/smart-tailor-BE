@@ -17,9 +17,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CustomerUpgrade extends AuditEntity implements Serializable {
+public class CustomerUpgrade implements Serializable {
     @Id
     @Column(name = "customer_upgrade_id", unique = true, nullable = false)
     @UuidGenerator
@@ -29,7 +28,11 @@ public class CustomerUpgrade extends AuditEntity implements Serializable {
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
     private Customer customer;
 
-    @Column(name = "type_of_upgrade")
-    @Enumerated(EnumType.STRING)
-    private TypeOfUpgrade typeOfUpgrade;
+    @OneToOne
+    @JoinColumn(name = "payment_id", referencedColumnName = "payment_id")
+    private Payment payment;
+
+    private LocalDateTime createDate;
+
+    private LocalDateTime expiredDate;
 }

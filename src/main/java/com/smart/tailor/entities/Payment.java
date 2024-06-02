@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,24 +21,34 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "payment_id")
+    @Column(name = "payment_id", unique = true, nullable = false)
     @UuidGenerator
     private UUID paymentID;
 
-    @Column(name = "upgrade_relation_id")
-    private UUID upgradeRelationID;
+    @Column(name = "payment_sender_id")
+    private UUID paymentSenderID;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
-    private Order order;
+    private String paymentSenderName;
 
-    @Column(name = "status")
-    private Boolean status;
+    private String paymentSenderBankCode;
 
-    private Double amount;
+    private String paymentSenderBankNumber;
 
-    private String method;
+    @Column(name = "payment_recipient_id")
+    private UUID paymentRecipientID;
 
-    @Column(name = "payment_goods")
-    private String paymentGoods;
+    private String paymentRecipientName;
+
+    private String paymentRecipientBankCode;
+
+    private String paymentRecipientBankNumber;
+
+    private Double paymentAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod;
+
+    @Column(name = "payment_status")
+    private Boolean paymentStatus;
 }

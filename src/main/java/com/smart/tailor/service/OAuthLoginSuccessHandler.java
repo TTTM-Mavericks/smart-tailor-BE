@@ -2,9 +2,7 @@ package com.smart.tailor.service;
 
 
 import com.smart.tailor.constant.APIConstant;
-import com.smart.tailor.entities.Image;
 import com.smart.tailor.entities.User;
-import com.smart.tailor.entities.UsingImage;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
@@ -16,18 +14,15 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
 public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
     private final UserService userService;
-    private final ImageService imageService;
     private final Logger logger = LoggerFactory.getLogger(OAuthLoginSuccessHandler.class);
 
     @Override
@@ -52,13 +47,14 @@ public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
                     .fullName(fullName)
                     .provider(Provider.GOOGLE)
                     .language(language)
+                    .imageUrl(imageUrl)
                     .build();
 
-            Image img = Image.builder()
-                    .imageUrl(imageUrl)
-                    .name(fullName + " AVATAR")
-                    .build();
-            img = imageService.saveImage(img);
+//            Image img = Image.builder()
+//                    .imageUrl(imageUrl)
+//                    .name(fullName + " AVATAR")
+//                    .build();
+//            img = imageService.saveImage(img);
 
             if(oauth2ClientName.equalsIgnoreCase(Provider.FACEBOOK.name()))
             {
@@ -66,7 +62,7 @@ public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
             }
 
             request.setAttribute("authRequest", userRequest);
-            request.setAttribute("img", img);
+            request.setAttribute("img", imageUrl);
 
         } else {
             targetUrl += APIConstant.AuthenticationAPI.GOOGLE_LOGIN;

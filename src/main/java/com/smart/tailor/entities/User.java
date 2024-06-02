@@ -56,6 +56,10 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
     @Column(name = "user_status")
     private Boolean userStatus;
 
+    @Lob
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
     @Override
     public Map<String, Object> getAttributes() {
         return null;

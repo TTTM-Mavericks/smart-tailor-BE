@@ -1,6 +1,5 @@
 package com.smart.tailor.entities;
 
-import com.smart.tailor.enums.MaskItemName;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -11,26 +10,25 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "mask_item")
+@Table(name = "item_mask")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MaskItem extends AuditEntity implements Serializable {
+public class ItemMask extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "item_id", unique = true, nullable = false)
+    @Column(name = "item_mask_id", unique = true, nullable = false)
     @UuidGenerator
-    private UUID itemID;
+    private UUID itemMaskID;
 
     @ManyToOne
     @JoinColumn(name = "part_of_design_id", referencedColumnName = "part_of_design_id")
     private PartOfDesign partOfDesign;
 
-    @Column(name = "mask_item_name")
-    @Enumerated(EnumType.STRING)
-    private MaskItemName maskItemName;
+    @Column(name = "item_mask_name")
+    private String itemMaskName;
 
     @Column(name = "type_of_item")
     private String typeOfItem;
@@ -46,4 +44,8 @@ public class MaskItem extends AuditEntity implements Serializable {
 
     @Column(name = "scale_y")
     private Float scaleY;
+
+    @Lob
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
 }

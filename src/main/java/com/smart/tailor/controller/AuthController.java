@@ -8,14 +8,10 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Image;
 import com.smart.tailor.entities.User;
-import com.smart.tailor.entities.UsingImage;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.service.AuthenticationService;
-import com.smart.tailor.service.ImageService;
 import com.smart.tailor.service.UserService;
-import com.smart.tailor.service.UsingImageService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
@@ -38,8 +34,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
-    private final UsingImageService usingImageService;
-    private final ImageService imageService;
     private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
@@ -304,16 +298,12 @@ public class AuthController {
                 String language = (String) googlePayload.get("language");
                 User user = userService.getUserByEmail(email);
                 if (user == null) {
-                    Image img = Image.builder().imageUrl(imageUrl).name(fullName + " AVATAR").build();
 
                     ResponseEntity<ObjectNode> response = register(UserRequest.builder().email(email).password(clientId).provider(Provider.GOOGLE).language(language).fullName(fullName).build());
 
                     if (response.getStatusCode().is2xxSuccessful()) {
-                        Image i = imageService.saveImage(img);
                         UserResponse userResponse = objectMapper.treeToValue(response.getBody().get("data").get("user"), UserResponse.class);
-                        usingImageService.saveUsingImage(UsingImage.builder().image(i).type("AVATAR").imageRelationID(userResponse.getUserID()).build());
-
-                        userResponse.setAvatar(imageService.getImageUrl(usingImageService.getImage("AVATAR", userResponse.getUserID())));
+                        userResponse.setImageUrl(imageUrl);
 
                         AuthenticationResponse authenticationResponse = objectMapper.treeToValue(response.getBody().get("data"), AuthenticationResponse.class);
                         authenticationResponse.setUser(userResponse);

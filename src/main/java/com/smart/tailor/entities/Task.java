@@ -32,7 +32,7 @@ public class Task extends AuditEntity implements Serializable {
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id")
     private Order order;
 

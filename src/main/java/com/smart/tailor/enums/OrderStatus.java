@@ -1,6 +1,6 @@
 package com.smart.tailor.enums;
 
-public enum StatusOrder {
+public enum OrderStatus {
     PENDING,
     CANCEL,
     PROCESSING,

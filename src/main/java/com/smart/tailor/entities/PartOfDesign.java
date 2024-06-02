@@ -1,6 +1,5 @@
 package com.smart.tailor.entities;
 
-import com.smart.tailor.enums.PartOfDesignName;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +28,13 @@ public class PartOfDesign extends AuditEntity implements Serializable {
     private Design design;
 
     @Column(name = "part_of_design_name")
-    @Enumerated(EnumType.STRING)
-    private PartOfDesignName partOfDesignName;
+    private String partOfDesignName;
+
+    @Lob
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
+    @Lob
+    @Column(name = "success_image_url", columnDefinition = "TEXT")
+    private String successImageUrl;
 }
