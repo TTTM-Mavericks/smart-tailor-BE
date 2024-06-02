@@ -34,10 +34,6 @@ public class Product extends AuditEntity implements Serializable {
     @Column(name = "product_name")
     private String productName;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    private User user;
-
     @Column(name = "price_per_product")
     private Double pricePerProduct;
 
@@ -45,8 +41,13 @@ public class Product extends AuditEntity implements Serializable {
 
     private Integer rating;
 
+    private String description;
+
     @Column(name = "public_status")
     private Boolean publicStatus;
 
     private String size;
+
+    @Column(name = "product_status")
+    private Boolean productStatus;
 }

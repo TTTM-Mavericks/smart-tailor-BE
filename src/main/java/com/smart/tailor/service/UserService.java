@@ -4,8 +4,6 @@ package com.smart.tailor.service;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
 import java.util.Optional;
 

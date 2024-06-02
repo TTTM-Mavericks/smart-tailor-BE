@@ -10,22 +10,24 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "image")
+@Table(name = "system_properties")
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Image extends AuditEntity implements Serializable {
+@EntityListeners(AuditingEntityListener.class)
+public class SystemProperties extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "image_id", unique = true, nullable = false)
+    @Column(name = "property_id", unique = true, nullable = false)
     @UuidGenerator
-    private UUID imageID;
+    private UUID propertyID;
 
-    private String name;
+    private String propertyName;
 
-    @Lob
-    @Column(name = "image_url", columnDefinition = "TEXT")
-    private String imageUrl;
+    private String propertyUnit;
+
+    private String propertyDetail;
+
+    private Boolean propertyStatus;
 }

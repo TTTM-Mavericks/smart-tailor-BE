@@ -1,6 +1,5 @@
 package com.smart.tailor.entities;
 
-import com.smart.tailor.enums.TypeOfReport;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,32 +7,30 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "report")
+@Table(name = "report_image")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Report extends AuditEntity implements Serializable {
+public class ReportImage extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "report_id", unique = true, nullable = false)
+    @Column(name = "report_image_id", unique = true, nullable = false)
     @UuidGenerator
     private UUID reportID;
 
-    @Column(name = "type_of_report")
-    private String typeOfReport;
+    @Column(name = "report_image_name")
+    private String reportImageName;
+
+    @Lob
+    @Column(name = "report_image_url", columnDefinition = "TEXT")
+    private String reportImageUrl;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
-    private Order order;
-
-    private String content;
-
-    @Column(name = "report_status")
-    private Boolean reportStatus;
+    @JoinColumn(name = "report_id", referencedColumnName = "report_id")
+    private Report report;
 }

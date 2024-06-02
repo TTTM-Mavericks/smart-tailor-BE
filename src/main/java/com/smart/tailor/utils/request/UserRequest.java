@@ -28,4 +28,6 @@ public class UserRequest {
 
     @JsonIgnore
     private Provider provider;
+
+    private String imageUrl;
 }
