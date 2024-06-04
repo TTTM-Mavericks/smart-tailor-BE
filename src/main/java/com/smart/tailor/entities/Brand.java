@@ -1,6 +1,6 @@
 package com.smart.tailor.entities;
 
-import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.BrandStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -36,6 +36,10 @@ public class Brand extends AuditEntity implements Serializable {
     @Column(name = "bank_name")
     private String bankName;
 
+    @Column(name = "bank_status")
+    @Enumerated(EnumType.STRING)
+    private BrandStatus brandStatus;
+
     @Column(name = "account_number")
     private String accountNumber;
 
@@ -46,10 +50,6 @@ public class Brand extends AuditEntity implements Serializable {
     private String QR_Payment;
 
     private String address;
-
-    private String province;
-
-    private String district;
 
     @Column(name = "number_of_violations")
     private Integer numberOfViolations;

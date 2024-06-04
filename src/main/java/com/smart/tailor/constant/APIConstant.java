@@ -29,6 +29,18 @@ public class APIConstant {
     }
 
     /**
+     * Brand API
+     */
+    public class BrandAPI {
+        public static final String BRAND = APIConstant.API + "/brand";
+        public static final String GET_BRAND = "/get-brand";
+        public static final String ADD_NEW_BRAND = "/add-new-brand";
+        public static final String CHECK_VERIFY = "/check-verify";
+        public static final String UPLOAD_BRAND_INFOR = "/upload-brand-infor";
+        public static final String VERIFY = "/verify";
+    }
+
+    /**
      * Role API
      */
     public class RoleAPI {
