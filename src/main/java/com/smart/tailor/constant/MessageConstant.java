@@ -7,6 +7,7 @@ public class MessageConstant {
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
     public static final String BAD_REQUEST = "BAD REQUEST";
     public static final String MISSING_ARGUMENT = "MISSING ARGUMENT";
+    public static final String RESOURCE_NOT_FOUND = "Resource Not Found!";
 
     /**
      * FORMATION ERROR
@@ -20,6 +21,15 @@ public class MessageConstant {
      */
     public static final String GET_ALL_ROLES_SUCCESSFULLY = "Get All Roles Successfully!";
     public static final String ROLE_LIST_IS_EMPTY = "Role List Is Empty!";
+    public static final String CAN_NOT_FIND_ROLE = "Can Not Find Role";
+
+    /**
+     * BRAND
+     */
+    public static final String CAN_NOT_FIND_BRAND = "Can Not Find Brand";
+    public static final String GET_BRAND_SUCCESSFULLY = "Get Brand Successfully!";
+    public static final String REGISTER_NEW_BRAND_FAILED = "Failed To Register New Brand!";
+    public static final String REGISTER_NEW_BRAND_SUCCESSFULLY = "Register New Brand Successfully!";
 
 
     /**

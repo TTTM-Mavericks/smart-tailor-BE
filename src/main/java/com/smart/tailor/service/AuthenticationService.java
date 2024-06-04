@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Component
 public interface AuthenticationService {
-    AuthenticationResponse register(UserRequest userRequest);
+    AuthenticationResponse register(UserRequest userRequest) throws Exception;
 
     AuthenticationResponse login(AuthenticationRequest authenticationRequest);
 
@@ -21,7 +21,7 @@ public interface AuthenticationService {
 
     AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    Boolean verifyUser(String email, String token);
+    Boolean verifyUser(String email, String token) throws Exception;
 
     void forgotPassword(String email);
 

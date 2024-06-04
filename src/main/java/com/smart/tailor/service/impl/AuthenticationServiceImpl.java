@@ -44,37 +44,38 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     @Override
-    public AuthenticationResponse register(UserRequest userRequest) {
-        userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
-        userRequest.setProvider(provider);
+    public AuthenticationResponse register(UserRequest userRequest) throws Exception {
+        try {
+            userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+            Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
+            userRequest.setProvider(provider);
 
-        if (provider == Provider.LOCAL) {
-            // check if Object exist in HashMap
-            UserRequest checkUserRequest = (UserRequest) storageObject.get(userRequest.getEmail());
-            if (checkUserRequest != null) {
-                String oldToken = verifyAccount.get(userRequest.getEmail());
-                LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(userRequest.getEmail() + " expiredTime"));
-                verifyAccount.remove(oldToken);
-                expiredTimeLink.remove(expiredTime);
-                storageObject.remove(userRequest.getEmail());
-            }
+            if (provider == Provider.LOCAL) {
+                // check if Object exist in HashMap
+                UserRequest checkUserRequest = (UserRequest) storageObject.get(userRequest.getEmail());
+                if (checkUserRequest != null) {
+                    String oldToken = verifyAccount.get(userRequest.getEmail());
+                    LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(userRequest.getEmail() + " expiredTime"));
+                    verifyAccount.remove(oldToken);
+                    expiredTimeLink.remove(expiredTime);
+                    storageObject.remove(userRequest.getEmail());
+                }
 
-            // Store Object Class to HashMap
-            storageObject.put(userRequest.getEmail(), (Object) userRequest);
+                // Store Object Class to HashMap
+                storageObject.put(userRequest.getEmail(), (Object) userRequest);
 
-            String token = UUID.randomUUID().toString();
-            verifyAccount.put(userRequest.getEmail(), token);
+                String token = UUID.randomUUID().toString();
+                verifyAccount.put(userRequest.getEmail(), token);
 
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime expiredLinkVerify = now.plusMinutes(5);
-            expiredTimeLink.put(userRequest.getEmail() + " expiredTime", expiredLinkVerify.toString());
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime expiredLinkVerify = now.plusMinutes(5);
+                expiredTimeLink.put(userRequest.getEmail() + " expiredTime", expiredLinkVerify.toString());
 
-            logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
+                logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
 
-            String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
-                    + "?email=" + userRequest.getEmail()
-                    + "&token=" + token;
+                String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
+                        + "?email=" + userRequest.getEmail()
+                        + "&token=" + token;
 
 //            String verificationUrl = "http://localhost:6969/api/v1/auth/verify"
 //                    + "?email=" + userRequest.getEmail()
@@ -113,18 +114,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return new AuthenticationResponse();
         }
 
-        // When Register with Provider Google, Facebook, Github,...
-        var user = userService.registerNewUsers(userRequest);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        saveUserToken(user, jwtToken);
+            // When Register with Provider Google, Facebook, Github,...
+            var user = userService.registerNewUsers(userRequest);
+            var jwtToken = jwtService.generateToken(user);
+            var refreshToken = jwtService.generateRefreshToken(user);
+            saveUserToken(user, jwtToken);
 
-        return AuthenticationResponse
-                .builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .user(userService.convertToUserResponse(user))
-                .build();
+            return AuthenticationResponse
+                    .builder()
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .user(userService.convertToUserResponse(user))
+                    .build();
+        } catch (Exception ex) {
+            throw ex;
+        }
     }
 
     @Override
@@ -196,7 +200,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public Boolean verifyUser(String email, String token) {
+    public Boolean verifyUser(String email, String token) throws Exception {
         LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTime"));
         LocalDateTime currentTime = LocalDateTime.now();
         String oldToken = verifyAccount.get(email);
