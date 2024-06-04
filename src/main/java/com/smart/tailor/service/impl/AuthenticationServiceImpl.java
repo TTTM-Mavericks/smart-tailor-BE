@@ -72,13 +72,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
 
-//            String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
-//                    + "?email=" + userRequest.getEmail()
-//                    + "&token=" + token;
-
-            String verificationUrl = "http://localhost:6969/api/v1/auth/verify"
+            String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
                     + "?email=" + userRequest.getEmail()
                     + "&token=" + token;
+
+//            String verificationUrl = "http://localhost:6969/api/v1/auth/verify"
+//                    + "?email=" + userRequest.getEmail()
+//                    + "&token=" + token;
 
             mailService.verifyAccount(userRequest.getEmail(), "Account Verification", verificationUrl);
 
@@ -238,13 +238,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         logger.info("Before Mail Email : {}, token : {}", email, forgotAccount.get(email));
 
-//        String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify-password"
-//                + "?email=" + email
-//                + "&token=" + token;
-
-        String verificationUrl = "http://localhost:6969/api/v1/auth/verify-password"
+        String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify-password"
                 + "?email=" + email
                 + "&token=" + token;
+
+//        String verificationUrl = "http://localhost:6969/api/v1/auth/verify-password"
+//                + "?email=" + email
+//                + "&token=" + token;
 
         mailService.verifyAccount(email, "Forgot Password", verificationUrl);
 //        String emailText = "<!DOCTYPE html>" +
