@@ -27,9 +27,9 @@ public class MailServiceImpl implements MailService {
     private String emailFrom;
 
     @Override
-    public void verifyAccount(String email, String verificationUrl) {
+    public void verifyAccount(String email, String subject, String verificationUrl) {
         String emailTo = email;
-        String emailSubject = "Account Verification";
+        String emailSubject =  subject;
         sendMailVerifyAccount(emailTo, emailSubject, verificationUrl);
     }
 
