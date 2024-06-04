@@ -72,15 +72,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
 
-            String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
-                    + "?email=" + userRequest.getEmail()
-                    + "&token=" + token;
-
-//            String verificationUrl = "http://localhost:6969/api/v1/auth/verify"
+//            String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
 //                    + "?email=" + userRequest.getEmail()
 //                    + "&token=" + token;
 
-            mailService.verifyAccount(userRequest.getEmail(), verificationUrl);
+            String verificationUrl = "http://localhost:6969/api/v1/auth/verify"
+                    + "?email=" + userRequest.getEmail()
+                    + "&token=" + token;
+
+            mailService.verifyAccount(userRequest.getEmail(), "Account Verification", verificationUrl);
 
 //            String emailText = "<!DOCTYPE html>" +
 //                    "<html>" +
@@ -238,38 +238,43 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         logger.info("Before Mail Email : {}, token : {}", email, forgotAccount.get(email));
 
-        String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify-password"
+//        String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify-password"
+//                + "?email=" + email
+//                + "&token=" + token;
+
+        String verificationUrl = "http://localhost:6969/api/v1/auth/verify-password"
                 + "?email=" + email
                 + "&token=" + token;
 
-        String emailText = "<!DOCTYPE html>" +
-                "<html>" +
-                "<head>" +
-                "    <meta charset='UTF-8'>" +
-                "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-                "    <title>Account Verification</title>" +
-                "    <style>" +
-                "        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" +
-                "        .container { width: 100%; padding: 20px; }" +
-                "        .content { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }" +
-                "        .header { font-size: 24px; font-weight: bold; color: #333333; }" +
-                "        .message { font-size: 16px; color: #555555; }" +
-                "        .button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; text-align: center; text-decoration: none; border-radius: 5px; margin-top: 20px; }" +
-                "    </style>" +
-                "</head>" +
-                "<body>" +
-                "    <div class='container'>" +
-                "        <div class='content'>" +
-                "            <div class='header'>Verify Your Account</div>" +
-                "            <div class='message'>Hi " + email + ",</div>" +
-                "            <div class='message'>Thank you for registering. To complete your registration, please verify your email by clicking the button below.</div>" +
-                "            <a href='" + verificationUrl + "' class='button'>Verify Account</a>" +
-                "            <div class='message'>If you did not register for an account, please ignore this email.</div>" +
-                "        </div>" +
-                "    </div>" +
-                "</body>" +
-                "</html>";
-        emailSenderService.sendEmail(email, "Forgot Password", emailText);
+        mailService.verifyAccount(email, "Forgot Password", verificationUrl);
+//        String emailText = "<!DOCTYPE html>" +
+//                "<html>" +
+//                "<head>" +
+//                "    <meta charset='UTF-8'>" +
+//                "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+//                "    <title>Account Verification</title>" +
+//                "    <style>" +
+//                "        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" +
+//                "        .container { width: 100%; padding: 20px; }" +
+//                "        .content { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }" +
+//                "        .header { font-size: 24px; font-weight: bold; color: #333333; }" +
+//                "        .message { font-size: 16px; color: #555555; }" +
+//                "        .button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; text-align: center; text-decoration: none; border-radius: 5px; margin-top: 20px; }" +
+//                "    </style>" +
+//                "</head>" +
+//                "<body>" +
+//                "    <div class='container'>" +
+//                "        <div class='content'>" +
+//                "            <div class='header'>Verify Your Account</div>" +
+//                "            <div class='message'>Hi " + email + ",</div>" +
+//                "            <div class='message'>Thank you for registering. To complete your registration, please verify your email by clicking the button below.</div>" +
+//                "            <a href='" + verificationUrl + "' class='button'>Verify Account</a>" +
+//                "            <div class='message'>If you did not register for an account, please ignore this email.</div>" +
+//                "        </div>" +
+//                "    </div>" +
+//                "</body>" +
+//                "</html>";
+//        emailSenderService.sendEmail(email, "Forgot Password", emailText);
     }
 
     @Override
