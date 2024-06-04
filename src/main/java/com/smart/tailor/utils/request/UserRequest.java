@@ -26,6 +26,8 @@ public class UserRequest {
 
     private String address;
 
+    private String roleName;
+
     @JsonIgnore
     private Provider provider;
 

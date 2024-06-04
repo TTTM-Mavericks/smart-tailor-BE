@@ -1,10 +1,13 @@
 package com.smart.tailor.service.impl;
 
 
+import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
-import com.smart.tailor.service.*;
+import com.smart.tailor.service.RoleService;
+import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,24 +39,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerNewUsers(UserRequest userRequest) {
+    public User registerNewUsers(UserRequest userRequest) throws Exception {
         User savedUser = null;
-        if (!userRequest.getEmail().isEmpty() && !userRequest.getEmail().isBlank() && !userRequest.getPassword().isEmpty() && !userRequest.getPassword().isBlank()) {
-            savedUser = userRepository.save(
-                    User
-                            .builder()
-                            .email(userRequest.getEmail())
-                            .password(userRequest.getPassword())
-                            .language(userRequest.getLanguage())
-                            .provider(userRequest.getProvider())
-                            .userStatus(true)
-                            .fullName(userRequest.getFullName())
-                            .phoneNumber(userRequest.getPhoneNumber())
-                            .roles(roleService.findRoleByRoleName("CUSTOMER").get())
-                            .imageUrl(userRequest.getImageUrl())
-                            .build());
+        try {
+
+            Optional<Roles> role = roleService.findRoleByRoleName(userRequest.getRoleName().trim().toUpperCase());
+            if (!role.isPresent()) {
+                throw new Exception(MessageConstant.CAN_NOT_FIND_ROLE + " " + userRequest.getRoleName());
+            }
+
+            if (!userRequest.getEmail().isEmpty() && !userRequest.getEmail().isBlank() && !userRequest.getPassword().isEmpty() && !userRequest.getPassword().isBlank()) {
+                savedUser = userRepository.save(User.builder().email(userRequest.getEmail()).password(userRequest.getPassword()).language(userRequest.getLanguage()).provider(userRequest.getProvider()).userStatus(true).fullName(userRequest.getFullName()).phoneNumber(userRequest.getPhoneNumber()).roles(role.get()).imageUrl(userRequest.getImageUrl()).build());
+            }
+            return savedUser;
+        } catch (Exception ex) {
+            throw ex;
         }
-        return savedUser;
     }
 
     @Override
@@ -68,8 +69,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean updateStatusAccount(String email) {
         Optional<User> user = userRepository.findByEmail(email);
-        if(user.isPresent())
-        {
+        if (user.isPresent()) {
             user.get().setUserStatus(user.get().getUserStatus() == true ? false : true);
             userRepository.save(user.get());
             return true;

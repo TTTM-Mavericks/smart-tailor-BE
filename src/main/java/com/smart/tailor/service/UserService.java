@@ -16,7 +16,7 @@ public interface UserService {
 
     UserResponse convertToUserResponse(User user);
 
-    User registerNewUsers(UserRequest userRequest);
+    User registerNewUsers(UserRequest userRequest) throws Exception;
 
     List<UserResponse> getAllUserResponse();
 
