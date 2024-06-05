@@ -18,4 +18,6 @@ public interface BrandService {
     UserResponse register(UserRequest userRequest) throws Exception;
 
     Boolean checkVerify(String email);
+
+    Optional<Brand> findBrandByBrandName(String brandName);
 }

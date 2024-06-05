@@ -1,13 +1,25 @@
 package com.smart.tailor;
 
+import com.smart.tailor.entities.Brand;
 import com.smart.tailor.entities.Roles;
+import com.smart.tailor.entities.User;
+import com.smart.tailor.enums.BrandStatus;
+import com.smart.tailor.enums.Provider;
+import com.smart.tailor.repository.BrandRepository;
+import com.smart.tailor.repository.RoleRepository;
+import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
+import com.smart.tailor.service.UserService;
+import com.smart.tailor.utils.Utilities;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 @SpringBootApplication
 @EnableJpaAuditing()
@@ -20,7 +32,7 @@ public class SmartTailorBeApplication {
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(RoleService roleService) {
+    public CommandLineRunner createRoles(RoleService roleService) {
         return args -> {
             if (roleService.findAllRole().size() == 0) {
 
@@ -38,6 +50,39 @@ public class SmartTailorBeApplication {
                 roleService.createRole(accountantRole);
                 roleService.createRole(brandRole);
 
+            }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner createSampleBrand(UserRepository userRepository,
+                                               BrandRepository brandRepository,
+                                               PasswordEncoder passwordEncoder,
+                                               RoleRepository roleRepository) {
+        return args -> {
+            if(userRepository.findAll().size() == 0){
+                User userTest1 = userRepository.save(User.builder()
+                        .email("lalisa@example.com")
+                        .password(passwordEncoder.encode("HASH_PASSWORD"))
+                        .phoneNumber(Utilities.generateRandomNumber())
+                        .userStatus(true)
+                        .provider(Provider.LOCAL)
+                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
+                        .build()
+                );
+
+                User userTest2 = userRepository.save(User.builder()
+                        .email("goyounjung@example.com")
+                        .password(passwordEncoder.encode("HASH_PASSWORD"))
+                        .phoneNumber(Utilities.generateRandomNumber())
+                        .userStatus(true)
+                        .provider(Provider.LOCAL)
+                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
+                        .build()
+                );
+
+                brandRepository.createShortBrand(userTest1.getUserID(),"LA LA LISA BRAND", BrandStatus.ACCEPT.name());
+                brandRepository.createShortBrand(userTest2.getUserID(),"GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
             }
         };
     }

@@ -2,6 +2,7 @@ package com.smart.tailor.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +48,28 @@ public class Utilities {
             sdf.parse(dateStr);
             return true;
         } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    public static String generateRandomNumber(){
+        StringBuilder str = new StringBuilder();
+        Random random = new Random();
+        for(int i = 0; i < 10; i++){
+            str.append(random.nextInt(10));
+        }
+        return str.toString();
+    }
+
+    public static boolean isValidNumber(String str){
+        return str != null && str.matches("-?\\d+(\\.\\d+)?");
+    }
+
+    public static boolean isValidDouble(String str){
+        try{
+            Double.parseDouble(str);
+            return true;
+        }catch (Exception ex){
             return false;
         }
     }
