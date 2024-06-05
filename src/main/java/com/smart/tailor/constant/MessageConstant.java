@@ -8,7 +8,7 @@ public class MessageConstant {
     public static final String BAD_REQUEST = "BAD REQUEST";
     public static final String MISSING_ARGUMENT = "MISSING ARGUMENT";
     public static final String RESOURCE_NOT_FOUND = "Resource Not Found!";
-
+    public static final String INVALID_DATA_TYPE = "Invalid Data Type!";
     /**
      * FORMATION ERROR
      */
@@ -51,4 +51,28 @@ public class MessageConstant {
     public static final String UPDATE_PASSWORD_FAILED = "Failed To Update Password!";
     public static final String REGISTER_NEW_USER_FAILED = "Failed To Register New User!";
     public static final String REFRESH_TOKEN_FAILED = "Failed To Refresh Token!";
+
+    /**
+     * MATERIAL
+     */
+    /*    SUCCESS     */
+    public static final String GET_ALL_MATERIAL_SUCCESSFULLY = "Get All Material Successfully!";
+    public static final String CAN_NOT_FIND_ANY_MATERIAL = "Can Not Find Any Material!";
+    public static final String ADD_NEW_MATERIAL_SUCCESSFULLY = "Add New Material Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_NEW_MATERIAL_FAIL = "Add New Material Fail!";
+    public static final String MATERIAL_IS_EXISTED = "Material is Existed";
+
+    /**
+     * BRAND MATERIAL
+     */
+    /*    SUCCESS     */
+    public static final String GET_ALL_BRAND_MATERIAL_SUCCESSFULLY = "Get All Brand Material Successfully!";
+    public static final String CAN_NOT_FIND_ANY_BRAND_MATERIAL = "Can Not Find Any Brand Material!";
+    public static final String ADD_NEW_BRAND_MATERIAL_SUCCESSFULLY = "Add New Brand Material Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_NEW_BRAND_MATERIAL_FAIL = "Add New Brand Material Fail!";
+    public static final String BRAND_MATERIAL_IS_EXISTED = "Brand Material is Existed";
 }

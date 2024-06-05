@@ -20,13 +20,13 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class Brand extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "brand_id", unique = true, nullable = false)
+    @Column(name = "brand_id")
     @UuidGenerator
     private UUID brandID;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "brand_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "brand_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
     private User user;
 
     private String brandName;
@@ -36,7 +36,7 @@ public class Brand extends AuditEntity implements Serializable {
     @Column(name = "bank_name")
     private String bankName;
 
-    @Column(name = "bank_status")
+    @Column(name = "brand_status")
     @Enumerated(EnumType.STRING)
     private BrandStatus brandStatus;
 
@@ -52,5 +52,5 @@ public class Brand extends AuditEntity implements Serializable {
     private String address;
 
     @Column(name = "number_of_violations")
-    private Integer numberOfViolations;
+    private Integer numberOfViolations = 0;
 }

@@ -160,4 +160,9 @@ public class BrandServiceImpl implements BrandService {
         }
         return false;
     }
+
+    @Override
+    public Optional<Brand> findBrandByBrandName(String brandName) {
+        return brandRepository.findBrandByBrandName(brandName);
+    }
 }
