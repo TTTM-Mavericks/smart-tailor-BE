@@ -48,4 +48,32 @@ public class APIConstant {
         public static final String GET_ALL_ROLES = "/get-all-roles";
         public static final String ADD_NEW_ROLES = "/add-new-roles";
     }
+
+    /**
+     * Category API
+     */
+    public class CategoryAPI {
+        public static final String CATEGORY = APIConstant.API + "/category";
+        public static final String ADD_NEW_CATEGORY = "/add-new-category";
+        public static final String GET_ALL_CATEGORY = "/get-all-category";
+    }
+
+    /**
+     * Material API
+     */
+    public class MaterialAPI {
+        public static final String MATERIAL = APIConstant.API + "/material";
+        public static final String ADD_NEW_MATERIAL = "/add-new-material";
+        public static final String GET_ALL_MATERIAL = "/get-all-material";
+    }
+
+    /**
+     * Brand Material API
+     */
+    public class BrandMaterialAPI {
+        public static final String BRAND_MATERIAL = APIConstant.API + "/brand-material";
+        public static final String ADD_NEW_BRAND_MATERIAL = "/add-new-brand-material";
+        public static final String GET_ALL_BRAND_MATERIAL = "/get-all-brand-material";
+        public static final String GET_ALL_BRAND_MATERIAL_BY_BRAND_NAME = "/get-all-brand-material-by-brand-name";
+    }
 }

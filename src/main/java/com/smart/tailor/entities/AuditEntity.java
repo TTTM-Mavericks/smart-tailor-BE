@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

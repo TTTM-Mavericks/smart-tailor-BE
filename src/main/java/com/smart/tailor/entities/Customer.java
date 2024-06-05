@@ -45,5 +45,5 @@ public class Customer extends AuditEntity implements Serializable {
     private String district;
 
     @Column(name = "number_of_violations")
-    private Integer numberOfViolations;
+    private Integer numberOfViolations = 0;
 }
