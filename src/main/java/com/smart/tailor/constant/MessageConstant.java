@@ -9,6 +9,7 @@ public class MessageConstant {
     public static final String MISSING_ARGUMENT = "MISSING ARGUMENT";
     public static final String RESOURCE_NOT_FOUND = "Resource Not Found!";
     public static final String INVALID_DATA_TYPE = "Invalid Data Type!";
+    public static final String INVALID_EXCEL_FILE_FORMAT = "Invalid excel file format";
     /**
      * FORMATION ERROR
      */
@@ -71,8 +72,10 @@ public class MessageConstant {
     public static final String GET_ALL_BRAND_MATERIAL_SUCCESSFULLY = "Get All Brand Material Successfully!";
     public static final String CAN_NOT_FIND_ANY_BRAND_MATERIAL = "Can Not Find Any Brand Material!";
     public static final String ADD_NEW_BRAND_MATERIAL_SUCCESSFULLY = "Add New Brand Material Successfully!";
+    public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Brand Material By Excel File Successfully!";
 
     /*    FAIL     */
     public static final String ADD_NEW_BRAND_MATERIAL_FAIL = "Add New Brand Material Fail!";
+    public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Brand Material By Excel File Fail!";
     public static final String BRAND_MATERIAL_IS_EXISTED = "Brand Material is Existed";
 }

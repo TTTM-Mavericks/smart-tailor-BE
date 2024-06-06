@@ -18,5 +18,16 @@ public class BrandMaterialRequest {
 
     private String unit;
 
-    private String price;
+    private Double price;
+
+    @Override
+    public String toString() {
+        return
+            "brandName='" + brandName + '\'' +
+            ", materialName='" + materialName + '\'' +
+            ", categoryName='" + categoryName + '\'' +
+            ", unit='" + unit + '\'' +
+            ", price=" + price;
+    }
+
 }
