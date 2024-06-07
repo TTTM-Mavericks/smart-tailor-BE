@@ -48,10 +48,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                     Cell cell = cellIterator.next();
                     switch (cellIndex){
                         case 0 :
-                            brandMaterialRequest.setMaterialName(cell.getStringCellValue());
+                            brandMaterialRequest.setCategoryName(cell.getStringCellValue());
                             break;
                         case 1 :
-                            brandMaterialRequest.setCategoryName(cell.getStringCellValue());
+                            brandMaterialRequest.setMaterialName(cell.getStringCellValue());
                             break;
                         case 2 :
                             brandMaterialRequest.setUnit(cell.getStringCellValue());

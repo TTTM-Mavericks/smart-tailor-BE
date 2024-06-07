@@ -6,14 +6,12 @@ import com.smart.tailor.entities.BrandMaterial;
 import com.smart.tailor.entities.BrandMaterialKey;
 import com.smart.tailor.mapper.BrandMaterialMapper;
 import com.smart.tailor.repository.BrandMaterialRepository;
-import com.smart.tailor.service.BrandMaterialService;
-import com.smart.tailor.service.BrandService;
-import com.smart.tailor.service.ExcelImportService;
-import com.smart.tailor.service.MaterialService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +36,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     private final BrandMaterialRepository brandMaterialRepository;
     private final BrandMaterialMapper brandMaterialMapper;
     private final ExcelImportService excelImportService;
+    private final ExcelExportService excelExportService;
     private final Logger logger = LoggerFactory.getLogger(BrandMaterialServiceImpl.class);
 
     @Override
@@ -167,5 +166,12 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                     .data("Error Data : " + invalidData)
                     .build();
         }
+    }
+
+    @Override
+    public List<BrandMaterialResponse> getAllBrandMaterialByExportExcelData(HttpServletResponse response) throws IOException{
+        var brandMaterialResponses = getAllBrandMaterial();
+        excelExportService.exportBrandMaterialData(brandMaterialResponses, response);
+        return brandMaterialResponses;
     }
 }
