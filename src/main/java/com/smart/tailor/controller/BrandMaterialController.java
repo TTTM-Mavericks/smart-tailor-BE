@@ -9,6 +9,7 @@ import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @RestController
@@ -91,7 +93,7 @@ public class BrandMaterialController {
     }
 
 
-    @GetMapping(APIConstant.BrandMaterialAPI.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE)
+    @PostMapping(APIConstant.BrandMaterialAPI.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE)
     public ResponseEntity<ObjectNode> addNewBrandMaterialByExcelFile(@RequestParam("file") MultipartFile file,
                                                                      @RequestParam("brandName") String brandName) {
         ObjectNode response = objectMapper.createObjectNode();
@@ -105,6 +107,32 @@ public class BrandMaterialController {
             response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
             logger.error("ERROR IN CREATE BRAND MATERIALS BY EXCEL FILE. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping(APIConstant.BrandMaterialAPI.GET_ALL_BRAND_MATERIAL_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> getAllBrandMaterialsByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            httpServletResponse.setContentType("application/octet-stream");
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename = Brand_Material_List.xlsx";
+            httpServletResponse.setHeader(headerKey, headerValue);
+            var materials = brandMaterialService.getAllBrandMaterialByExportExcelData(httpServletResponse);
+            if (!materials.isEmpty()) {
+                response.put("status", HttpStatus.OK.value());
+                response.put("message", MessageConstant.GET_ALL_BRAND_MATERIAL_SUCCESSFULLY);
+                response.set("data", objectMapper.valueToTree(materials));
+            } else {
+                response.put("status", HttpStatus.OK.value());
+                response.put("message", MessageConstant.CAN_NOT_FIND_ANY_BRAND_MATERIAL);
+            }
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET ALL MATERIALS. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(response);
         }
     }
