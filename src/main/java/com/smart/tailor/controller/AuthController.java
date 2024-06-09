@@ -7,11 +7,16 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.smart.tailor.constant.APIConstant;
+import com.smart.tailor.constant.LinkConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.TypeOfVerification;
+import com.smart.tailor.event.RegistrationCompleteEvent;
+import com.smart.tailor.event.listener.RegistrationCompleteEventListener;
 import com.smart.tailor.service.AuthenticationService;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.service.VerificationTokenService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
@@ -23,11 +28,14 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(APIConstant.AuthenticationAPI.AUTHENTICATION)
@@ -35,23 +43,26 @@ import java.util.Map;
 public class AuthController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
+    private final VerificationTokenService verificationTokenService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final RegistrationCompleteEventListener registrationCompleteEventListener;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String clientId;
 
     @GetMapping(APIConstant.AuthenticationAPI.VERIFY)
-    public ResponseEntity<ObjectNode> verifyAccount(@RequestParam("email") String email, @RequestParam("token") String token) {
+    public ResponseEntity<ObjectNode> verifyAccount(@RequestParam("token") UUID token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            boolean isVerified = authenticationService.verifyUser(email, token);
-            if (isVerified) {
+            var message = authenticationService.verifyUser(token);
+            if (message.equalsIgnoreCase(MessageConstant.TOKEN_IS_VALID)) {
                 respon.put("status", 200);
                 respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
                 return ResponseEntity.ok(respon);
             } else {
-                respon.put("status", 401);
-                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
+                respon.put("status", 400);
+                respon.put("message", message);
                 return ResponseEntity.ok(respon);
             }
         } catch (Exception ex) {
@@ -62,28 +73,61 @@ public class AuthController {
         }
     }
 
-    @GetMapping(APIConstant.AuthenticationAPI.VERIFY_PASSWORD)
-    public ResponseEntity<ObjectNode> verifyPassword(@RequestParam("email") String email, @RequestParam("token") String token) {
+    @GetMapping(APIConstant.AuthenticationAPI.RESEND_VERIFICATION_TOKEN)
+    public ResponseEntity<ObjectNode> resendVerificationToken(@RequestParam("token") UUID token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            boolean isVerified = authenticationService.verifyPassword(email, token);
-            if (isVerified) {
-                respon.put("status", 200);
-                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
-                return ResponseEntity.ok(respon);
-            } else {
-                respon.put("status", 401);
-                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
-                return ResponseEntity.ok(respon);
+            var verificationToken = verificationTokenService.generateNewVerificationToken(token);
+            var user = verificationToken.getUser();
+            var typeOfVerification = verificationToken.getTypeOfVerification();
+            String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
+
+            switch (typeOfVerification){
+                case VERIFY_ACCOUNT ->  {
+                    registrationCompleteEventListener.sendVerificationEmail(user, verificationURL);
+                }
+                case FORGOT_PASSWORD -> {
+                    registrationCompleteEventListener.sendPasswordResetEmail(user, verificationURL);
+                }
+                case CHANGE_PASSWORD ->  {
+                    registrationCompleteEventListener.sendChangePasswordMail(user, verificationURL);
+                }
             }
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.RESEND_MAIL_NEW_TOKEN_SUCCESSFULLY);
+
+            return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("status", -1);
             respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN VERIFY UPDATE PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
+            logger.error("ERROR IN VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
     }
+
+//    @GetMapping(APIConstant.AuthenticationAPI.VERIFY_PASSWORD)
+//    public ResponseEntity<ObjectNode> verifyPassword(@RequestParam("email") String email, @RequestParam("token") String token) {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        ObjectNode respon = objectMapper.createObjectNode();
+//        try {
+//            boolean isVerified = authenticationService.verifyPassword(email, token);
+//            if (isVerified) {
+//                respon.put("status", 200);
+//                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
+//                return ResponseEntity.ok(respon);
+//            } else {
+//                respon.put("status", 401);
+//                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
+//                return ResponseEntity.ok(respon);
+//            }
+//        } catch (Exception ex) {
+//            respon.put("status", -1);
+//            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+//            logger.error("ERROR IN VERIFY UPDATE PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
+//            return ResponseEntity.ok(respon);
+//        }
+//    }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY + "/{email}")
     public ResponseEntity<ObjectNode> checkVerify(@PathVariable("email") String email) {
@@ -169,15 +213,24 @@ public class AuthController {
                 return ResponseEntity.ok(respon);
             }
 
-            AuthenticationResponse authenticationResponse = authenticationService.register(userRequest);
-            if (authenticationResponse == null) {
+            var registeredUser = authenticationService.register(userRequest);
+
+            if (registeredUser == null) {
                 respon.put("status", 400);
                 respon.put("message", MessageConstant.REGISTER_NEW_USER_FAILED);
                 return ResponseEntity.ok(respon);
             }
+
+            if(registeredUser.getProvider().equals(Provider.LOCAL)){
+                applicationEventPublisher.publishEvent(new RegistrationCompleteEvent(registeredUser, TypeOfVerification.VERIFY_ACCOUNT));
+                logger.info("Publish Event When Register By Local Successfully");
+                respon.put("message", MessageConstant.SEND_MAIL_FOR_VERIFY_ACCOUNT_SUCCESSFULLY);
+            }
+            else{
+                respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
+            }
             respon.put("status", 200);
-            respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
-            respon.set("data", objectMapper.valueToTree(authenticationResponse));
+            respon.set("data", objectMapper.valueToTree(userService.convertToUserResponse(registeredUser)));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("status", -1);
@@ -192,9 +245,17 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            authenticationService.forgotPassword(email);
-            respon.put("status", 200);
-            respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
+            var user = authenticationService.forgotPassword(email);
+            if(user != null){
+                var verificationToken = verificationTokenService.findByUserID(user.getUserID());
+                String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
+                registrationCompleteEventListener.sendPasswordResetEmail(user, verificationURL);
+                respon.put("status", HttpStatus.OK.value());
+                respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
+            }else{
+                respon.put("status", HttpStatus.BAD_REQUEST.value());
+                respon.put("message", MessageConstant.EMAIL_IS_NOT_EXISTED);
+            }
             return ResponseEntity.ok(respon);
 
         } catch (Exception ex) {
@@ -205,7 +266,33 @@ public class AuthController {
         }
     }
 
-    @PostMapping(APIConstant.AuthenticationAPI.UPDATE_PASWORD)
+    @GetMapping(APIConstant.AuthenticationAPI.CHANGE_PASSWORD)
+    public ResponseEntity<ObjectNode> changePassword(@RequestParam("email") String email) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            var user = authenticationService.changePassword(email);
+            if(user != null){
+                var verificationToken = verificationTokenService.findByUserID(user.getUserID());
+                String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
+                registrationCompleteEventListener.sendChangePasswordMail(user, verificationURL);
+                respon.put("status", HttpStatus.OK.value());
+                respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
+            }else{
+                respon.put("status", HttpStatus.BAD_REQUEST.value());
+                respon.put("message", MessageConstant.EMAIL_IS_NOT_EXISTED);
+            }
+            return ResponseEntity.ok(respon);
+
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN SEND MAIL FORGOT PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
+    @PostMapping(APIConstant.AuthenticationAPI.UPDATE_PASSWORD)
     public ResponseEntity<ObjectNode> updatePassword(@RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();

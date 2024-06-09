@@ -27,13 +27,7 @@ public class MailServiceImpl implements MailService {
     private String emailFrom;
 
     @Override
-    public void verifyAccount(String email, String subject, String verificationUrl) {
-        String emailTo = email;
-        String emailSubject =  subject;
-        sendMailVerifyAccount(emailTo, emailSubject, verificationUrl);
-    }
-
-    private void sendMailVerifyAccount(String emailTo, String emailSubject, String verificationUrl) {
+    public void sendMailVerifyAccount(String emailTo, String emailSubject, String verificationUrl) {
         try{
             MimeMessage message = javaMailSender.createMimeMessage();
 
@@ -55,4 +49,53 @@ public class MailServiceImpl implements MailService {
             ex.printStackTrace();
         }
     }
+
+    @Override
+    public void sendMailChangePassword(String emailTo, String emailSubject, String verificationUrl) {
+        try{
+            MimeMessage message = javaMailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    message,
+                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name()
+            );
+
+            helper.setFrom(emailFrom);
+            helper.setTo(emailTo);
+            helper.setSubject(emailSubject);
+            helper.setText(thymeleafService.createThymeleafForChangePassword(emailTo, verificationUrl), true);
+            logger.info("Inside Send Mail Change Password Method");
+            javaMailSender.send(message);
+        }
+        catch (Exception ex )
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendMailResetPassword(String emailTo, String emailSubject, String verificationUrl) {
+        try{
+            MimeMessage message = javaMailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    message,
+                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name()
+            );
+
+            helper.setFrom(emailFrom);
+            helper.setTo(emailTo);
+            helper.setSubject(emailSubject);
+            helper.setText(thymeleafService.createThymeleafForResetPassword(emailTo, verificationUrl), true);
+            logger.info("Inside Send Mail Reset Password Method");
+            javaMailSender.send(message);
+        }
+        catch (Exception ex )
+        {
+            ex.printStackTrace();
+        }
+    }
 }
+

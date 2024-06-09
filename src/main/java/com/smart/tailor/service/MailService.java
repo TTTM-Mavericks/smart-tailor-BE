@@ -1,5 +1,9 @@
 package com.smart.tailor.service;
 
 public interface MailService {
-   void verifyAccount(String email, String emailSubject, String verificationUrl);
+   void sendMailVerifyAccount(String emailTo, String emailSubject, String verificationUrl);
+
+   void sendMailResetPassword(String emailTo, String emailSubject, String verificationUrl);
+
+   void sendMailChangePassword(String emailTo, String emailSubject, String verificationUrl);
 }

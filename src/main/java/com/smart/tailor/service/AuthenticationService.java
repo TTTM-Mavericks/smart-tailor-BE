@@ -1,6 +1,7 @@
 package com.smart.tailor.service;
 
 
+import com.smart.tailor.entities.User;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
@@ -10,10 +11,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 public interface AuthenticationService {
-    AuthenticationResponse register(UserRequest userRequest) throws Exception;
+    User register(UserRequest userRequest) throws Exception;
 
     AuthenticationResponse login(AuthenticationRequest authenticationRequest);
 
@@ -21,9 +23,11 @@ public interface AuthenticationService {
 
     AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    Boolean verifyUser(String email, String token) throws Exception;
+    String verifyUser(UUID token);
 
-    void forgotPassword(String email);
+    User forgotPassword(String email);
+
+    User changePassword(String email);
 
     Boolean verifyPassword(String email, String token);
 

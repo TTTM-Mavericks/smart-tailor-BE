@@ -17,8 +17,9 @@ public class APIConstant {
         public static final String CHECK_VERIFY = "/check-verify";
         public static final String CHECK_VERIFY_PASSWORD = "/check-verify-password";
         public static final String VERIFY_PASSWORD = "/verify-password";
+        public static final String CHANGE_PASSWORD = "/change-password";
         public static final String FORGOT_PASSWORD = "/forgot-password";
-        public static final String UPDATE_PASWORD = "/update-password";
+        public static final String UPDATE_PASSWORD = "/update-password";
         public static final String GOOGLE_REGISTER = "/google-register";
         public static final String FACEBOOK_REGISTER = "/facebook-register";
         public static final String LOGIN = "/login";
@@ -26,6 +27,7 @@ public class APIConstant {
         public static final String FACEBOOK_LOGIN = "/facebook-login";
         public static final String LOG_OUT = "/log-out";
         public static final String REFRESH_TOKEN = "/refresh-token";
+        public static final String RESEND_VERIFICATION_TOKEN = "/resend-verification-token";
     }
 
     /**

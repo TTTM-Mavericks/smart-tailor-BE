@@ -4,6 +4,7 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
+import com.smart.tailor.enums.Provider;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
@@ -49,7 +50,20 @@ public class UserServiceImpl implements UserService {
             }
 
             if (!userRequest.getEmail().isEmpty() && !userRequest.getEmail().isBlank() && !userRequest.getPassword().isEmpty() && !userRequest.getPassword().isBlank()) {
-                savedUser = userRepository.save(User.builder().email(userRequest.getEmail()).password(userRequest.getPassword()).language(userRequest.getLanguage()).provider(userRequest.getProvider()).userStatus(true).fullName(userRequest.getFullName()).phoneNumber(userRequest.getPhoneNumber()).roles(role.get()).imageUrl(userRequest.getImageUrl()).build());
+                savedUser = userRepository.save(
+                        User
+                            .builder()
+                            .email(userRequest.getEmail())
+                            .password(userRequest.getPassword())
+                            .language(userRequest.getLanguage())
+                            .provider(userRequest.getProvider())
+                            .userStatus(userRequest.getProvider().equals(Provider.LOCAL) ? false : true)
+                            .fullName(userRequest.getFullName())
+                            .phoneNumber(userRequest.getPhoneNumber())
+                            .roles(role.get())
+                            .imageUrl(userRequest.getImageUrl())
+                            .build()
+                );
             }
             return savedUser;
         } catch (Exception ex) {
