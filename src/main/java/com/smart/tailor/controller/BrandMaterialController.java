@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -60,7 +61,7 @@ public class BrandMaterialController {
                 response.put("message", MessageConstant.GET_ALL_BRAND_MATERIAL_SUCCESSFULLY);
                 response.set("data", objectMapper.valueToTree(materials));
             } else {
-                response.put("status", HttpStatus.OK.value());
+                response.put("status", HttpStatus.BAD_REQUEST.value());
                 response.put("message", MessageConstant.CAN_NOT_FIND_BRAND);
             }
             return ResponseEntity.ok(response);
@@ -84,8 +85,28 @@ public class BrandMaterialController {
         } catch (Exception ex) {
             response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN CREATE MATERIALS. ERROR MESSAGE: {}", ex.getMessage());
+            logger.error("ERROR IN CREATE BRAND MATERIALS. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(response);
         }
     }
+
+
+    @GetMapping(APIConstant.BrandMaterialAPI.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> addNewBrandMaterialByExcelFile(@RequestParam("file") MultipartFile file,
+                                                                     @RequestParam("brandName") String brandName) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var apiResponse = brandMaterialService.createBrandMaterialByImportExcelData(file, brandName);
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN CREATE BRAND MATERIALS BY EXCEL FILE. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
 }
