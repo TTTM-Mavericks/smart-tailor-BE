@@ -21,6 +21,8 @@ public class ThymeleafServiceImpl implements ThymeleafService {
     private static final String MAIL_TEMPLATE_SUFFIX = ".html";
     private static final String UTF_8 = "UTF-8";
     private static final String TEMPLATE_VERIFY_ACCOUNT = "TemplateVerifyAccount";
+    private static final String TEMPLATE_RESET_PASSWORD = "TemplateResetPassword";
+    private static final String TEMPLATE_CHANGE_PASSWORD = "TemplateChangePassword";
     private static TemplateEngine templateEngine;
 
     static
@@ -57,5 +59,21 @@ public class ThymeleafServiceImpl implements ThymeleafService {
         context.setVariable("email", email);
         context.setVariable("verificationUrl", verificationUrl);
         return templateEngine.process(TEMPLATE_VERIFY_ACCOUNT, context);
+    }
+
+    @Override
+    public String createThymeleafForResetPassword(String email, String verificationUrl) {
+        final Context context = new Context();
+        context.setVariable("email", email);
+        context.setVariable("verificationUrl", verificationUrl);
+        return templateEngine.process(TEMPLATE_RESET_PASSWORD, context);
+    }
+
+    @Override
+    public String createThymeleafForChangePassword(String email, String verificationUrl) {
+        final Context context = new Context();
+        context.setVariable("email", email);
+        context.setVariable("verificationUrl", verificationUrl);
+        return templateEngine.process(TEMPLATE_CHANGE_PASSWORD, context);
     }
 }

@@ -1,9 +1,12 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Token;
 import com.smart.tailor.entities.User;
+import com.smart.tailor.entities.VerificationToken;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.TokenType;
+import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
@@ -24,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,6 +40,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final MailService mailService;
+    private final VerificationTokenService verificationTokenService;
     private final EmailSenderService emailSenderService;
     private final Map<String, Object> storageObject = new HashMap<>();
     private final Map<String, String> verifyAccount = new HashMap<>();
@@ -44,88 +49,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     @Override
-    public AuthenticationResponse register(UserRequest userRequest) throws Exception {
+    public User register(UserRequest userRequest) throws Exception {
         try {
+            // Store Persist User in DB whether Provider is Local or Google
+            // Login with Provider Local Status is false otherwise true
             userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
             Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
             userRequest.setProvider(provider);
-
-            if (provider == Provider.LOCAL) {
-                // check if Object exist in HashMap
-                UserRequest checkUserRequest = (UserRequest) storageObject.get(userRequest.getEmail());
-                if (checkUserRequest != null) {
-                    String oldToken = verifyAccount.get(userRequest.getEmail());
-                    LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(userRequest.getEmail() + " expiredTime"));
-                    verifyAccount.remove(oldToken);
-                    expiredTimeLink.remove(expiredTime);
-                    storageObject.remove(userRequest.getEmail());
-                }
-
-                // Store Object Class to HashMap
-                storageObject.put(userRequest.getEmail(), (Object) userRequest);
-
-                String token = UUID.randomUUID().toString();
-                verifyAccount.put(userRequest.getEmail(), token);
-
-                LocalDateTime now = LocalDateTime.now();
-                LocalDateTime expiredLinkVerify = now.plusMinutes(5);
-                expiredTimeLink.put(userRequest.getEmail() + " expiredTime", expiredLinkVerify.toString());
-
-                logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
-
-                String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify"
-                        + "?email=" + userRequest.getEmail()
-                        + "&token=" + token;
-
-//            String verificationUrl = "http://localhost:6969/api/v1/auth/verify"
-//                    + "?email=" + userRequest.getEmail()
-//                    + "&token=" + token;
-
-            mailService.verifyAccount(userRequest.getEmail(), "Account Verification", verificationUrl);
-
-//            String emailText = "<!DOCTYPE html>" +
-//                    "<html>" +
-//                    "<head>" +
-//                    "    <meta charset='UTF-8'>" +
-//                    "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-//                    "    <title>Account Verification</title>" +
-//                    "    <style>" +
-//                    "        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" +
-//                    "        .container { width: 100%; padding: 20px; }" +
-//                    "        .content { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }" +
-//                    "        .header { font-size: 24px; font-weight: bold; color: #333333; }" +
-//                    "        .message { font-size: 16px; color: #555555; }" +
-//                    "        .button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; text-align: center; text-decoration: none; border-radius: 5px; margin-top: 20px; }" +
-//                    "    </style>" +
-//                    "</head>" +
-//                    "<body>" +
-//                    "    <div class='container'>" +
-//                    "        <div class='content'>" +
-//                    "            <div class='header'>Verify Your Account</div>" +
-//                    "            <div class='message'>Hi " + userRequest.getEmail() + ",</div>" +
-//                    "            <div class='message'>Thank you for registering. To complete your registration, please verify your email by clicking the button below.</div>" +
-//                    "            <a href='" + verificationUrl + "' class='button'>Verify Account</a>" +
-//                    "            <div class='message'>If you did not register for an account, please ignore this email.</div>" +
-//                    "        </div>" +
-//                    "    </div>" +
-//                    "</body>" +
-//                    "</html>";
-//            emailSenderService.sendEmail(userRequest.getEmail(), "Account Verification", emailText);
-            return new AuthenticationResponse();
-        }
-
-            // When Register with Provider Google, Facebook, Github,...
-            var user = userService.registerNewUsers(userRequest);
-            var jwtToken = jwtService.generateToken(user);
-            var refreshToken = jwtService.generateRefreshToken(user);
-            saveUserToken(user, jwtToken);
-
-            return AuthenticationResponse
-                    .builder()
-                    .accessToken(jwtToken)
-                    .refreshToken(refreshToken)
-                    .user(userService.convertToUserResponse(user))
-                    .build();
+            return userService.registerNewUsers(userRequest);
         } catch (Exception ex) {
             throw ex;
         }
@@ -142,6 +73,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 User existedUser = userService.getUserByEmail(authenticationRequest.getEmail());
                 if (existedUser == null) {
                     throw new Exception("USER IS NOT EXISTED");
+                }
+
+                if(!existedUser.getUserStatus()){
+                    throw new Exception("USER ARE NOT ALLOW TO ENTER!");
                 }
 
                 authenticationManager.authenticate(
@@ -200,85 +135,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public Boolean verifyUser(String email, String token) throws Exception {
-        LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTime"));
-        LocalDateTime currentTime = LocalDateTime.now();
-        String oldToken = verifyAccount.get(email);
-        if (currentTime.isAfter(expiredTime)) {
-            verifyAccount.remove(oldToken);
-            expiredTimeLink.remove(expiredTime);
-            storageObject.remove(email);
-            return false;
+    public String verifyUser(UUID token) {
+        // Check token is existed or not
+        Optional<VerificationToken> verificationTokenOptional = verificationTokenService.findByToken(token);
+        if(verificationTokenOptional.isEmpty()) {
+            return MessageConstant.INVALID_VERIFICATION_TOKEN;
         }
-        logger.info(" Get Token From HashMap {}", oldToken);
-        if (oldToken.equals(token)) {
-            UserRequest userRequest = (UserRequest) storageObject.get(email);
-            var user = userService.registerNewUsers(userRequest);
-            // Clear storage
-            storageObject.remove(email);
-            verifyAccount.remove(oldToken);
-            expiredTimeLink.remove(expiredTime);
-            return true;
+        var verificationToken = verificationTokenOptional.get();
+
+        User user = verificationToken.getUser();
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        // Check ExpirationDateTime with CurrentDateTime
+        if(currentDateTime.isAfter(verificationToken.getExpirationDateTime())){
+            return MessageConstant.TOKEN_ALREADY_EXPIRED;
         }
-        return false;
+
+        // Change Status User
+        if(verificationToken.getTypeOfVerification().equals(TypeOfVerification.VERIFY_ACCOUNT)){
+            userService.updateStatusAccount(user.getEmail());
+        }
+        return MessageConstant.TOKEN_IS_VALID;
     }
 
     @Override
-    public void forgotPassword(String email) {
-        String token = UUID.randomUUID().toString();
+    public User forgotPassword(String email) {
+         var user = userService.getUserByEmail(email);
+         if(user == null){
+             return null;
+         }
+         var token = UUID.randomUUID();
+         verificationTokenService.saveUserVerificationToken(user, token, TypeOfVerification.FORGOT_PASSWORD);
+         return user;
+    }
 
-        if (expiredTimeLink.get(email + " expiredTimeForgotPassword") != null) {
-            LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTimeForgotPassword"));
-            String oldToken = forgotAccount.get(email);
-            forgotAccount.remove(oldToken);
-            expiredTimeLink.remove(expiredTime);
+    @Override
+    public User changePassword(String email) {
+        var user = userService.getUserByEmail(email);
+        if(user == null){
+            return null;
         }
-
-        forgotAccount.put(email, token);
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiredLinkVerify = now.plusMinutes(5);
-
-        expiredTimeLink.put(email + " expiredTimeForgotPassword", expiredLinkVerify.toString());
-
-        logger.info("Before Mail Email : {}, token : {}", email, forgotAccount.get(email));
-
-        String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/auth/verify-password"
-                + "?email=" + email
-                + "&token=" + token;
-
-//        String verificationUrl = "http://localhost:6969/api/v1/auth/verify-password"
-//                + "?email=" + email
-//                + "&token=" + token;
-
-        mailService.verifyAccount(email, "Forgot Password", verificationUrl);
-//        String emailText = "<!DOCTYPE html>" +
-//                "<html>" +
-//                "<head>" +
-//                "    <meta charset='UTF-8'>" +
-//                "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-//                "    <title>Account Verification</title>" +
-//                "    <style>" +
-//                "        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" +
-//                "        .container { width: 100%; padding: 20px; }" +
-//                "        .content { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }" +
-//                "        .header { font-size: 24px; font-weight: bold; color: #333333; }" +
-//                "        .message { font-size: 16px; color: #555555; }" +
-//                "        .button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; text-align: center; text-decoration: none; border-radius: 5px; margin-top: 20px; }" +
-//                "    </style>" +
-//                "</head>" +
-//                "<body>" +
-//                "    <div class='container'>" +
-//                "        <div class='content'>" +
-//                "            <div class='header'>Verify Your Account</div>" +
-//                "            <div class='message'>Hi " + email + ",</div>" +
-//                "            <div class='message'>Thank you for registering. To complete your registration, please verify your email by clicking the button below.</div>" +
-//                "            <a href='" + verificationUrl + "' class='button'>Verify Account</a>" +
-//                "            <div class='message'>If you did not register for an account, please ignore this email.</div>" +
-//                "        </div>" +
-//                "    </div>" +
-//                "</body>" +
-//                "</html>";
-//        emailSenderService.sendEmail(email, "Forgot Password", emailText);
+        var token = UUID.randomUUID();
+        verificationTokenService.saveUserVerificationToken(user, token, TypeOfVerification.CHANGE_PASSWORD);
+        return user;
     }
 
     @Override

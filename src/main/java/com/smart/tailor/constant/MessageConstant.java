@@ -16,7 +16,6 @@ public class MessageConstant {
     public static final String INVALID_EMAIL = "Invalid Email!";
     public static final String INVALID_PASSWORD = "Invalid Password!";
 
-
     /**
      * ROLE
      */
@@ -38,6 +37,7 @@ public class MessageConstant {
      */
     /*    SUCCESS     */
     public static final String REGISTER_NEW_USER_SUCCESSFULLY = "Register New User Successfully!";
+    public static final String SEND_MAIL_FOR_VERIFY_ACCOUNT_SUCCESSFULLY = "Check Email To Verify Account!";
     public static final String SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY = "Check Email To Update Password!";
     public static final String UPDATE_PASSWORD_SUCCESSFULLY = "Update Password Successfully!";
     public static final String LOGIN_SUCCESSFULLY = "Login Successfully!";
@@ -45,14 +45,18 @@ public class MessageConstant {
     public static final String ACCOUNT_IS_VERIFIED = "Account Is Verified!";
     public static final String ACCOUNT_NOT_VERIFIED = "Account Is Not Verified!";
     public static final String REFRESH_TOKEN_SUCCESSFULLY = "Refresh Token Successfully!";
+    public static final String RESEND_MAIL_NEW_TOKEN_SUCCESSFULLY = "Resend Mail New Token Successfully";
+
     /*    FAIL     */
     public static final String DUPLICATE_REGISTERED_EMAIL = "Duplicate Registered Email!";
     public static final String INVALID_VERIFICATION_TOKEN = "Invalid Verification Token!";
     public static final String INVALID_EMAIL_OR_PASSWORD = "Invalid Email Or Password!";
+    public static final String EMAIL_IS_NOT_EXISTED = "Email is not existed!";
     public static final String UPDATE_PASSWORD_FAILED = "Failed To Update Password!";
     public static final String REGISTER_NEW_USER_FAILED = "Failed To Register New User!";
     public static final String REFRESH_TOKEN_FAILED = "Failed To Refresh Token!";
-
+    public static final String TOKEN_ALREADY_EXPIRED = "Token already expired!";
+    public static final String TOKEN_IS_VALID = "Token is Valid!";
     /**
      * MATERIAL
      */
