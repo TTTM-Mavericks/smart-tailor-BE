@@ -80,4 +80,12 @@ public class APIConstant {
         public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE = "/add-new-brand-material-by-excel-file";
         public static final String GET_ALL_BRAND_MATERIAL_BY_EXCEL_FILE = "/get-all-brand-material-by-excel-file";
     }
+
+    /**
+     * Customer API
+     */
+    public class CustomerAPI {
+        public static final String CUSTOMER = APIConstant.API + "/customer";
+        public static final String UPDATE_CUSTOMER_PROFILE = "/update-customer-profile";
+    }
 }
