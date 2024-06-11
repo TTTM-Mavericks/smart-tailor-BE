@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.enums.PrintType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -33,6 +34,12 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Column(name = "type_of_item")
     private String typeOfItem;
 
+    @Column(name = "is_system_item")
+    private Boolean isSystemItem;
+
+    @Column(name = "is_premium")
+    private Boolean isPremium;
+
     @Column(name = "position_x")
     private Float positionX;
 
@@ -45,7 +52,14 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Column(name = "scale_y")
     private Float scaleY;
 
+    @Column(name = "z_index")
+    private Float zIndex;
+
     @Lob
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "print_type")
+    private PrintType printType;
 }

@@ -40,6 +40,8 @@ public class Order extends AuditEntity implements Serializable {
 
     private String district;
 
+    private String ward;
+
     private String phone;
 
     private String userName;

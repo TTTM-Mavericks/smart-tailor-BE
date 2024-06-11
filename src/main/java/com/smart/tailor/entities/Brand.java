@@ -36,10 +36,6 @@ public class Brand extends AuditEntity implements Serializable {
     @Column(name = "bank_name")
     private String bankName;
 
-    @Column(name = "brand_status")
-    @Enumerated(EnumType.STRING)
-    private BrandStatus brandStatus;
-
     @Column(name = "account_number")
     private String accountNumber;
 
@@ -50,6 +46,16 @@ public class Brand extends AuditEntity implements Serializable {
     private String QR_Payment;
 
     private String address;
+
+    private String province;
+
+    private String district;
+
+    private String ward;
+
+    @Column(name = "brand_status")
+    @Enumerated(EnumType.STRING)
+    private BrandStatus brandStatus;
 
     @Column(name = "number_of_violations")
     private Integer numberOfViolations = 0;
