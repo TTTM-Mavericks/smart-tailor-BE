@@ -10,12 +10,14 @@ import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.CustomerRequest;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.CustomerResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -34,30 +36,56 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public String updateCustomerProfile(CustomerRequest customerRequest) {
+    public APIResponse updateCustomerProfile(CustomerRequest customerRequest) {
         if(!Utilities.isValidBoolean(customerRequest.getGender())){
-            return MessageConstant.INVALID_DATA_TYPE + " gender : " +  customerRequest.getGender();
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.INVALID_DATA_TYPE + " gender : " +  customerRequest.getGender())
+                    .data(null)
+                    .build();
+
         }
 
         if(Utilities.isStringNotNullOrEmpty(customerRequest.getPhoneNumber())){
             if(!Utilities.isValidVietnamesePhoneNumber(customerRequest.getPhoneNumber())){
-                return MessageConstant.INVALID_DATA_TYPE + " phoneNumber : " + customerRequest.getPhoneNumber();
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.INVALID_DATA_TYPE + " phoneNumber : " + customerRequest.getPhoneNumber())
+                        .data(null)
+                        .build();
             }
         }
 
 
         if(userService.getUserByEmail(customerRequest.getEmail()) == null){
-            return MessageConstant.EMAIL_IS_NOT_EXISTED;
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.EMAIL_IS_NOT_EXISTED)
+                    .data(null)
+                    .build();
         }
 
         if(!userService.getUserByEmail(customerRequest.getEmail()).getPhoneNumber().equals(customerRequest.getPhoneNumber())){
             if(userService.getUserByPhoneNumber(customerRequest.getPhoneNumber()) != null){
-                return MessageConstant.PHONE_NUMBER_IS_EXISTED;
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.PHONE_NUMBER_IS_EXISTED)
+                        .data(null)
+                        .build();
             }
         }
 
         if(!Utilities.isValidDate(customerRequest.getDateOfBirth(), FormatConstant.DD_MM_YYYY_MINUS)){
-            return MessageConstant.INVALID_DATA_TYPE + " dateOfBirth : " + FormatConstant.DD_MM_YYYY_MINUS;
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.INVALID_DATA_TYPE + " dateOfBirth : " + FormatConstant.DD_MM_YYYY_MINUS)
+                    .data(null)
+                    .build();
         }
 
         UserRequest userRequest = UserRequest
@@ -77,8 +105,6 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         var userUpdated = userService.updateUserProfile(userRequest);
-
-
 
         Optional<Customer> customerOptional = customerRepository.findById(userUpdated.getUserID());
         if(customerOptional.isEmpty()){
@@ -106,7 +132,12 @@ public class CustomerServiceImpl implements CustomerService {
             );
         }
 
-        return MessageConstant.UPDATE_PROFILE_CUSTOMER_SUCCESSFULLY;
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.UPDATE_PROFILE_CUSTOMER_SUCCESSFULLY)
+                .data(null)
+                .build();
     }
 
     @Override

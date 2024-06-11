@@ -26,14 +26,11 @@ public class CustomerController {
     public ResponseEntity<ObjectNode> updateCustomerProfile(@RequestBody CustomerRequest customerRequest) {
         ObjectNode response = objectMapper.createObjectNode();
         try {
-            var message = customerService.updateCustomerProfile(customerRequest);
-            if (message.equals(MessageConstant.UPDATE_PROFILE_CUSTOMER_SUCCESSFULLY)) {
-                response.put("status", HttpStatus.OK.value());
-                response.put("message", MessageConstant.UPDATE_PROFILE_CUSTOMER_SUCCESSFULLY);
-            } else {
-                response.put("status", HttpStatus.BAD_REQUEST.value());
-                response.put("message", message);
-            }
+            var apiResponse = customerService.updateCustomerProfile(customerRequest);
+
+                response.put("status", apiResponse.getStatus());
+                response.put("message", apiResponse.getMessage());
+                response.put("data", objectMapper.valueToTree(apiResponse.getData()));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());

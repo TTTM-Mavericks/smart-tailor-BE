@@ -102,9 +102,9 @@ public class UserServiceImpl implements UserService {
     public User updateUserProfile(UserRequest userRequest) {
         User userExisted = userRepository.getByEmail(userRequest.getEmail());
         if (userExisted != null){
-            userExisted.setFullName(Utilities.isStringNotNullOrEmpty(userRequest.getFullName()) ? userRequest.getFullName() : userExisted.getFullName());
-            userExisted.setImageUrl(Utilities.isStringNotNullOrEmpty(userRequest.getImageUrl()) ? userRequest.getImageUrl() : userExisted.getImageUrl());
-            userExisted.setPhoneNumber(Utilities.isStringNotNullOrEmpty(userRequest.getPhoneNumber()) ? userRequest.getPhoneNumber() : userExisted.getPhoneNumber());
+            userExisted.setFullName(userRequest.getFullName());
+            userExisted.setImageUrl(userRequest.getImageUrl());
+            userExisted.setPhoneNumber(userRequest.getPhoneNumber());
             return userRepository.save(userExisted);
         }
         return null;
