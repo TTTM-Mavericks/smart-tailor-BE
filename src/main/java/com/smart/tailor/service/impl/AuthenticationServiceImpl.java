@@ -10,6 +10,7 @@ import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,14 +51,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     @Override
-    public User register(UserRequest userRequest) throws Exception {
+    public AuthenticationResponse register(UserRequest userRequest) throws Exception {
         try {
             // Store Persist User in DB whether Provider is Local or Google
             // Login with Provider Local Status is false otherwise true
             userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
             Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
             userRequest.setProvider(provider);
-            return userService.registerNewUsers(userRequest);
+            var user = userService.registerNewUsers(userRequest);
+
+            var jwtToken = jwtService.generateToken(user);
+            var refreshToken = jwtService.generateRefreshToken(user);
+            revokeAllUserTokens(user);
+            saveUserToken(user, jwtToken);
+            return AuthenticationResponse
+                    .builder()
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .user(userService.convertToUserResponse(user))
+                    .build();
         } catch (Exception ex) {
             throw ex;
         }

@@ -40,7 +40,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                             .token(token)
                             .user(user)
                             .typeOfVerification(typeOfVerification)
-                            .expirationDateTime(localDateTime.plusMinutes(3))
+                            .expirationDateTime(localDateTime.plusSeconds(30))
                             .build()
             );
         }
