@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -75,7 +76,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     throw new Exception("USER IS NOT EXISTED");
                 }
 
-                if(!existedUser.getUserStatus()){
+                if (!existedUser.getUserStatus()) {
                     throw new Exception("USER ARE NOT ALLOW TO ENTER!");
                 }
 
@@ -131,6 +132,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String userEmail;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new AuthenticationResponse();
+        }
+        refreshToken = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail != null) {
+            User user = null;
+            try {
+                user = userService.getUserByEmail(userEmail);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            if (jwtService.isValidToken(refreshToken, user)) {
+                var accessToken = jwtService.generateToken(user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, accessToken);
+                var authResponse = AuthenticationResponse
+                        .builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .user(userService.convertToUserResponse(user))
+                        .build();
+
+                return authResponse;
+            }
+        }
         return null;
     }
 
@@ -138,7 +168,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public String verifyUser(UUID token) {
         // Check token is existed or not
         Optional<VerificationToken> verificationTokenOptional = verificationTokenService.findByToken(token);
-        if(verificationTokenOptional.isEmpty()) {
+        if (verificationTokenOptional.isEmpty()) {
             return MessageConstant.INVALID_VERIFICATION_TOKEN;
         }
         var verificationToken = verificationTokenOptional.get();
@@ -146,12 +176,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = verificationToken.getUser();
         LocalDateTime currentDateTime = LocalDateTime.now();
         // Check ExpirationDateTime with CurrentDateTime
-        if(currentDateTime.isAfter(verificationToken.getExpirationDateTime())){
+        if (currentDateTime.isAfter(verificationToken.getExpirationDateTime())) {
             return MessageConstant.TOKEN_ALREADY_EXPIRED;
         }
 
         // Change Status User
-        if(verificationToken.getTypeOfVerification().equals(TypeOfVerification.VERIFY_ACCOUNT)){
+        if (verificationToken.getTypeOfVerification().equals(TypeOfVerification.VERIFY_ACCOUNT)) {
             userService.updateStatusAccount(user.getEmail());
         }
         return MessageConstant.TOKEN_IS_VALID;
@@ -159,19 +189,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public User forgotPassword(String email) {
-         var user = userService.getUserByEmail(email);
-         if(user == null){
-             return null;
-         }
-         var token = UUID.randomUUID();
-         verificationTokenService.saveUserVerificationToken(user, token, TypeOfVerification.FORGOT_PASSWORD);
-         return user;
+        var user = userService.getUserByEmail(email);
+        if (user == null) {
+            return null;
+        }
+        var token = UUID.randomUUID();
+        verificationTokenService.saveUserVerificationToken(user, token, TypeOfVerification.FORGOT_PASSWORD);
+        return user;
     }
 
     @Override
     public User changePassword(String email) {
         var user = userService.getUserByEmail(email);
-        if(user == null){
+        if (user == null) {
             return null;
         }
         var token = UUID.randomUUID();
