@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface UserService {
     Optional<User> getUserDetailByEmail(String email);
 
+    User getUserByPhoneNumber(String phoneNumber);
+
     User getUserByEmail(String email);
 
     void saveOrUpdateUser(User user);
@@ -21,4 +23,7 @@ public interface UserService {
     List<UserResponse> getAllUserResponse();
 
     Boolean updateStatusAccount(String email);
+
+    User updateUserProfile(UserRequest userRequest);
+
 }

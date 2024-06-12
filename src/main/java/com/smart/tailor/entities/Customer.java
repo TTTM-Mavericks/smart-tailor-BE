@@ -30,9 +30,6 @@ public class Customer extends AuditEntity implements Serializable {
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id")
     private User user;
 
-    @Column(name = "full_name")
-    private String fullName;
-
     private Boolean gender;
 
     @Column(name = "date_of_birth")
@@ -43,6 +40,8 @@ public class Customer extends AuditEntity implements Serializable {
     private String province;
 
     private String district;
+
+    private String ward;
 
     @Column(name = "number_of_violations")
     private Integer numberOfViolations = 0;

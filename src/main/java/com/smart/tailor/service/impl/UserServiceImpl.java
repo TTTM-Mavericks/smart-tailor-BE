@@ -9,8 +9,10 @@ import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserDetailByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public User getUserByPhoneNumber(String phoneNumber) {
+        return userRepository.getByPhoneNumber(phoneNumber);
     }
 
     @Override
@@ -89,5 +96,17 @@ public class UserServiceImpl implements UserService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public User updateUserProfile(UserRequest userRequest) {
+        User userExisted = userRepository.getByEmail(userRequest.getEmail());
+        if (userExisted != null){
+            userExisted.setFullName(userRequest.getFullName());
+            userExisted.setImageUrl(userRequest.getImageUrl());
+            userExisted.setPhoneNumber(userRequest.getPhoneNumber());
+            return userRepository.save(userExisted);
+        }
+        return null;
     }
 }

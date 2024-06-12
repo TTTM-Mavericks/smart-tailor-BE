@@ -1,7 +1,14 @@
 package com.smart.tailor.utils;
 
+import com.smart.tailor.constant.FormatConstant;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,6 +77,36 @@ public class Utilities {
             Double.parseDouble(str);
             return true;
         }catch (Exception ex){
+            return false;
+        }
+    }
+
+    public static boolean isStringNotNullOrEmpty(String str){
+        if(Optional.ofNullable(str).isPresent()){
+            if(isNonNullOrEmpty(str)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isValidateDate(String dateStr, String dateFormat) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+        try {
+            formatter.parse(dateStr);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    public static boolean isValidBoolean(Boolean bool){
+        if(bool == null) return false;
+        try {
+            Boolean.parseBoolean(bool.toString());
+            return true;
+        }
+        catch (Exception e){
             return false;
         }
     }
