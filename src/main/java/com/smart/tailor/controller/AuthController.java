@@ -15,6 +15,7 @@ import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.event.RegistrationCompleteEvent;
 import com.smart.tailor.event.listener.RegistrationCompleteEventListener;
 import com.smart.tailor.service.AuthenticationService;
+import com.smart.tailor.service.LogoutService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.service.VerificationTokenService;
 import com.smart.tailor.utils.Utilities;
@@ -31,6 +32,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -46,6 +49,7 @@ public class AuthController {
     private final VerificationTokenService verificationTokenService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RegistrationCompleteEventListener registrationCompleteEventListener;
+    private final LogoutService logoutService;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String clientId;
@@ -83,14 +87,14 @@ public class AuthController {
             var typeOfVerification = verificationToken.getTypeOfVerification();
             String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
 
-            switch (typeOfVerification){
-                case VERIFY_ACCOUNT ->  {
+            switch (typeOfVerification) {
+                case VERIFY_ACCOUNT -> {
                     registrationCompleteEventListener.sendVerificationEmail(user, verificationURL);
                 }
                 case FORGOT_PASSWORD -> {
                     registrationCompleteEventListener.sendPasswordResetEmail(user, verificationURL);
                 }
-                case CHANGE_PASSWORD ->  {
+                case CHANGE_PASSWORD -> {
                     registrationCompleteEventListener.sendChangePasswordMail(user, verificationURL);
                 }
             }
@@ -105,29 +109,6 @@ public class AuthController {
             return ResponseEntity.ok(respon);
         }
     }
-
-//    @GetMapping(APIConstant.AuthenticationAPI.VERIFY_PASSWORD)
-//    public ResponseEntity<ObjectNode> verifyPassword(@RequestParam("email") String email, @RequestParam("token") String token) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        ObjectNode respon = objectMapper.createObjectNode();
-//        try {
-//            boolean isVerified = authenticationService.verifyPassword(email, token);
-//            if (isVerified) {
-//                respon.put("status", 200);
-//                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
-//                return ResponseEntity.ok(respon);
-//            } else {
-//                respon.put("status", 401);
-//                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
-//                return ResponseEntity.ok(respon);
-//            }
-//        } catch (Exception ex) {
-//            respon.put("status", -1);
-//            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-//            logger.error("ERROR IN VERIFY UPDATE PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
-//            return ResponseEntity.ok(respon);
-//        }
-//    }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY + "/{email}")
     public ResponseEntity<ObjectNode> checkVerify(@PathVariable("email") String email) {
@@ -221,12 +202,11 @@ public class AuthController {
                 return ResponseEntity.ok(respon);
             }
 
-            if(registeredUser.getProvider().equals(Provider.LOCAL)){
+            if (registeredUser.getProvider().equals(Provider.LOCAL)) {
                 applicationEventPublisher.publishEvent(new RegistrationCompleteEvent(registeredUser, TypeOfVerification.VERIFY_ACCOUNT));
                 logger.info("Publish Event When Register By Local Successfully");
                 respon.put("message", MessageConstant.SEND_MAIL_FOR_VERIFY_ACCOUNT_SUCCESSFULLY);
-            }
-            else{
+            } else {
                 respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
             }
             respon.put("status", 200);
@@ -246,13 +226,13 @@ public class AuthController {
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             var user = authenticationService.forgotPassword(email);
-            if(user != null){
+            if (user != null) {
                 var verificationToken = verificationTokenService.findByUserID(user.getUserID());
                 String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
                 registrationCompleteEventListener.sendPasswordResetEmail(user, verificationURL);
                 respon.put("status", HttpStatus.OK.value());
                 respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
-            }else{
+            } else {
                 respon.put("status", HttpStatus.BAD_REQUEST.value());
                 respon.put("message", MessageConstant.EMAIL_IS_NOT_EXISTED);
             }
@@ -272,13 +252,13 @@ public class AuthController {
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             var user = authenticationService.changePassword(email);
-            if(user != null){
+            if (user != null) {
                 var verificationToken = verificationTokenService.findByUserID(user.getUserID());
                 String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
                 registrationCompleteEventListener.sendChangePasswordMail(user, verificationURL);
                 respon.put("status", HttpStatus.OK.value());
                 respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
-            }else{
+            } else {
                 respon.put("status", HttpStatus.BAD_REQUEST.value());
                 respon.put("message", MessageConstant.EMAIL_IS_NOT_EXISTED);
             }
@@ -433,6 +413,24 @@ public class AuthController {
             respon.put("status", -1);
             respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
             logger.error("ERROR IN REFRESH TOKEN. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
+    @PostMapping(APIConstant.AuthenticationAPI.LOG_OUT)
+    public ResponseEntity<ObjectNode> logout(HttpServletRequest request, HttpServletResponse response) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            logoutService.logout(request, response, authentication);
+            respon.put("status", HttpStatus.OK.value());
+            respon.put("message", "Logout successfully");
+            return ResponseEntity.ok(respon);
+        } catch (Exception ex) {
+            respon.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            // logger.error("ERROR IN LOGOUT. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
     }
