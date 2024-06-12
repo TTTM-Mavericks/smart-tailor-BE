@@ -78,11 +78,11 @@ public class AuthController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.RESEND_VERIFICATION_TOKEN)
-    public ResponseEntity<ObjectNode> resendVerificationToken(@RequestParam("token") UUID token) {
+    public ResponseEntity<ObjectNode> resendVerificationToken(@RequestParam("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            var verificationToken = verificationTokenService.generateNewVerificationToken(token);
+            var verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
             var user = verificationToken.getUser();
             var typeOfVerification = verificationToken.getTypeOfVerification();
             String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();

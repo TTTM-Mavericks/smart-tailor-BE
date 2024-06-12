@@ -179,12 +179,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String verifyUser(UUID token) {
         // Check token is existed or not
-        Optional<VerificationToken> verificationTokenOptional = verificationTokenService.findByToken(token);
+        var verificationTokenOptional = verificationTokenService.findByToken(token);
         if (verificationTokenOptional.isEmpty()) {
             return MessageConstant.INVALID_VERIFICATION_TOKEN;
         }
-        var verificationToken = verificationTokenOptional.get();
 
+        var verificationToken = verificationTokenOptional.get();
         User user = verificationToken.getUser();
         LocalDateTime currentDateTime = LocalDateTime.now();
         // Check ExpirationDateTime with CurrentDateTime

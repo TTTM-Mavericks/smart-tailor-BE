@@ -34,4 +34,6 @@ public interface AuthenticationService {
     Boolean checkVerify(String email);
 
     Boolean checkVerifyPassword(String email);
+
+
 }

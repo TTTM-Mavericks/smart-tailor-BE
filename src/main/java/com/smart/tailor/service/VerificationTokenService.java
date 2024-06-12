@@ -15,4 +15,6 @@ public interface VerificationTokenService {
     void saveUserVerificationToken(User user, UUID token, TypeOfVerification typeOfVerification);
 
     VerificationToken generateNewVerificationToken(UUID oldToken);
+
+    VerificationToken findVerificationTokenByUserEmail(String userEmail);
 }

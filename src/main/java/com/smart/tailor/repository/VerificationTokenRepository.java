@@ -14,4 +14,8 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
 
     @Query(value = "select * from verification_token where user_id = ?1", nativeQuery = true)
     VerificationToken findByUserID(UUID userID);
+
+    @Query(value = "select v.* from verification_token v join users u on v.user_id = u.user_id" +
+            " where u.email = ?1", nativeQuery = true)
+    VerificationToken findVerificationTokenByUserEmail(String email);
 }
