@@ -78,11 +78,11 @@ public class AuthController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.RESEND_VERIFICATION_TOKEN)
-    public ResponseEntity<ObjectNode> resendVerificationToken(@RequestParam("token") UUID token) {
+    public ResponseEntity<ObjectNode> resendVerificationToken(@RequestParam("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            var verificationToken = verificationTokenService.generateNewVerificationToken(token);
+            var verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
             var user = verificationToken.getUser();
             var typeOfVerification = verificationToken.getTypeOfVerification();
             String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
@@ -194,7 +194,8 @@ public class AuthController {
                 return ResponseEntity.ok(respon);
             }
 
-            var registeredUser = authenticationService.register(userRequest);
+            var authenResponse = authenticationService.register(userRequest);
+            var registeredUser = userService.getUserByEmail(authenResponse.getUser().getEmail());
 
             if (registeredUser == null) {
                 respon.put("status", 400);
@@ -210,7 +211,7 @@ public class AuthController {
                 respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
             }
             respon.put("status", 200);
-            respon.set("data", objectMapper.valueToTree(userService.convertToUserResponse(registeredUser)));
+            respon.set("data", objectMapper.valueToTree(authenResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("status", -1);
@@ -366,7 +367,7 @@ public class AuthController {
                 User user = userService.getUserByEmail(email);
                 if (user == null) {
 
-                    ResponseEntity<ObjectNode> response = register(UserRequest.builder().email(email).password(clientId).provider(Provider.GOOGLE).language(language).fullName(fullName).build());
+                    ResponseEntity<ObjectNode> response = register(UserRequest.builder().email(email).password(clientId).provider(Provider.GOOGLE).language(language).roleName("CUSTOMER").fullName(fullName).build());
 
                     if (response.getStatusCode().is2xxSuccessful()) {
                         UserResponse userResponse = objectMapper.treeToValue(response.getBody().get("data").get("user"), UserResponse.class);
