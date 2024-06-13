@@ -5,6 +5,7 @@ import com.smart.tailor.entities.Brand;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.BrandStatus;
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.BrandRepository;
 import com.smart.tailor.service.BrandService;
@@ -118,7 +119,7 @@ public class BrandServiceImpl implements BrandService {
                 emailSenderService.sendEmail(userRequest.getEmail(), "Account Verification", emailText);
                 return new UserResponse();
             }
-            var user = User.builder().email(userRequest.getEmail()).password(passwordEncoder.encode(userRequest.getPassword())).userStatus(true).fullName(userRequest.getFullName()).roles(roleService.findRoleByRoleName("BRAND").get()).phoneNumber(userRequest.getPhoneNumber()).imageUrl(userRequest.getImageUrl()).language(userRequest.getLanguage()).provider(userRequest.getProvider()).build();
+            var user = User.builder().email(userRequest.getEmail()).password(passwordEncoder.encode(userRequest.getPassword())).userStatus(UserStatus.ACTIVE).fullName(userRequest.getFullName()).roles(roleService.findRoleByRoleName("BRAND").get()).phoneNumber(userRequest.getPhoneNumber()).imageUrl(userRequest.getImageUrl()).language(userRequest.getLanguage()).provider(userRequest.getProvider()).build();
             return userMapper.mapperToUserResponse(user);
         } catch (Exception ex) {
             throw ex;
@@ -130,7 +131,7 @@ public class BrandServiceImpl implements BrandService {
     public Boolean checkVerify(String email) {
         try {
             var registerUser = userService.getUserByEmail(email);
-            return registerUser != null && registerUser.getUserStatus();
+            return registerUser != null && registerUser.getUserStatus().equals(UserStatus.ACTIVE);
         } catch (Exception ex) {
             logger.error("ERROR IN BrandServiceImpl - checkVerify: {}", ex.getMessage());
         }

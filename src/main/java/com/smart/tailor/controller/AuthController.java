@@ -12,6 +12,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.TypeOfVerification;
+import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.event.RegistrationCompleteEvent;
 import com.smart.tailor.event.listener.RegistrationCompleteEventListener;
 import com.smart.tailor.service.AuthenticationService;
@@ -54,8 +55,8 @@ public class AuthController {
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String clientId;
 
-    @GetMapping(APIConstant.AuthenticationAPI.VERIFY)
-    public ResponseEntity<ObjectNode> verifyAccount(@RequestParam("token") UUID token) {
+    @GetMapping(APIConstant.AuthenticationAPI.VERIFY + "/{token}")
+    public ResponseEntity<ObjectNode> verifyAccount(@PathVariable("token") UUID token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -77,15 +78,15 @@ public class AuthController {
         }
     }
 
-    @GetMapping(APIConstant.AuthenticationAPI.RESEND_VERIFICATION_TOKEN)
-    public ResponseEntity<ObjectNode> resendVerificationToken(@RequestParam("email") String email) {
+    @GetMapping(APIConstant.AuthenticationAPI.RESEND_VERIFICATION_TOKEN + "/{email}")
+    public ResponseEntity<ObjectNode> resendVerificationToken(@PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             var verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
             var user = verificationToken.getUser();
             var typeOfVerification = verificationToken.getTypeOfVerification();
-            String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
+            String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "/" + verificationToken.getToken();
 
             switch (typeOfVerification) {
                 case VERIFY_ACCOUNT -> {
@@ -110,12 +111,13 @@ public class AuthController {
         }
     }
 
-    @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerify(@PathVariable("email") String email) {
+    @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_ACCOUNT + "/{email}")
+    public ResponseEntity<ObjectNode> checkVerifyAccount(@PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            boolean isVerified = authenticationService.checkVerify(email);
+
+            boolean isVerified = authenticationService.checkVerifyAccount(email);
             if (isVerified) {
                 respon.put("status", 200);
                 respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
@@ -133,12 +135,35 @@ public class AuthController {
         }
     }
 
-    @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerifyPassword(@PathVariable("email") String email) {
+    @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_FORGOT_PASSWORD + "/{email}")
+    public ResponseEntity<ObjectNode> checkVerifyForgotPassword(@PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            boolean isVerified = authenticationService.checkVerifyPassword(email);
+            boolean isVerified = authenticationService.checkVerifyPassword(email, TypeOfVerification.FORGOT_PASSWORD);
+            if (isVerified) {
+                respon.put("status", 200);
+                respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
+                return ResponseEntity.ok(respon);
+            } else {
+                respon.put("status", 401);
+                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                return ResponseEntity.ok(respon);
+            }
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN CHECK VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
+    @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_CHANGE_PASSWORD + "/{email}")
+    public ResponseEntity<ObjectNode> checkVerifyChangePassword(@PathVariable("email") String email) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            boolean isVerified = authenticationService.checkVerifyPassword(email, TypeOfVerification.CHANGE_PASSWORD);
             if (isVerified) {
                 respon.put("status", 200);
                 respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
@@ -187,6 +212,15 @@ public class AuthController {
                 }
             }
 
+            // Check email is not verify?
+            if (userService.getUserByEmail(userRequest.getEmail()) != null) {
+                if(userService.getUserByEmail(userRequest.getEmail()).getUserStatus().equals(UserStatus.INACTIVE)){
+                    respon.put("status", 409);
+                    respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                    return ResponseEntity.ok(respon);
+                }
+            }
+
             // Check email is duplicated?
             if (userService.getUserByEmail(userRequest.getEmail()) != null) {
                 respon.put("status", 409);
@@ -221,15 +255,15 @@ public class AuthController {
         }
     }
 
-    @GetMapping(APIConstant.AuthenticationAPI.FORGOT_PASSWORD)
-    public ResponseEntity<ObjectNode> forgotPassword(@RequestParam("email") String email) {
+    @GetMapping(APIConstant.AuthenticationAPI.FORGOT_PASSWORD + "/{email}")
+    public ResponseEntity<ObjectNode> forgotPassword(@PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             var user = authenticationService.forgotPassword(email);
             if (user != null) {
                 var verificationToken = verificationTokenService.findByUserID(user.getUserID());
-                String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
+                String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "/" + verificationToken.getToken();
                 registrationCompleteEventListener.sendPasswordResetEmail(user, verificationURL);
                 respon.put("status", HttpStatus.OK.value());
                 respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
@@ -247,15 +281,15 @@ public class AuthController {
         }
     }
 
-    @GetMapping(APIConstant.AuthenticationAPI.CHANGE_PASSWORD)
-    public ResponseEntity<ObjectNode> changePassword(@RequestParam("email") String email) {
+    @GetMapping(APIConstant.AuthenticationAPI.CHANGE_PASSWORD + "/{email}")
+    public ResponseEntity<ObjectNode> changePassword(@PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             var user = authenticationService.changePassword(email);
             if (user != null) {
                 var verificationToken = verificationTokenService.findByUserID(user.getUserID());
-                String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken.getToken();
+                String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "/" + verificationToken.getToken();
                 registrationCompleteEventListener.sendChangePasswordMail(user, verificationURL);
                 respon.put("status", HttpStatus.OK.value());
                 respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);

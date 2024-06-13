@@ -70,6 +70,9 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         if(!Utilities.isStringNotNullOrEmpty(userEmail)){
             return null;
         }
+        if(!Utilities.isValidEmail(userEmail)){
+            return null;
+        }
         VerificationToken verificationToken = verificationTokenRepository.findVerificationTokenByUserEmail(userEmail);
         return generateNewVerificationToken(verificationToken.getToken());
     }

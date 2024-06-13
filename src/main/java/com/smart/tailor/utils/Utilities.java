@@ -110,4 +110,15 @@ public class Utilities {
             return false;
         }
     }
+
+    public static boolean isValidFloat(Float floatType){
+        if(floatType == null) return false;
+        try {
+            Float.parseFloat(floatType.toString());
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
+    }
 }
