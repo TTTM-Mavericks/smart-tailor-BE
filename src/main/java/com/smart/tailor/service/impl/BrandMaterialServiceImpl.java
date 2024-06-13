@@ -55,9 +55,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                     .data(null)
                     .build();
         }
-        if(
-                !Utilities.isValidDouble(brandMaterialRequest.getPrice().toString())
-        ){
+        if(!Utilities.isValidDouble(brandMaterialRequest.getPrice().toString()) || brandMaterialRequest.getPrice() < 0){
             return APIResponse
                     .builder()
                     .status(HttpStatus.BAD_REQUEST.value())

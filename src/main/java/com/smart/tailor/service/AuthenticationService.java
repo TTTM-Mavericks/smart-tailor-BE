@@ -31,8 +31,6 @@ public interface AuthenticationService {
 
     User changePassword(String email);
 
-    Boolean verifyPassword(String email, String token);
-
     Boolean checkVerifyAccount(String email);
 
     Boolean checkVerifyPassword(String email, TypeOfVerification typeOfVerification);

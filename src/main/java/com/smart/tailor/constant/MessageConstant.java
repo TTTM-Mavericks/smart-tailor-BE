@@ -94,4 +94,19 @@ public class MessageConstant {
     public static final String ADD_NEW_BRAND_MATERIAL_FAIL = "Add New Brand Material Fail!";
     public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Brand Material By Excel File Fail!";
     public static final String BRAND_MATERIAL_IS_EXISTED = "Brand Material is Existed";
+
+    /**
+     * EXPERT TAILORING
+     */
+    /*    SUCCESS     */
+    public static final String ADD_NEW_EXPERT_TAILORING_SUCCESSFULLY = "Add New Expert Tailoring Successfully!";
+    public static final String CAN_NOT_FIND_ANY_EXPERT_TAILORING = "Can Not Find Any Expert Tailoring Material!";
+    public static final String GET_EXPERT_TAILORING_BY_NAME_SUCCESSFULLY = "Get Expert Tailoring By Name Successfully!";
+    public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Expert Tailoring By Excel File Successfully!";
+    public static final String GET_ALL_EXPERT_TAILORING_SUCCESSFULLY = "Get All Expert Tailoring Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_NEW_EXPERT_TAILORING_FAIL = "Add New Expert Tailoring Fail!";
+    public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_FAIL = "Add New Expert Tailoring By Excel File Fail!";
+    public static final String EXPERT_TAILORING_IS_EXISTED = "Expert Tailoring is Existed";
 }

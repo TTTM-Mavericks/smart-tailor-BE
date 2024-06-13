@@ -2,6 +2,7 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
+import com.smart.tailor.utils.request.ExpertTailoringRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -71,5 +72,42 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             throw new RuntimeException(e);
         }
         return brandMaterialRequests;
+    }
+
+    @Override
+    public List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream) {
+        List<ExpertTailoringRequest> expertTailoringRequests = new ArrayList<>();
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+            XSSFSheet sheet = workbook.getSheet("Expert Tailoring");
+            int rowIndex = 0;
+            for(Row row : sheet){
+                if(rowIndex == 0){
+                    ++rowIndex;
+                    continue;
+                }
+                Iterator<Cell> cellIterator = row.iterator();
+                int cellIndex = 0;
+                ExpertTailoringRequest expertTailoringRequest  = new ExpertTailoringRequest();
+                while(cellIterator.hasNext()){
+                    Cell cell = cellIterator.next();
+                    switch (cellIndex){
+                        case 0 :
+                            expertTailoringRequest.setExpertTailoringName(cell.getStringCellValue());
+                            break;
+                        case 1 :
+                            expertTailoringRequest.setSizeImageUrl(cell.getStringCellValue());
+                            break;
+                        default :
+                            break;
+                    }
+                    ++cellIndex;
+                }
+                expertTailoringRequests.add(expertTailoringRequest);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return expertTailoringRequests;
     }
 }
