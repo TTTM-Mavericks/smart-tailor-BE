@@ -203,6 +203,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (verificationToken.getTypeOfVerification().equals(TypeOfVerification.VERIFY_ACCOUNT)) {
             userService.updateStatusAccount(user.getEmail(), UserStatus.ACTIVE);
         }
+        verificationTokenService.enableVerificationToken(verificationToken);
         return MessageConstant.TOKEN_IS_VALID;
     }
 
@@ -249,7 +250,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public Boolean checkVerifyAccount(String email) {
         try {
             var registerUser = userService.getUserByEmail(email);
-            return registerUser != null && registerUser.getUserStatus().equals(UserStatus.ACTIVE);
+            VerificationToken verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
+            return registerUser != null && registerUser.getUserStatus().equals(UserStatus.ACTIVE) && verificationToken.isEnabled();
         } catch (Exception ex) {
             logger.error("ERROR IN AuthenticationServiceImpl - checkVerify: {}", ex.getMessage());
         }
@@ -260,7 +262,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public Boolean checkVerifyPassword(String email, TypeOfVerification typeOfVerification) {
         try {
             VerificationToken verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
-            return email != null && verificationToken != null && verificationToken.getTypeOfVerification().equals(typeOfVerification);
+            return email != null && verificationToken != null && verificationToken.getTypeOfVerification().equals(typeOfVerification) && verificationToken.isEnabled();
 
         } catch (Exception ex) {
             logger.error("ERROR IN AuthenticationServiceImpl - checkVerifyPassword: {}", ex.getMessage());

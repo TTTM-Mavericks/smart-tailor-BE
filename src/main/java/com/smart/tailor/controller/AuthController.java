@@ -83,7 +83,7 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            var verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
+            var verificationToken = verificationTokenService.generateNewVerificationToken(email);
             var user = verificationToken.getUser();
             var typeOfVerification = verificationToken.getTypeOfVerification();
             String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "/" + verificationToken.getToken();
