@@ -9,8 +9,10 @@ import com.smart.tailor.repository.BrandMaterialRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
+import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
+import com.smart.tailor.utils.response.MaterialResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +75,15 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 // Check Whether MaterialName and CategoryName is Existed or Not
                 // If not Existed ==> Create Material
                 var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
-                var material = (materialResponse != null) ? materialResponse :  materialService.createMaterial(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
+
+                MaterialRequest materialRequest = MaterialRequest
+                        .builder()
+                        .categoryName(brandMaterialRequest.getCategoryName())
+                        .materialName(brandMaterialRequest.getMaterialName())
+                        .hsCode(brandMaterialRequest.getHsCode())
+                        .build();
+
+                var material = (materialResponse != null) ? materialResponse : (MaterialResponse) materialService.createMaterial(materialRequest).getData();
 
                 // When All Condition is pass, store data to BrandMaterial
                 brandMaterialRepository.createBrandMaterial(brand.get().getBrandID(), material.getMaterialID(), brandMaterialRequest.getPrice(), brandMaterialRequest.getUnit().toLowerCase());
@@ -166,10 +176,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
     }
 
-    @Override
-    public List<BrandMaterialResponse> getAllBrandMaterialByExportExcelData(HttpServletResponse response) throws IOException{
-        var brandMaterialResponses = getAllBrandMaterial();
-        excelExportService.exportBrandMaterialData(brandMaterialResponses, response);
-        return brandMaterialResponses;
-    }
+//    @Override
+//    public List<Ma> getAllBrandMaterialByExportExcelData(HttpServletResponse response) throws IOException{
+//        var materialResponses = materialService.findAllMaterials();
+//        excelExportService.exportBrandMaterialData(materialResponses, response);
+//        return materialResponses;
+//    }
 }

@@ -13,4 +13,6 @@ public class MaterialRequest {
     private String materialName;
 
     private String categoryName;
+
+    private Double hsCode;
 }

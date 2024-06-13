@@ -68,6 +68,8 @@ public class APIConstant {
         public static final String MATERIAL = APIConstant.API + "/material";
         public static final String ADD_NEW_MATERIAL = "/add-new-material";
         public static final String GET_ALL_MATERIAL = "/get-all-material";
+        public static final String ADD_NEW_CATEGORY_MATERIAL_BY_EXCEL_FILE = "/add-new-category-material-by-excel-file";
+        public static final String EXPORT_CATEGORY_MATERIAL_FOR_BRAND_BY_EXCEL = "/export-category-material-for-brand-by-excel";
     }
 
     /**

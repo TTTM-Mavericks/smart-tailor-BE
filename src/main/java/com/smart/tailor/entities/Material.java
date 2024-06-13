@@ -29,4 +29,7 @@ public class Material extends AuditEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
+
+    @Column(name = "hs_code")
+    private Double hsCode;
 }

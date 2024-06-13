@@ -16,6 +16,8 @@ public class BrandMaterialRequest {
 
     private String categoryName;
 
+    private Double hsCode;
+
     private String unit;
 
     private Double price;
@@ -23,11 +25,11 @@ public class BrandMaterialRequest {
     @Override
     public String toString() {
         return
-            "brandName='" + brandName + '\'' +
-            ", materialName='" + materialName + '\'' +
-            ", categoryName='" + categoryName + '\'' +
-            ", unit='" + unit + '\'' +
-            ", price=" + price;
+                "brandName='" + brandName + '\'' +
+                ", materialName='" + materialName + '\'' +
+                ", categoryName='" + categoryName + '\'' +
+                ", hsCode='" + hsCode + '\'' +
+                ", unit='" + unit + '\'' +
+                ", price=" + price;
     }
-
 }

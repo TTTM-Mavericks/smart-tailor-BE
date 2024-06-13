@@ -111,30 +111,30 @@ public class BrandMaterialController {
         }
     }
 
-    @GetMapping(APIConstant.BrandMaterialAPI.GET_ALL_BRAND_MATERIAL_BY_EXCEL_FILE)
-    public ResponseEntity<ObjectNode> getAllBrandMaterialsByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
-        ObjectNode response = objectMapper.createObjectNode();
-        try {
-            httpServletResponse.setContentType("application/octet-stream");
-            String headerKey = "Content-Disposition";
-            String headerValue = "attachment; filename = Brand_Material_List.xlsx";
-            httpServletResponse.setHeader(headerKey, headerValue);
-            var materials = brandMaterialService.getAllBrandMaterialByExportExcelData(httpServletResponse);
-            if (!materials.isEmpty()) {
-                response.put("status", HttpStatus.OK.value());
-                response.put("message", MessageConstant.GET_ALL_BRAND_MATERIAL_SUCCESSFULLY);
-                response.set("data", objectMapper.valueToTree(materials));
-            } else {
-                response.put("status", HttpStatus.OK.value());
-                response.put("message", MessageConstant.CAN_NOT_FIND_ANY_BRAND_MATERIAL);
-            }
-            return ResponseEntity.ok(response);
-        } catch (Exception ex) {
-            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN GET ALL MATERIALS. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(response);
-        }
-    }
+//    @GetMapping(APIConstant.BrandMaterialAPI.GET_ALL_BRAND_MATERIAL_BY_EXCEL_FILE)
+//    public ResponseEntity<ObjectNode> getAllBrandMaterialsByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
+//        ObjectNode response = objectMapper.createObjectNode();
+//        try {
+//            httpServletResponse.setContentType("application/octet-stream");
+//            String headerKey = "Content-Disposition";
+//            String headerValue = "attachment; filename = Brand_Material_List.xlsx";
+//            httpServletResponse.setHeader(headerKey, headerValue);
+//            var materials = brandMaterialService.getAllBrandMaterialByExportExcelData(httpServletResponse);
+//            if (!materials.isEmpty()) {
+//                response.put("status", HttpStatus.OK.value());
+//                response.put("message", MessageConstant.GET_ALL_BRAND_MATERIAL_SUCCESSFULLY);
+//                response.set("data", objectMapper.valueToTree(materials));
+//            } else {
+//                response.put("status", HttpStatus.OK.value());
+//                response.put("message", MessageConstant.CAN_NOT_FIND_ANY_BRAND_MATERIAL);
+//            }
+//            return ResponseEntity.ok(response);
+//        } catch (Exception ex) {
+//            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+//            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+//            logger.error("ERROR IN GET ALL MATERIALS. ERROR MESSAGE: {}", ex.getMessage());
+//            return ResponseEntity.ok(response);
+//        }
+//    }
 
 }
