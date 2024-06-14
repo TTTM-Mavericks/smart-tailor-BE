@@ -1,5 +1,7 @@
 package com.smart.tailor.constant;
 
+import org.springframework.security.core.parameters.P;
+
 public class MessageConstant {
     /**
      * ERROR MESSAGE
@@ -9,7 +11,7 @@ public class MessageConstant {
     public static final String MISSING_ARGUMENT = "MISSING ARGUMENT";
     public static final String RESOURCE_NOT_FOUND = "Resource Not Found!";
     public static final String INVALID_DATA_TYPE = "Invalid Data Type";
-    public static final String INVALID_EXCEL_FILE_FORMAT = "Invalid excel file format";
+    public static final String INVALID_EXCEL_FILE_FORMAT = "Invalid Excel File Format";
     /**
      * FORMATION ERROR
      */
@@ -76,10 +78,14 @@ public class MessageConstant {
     public static final String GET_ALL_MATERIAL_SUCCESSFULLY = "Get All Material Successfully!";
     public static final String CAN_NOT_FIND_ANY_MATERIAL = "Can Not Find Any Material!";
     public static final String ADD_NEW_MATERIAL_SUCCESSFULLY = "Add New Material Successfully!";
-
+    public static final String ADD_NEW_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Category And Material By Excel File Successfully!";
+    public static final String EXPORT_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Export Category And Material By Excel File Successfully!";
     /*    FAIL     */
     public static final String ADD_NEW_MATERIAL_FAIL = "Add New Material Fail!";
     public static final String MATERIAL_IS_EXISTED = "Material is Existed";
+    public static final String WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE = "Wrong Type Of Category And Material Excel File!";
+    public static final String DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE = "Duplicate Category And Material in Excel File!";
+    public static final String ADD_NEW_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Category And Material By Excel File Fail!";
 
     /**
      * BRAND MATERIAL
@@ -94,4 +100,22 @@ public class MessageConstant {
     public static final String ADD_NEW_BRAND_MATERIAL_FAIL = "Add New Brand Material Fail!";
     public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Brand Material By Excel File Fail!";
     public static final String BRAND_MATERIAL_IS_EXISTED = "Brand Material is Existed";
+
+    /**
+     * EXPERT TAILORING
+     */
+    /*    SUCCESS     */
+    public static final String ADD_NEW_EXPERT_TAILORING_SUCCESSFULLY = "Add New Expert Tailoring Successfully!";
+    public static final String CAN_NOT_FIND_ANY_EXPERT_TAILORING = "Can Not Find Any Expert Tailoring Material!";
+    public static final String GET_EXPERT_TAILORING_BY_NAME_SUCCESSFULLY = "Get Expert Tailoring By Name Successfully!";
+    public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Expert Tailoring By Excel File Successfully!";
+    public static final String GET_ALL_EXPERT_TAILORING_SUCCESSFULLY = "Get All Expert Tailoring Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_NEW_EXPERT_TAILORING_FAIL = "Add New Expert Tailoring Fail!";
+    public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_FAIL = "Add New Expert Tailoring By Excel File Fail!";
+    public static final String EXPERT_TAILORING_IS_EXISTED = "Expert Tailoring is Existed";
+    public static final String DUPLICATE_EXPERT_TAILORING_DATA = "Duplicate Expert Tailoring Data";
+    public static final String DUPLICATE_EXPERT_TAILORING_IN_EXCEL_FILE = "Duplicate Expert Tailoring in Excel File!";
+    public static final String WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE = "Wrong Type Of Expert Tailoring Excel File!";
 }

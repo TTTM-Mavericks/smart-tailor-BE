@@ -12,7 +12,6 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
-import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,13 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
     private final JwtService jwtService;
     private final TokenService tokenService;
-    private final MailService mailService;
     private final VerificationTokenService verificationTokenService;
-    private final EmailSenderService emailSenderService;
-    private final Map<String, Object> storageObject = new HashMap<>();
-    private final Map<String, String> verifyAccount = new HashMap<>();
-    private final Map<String, String> expiredTimeLink = new HashMap<>();
-    private final Map<String, String> forgotAccount = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     @Override
@@ -227,23 +220,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var token = UUID.randomUUID();
         verificationTokenService.saveUserVerificationToken(user, token, TypeOfVerification.CHANGE_PASSWORD);
         return user;
-    }
-
-    @Override
-    public Boolean verifyPassword(String email, String token) {
-        LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTimeForgotPassword"));
-        LocalDateTime currentTime = LocalDateTime.now();
-        String oldToken = forgotAccount.get(email);
-        if (currentTime.isAfter(expiredTime)) {
-            return false;
-        }
-        logger.info(" Get Token From HashMap {}", oldToken);
-        if (oldToken.equals(token)) {
-            forgotAccount.remove(email);
-            expiredTimeLink.remove(expiredTime);
-            return true;
-        }
-        return false;
     }
 
     @Override

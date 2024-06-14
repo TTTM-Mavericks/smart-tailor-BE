@@ -68,6 +68,8 @@ public class APIConstant {
         public static final String MATERIAL = APIConstant.API + "/material";
         public static final String ADD_NEW_MATERIAL = "/add-new-material";
         public static final String GET_ALL_MATERIAL = "/get-all-material";
+        public static final String ADD_NEW_CATEGORY_MATERIAL_BY_EXCEL_FILE = "/add-new-category-material-by-excel-file";
+        public static final String EXPORT_CATEGORY_MATERIAL_FOR_BRAND_BY_EXCEL = "/export-category-material-for-brand-by-excel";
     }
 
     /**
@@ -88,5 +90,17 @@ public class APIConstant {
     public class CustomerAPI {
         public static final String CUSTOMER = APIConstant.API + "/customer";
         public static final String UPDATE_CUSTOMER_PROFILE = "/update-customer-profile";
+    }
+
+    /**
+     * Customer API
+     */
+    public class ExpertTailoringAPI {
+        public static final String EXPERT_TAILORING = APIConstant.API + "/expert-tailoring";
+        public static final String ADD_NEW_EXPERT_TAILORING = "/add-new-expert-tailoring";
+        public static final String GET_ALL_EXPERT_TAILORING = "/get-all-expert-tailoring";
+        public static final String GET_ALL_EXPERT_TAILORING_BY_EXPERT_TAILORING_NAME = "/get-expert-tailoring-by-name";
+        public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE = "/add-new-expert-tailoring-by-excel-file";
+        public static final String GET_ALL_EXPERT_TAILORING_BY_EXCEL_FILE = "/get-all-expert-tailoring-by-excel-file";
     }
 }

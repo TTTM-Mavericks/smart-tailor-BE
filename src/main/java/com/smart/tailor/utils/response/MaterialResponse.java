@@ -19,4 +19,6 @@ public class MaterialResponse {
     private String materialName;
 
     private String categoryName;
+
+    private Double hsCode;
 }

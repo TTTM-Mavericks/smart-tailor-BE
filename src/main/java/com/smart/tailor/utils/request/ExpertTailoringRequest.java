@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MaterialRequest {
-    private String materialName;
+public class ExpertTailoringRequest {
+    private String expertTailoringName;
 
-    private String categoryName;
-
-    private Double hsCode;
+    private String sizeImageUrl;
 }
