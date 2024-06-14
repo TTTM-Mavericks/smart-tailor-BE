@@ -24,10 +24,6 @@ public class Notification extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID notificationID;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-//    private User user;
-
     private String action;
 
     @Column(name = "relation_id")

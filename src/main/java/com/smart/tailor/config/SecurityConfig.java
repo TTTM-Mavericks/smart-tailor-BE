@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -54,33 +53,13 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> {
 //                            auth.requestMatchers("/api/v1/auth/update-password").hasAnyRole(authenticatedRole);
+//                            auth.requestMatchers("/api/v1/notification/**").hasAnyRole("ADMIN", "MANAGER");
                             auth.requestMatchers(WHITE_LIST_URL).permitAll();
-                            auth.anyRequest().authenticated();
+                            auth.anyRequest().permitAll();
                         }
                 )
-//                .authorizeRequests()
-//                .requestMatchers(WHITE_LIST_URL)
-//                .permitAll()
-//                .anyRequest()
-//                .permitAll()
-//                .authenticated()
-//                .and()
-//                .oauth2Login()
-//                .userInfoEndpoint()
-//                .userService(oauth2UserService)
-//                .and()
-//                .successHandler(oauthLoginSuccessHandler)
-//                .and()
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new SimpleCORSFilter(), WebAsyncManagerIntegrationFilter.class)
-//                .logout(logout ->
-//                        logout.logoutUrl("/api/v1/auth/log-out")
-//                                .addLogoutHandler(logoutHandler)
-//                                .logoutSuccessHandler(
-//                                        (request, response, authentication) -> SecurityContextHolder.clearContext()
-//                                )
-//                );
-        ;
+                .addFilterBefore(new SimpleCORSFilter(), WebAsyncManagerIntegrationFilter.class);
         return httpSecurity.build();
     }
 }

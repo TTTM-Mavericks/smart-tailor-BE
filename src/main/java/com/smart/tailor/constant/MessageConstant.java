@@ -1,7 +1,5 @@
 package com.smart.tailor.constant;
 
-import org.springframework.security.core.parameters.P;
-
 public class MessageConstant {
     /**
      * ERROR MESSAGE
@@ -118,4 +116,10 @@ public class MessageConstant {
     public static final String DUPLICATE_EXPERT_TAILORING_DATA = "Duplicate Expert Tailoring Data";
     public static final String DUPLICATE_EXPERT_TAILORING_IN_EXCEL_FILE = "Duplicate Expert Tailoring in Excel File!";
     public static final String WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE = "Wrong Type Of Expert Tailoring Excel File!";
+
+    /**
+     * NOTIFICATION
+     */
+    public static final String SEND_NOTIFICATION_SUCCESSFULLY = "Notification sent successfully!";
+    public static final String SEND_NOTIFICATION_FAIL = "Fail To Send Notification!";
 }
