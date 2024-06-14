@@ -5,6 +5,7 @@ import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.BrandStatus;
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.repository.BrandRepository;
 import com.smart.tailor.repository.RoleRepository;
 import com.smart.tailor.repository.UserRepository;
@@ -65,7 +66,7 @@ public class SmartTailorBeApplication {
                         .email("lalisa@example.com")
                         .password(passwordEncoder.encode("HASH_PASSWORD"))
                         .phoneNumber(Utilities.generateRandomNumber())
-                        .userStatus(true)
+                        .userStatus(UserStatus.ACTIVE)
                         .provider(Provider.LOCAL)
                         .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
                         .build()
@@ -75,7 +76,7 @@ public class SmartTailorBeApplication {
                         .email("goyounjung@example.com")
                         .password(passwordEncoder.encode("HASH_PASSWORD"))
                         .phoneNumber(Utilities.generateRandomNumber())
-                        .userStatus(true)
+                        .userStatus(UserStatus.ACTIVE)
                         .provider(Provider.LOCAL)
                         .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
                         .build()

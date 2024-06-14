@@ -30,7 +30,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         var typeOfVerification = event.getTypeOfVerification();
 
         verificationTokenService.saveUserVerificationToken(registeredUser, verificationToken, typeOfVerification);
-        String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "?token=" + verificationToken;
+        String verificationURL = LinkConstant.LINK_VERIFICATION_ACCOUNT + "/" + verificationToken;
         sendVerificationEmail(registeredUser, verificationURL);
 
         logger.info("The link to verify account registration {}", LinkConstant.LINK_VERIFICATION_ACCOUNT);

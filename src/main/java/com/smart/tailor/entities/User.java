@@ -2,6 +2,7 @@ package com.smart.tailor.entities;
 
 
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -51,7 +52,8 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
     private Provider provider;
 
     @Column(name = "user_status")
-    private Boolean userStatus;
+    @Enumerated(EnumType.STRING)
+    private UserStatus userStatus;
 
     @Lob
     @Column(name = "image_url", columnDefinition = "TEXT")

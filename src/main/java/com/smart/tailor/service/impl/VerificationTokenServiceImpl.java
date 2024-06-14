@@ -41,6 +41,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                             .token(token)
                             .user(user)
                             .typeOfVerification(typeOfVerification)
+                            .isEnabled(false)
                             .expirationDateTime(localDateTime.plusMinutes(1))
                             .build()
             );
@@ -48,18 +49,19 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         else {
             existedVerificationToken.setTypeOfVerification(typeOfVerification);
             existedVerificationToken.setToken(token);
+            existedVerificationToken.setEnabled(false);
             existedVerificationToken.setExpirationDateTime(localDateTime.plusMinutes(1));
             verificationTokenRepository.save(existedVerificationToken);
         }
     }
 
     @Override
-    public VerificationToken generateNewVerificationToken(UUID oldToken) {
-        Optional<VerificationToken> verificationTokenOptional = findByToken(oldToken);
-        VerificationToken verificationToken = verificationTokenOptional.get();
-        if(verificationTokenOptional.isPresent()){
+    public VerificationToken generateNewVerificationToken(String userEmail) {
+       var verificationToken = findVerificationTokenByUserEmail(userEmail);
+        if(verificationToken != null){
             verificationToken.setToken(UUID.randomUUID());
             verificationToken.setExpirationDateTime(LocalDateTime.now().plusMinutes(1));
+            verificationToken.setEnabled(false);
             return verificationTokenRepository.save(verificationToken);
         }
         return null;
@@ -70,7 +72,15 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         if(!Utilities.isStringNotNullOrEmpty(userEmail)){
             return null;
         }
-        VerificationToken verificationToken = verificationTokenRepository.findVerificationTokenByUserEmail(userEmail);
-        return generateNewVerificationToken(verificationToken.getToken());
+        if(!Utilities.isValidEmail(userEmail)){
+            return null;
+        }
+        return verificationTokenRepository.findVerificationTokenByUserEmail(userEmail);
+    }
+
+    @Override
+    public void enableVerificationToken(VerificationToken verificationToken) {
+        verificationToken.setEnabled(true);
+        verificationTokenRepository.save(verificationToken);
     }
 }

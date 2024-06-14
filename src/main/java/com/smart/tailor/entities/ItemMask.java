@@ -53,7 +53,7 @@ public class ItemMask extends AuditEntity implements Serializable {
     private Float scaleY;
 
     @Column(name = "z_index")
-    private Float zIndex;
+    private Integer zIndex;
 
     @Lob
     @Column(name = "image_url", columnDefinition = "TEXT")

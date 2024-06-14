@@ -14,8 +14,9 @@ public class APIConstant {
         public static final String AUTHENTICATION = APIConstant.API + "/auth";
         public static final String REGISTER = "/register";
         public static final String VERIFY = "/verify";
-        public static final String CHECK_VERIFY = "/check-verify";
-        public static final String CHECK_VERIFY_PASSWORD = "/check-verify-password";
+        public static final String CHECK_VERIFY_ACCOUNT = "/check-verify-account";
+        public static final String CHECK_VERIFY_FORGOT_PASSWORD = "/check-verify-forgot-password";
+        public static final String CHECK_VERIFY_CHANGE_PASSWORD = "/check-verify-change-password";
         public static final String VERIFY_PASSWORD = "/verify-password";
         public static final String CHANGE_PASSWORD = "/change-password";
         public static final String FORGOT_PASSWORD = "/forgot-password";

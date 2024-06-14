@@ -7,7 +7,9 @@ import com.smart.tailor.entities.VerificationToken;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.TokenType;
 import com.smart.tailor.enums.TypeOfVerification;
+import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.service.*;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.APIResponse;
@@ -83,12 +85,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         authenticationRequest.getEmail().isEmpty() || authenticationRequest.getEmail().isBlank()) {
                     throw new Exception("MISSING ARGUMENT");
                 }
+
+                if(!Utilities.isValidEmail(authenticationRequest.getEmail())){
+                    throw new Exception("EMAIL IS INVALID");
+                }
+
                 User existedUser = userService.getUserByEmail(authenticationRequest.getEmail());
                 if (existedUser == null) {
                     throw new Exception("USER IS NOT EXISTED");
                 }
 
-                if (!existedUser.getUserStatus()) {
+                if (!existedUser.getUserStatus().equals(UserStatus.ACTIVE)) {
                     throw new Exception("USER ARE NOT ALLOW TO ENTER!");
                 }
 
@@ -194,8 +201,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Change Status User
         if (verificationToken.getTypeOfVerification().equals(TypeOfVerification.VERIFY_ACCOUNT)) {
-            userService.updateStatusAccount(user.getEmail());
+            userService.updateStatusAccount(user.getEmail(), UserStatus.ACTIVE);
         }
+        verificationTokenService.enableVerificationToken(verificationToken);
         return MessageConstant.TOKEN_IS_VALID;
     }
 
@@ -239,10 +247,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public Boolean checkVerify(String email) {
+    public Boolean checkVerifyAccount(String email) {
         try {
             var registerUser = userService.getUserByEmail(email);
-            return registerUser != null && registerUser.getUserStatus();
+            VerificationToken verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
+            return registerUser != null && registerUser.getUserStatus().equals(UserStatus.ACTIVE) && verificationToken.isEnabled();
         } catch (Exception ex) {
             logger.error("ERROR IN AuthenticationServiceImpl - checkVerify: {}", ex.getMessage());
         }
@@ -250,14 +259,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public Boolean checkVerifyPassword(String email) {
+    public Boolean checkVerifyPassword(String email, TypeOfVerification typeOfVerification) {
         try {
-            String timeLinkObject = expiredTimeLink.get(email + " expiredTimeForgotPassword");
-            if (timeLinkObject == null) {
-                return false;
-            }
-            String oldToken = forgotAccount.get(email);
-            return oldToken == null || oldToken.isEmpty() || oldToken.isBlank();
+            VerificationToken verificationToken = verificationTokenService.findVerificationTokenByUserEmail(email);
+            return email != null && verificationToken != null && verificationToken.getTypeOfVerification().equals(typeOfVerification) && verificationToken.isEnabled();
 
         } catch (Exception ex) {
             logger.error("ERROR IN AuthenticationServiceImpl - checkVerifyPassword: {}", ex.getMessage());

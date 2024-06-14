@@ -2,6 +2,7 @@ package com.smart.tailor.service;
 
 
 import com.smart.tailor.entities.User;
+import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
 import java.util.List;
@@ -22,7 +23,7 @@ public interface UserService {
 
     List<UserResponse> getAllUserResponse();
 
-    Boolean updateStatusAccount(String email);
+    Boolean updateStatusAccount(String email, UserStatus userStatus);
 
     User updateUserProfile(UserRequest userRequest);
 

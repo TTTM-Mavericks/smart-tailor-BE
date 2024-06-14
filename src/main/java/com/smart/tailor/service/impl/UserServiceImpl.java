@@ -5,6 +5,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
                             .password(userRequest.getPassword())
                             .language(userRequest.getLanguage())
                             .provider(userRequest.getProvider())
-                            .userStatus(userRequest.getProvider().equals(Provider.LOCAL) ? false : true)
+                            .userStatus(userRequest.getProvider().equals(Provider.LOCAL) ? UserStatus.INACTIVE : UserStatus.ACTIVE)
                             .fullName(userRequest.getFullName())
                             .phoneNumber(userRequest.getPhoneNumber())
                             .roles(role.get())
@@ -88,10 +89,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean updateStatusAccount(String email) {
+    public Boolean updateStatusAccount(String email, UserStatus userStatus) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
-            user.get().setUserStatus(user.get().getUserStatus() == true ? false : true);
+            user.get().setUserStatus(userStatus);
             userRepository.save(user.get());
             return true;
         }

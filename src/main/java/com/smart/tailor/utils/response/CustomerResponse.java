@@ -1,6 +1,7 @@
 package com.smart.tailor.utils.response;
 
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class CustomerResponse {
 
     private String phoneNumber;
 
-    private Boolean userStatus;
+    private UserStatus userStatus;
 
     private String roleName;
 

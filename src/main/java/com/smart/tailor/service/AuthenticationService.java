@@ -2,6 +2,8 @@ package com.smart.tailor.service;
 
 
 import com.smart.tailor.entities.User;
+import com.smart.tailor.entities.VerificationToken;
+import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
@@ -31,9 +33,9 @@ public interface AuthenticationService {
 
     Boolean verifyPassword(String email, String token);
 
-    Boolean checkVerify(String email);
+    Boolean checkVerifyAccount(String email);
 
-    Boolean checkVerifyPassword(String email);
+    Boolean checkVerifyPassword(String email, TypeOfVerification typeOfVerification);
 
 
 }
