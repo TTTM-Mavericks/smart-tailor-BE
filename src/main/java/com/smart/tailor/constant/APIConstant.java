@@ -103,4 +103,13 @@ public class APIConstant {
         public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE = "/add-new-expert-tailoring-by-excel-file";
         public static final String GET_ALL_EXPERT_TAILORING_BY_EXCEL_FILE = "/get-all-expert-tailoring-by-excel-file";
     }
+
+    /**
+     * Notification API
+     */
+    public class NotificationAPI {
+        public static final String Notification = APIConstant.API + "/notification";
+        public static final String SEND_PUBLIC_NOTIFICATION = "/send-public-notification";
+        public static final String SEND_NOTIFICATION = "/send-notification";
+    }
 }

@@ -1,6 +1,5 @@
 package com.smart.tailor;
 
-import com.smart.tailor.entities.Brand;
 import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.BrandStatus;
@@ -10,17 +9,20 @@ import com.smart.tailor.repository.BrandRepository;
 import com.smart.tailor.repository.RoleRepository;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
-import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.NotificationRequest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
+import org.springframework.stereotype.Controller;
 
 @SpringBootApplication
 @EnableJpaAuditing()
