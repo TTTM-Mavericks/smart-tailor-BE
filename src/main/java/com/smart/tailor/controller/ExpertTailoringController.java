@@ -131,4 +131,24 @@ public class ExpertTailoringController {
             return ResponseEntity.ok(response);
         }
     }
+
+    @GetMapping(APIConstant.ExpertTailoringAPI.GENERATE_SAMPLE_EXPERT_TAILORING_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> generateSampleExpertTailoringByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            httpServletResponse.setContentType("application/octet-stream");
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename = Generate_Sample_Expert_Tailoring.xlsx";
+            httpServletResponse.setHeader(headerKey, headerValue);
+            expertTailoringService.generateSampleExpertTailoringByExportExcel(httpServletResponse);
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GENERATE_SAMPLE_EXPERT_TAILORING_SUCCESSFULLY);
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GENERATE SAMPLE EXPERT TAILORING BY EXCEL FILE. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
 }

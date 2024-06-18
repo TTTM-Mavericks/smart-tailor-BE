@@ -193,4 +193,24 @@ public class MaterialController {
             return ResponseEntity.ok(response);
         }
     }
+
+    @GetMapping(APIConstant.MaterialAPI.GENERATE_SAMPLE_CATEGORY_MATERIAL_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> generateSampleCategoryMaterialByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            httpServletResponse.setContentType("application/octet-stream");
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename = Generate_Sample_Category_Material.xlsx";
+            httpServletResponse.setHeader(headerKey, headerValue);
+            materialService.generateSampleCategoryMaterialByExportExcel(httpServletResponse);
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GENERATE_SAMPLE_CATEGORY_MATERIAL_SUCCESSFULLY);
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GENERATE SAMPLE CATEGORY MATERIAL BY EXCEL FILE. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
 }

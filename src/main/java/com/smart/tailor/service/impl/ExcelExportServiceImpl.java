@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.ss.util.RegionUtil;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -31,7 +32,6 @@ import java.util.List;
 @Slf4j
 public class ExcelExportServiceImpl implements ExcelExportService {
     private void createCell(Row row, int columnIndex, Object value, CellStyle style, XSSFSheet sheet){
-        sheet.autoSizeColumn(columnIndex);
         Cell cell = row.createCell(columnIndex);
         if(value instanceof Integer){
             cell.setCellValue((Integer) value);
@@ -61,6 +61,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             cell.setCellValue("");
         }
         cell.setCellStyle(style);
+        sheet.autoSizeColumn(columnIndex);
     }
 
     @Override
@@ -294,6 +295,197 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Add data validation to the sheet
         sheet.addValidationData(brandPriceValidation);
+
+        // Export Data to Excel
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+    }
+
+    @Override
+    public void exportSampleExpertTailoring(HttpServletResponse response) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Expert Tailoring");
+
+        // Create Title Row of Excel Sheet
+        Row row = sheet.createRow(0);
+        CellStyle style = workbook.createCellStyle();
+        XSSFFont font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeight(20);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setLocked(true);
+        createCell(row, 0, "Expert Tailoring List", style, sheet);
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1));
+        font.setFontHeightInPoints((short) 10);
+
+        // Create Header of Excel Sheet
+        row = sheet.createRow(1);
+        font.setBold(true);
+        font.setFontHeight(16);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        createCell(row, 0, "Expert Tailoring Name", style, sheet);
+        createCell(row, 1, "Size Image Url", style, sheet);
+
+        int rowIndex = 2;
+        CellStyle styleData = workbook.createCellStyle();
+        XSSFFont fontData = workbook.createFont();
+        fontData.setBold(false);
+        fontData.setFontHeight(14);
+        styleData.setFont(fontData);
+        styleData.setLocked(false);
+        styleData.setAlignment(HorizontalAlignment.CENTER);
+
+        // Set Password to Unlock Columns and Rows
+        sheet.protectSheet("Aa@123456");
+
+        // Unlocked For Specific Cells
+        for(int i = 2; i <= 200; ++i){
+            row = sheet.createRow(i);
+            Cell cellA = row.createCell(0);
+            Cell cellB = row.createCell(1);
+            cellA.setCellStyle(styleData);
+            cellB.setCellStyle(styleData);
+        }
+
+        // Create Data Validation for String
+        DataValidationHelper dataValidationHelper = new XSSFDataValidationHelper(sheet);
+
+        // Apply Constraint to Cell 0 Which is Expert Tailoring Name
+        DataValidationConstraint constraint = dataValidationHelper.createCustomConstraint("ISTEXT(A3)");
+        CellRangeAddressList expertTailoringNameRange = new CellRangeAddressList(2, 200, 0,0);
+        DataValidation expertTailoringNameValidation = dataValidationHelper.createValidation(constraint, expertTailoringNameRange);
+        expertTailoringNameValidation.setShowErrorBox(true);
+        expertTailoringNameValidation.createErrorBox("Invalid Input", "Expert Tailoring Name must be Type String");
+        sheet.addValidationData(expertTailoringNameValidation);
+
+        // Apply Constraint to Cell 0 Which is Expert Tailoring Name
+        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(B3)");
+        CellRangeAddressList expertTailoringUrlRange = new CellRangeAddressList(2, 200, 1,1);
+        DataValidation expertTailoringUrlValidation = dataValidationHelper.createValidation(constraint, expertTailoringUrlRange);
+        expertTailoringUrlValidation.setShowErrorBox(true);
+        expertTailoringUrlValidation.createErrorBox("Invalid Input", "Expert Tailoring Url must be Type String");
+        sheet.addValidationData(expertTailoringUrlValidation);
+
+        // Set Width for Specific Column
+        sheet.setColumnWidth(0, 30 * 256);
+        sheet.setColumnWidth(1, 160 * 256);
+
+        // Export Data to Excel
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+    }
+
+    @Override
+    public void exportSampleCategoryMaterial(HttpServletResponse response) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Category and Material");
+
+        // Create Title Row of Excel Sheet
+        Row row = sheet.createRow(0);
+        CellStyle style = workbook.createCellStyle();
+        XSSFFont font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeight(20);
+        style.setFont(font);
+        style.setLocked(true);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        createCell(row, 0, "Category and Material", style, sheet);
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
+        font.setFontHeightInPoints((short) 10);
+
+        // Create Header of Excel Sheet
+        row = sheet.createRow(1);
+        font.setBold(true);
+        font.setFontHeight(16);
+        style.setFont(font);
+        createCell(row, 0, "Category Name", style, sheet);
+        createCell(row, 1, "Material Name", style, sheet);
+        createCell(row, 2, "HSCode", style, sheet);
+        createCell(row, 3, "Unit", style, sheet);
+        createCell(row, 4, "Base Price", style, sheet);
+
+        int rowIndex = 2;
+        XSSFFont fontData = workbook.createFont();
+        fontData.setBold(false);
+        fontData.setFontHeight(14);
+        CellStyle styleData = workbook.createCellStyle();
+        styleData.setLocked(false);
+        styleData.setFont(fontData);
+        styleData.setAlignment(HorizontalAlignment.CENTER);
+        // Set Password to Unlock Columns and Rows
+        sheet.protectSheet("Aa@123456");
+
+        // Unlocked For Specific Cells
+        for(int i = 2; i <= 200; ++i){
+            row = sheet.createRow(i);
+            Cell cellA = row.createCell(0);
+            Cell cellB = row.createCell(1);
+            Cell cellC = row.createCell(2);
+            Cell cellD = row.createCell(3);
+            Cell cellE = row.createCell(4);
+            cellA.setCellStyle(styleData);
+            cellB.setCellStyle(styleData);
+            cellC.setCellStyle(styleData);
+            cellD.setCellStyle(styleData);
+            cellE.setCellStyle(styleData);
+        }
+
+        // Create Data Validation for String
+        DataValidationHelper dataValidationHelper = new XSSFDataValidationHelper(sheet);
+
+        // Apply Constraint to Cell 0 <=> CategoryName
+        DataValidationConstraint constraint = dataValidationHelper.createCustomConstraint("ISTEXT(A3)");
+        CellRangeAddressList categoryNameRange = new CellRangeAddressList(2, 200, 0,0);
+        DataValidation categoryNameValidation = dataValidationHelper.createValidation(constraint, categoryNameRange);
+        categoryNameValidation.setShowErrorBox(true);
+        categoryNameValidation.createErrorBox("Invalid Input", "Category Name must be Type String");
+        sheet.addValidationData(categoryNameValidation);
+
+        // Apply Constraint to Cell 1 <=> MaterialName
+        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(B3)");
+        CellRangeAddressList materialNameRange = new CellRangeAddressList(2, 200, 1, 1);
+        DataValidation materialNameValidation = dataValidationHelper.createValidation(constraint, materialNameRange);
+        materialNameValidation.setShowErrorBox(true);
+        materialNameValidation.createErrorBox("Invalid Input", "Material Name must be Type String");
+        sheet.addValidationData(materialNameValidation);
+
+        // Apply Constraint to Cell 2 <=> HSCode
+        constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(C3), C3 >= 0)");
+        CellRangeAddressList hsCodeRange = new CellRangeAddressList(2, 200, 2,2);
+        DataValidation hsCodeValidation = dataValidationHelper.createValidation(constraint, hsCodeRange);
+        hsCodeValidation.setShowErrorBox(true);
+        hsCodeValidation.createErrorBox("Invalid Input", "HS Code must be Type Number And Non-Negative Number");
+        sheet.addValidationData(hsCodeValidation);
+
+        // Apply Constraint to Cell 3 <=> Unit
+        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(D3)");
+        CellRangeAddressList unitRange = new CellRangeAddressList(2, 200, 3, 3);
+        DataValidation unitValidation = dataValidationHelper.createValidation(constraint, unitRange);
+        unitValidation.setShowErrorBox(true);
+        unitValidation.createErrorBox("Invalid Input", "Material Name must be Type String");
+        sheet.addValidationData(unitValidation);
+
+        // Apply Constraint to Cell 4 <=> BasePrice
+        constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(E3), E3 >= 0)");
+        CellRangeAddressList basePriceRange = new CellRangeAddressList(2, 200, 4,4);
+        DataValidation basePriceValidation = dataValidationHelper.createValidation(constraint, basePriceRange);
+        basePriceValidation.setShowErrorBox(true);
+        basePriceValidation.createErrorBox("Invalid Input", "Base Price must be Type Number And Non-Negative Number");
+        sheet.addValidationData(basePriceValidation);
+
+        // Set Width for Specific Column
+        sheet.setColumnWidth(0, 25 * 256);
+        sheet.setColumnWidth(1, 55 * 256);
+        sheet.setColumnWidth(2, 18 * 256);
+        sheet.setColumnWidth(3, 18 * 256);
+        sheet.setColumnWidth(4, 18 * 256);
+
 
         // Export Data to Excel
         ServletOutputStream outputStream = response.getOutputStream();

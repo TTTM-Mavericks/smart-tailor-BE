@@ -339,4 +339,9 @@ public class MaterialServiceImpl implements MaterialService {
                 .data(materialMapper.mapperToMaterialResponse(materialRepository.save(material.get())))
                 .build();
     }
+
+    @Override
+    public void generateSampleCategoryMaterialByExportExcel(HttpServletResponse response) throws IOException {
+        excelExportService.exportSampleCategoryMaterial(response);
+    }
 }

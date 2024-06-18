@@ -23,4 +23,6 @@ public interface ExpertTailoringService {
     APIResponse createExpertTailoringByExcelFile(MultipartFile file);
 
     List<ExpertTailoringResponse> getAllExpertTailoringByExportExcelData(HttpServletResponse response) throws IOException;
+
+    void generateSampleExpertTailoringByExportExcel(HttpServletResponse response) throws IOException;
 }

@@ -9,6 +9,7 @@ import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
+import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -109,17 +110,14 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                     .build();
         }
         try {
-            var excelData = excelImportService.getExpertTailoringDataFromExcel(file.getInputStream());
+            var apiResponse = excelImportService.getExpertTailoringDataFromExcel(file.getInputStream());
 
-            if(excelData == null){
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE)
-                        .data(null)
-                        .build();
+            if(apiResponse.getStatus() == HttpStatus.BAD_REQUEST.value() ||
+                    apiResponse.getStatus() == HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()){
+                return apiResponse;
             }
 
+            var excelData = (List<ExpertTailoringRequest>) apiResponse.getData();
             Set<String> excelNames = new HashSet<>();
             List<ExpertTailoringRequest> uniqueExcelData = new ArrayList<>();
             List<ExpertTailoringRequest> duplicateExcelData = new ArrayList<>();
@@ -179,5 +177,10 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         var expertTailoringResponse = getAllExpertTailoring();
         excelExportService.exportExpertTailoringData(expertTailoringResponse, response);
         return expertTailoringResponse;
+    }
+
+    @Override
+    public void generateSampleExpertTailoringByExportExcel(HttpServletResponse response) throws IOException {
+        excelExportService.exportSampleExpertTailoring(response);
     }
 }

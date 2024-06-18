@@ -17,6 +17,7 @@ public class MessageConstant {
     public static final String INVALID_EMAIL = "Invalid Email!";
     public static final String INVALID_PASSWORD = "Invalid Password!";
     public static final String INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER = "Invalid Negative Number Need Positive Number";
+    public static final String ERROR_READING_EXCEL_FILE = "Error Reading Excel File";
     /**
      * SUCCESS MESSAGE
      */
@@ -86,6 +87,7 @@ public class MessageConstant {
     public static final String UPDATE_MATERIAL_SUCCESSFULLY = "Update Material Successfully";
     public static final String GET_MATERIAL_BY_ID_SUCCESSFULLY = "Get Material By ID Successfully";
     public static final String CHANGE_STATUS_MATERIAL_SUCCESSFULLY = "Change Status Material Successfully";
+    public static final String GENERATE_SAMPLE_CATEGORY_MATERIAL_SUCCESSFULLY = "Generate Sample Category Material Successfully!";
 
     /*    FAIL     */
     public static final String ADD_NEW_MATERIAL_FAIL = "Add New Material Fail!";
@@ -103,6 +105,7 @@ public class MessageConstant {
     public static final String ADD_NEW_BRAND_MATERIAL_SUCCESSFULLY = "Add New Brand Material Successfully!";
     public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Brand Material By Excel File Successfully!";
 
+
     /*    FAIL     */
     public static final String ADD_NEW_BRAND_MATERIAL_FAIL = "Add New Brand Material Fail!";
     public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Brand Material By Excel File Fail!";
@@ -117,6 +120,7 @@ public class MessageConstant {
     public static final String GET_EXPERT_TAILORING_BY_NAME_SUCCESSFULLY = "Get Expert Tailoring By Name Successfully!";
     public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Expert Tailoring By Excel File Successfully!";
     public static final String GET_ALL_EXPERT_TAILORING_SUCCESSFULLY = "Get All Expert Tailoring Successfully!";
+    public static final String GENERATE_SAMPLE_EXPERT_TAILORING_SUCCESSFULLY = "Generate Sample Expert Tailoring Successfully!";
 
     /*    FAIL     */
     public static final String ADD_NEW_EXPERT_TAILORING_FAIL = "Add New Expert Tailoring Fail!";

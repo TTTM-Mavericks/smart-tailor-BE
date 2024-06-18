@@ -16,5 +16,5 @@ public interface ExcelImportService {
 
     APIResponse getCategoryMaterialDataFromExcel(InputStream inputStream);
 
-    List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream);
+    APIResponse getExpertTailoringDataFromExcel(InputStream inputStream);
 }

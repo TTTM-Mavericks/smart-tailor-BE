@@ -76,6 +76,7 @@ public class APIConstant {
         public static final String EXPORT_CATEGORY_MATERIAL_FOR_BRAND_BY_EXCEL = "/export-category-material-for-brand-by-excel";
         public static final String UPDATE_MATERIAL = "/update-material";
         public static final String UPDATE_STATUS_MATERIAL = "update-status-material";
+        public static final String GENERATE_SAMPLE_CATEGORY_MATERIAL_BY_EXCEL_FILE = "/generate-sample-category-material-by-excel-file";
     }
 
     /**
@@ -108,6 +109,7 @@ public class APIConstant {
         public static final String GET_ALL_EXPERT_TAILORING_BY_EXPERT_TAILORING_NAME = "/get-expert-tailoring-by-name";
         public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE = "/add-new-expert-tailoring-by-excel-file";
         public static final String GET_ALL_EXPERT_TAILORING_BY_EXCEL_FILE = "/get-all-expert-tailoring-by-excel-file";
+        public static final String GENERATE_SAMPLE_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-expert-tailoring-by-excel-file";
     }
 
     /**
