@@ -1,13 +1,9 @@
 package com.smart.tailor.utils;
 
-import com.smart.tailor.constant.FormatConstant;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -16,8 +12,11 @@ import java.util.regex.Pattern;
 public class Utilities {
 
     public static boolean isNonNullOrEmpty(String str) {
+        if (str == null) {
+            return false;
+        }
         str = str.trim();
-        return str != null && !str.isEmpty() && !str.isBlank();
+        return !str.isEmpty() && !str.isBlank();
     }
 
     public static boolean isValidEmail(String email) {
@@ -59,31 +58,31 @@ public class Utilities {
         }
     }
 
-    public static String generateRandomNumber(){
+    public static String generateRandomNumber() {
         StringBuilder str = new StringBuilder();
         Random random = new Random();
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             str.append(random.nextInt(10));
         }
         return str.toString();
     }
 
-    public static boolean isValidNumber(String str){
+    public static boolean isValidNumber(String str) {
         return str != null && str.matches("-?\\d+(\\.\\d+)?");
     }
 
-    public static boolean isValidDouble(String str){
-        try{
+    public static boolean isValidDouble(String str) {
+        try {
             Double.parseDouble(str);
             return true;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return false;
         }
     }
 
-    public static boolean isStringNotNullOrEmpty(String str){
-        if(Optional.ofNullable(str).isPresent()){
-            if(isNonNullOrEmpty(str)){
+    public static boolean isStringNotNullOrEmpty(String str) {
+        if (Optional.ofNullable(str).isPresent()) {
+            if (isNonNullOrEmpty(str)) {
                 return true;
             }
         }
@@ -100,24 +99,22 @@ public class Utilities {
         }
     }
 
-    public static boolean isValidBoolean(Boolean bool){
-        if(bool == null) return false;
+    public static boolean isValidBoolean(Boolean bool) {
+        if (bool == null) return false;
         try {
             Boolean.parseBoolean(bool.toString());
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
-    public static boolean isValidFloat(Float floatType){
-        if(floatType == null) return false;
+    public static boolean isValidFloat(Float floatType) {
+        if (floatType == null) return false;
         try {
             Float.parseFloat(floatType.toString());
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }

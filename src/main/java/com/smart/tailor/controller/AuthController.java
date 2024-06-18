@@ -6,7 +6,9 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.smart.tailor.config.CustomExeption;
 import com.smart.tailor.constant.APIConstant;
+import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.LinkConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.User;
@@ -71,8 +73,11 @@ public class AuthController {
                 return ResponseEntity.ok(respon);
             }
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            if (ex instanceof CustomExeption) {
+
+            }
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -104,8 +109,8 @@ public class AuthController {
 
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -124,12 +129,12 @@ public class AuthController {
                 return ResponseEntity.ok(respon);
             } else {
                 respon.put("status", 401);
-                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                respon.put("message", ErrorConstant.ACCOUNT_IS_VERIFIED.getMessage());
                 return ResponseEntity.ok(respon);
             }
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN CHECK VERIFY PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -146,13 +151,13 @@ public class AuthController {
                 respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
                 return ResponseEntity.ok(respon);
             } else {
-                respon.put("status", 401);
-                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                respon.put("status", ErrorConstant.ACCOUNT_NOT_VERIFIED.getStatusCode());
+                respon.put("message", ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
                 return ResponseEntity.ok(respon);
             }
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN CHECK VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -169,13 +174,13 @@ public class AuthController {
                 respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
                 return ResponseEntity.ok(respon);
             } else {
-                respon.put("status", 401);
-                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                respon.put("status", ErrorConstant.ACCOUNT_NOT_VERIFIED.getStatusCode());
+                respon.put("message", ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
                 return ResponseEntity.ok(respon);
             }
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN CHECK VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -188,8 +193,8 @@ public class AuthController {
         try {
             // Check if enough argument?
             if (userRequest == null || userRequest.getEmail() == null) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
+                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
@@ -198,33 +203,33 @@ public class AuthController {
 
             // Check email is valid?
             if (!Utilities.isValidEmail(email)) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.INVALID_EMAIL);
+                respon.put("status", ErrorConstant.INVALID_EMAIL.getStatusCode());
+                respon.put("message", ErrorConstant.INVALID_EMAIL.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
             // Check password is valid? Only check when it's not google registration
             if (userRequest.getProvider() != Provider.GOOGLE) {
                 if (!Utilities.isValidPassword(password)) {
-                    respon.put("status", 400);
-                    respon.put("message", MessageConstant.INVALID_PASSWORD);
+                    respon.put("status", ErrorConstant.INVALID_PASSWORD.getStatusCode());
+                    respon.put("message", ErrorConstant.INVALID_PASSWORD.getStatusCode());
                     return ResponseEntity.ok(respon);
                 }
             }
 
             // Check email is not verify?
             if (userService.getUserByEmail(userRequest.getEmail()) != null) {
-                if(userService.getUserByEmail(userRequest.getEmail()).getUserStatus().equals(UserStatus.INACTIVE)){
-                    respon.put("status", 409);
-                    respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+                if (userService.getUserByEmail(userRequest.getEmail()).getUserStatus().equals(UserStatus.INACTIVE)) {
+                    respon.put("status", ErrorConstant.ACCOUNT_NOT_VERIFIED.getStatusCode());
+                    respon.put("message", ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
                     return ResponseEntity.ok(respon);
                 }
             }
 
             // Check email is duplicated?
             if (userService.getUserByEmail(userRequest.getEmail()) != null) {
-                respon.put("status", 409);
-                respon.put("message", MessageConstant.DUPLICATE_REGISTERED_EMAIL);
+                respon.put("status", ErrorConstant.DUPLICATE_REGISTERED_EMAIL.getStatusCode());
+                respon.put("message", ErrorConstant.DUPLICATE_REGISTERED_EMAIL.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
@@ -232,8 +237,8 @@ public class AuthController {
             var registeredUser = userService.getUserByEmail(authenResponse.getUser().getEmail());
 
             if (registeredUser == null) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.REGISTER_NEW_USER_FAILED);
+                respon.put("status", ErrorConstant.REGISTER_NEW_USER_FAILED.getStatusCode());
+                respon.put("message", ErrorConstant.REGISTER_NEW_USER_FAILED.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
@@ -248,8 +253,8 @@ public class AuthController {
             respon.set("data", objectMapper.valueToTree(authenResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN REGISTER ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -268,14 +273,14 @@ public class AuthController {
                 respon.put("status", HttpStatus.OK.value());
                 respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
             } else {
-                respon.put("status", HttpStatus.BAD_REQUEST.value());
-                respon.put("message", MessageConstant.EMAIL_IS_NOT_EXISTED);
+                respon.put("status", ErrorConstant.BAD_REQUEST.getStatusCode());
+                respon.put("message", ErrorConstant.BAD_REQUEST.getMessage());
             }
             return ResponseEntity.ok(respon);
 
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN SEND MAIL FORGOT PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -294,14 +299,14 @@ public class AuthController {
                 respon.put("status", HttpStatus.OK.value());
                 respon.put("message", MessageConstant.SEND_MAIL_FOR_UPDATE_PASSWORD_SUCCESSFULLY);
             } else {
-                respon.put("status", HttpStatus.BAD_REQUEST.value());
-                respon.put("message", MessageConstant.EMAIL_IS_NOT_EXISTED);
+                respon.put("status", ErrorConstant.BAD_REQUEST.getStatusCode());
+                respon.put("message", ErrorConstant.BAD_REQUEST.getMessage());
             }
             return ResponseEntity.ok(respon);
 
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN SEND MAIL FORGOT PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -313,40 +318,40 @@ public class AuthController {
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             if (userRequest == null) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.BAD_REQUEST);
+                respon.put("status", ErrorConstant.BAD_REQUEST.getStatusCode());
+                respon.put("message", ErrorConstant.BAD_REQUEST.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
             if (userRequest.getEmail() == null) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
+                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
             String email = userRequest.getEmail();
             if (!Utilities.isValidEmail(email)) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.INVALID_EMAIL);
+                respon.put("status", ErrorConstant.INVALID_EMAIL.getStatusCode());
+                respon.put("message", ErrorConstant.INVALID_EMAIL.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
             if (userRequest.getPassword() == null) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.MISSING_ARGUMENT);
+                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
+                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
                 return ResponseEntity.ok(respon);
             }
             String password = userRequest.getPassword();
             if (!Utilities.isValidPassword(password)) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.INVALID_PASSWORD);
+                respon.put("status", ErrorConstant.INVALID_PASSWORD.getStatusCode());
+                respon.put("message", ErrorConstant.INVALID_PASSWORD.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
             UserResponse userResponse = authenticationService.updatePassword(userRequest);
             if (userResponse == null) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.UPDATE_PASSWORD_FAILED);
+                respon.put("status", ErrorConstant.UPDATE_PASSWORD_FAILED.getStatusCode());
+                respon.put("message", ErrorConstant.UPDATE_PASSWORD_FAILED.getMessage());
                 return ResponseEntity.ok(respon);
             }
             respon.put("status", 200);
@@ -354,8 +359,8 @@ public class AuthController {
             respon.set("data", objectMapper.valueToTree(userResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN UPDATE PASSWORD. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -368,8 +373,8 @@ public class AuthController {
         try {
             AuthenticationResponse authenticationResponse = authenticationService.login(authenticationRequest);
             if (authenticationResponse == null) {
-                respon.put("status", 401);
-                respon.put("message", MessageConstant.INVALID_EMAIL_OR_PASSWORD);
+                respon.put("status", ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getStatusCode());
+                respon.put("message", ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getMessage());
                 return ResponseEntity.ok(respon);
             }
             respon.put("status", 200);
@@ -377,8 +382,8 @@ public class AuthController {
             respon.set("data", objectMapper.valueToTree(authenticationResponse));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN LOGIN. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -418,12 +423,12 @@ public class AuthController {
                 }
                 return login(AuthenticationRequest.builder().provider(Provider.GOOGLE).email(email).password(clientId).build());
             }
-            respon.put("status", 401);
-            respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
+            respon.put("status", ErrorConstant.INVALID_VERIFICATION_TOKEN.getStatusCode());
+            respon.put("message", ErrorConstant.INVALID_VERIFICATION_TOKEN.getMessage());
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN GOOGLE LOGIN. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
