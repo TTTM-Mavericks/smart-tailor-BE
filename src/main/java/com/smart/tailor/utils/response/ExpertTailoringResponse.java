@@ -13,9 +13,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class ExpertTailoringResponse {
+    private String expertTailoringID;
+
     private String expertTailoringName;
 
     private String sizeImageUrl;
+
+    private Boolean status;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;

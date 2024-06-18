@@ -299,7 +299,7 @@ public class MaterialServiceImpl implements MaterialService {
                         .hsCode(materialRequest.getHsCode())
                         .unit(materialRequest.getUnit())
                         .basePrice(materialRequest.getBasePrice())
-                        .status(true)
+                        .status(material.getStatus())
                         .build()
         );
 

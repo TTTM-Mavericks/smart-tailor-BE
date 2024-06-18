@@ -110,6 +110,10 @@ public class APIConstant {
         public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE = "/add-new-expert-tailoring-by-excel-file";
         public static final String GET_ALL_EXPERT_TAILORING_BY_EXCEL_FILE = "/get-all-expert-tailoring-by-excel-file";
         public static final String GENERATE_SAMPLE_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-expert-tailoring-by-excel-file";
+        public static final String GET_EXPERT_TAILORING_BY_ID = "/get-expert-tailoring-by-id";
+        public static final String UPDATE_EXPERT_TAILORING = "/update-expert-tailoring";
+        public static final String UPDATE_STATUS_EXPERT_TAILORING = "/update-status-expert-tailoring";
+
     }
 
     /**

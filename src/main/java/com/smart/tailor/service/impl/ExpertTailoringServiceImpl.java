@@ -1,7 +1,9 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Category;
 import com.smart.tailor.entities.ExpertTailoring;
+import com.smart.tailor.entities.Material;
 import com.smart.tailor.mapper.ExpertTailoringMapper;
 import com.smart.tailor.repository.ExpertTailoringRepository;
 import com.smart.tailor.service.ExcelExportService;
@@ -23,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,6 +63,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                 ExpertTailoring.builder()
                         .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
                         .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
+                        .status(true)
                         .build()
         );
 
@@ -182,5 +182,95 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     @Override
     public void generateSampleExpertTailoringByExportExcel(HttpServletResponse response) throws IOException {
         excelExportService.exportSampleExpertTailoring(response);
+    }
+
+    @Override
+    public ExpertTailoringResponse findByExpertTailoringID(UUID expertTailoringID) {
+        if(Utilities.isStringNotNullOrEmpty(expertTailoringID.toString())){
+            var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
+            if(expertTailoring.isPresent()){
+                return expertTailoringMapper.mapperToExpertTailoringResponse(expertTailoring.get());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public APIResponse updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest) {
+        if(
+                !Utilities.isStringNotNullOrEmpty(expertTailoringID.toString()) ||
+                !Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getExpertTailoringName()) ||
+                !Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getSizeImageUrl())
+        ){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.DATA_IS_EMPTY)
+                    .build();
+        }
+
+        var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
+        if(expertTailoring.isEmpty()){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING)
+                    .build();
+        }
+
+        var checkExpertTailoringNameIsExisted = getByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
+        if(checkExpertTailoringNameIsExisted != null ){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.EXPERT_TAILORING_NAME_IS_EXISTED)
+                    .build();
+        }
+
+        var updateExpertTailoring = expertTailoringRepository.save(
+                ExpertTailoring
+                        .builder()
+                        .expertTailoringID(expertTailoringID)
+                        .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
+                        .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
+                        .status(expertTailoring.get().getStatus())
+                        .build()
+        );
+
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.UPDATE_MATERIAL_SUCCESSFULLY)
+                .data(expertTailoringMapper.mapperToExpertTailoringResponse(updateExpertTailoring))
+                .build();
+    }
+
+    @Override
+    public APIResponse updateStatusExpertTailoring(UUID expertTailoringID) {
+        if(!Utilities.isStringNotNullOrEmpty(expertTailoringID.toString())){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.DATA_IS_EMPTY)
+                    .build();
+        }
+
+        var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
+        if(expertTailoring.isEmpty()){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING)
+                    .build();
+        }
+
+        expertTailoring.get().setStatus(expertTailoring.get().getStatus() ? false : true);
+
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.UPDATE_EXPERT_TAILORING_SUCCESSFULLY)
+                .data(expertTailoringMapper.mapperToExpertTailoringResponse(expertTailoringRepository.save(expertTailoring.get())))
+                .build();
     }
 }

@@ -29,4 +29,6 @@ public class ExpertTailoring extends AuditEntity implements Serializable {
     @Lob
     @Column(name = "size_image_url", columnDefinition = "TEXT")
     private String sizeImageUrl;
+
+    private Boolean status;
 }

@@ -116,16 +116,19 @@ public class MessageConstant {
      */
     /*    SUCCESS     */
     public static final String ADD_NEW_EXPERT_TAILORING_SUCCESSFULLY = "Add New Expert Tailoring Successfully!";
-    public static final String CAN_NOT_FIND_ANY_EXPERT_TAILORING = "Can Not Find Any Expert Tailoring Material!";
     public static final String GET_EXPERT_TAILORING_BY_NAME_SUCCESSFULLY = "Get Expert Tailoring By Name Successfully!";
     public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Expert Tailoring By Excel File Successfully!";
     public static final String GET_ALL_EXPERT_TAILORING_SUCCESSFULLY = "Get All Expert Tailoring Successfully!";
     public static final String GENERATE_SAMPLE_EXPERT_TAILORING_SUCCESSFULLY = "Generate Sample Expert Tailoring Successfully!";
-
+    public static final String UPDATE_EXPERT_TAILORING_SUCCESSFULLY = "Update Expert Tailoring Successfully";
+    public static final String GET_EXPERT_TAILORING_BY_ID_SUCCESSFULLY = "Get Expert Tailoring By ID Successfully";
+    public static final String CHANGE_STATUS_EXPERT_TAILORING_SUCCESSFULLY = "Change Status Expert Tailoring Successfully";
     /*    FAIL     */
     public static final String ADD_NEW_EXPERT_TAILORING_FAIL = "Add New Expert Tailoring Fail!";
+    public static final String CAN_NOT_FIND_ANY_EXPERT_TAILORING = "Can Not Find Any Expert Tailoring Material!";
     public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_FAIL = "Add New Expert Tailoring By Excel File Fail!";
     public static final String EXPERT_TAILORING_IS_EXISTED = "Expert Tailoring is Existed";
+    public static final String EXPERT_TAILORING_NAME_IS_EXISTED = "Expert Tailoring Name is Existed";
     public static final String DUPLICATE_EXPERT_TAILORING_DATA = "Duplicate Expert Tailoring Data";
     public static final String DUPLICATE_EXPERT_TAILORING_IN_EXCEL_FILE = "Duplicate Expert Tailoring in Excel File!";
     public static final String WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE = "Wrong Type Of Expert Tailoring Excel File!";
