@@ -10,12 +10,17 @@ public class MessageConstant {
     public static final String RESOURCE_NOT_FOUND = "Resource Not Found!";
     public static final String INVALID_DATA_TYPE = "Invalid Data Type";
     public static final String INVALID_EXCEL_FILE_FORMAT = "Invalid Excel File Format";
+    public static final String DATA_IS_EMPTY = "Data is empty";
     /**
      * FORMATION ERROR
      */
     public static final String INVALID_EMAIL = "Invalid Email!";
     public static final String INVALID_PASSWORD = "Invalid Password!";
-
+    public static final String INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER = "Invalid Negative Number Need Positive Number";
+    /**
+     * SUCCESS MESSAGE
+     */
+    public static final String GET_DATA_FROM_EXCEL_SUCCESS = "Get Data From Excel Success";
     /**
      * ROLE
      */
@@ -78,6 +83,10 @@ public class MessageConstant {
     public static final String ADD_NEW_MATERIAL_SUCCESSFULLY = "Add New Material Successfully!";
     public static final String ADD_NEW_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Category And Material By Excel File Successfully!";
     public static final String EXPORT_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Export Category And Material By Excel File Successfully!";
+    public static final String UPDATE_MATERIAL_SUCCESSFULLY = "Update Material Successfully";
+    public static final String GET_MATERIAL_BY_ID_SUCCESSFULLY = "Get Material By ID Successfully";
+    public static final String CHANGE_STATUS_MATERIAL_SUCCESSFULLY = "Change Status Material Successfully";
+
     /*    FAIL     */
     public static final String ADD_NEW_MATERIAL_FAIL = "Add New Material Fail!";
     public static final String MATERIAL_IS_EXISTED = "Material is Existed";
@@ -122,4 +131,18 @@ public class MessageConstant {
      */
     public static final String SEND_NOTIFICATION_SUCCESSFULLY = "Notification sent successfully!";
     public static final String SEND_NOTIFICATION_FAIL = "Fail To Send Notification!";
+
+    /**
+     * CATEGORY
+     */
+    /*    SUCCESS  */
+    public static final String GET_ALL_CATEGORY_SUCCESSFULLY = "Get All Category Successfully!";
+    public static final String GET_CATEGORY_BY_ID_SUCCESSFULLY = "Get Category By ID Successfully!";
+    public static final String ADD_NEW_CATEGORY_SUCCESSFULLY = "Add New Category Successfully!";
+    public static final String UPDATE_CATEGORY_SUCCESSFULLY = "Update Category Successfully!";
+    /*    FAIL     */
+    public static final String CAN_NOT_FIND_ANY_CATEGORY = "Can Not Find Any Category!";
+    public static final String ADD_NEW_CATEGORY_FAIL = "Add New Category Fail!";
+    public static final String CATEGORY_IS_EXISTED = "Category is Existed";
+    public static final String CATEGORY_NAME_IS_EXISTED = "Category Name is Existed";
 }

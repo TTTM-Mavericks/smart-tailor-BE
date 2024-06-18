@@ -1,20 +1,29 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
+import com.smart.tailor.utils.response.APIResponse;
+import com.smart.tailor.utils.response.CellErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -88,19 +97,27 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     @Override
-    public List<MaterialRequest> getCategoryMaterialDataFromExcel(InputStream inputStream) {
+    public APIResponse getCategoryMaterialDataFromExcel(InputStream inputStream) {
         List<MaterialRequest> materialRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheet("Category and Material");
+
             if(sheet == null){
-                return null;
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                        .message(MessageConstant.WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE)
+                        .data(null)
+                        .build();
             }
             logger.info("Inside getCategoryMaterialDataFromExcel Method");
+
+            boolean inValidData = false;
+            List<CellErrorResponse> cellErrorResponses = new ArrayList<>();
             int rowIndex = 0;
             for(Row row : sheet){
-                if(rowIndex == 0){
-                    ++rowIndex;
+                if(++rowIndex == 1){
                     continue;
                 }
                 Iterator<Cell> cellIterator = row.iterator();
@@ -110,13 +127,101 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                     Cell cell = cellIterator.next();
                     switch (cellIndex){
                         case 0 :
-                            materialRequest.setCategoryName(cell.getStringCellValue());
+                            if(cell.getCellType() == CellType.STRING){
+                                materialRequest.setCategoryName(cell.getStringCellValue());
+                            } else {
+                                inValidData = true;
+                                cellErrorResponses.add(
+                                        CellErrorResponse
+                                                .builder()
+                                                .rowIndex(rowIndex)
+                                                .cellIndex(cellIndex)
+                                                .cellName("Category Name")
+                                                .data(cell.toString())
+                                                .message(MessageConstant.DATA_IS_EMPTY)
+                                                .build()
+                                );
+                            }
                             break;
                         case 1 :
-                            materialRequest.setMaterialName(cell.getStringCellValue());
+                            if(cell.getCellType() == CellType.STRING){
+                                materialRequest.setMaterialName(cell.getStringCellValue());
+                            } else {
+                                inValidData = true;
+                                cellErrorResponses.add(
+                                        CellErrorResponse
+                                                .builder()
+                                                .rowIndex(rowIndex)
+                                                .cellIndex(cellIndex)
+                                                .cellName("Material Name")
+                                                .data(cell.toString())
+                                                .message(MessageConstant.DATA_IS_EMPTY)
+                                                .build()
+                                );
+                            }
                             break;
                         case 2 :
-                            materialRequest.setHsCode(cell.getNumericCellValue());
+                            if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
+                                materialRequest.setHsCode(cell.getNumericCellValue());
+                            } else {
+                                inValidData = true;
+                                String message = MessageConstant.INVALID_DATA_TYPE;
+                                if(cell.getCellType() == CellType.BLANK) {
+                                    message = MessageConstant.DATA_IS_EMPTY;
+                                } else if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                    message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                }
+                                cellErrorResponses.add(
+                                        CellErrorResponse
+                                                .builder()
+                                                .rowIndex(rowIndex)
+                                                .cellIndex(cellIndex)
+                                                .cellName("HS Code")
+                                                .data(cell.toString())
+                                                .message(message)
+                                                .build()
+                                );
+                            }
+                            break;
+                        case 3 :
+                            if(cell.getCellType() == CellType.STRING){
+                                materialRequest.setUnit(cell.getStringCellValue());
+                            } else {
+                                inValidData = true;
+                                cellErrorResponses.add(
+                                        CellErrorResponse
+                                                .builder()
+                                                .rowIndex(rowIndex)
+                                                .cellIndex(cellIndex)
+                                                .cellName("Unit")
+                                                .data(cell.toString())
+                                                .message(MessageConstant.DATA_IS_EMPTY)
+                                                .build()
+                                );
+                            }
+                            break;
+                        case 4 :
+                            if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
+                                materialRequest.setBasePrice(cell.getNumericCellValue());
+                            } else {
+                                inValidData = true;
+                                String message = MessageConstant.INVALID_DATA_TYPE;
+                                if(cell.getCellType() == CellType.BLANK) {
+                                    message = MessageConstant.DATA_IS_EMPTY;
+                                } else if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                    message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                }
+                                cellErrorResponses.add(
+                                        CellErrorResponse
+                                                .builder()
+                                                .rowIndex(rowIndex)
+                                                .cellIndex(cellIndex)
+                                                .cellName("Base Price")
+                                                .data(cell.toString())
+                                                .message(message)
+                                                .build()
+                                );
+                            }
                             break;
                         default :
                             break;
@@ -125,11 +230,25 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 }
                 materialRequests.add(materialRequest);
             }
+            if(inValidData){
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.INVALID_DATA_TYPE)
+                        .data(cellErrorResponses)
+                        .build();
+            }else {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.OK.value())
+                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
+                        .data(materialRequests)
+                        .build();
+            }
         } catch (IOException e) {
             logger.error("{}", e.getMessage());
             return null;
         }
-        return materialRequests;
     }
 
     @Override

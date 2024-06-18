@@ -6,10 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,6 +85,10 @@ public class Utilities {
             }
         }
         return false;
+    }
+
+    public static boolean isValidUUIDType(UUID uuid) {
+        return uuid != null;
     }
 
     public static boolean isValidateDate(String dateStr, String dateFormat) {

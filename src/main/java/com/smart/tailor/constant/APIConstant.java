@@ -59,6 +59,8 @@ public class APIConstant {
         public static final String CATEGORY = APIConstant.API + "/category";
         public static final String ADD_NEW_CATEGORY = "/add-new-category";
         public static final String GET_ALL_CATEGORY = "/get-all-category";
+        public static final String GET_CATEGORY_BY_ID = "/get-category-by-id";
+        public static final String UPDATE_CATEGORY = "/update-category";
     }
 
     /**
@@ -68,8 +70,12 @@ public class APIConstant {
         public static final String MATERIAL = APIConstant.API + "/material";
         public static final String ADD_NEW_MATERIAL = "/add-new-material";
         public static final String GET_ALL_MATERIAL = "/get-all-material";
+        public static final String GET_ALL_ACTIVE_MATERIAL = "/get-all-active-material";
+        public static final String GET_MATERIAL_BY_ID = "/get-material-by-id";
         public static final String ADD_NEW_CATEGORY_MATERIAL_BY_EXCEL_FILE = "/add-new-category-material-by-excel-file";
         public static final String EXPORT_CATEGORY_MATERIAL_FOR_BRAND_BY_EXCEL = "/export-category-material-for-brand-by-excel";
+        public static final String UPDATE_MATERIAL = "/update-material";
+        public static final String UPDATE_STATUS_MATERIAL = "update-status-material";
     }
 
     /**

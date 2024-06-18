@@ -8,4 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
     CategoryResponse mapperToCategoryResponse(Category category);
+
+    Category mapperToCategory(CategoryResponse categoryResponse);
 }

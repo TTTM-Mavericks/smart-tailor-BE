@@ -23,8 +23,6 @@ public interface BrandMaterialMapper {
     @Mapping(target = "brandName", expression = "java(mapBrandMaterialKeyToBrandName(brandMaterial.getBrandMaterialKey()))")
     @Mapping(target = "materialName", expression = "java(mapBrandMaterialKeyToMaterialName(brandMaterial.getBrandMaterialKey()))")
     @Mapping(target = "categoryName", expression = "java(mapBrandMaterialKeyToCategoryName(brandMaterial.getBrandMaterialKey()))")
-    @Mapping(source = "brandMaterial.unit", target = "unit")
-    @Mapping(source = "brandMaterial.price", target = "price")
     @Mapping(source = "brandMaterial.createDate", target = "createDate")
     @Mapping(source = "brandMaterial.lastModifiedDate", target = "lastModifiedDate")
     BrandMaterialResponse mapperToBrandMaterialResponse(BrandMaterial brandMaterial);
