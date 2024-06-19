@@ -12,15 +12,17 @@ import lombok.NoArgsConstructor;
 public class BrandMaterialRequest {
     private String brandName;
 
-    private String materialName;
-
     private String categoryName;
+
+    private String materialName;
 
     private Double hsCode;
 
     private String unit;
 
-    private Double price;
+    private Double basePrice;
+
+    private Double brandPrice;
 
     @Override
     public String toString() {
@@ -30,6 +32,7 @@ public class BrandMaterialRequest {
                 ", categoryName='" + categoryName + '\'' +
                 ", hsCode='" + hsCode + '\'' +
                 ", unit='" + unit + '\'' +
-                ", price=" + price;
+                ", basePrice=" + basePrice + '\'' +
+                ", brandPrice=" + brandPrice;
     }
 }

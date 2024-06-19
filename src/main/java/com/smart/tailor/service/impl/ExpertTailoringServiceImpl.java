@@ -118,12 +118,22 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
             }
 
             var excelData = (List<ExpertTailoringRequest>) apiResponse.getData();
-            Set<String> excelNames = new HashSet<>();
+
+            if(excelData.isEmpty()){
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.OK.value())
+                        .message(MessageConstant.CATEGORY_AND_MATERIAL_EXCEL_FILE_HAS_EMPTY_DATA)
+                        .data(null)
+                        .build();
+            }
+
+            Set<ExpertTailoringRequest> excelNames = new HashSet<>();
             List<ExpertTailoringRequest> uniqueExcelData = new ArrayList<>();
             List<ExpertTailoringRequest> duplicateExcelData = new ArrayList<>();
 
             for(ExpertTailoringRequest request : excelData){
-                if(!excelNames.add(request.getExpertTailoringName())){
+                if(!excelNames.add(request)){
                     duplicateExcelData.add(request);
                 }else{
                     uniqueExcelData.add(request);

@@ -15,8 +15,13 @@ import java.util.UUID;
 public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, BrandMaterialKey> {
     @Modifying
     @Transactional
-    @Query(value = "insert into brand_material (brand_id, material_id, price, unit, create_date, last_modified_date) values (?1, ?2, ?3, ?4, current_timestamp, null)", nativeQuery = true)
-    void createBrandMaterial(UUID brandID, UUID materialID, Double price, String unit);
+    @Query(value = "insert into brand_material (brand_id, material_id, brand_price, create_date, last_modified_date) values (?1, ?2, ?3, current_timestamp, null)", nativeQuery = true)
+    void createBrandMaterial(UUID brandID, UUID materialID, Double brandPrice);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update brand_material set brand_price = ?1, last_modified_date = current_timestamp where brand_id = ?2 and material_id = ?3", nativeQuery = true)
+    void updateBrandMaterial(Double brandPrice, UUID brandID, UUID materialID);
 
     @Query(
             value = "select bm.* from brand_material bm join brand b on bm.brand_id = b.brand_id " +

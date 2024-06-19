@@ -95,6 +95,8 @@ public class MessageConstant {
     public static final String WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE = "Wrong Type Of Category And Material Excel File!";
     public static final String DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE = "Duplicate Category And Material in Excel File!";
     public static final String ADD_NEW_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Category And Material By Excel File Fail!";
+    public static final String CATEGORY_AND_MATERIAL_EXCEL_FILE_HAS_EMPTY_DATA = "Category and Material Excel File has Empty Data";
+    public static final String CATEGORY_AND_MATERIAL_IS_NOT_EXISTED = "Material is not Existed";
 
     /**
      * BRAND MATERIAL
@@ -104,13 +106,16 @@ public class MessageConstant {
     public static final String CAN_NOT_FIND_ANY_BRAND_MATERIAL = "Can Not Find Any Brand Material!";
     public static final String ADD_NEW_BRAND_MATERIAL_SUCCESSFULLY = "Add New Brand Material Successfully!";
     public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Brand Material By Excel File Successfully!";
-
+    public static final String UPDATE_BRAND_MATERIAL_SUCCESSFULLY = "Update Brand Material Successfully!";
 
     /*    FAIL     */
     public static final String ADD_NEW_BRAND_MATERIAL_FAIL = "Add New Brand Material Fail!";
     public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Brand Material By Excel File Fail!";
     public static final String BRAND_MATERIAL_IS_EXISTED = "Brand Material is Existed";
-
+    public static final String BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION = "Brand Price Must be Between Base Price Multiple With Percentage Fluctuation";
+    public static final String BRAND_MATERIAL_EXCEL_FILE_HAS_EMPTY_DATA = "Brand Material Excel File has Empty Data";
+    public static final String DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE = "Duplicate Brand Material in Excel File!";
+    public static final String WRONG_TYPE_OF_BRAND_MATERIAL_EXCEL_FILE = "Wrong Type Of Brand Material Excel File!";
     /**
      * EXPERT TAILORING
      */
@@ -132,7 +137,7 @@ public class MessageConstant {
     public static final String DUPLICATE_EXPERT_TAILORING_DATA = "Duplicate Expert Tailoring Data";
     public static final String DUPLICATE_EXPERT_TAILORING_IN_EXCEL_FILE = "Duplicate Expert Tailoring in Excel File!";
     public static final String WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE = "Wrong Type Of Expert Tailoring Excel File!";
-
+    public static final String EXPERT_TAILORING_EXCEL_FILE_HAS_EMPTY_DATA = "Expert Tailoring Excel File has Empty Data";
     /**
      * NOTIFICATION
      */

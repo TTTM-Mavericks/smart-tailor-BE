@@ -156,6 +156,16 @@ public class MaterialServiceImpl implements MaterialService {
             }
 
             var excelData = (List<MaterialRequest>) apiResponse.getData();
+
+            if(excelData.isEmpty()){
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.OK.value())
+                        .message(MessageConstant.CATEGORY_AND_MATERIAL_EXCEL_FILE_HAS_EMPTY_DATA)
+                        .data(null)
+                        .build();
+            }
+
             Set<MaterialRequest> excelNames = new HashSet<>();
             List<MaterialRequest> uniqueExcelData = new ArrayList<>();
             List<MaterialRequest> duplicateExcelData = new ArrayList<>();
@@ -242,7 +252,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public List<MaterialResponse> exportCategoryMaterialForBrandByExcel(HttpServletResponse response) throws IOException {
         var materialResponses = findAllActiveMaterials();
-        excelExportService.exportCategoryMaterialData(materialResponses, response);
+        excelExportService.exportCategoryMaterialForBrand(materialResponses, response);
         return materialResponses;
     }
 

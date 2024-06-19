@@ -88,7 +88,7 @@ public class APIConstant {
         public static final String GET_ALL_BRAND_MATERIAL = "/get-all-brand-material";
         public static final String GET_ALL_BRAND_MATERIAL_BY_BRAND_NAME = "/get-all-brand-material-by-brand-name";
         public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE = "/add-new-brand-material-by-excel-file";
-        public static final String GET_ALL_BRAND_MATERIAL_BY_EXCEL_FILE = "/get-all-brand-material-by-excel-file";
+        public static final String UPDATE_BRAND_MATERIAL = "/update-brand-material";
     }
 
     /**
