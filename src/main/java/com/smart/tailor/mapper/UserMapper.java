@@ -1,7 +1,6 @@
 package com.smart.tailor.mapper;
 
 import com.smart.tailor.entities.User;
-import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

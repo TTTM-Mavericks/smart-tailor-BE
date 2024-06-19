@@ -129,7 +129,7 @@ public class AuthController {
                 return ResponseEntity.ok(respon);
             } else {
                 respon.put("status", 401);
-                respon.put("message", ErrorConstant.ACCOUNT_IS_VERIFIED.getMessage());
+                respon.put("message", ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
                 return ResponseEntity.ok(respon);
             }
         } catch (Exception ex) {

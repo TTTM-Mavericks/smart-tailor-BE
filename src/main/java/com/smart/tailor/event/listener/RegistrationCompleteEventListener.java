@@ -4,7 +4,6 @@ import com.smart.tailor.constant.LinkConstant;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.event.RegistrationCompleteEvent;
 import com.smart.tailor.service.MailService;
-import com.smart.tailor.service.UserService;
 import com.smart.tailor.service.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

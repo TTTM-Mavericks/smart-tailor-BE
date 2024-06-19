@@ -1,7 +1,6 @@
 package com.smart.tailor.utils.response;
 
 
-import com.smart.tailor.entities.Roles;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import lombok.AllArgsConstructor;
