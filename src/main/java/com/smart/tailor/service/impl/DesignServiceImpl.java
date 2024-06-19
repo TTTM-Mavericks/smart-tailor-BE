@@ -1,6 +1,7 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Design;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.repository.DesignRepository;
 import com.smart.tailor.service.DesignService;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -74,6 +76,11 @@ public class DesignServiceImpl implements DesignService {
 
         var partOfDesignResponse = partOfDesignService.createPartOfDesign(designRequest.getPartOfDesignRequestList());
 
+        return null;
+    }
+
+    @Override
+    public Design getDesignByID(UUID designID) {
         return null;
     }
 }
