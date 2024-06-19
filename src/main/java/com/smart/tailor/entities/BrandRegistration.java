@@ -1,6 +1,5 @@
 package com.smart.tailor.entities;
 
-import com.smart.tailor.enums.TypeOfUpgrade;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

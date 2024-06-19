@@ -104,6 +104,7 @@ public class MessageConstant {
      */
     /*    SUCCESS     */
     public static final String ADD_NEW_EXPERT_TAILORING_SUCCESSFULLY = "Add New Expert Tailoring Successfully!";
+    public static final String ADD_BRAND_EXPERT_TAILORING_SUCCESSFULLY = "Add Brand Expert Tailoring Successfully!";
     public static final String CAN_NOT_FIND_ANY_EXPERT_TAILORING = "Can Not Find Any Expert Tailoring Material!";
     public static final String GET_EXPERT_TAILORING_BY_NAME_SUCCESSFULLY = "Get Expert Tailoring By Name Successfully!";
     public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Expert Tailoring By Excel File Successfully!";

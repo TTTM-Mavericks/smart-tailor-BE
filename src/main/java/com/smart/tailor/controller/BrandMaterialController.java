@@ -5,11 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.BrandMaterialService;
-import com.smart.tailor.service.MaterialService;
-import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
-import com.smart.tailor.utils.request.MaterialRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -18,9 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(APIConstant.BrandMaterialAPI.BRAND_MATERIAL)

@@ -1,6 +1,5 @@
 package com.smart.tailor.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.smart.tailor.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.*;
