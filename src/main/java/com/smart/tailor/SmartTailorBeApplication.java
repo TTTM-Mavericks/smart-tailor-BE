@@ -54,6 +54,36 @@ public class SmartTailorBeApplication {
 
     @Order(value = 2)
     @Bean
+    public CommandLineRunner createBasicAccount(RoleService roleService,
+                                                UserRepository userRepository,
+                                                PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (userRepository.findAll().size() == 0) {
+                User admin = userRepository.save(User.builder()
+                        .email("smarttailor.ad@gmail.com")
+                        .password(passwordEncoder.encode("Aa@123456admin"))
+                        .phoneNumber("0816468777")
+                        .userStatus(UserStatus.ACTIVE)
+                        .provider(Provider.LOCAL)
+                        .roles(roleService.findRoleByRoleName("ADMIN").orElse(null))
+                        .build()
+                );
+
+                User manager = userRepository.save(User.builder()
+                        .email("smarttailor.ma@gmail.com")
+                        .password(passwordEncoder.encode("Aa@123456manager"))
+                        .phoneNumber("0877656849")
+                        .userStatus(UserStatus.ACTIVE)
+                        .provider(Provider.LOCAL)
+                        .roles(roleService.findRoleByRoleName("MANAGER").orElse(null))
+                        .build()
+                );
+            }
+        };
+    }
+
+    @Order(value = 3)
+    @Bean
     public CommandLineRunner createExpertTailoring(ExpertTailoringRepository expertTailoringRepository) {
         return args -> {
             if (expertTailoringRepository.findAll().size() == 0) {
@@ -74,7 +104,7 @@ public class SmartTailorBeApplication {
         };
     }
 
-    @Order(value = 3)
+    @Order(value = 4)
     @Bean
     public CommandLineRunner createSampleBrand(UserRepository userRepository,
                                                BrandRepository brandRepository,
@@ -83,7 +113,7 @@ public class SmartTailorBeApplication {
                                                ExpertTailoringRepository expertTailoringRepository,
                                                BrandExpertTailoringRepository brandExpertTailoringRepository) {
         return args -> {
-            if (userRepository.findAll().size() == 0) {
+            if (brandRepository.findAll().size() == 0) {
                 User userTest1 = userRepository.save(User.builder()
                         .email("lalisa@example.com")
                         .password(passwordEncoder.encode("HASH_PASSWORD"))

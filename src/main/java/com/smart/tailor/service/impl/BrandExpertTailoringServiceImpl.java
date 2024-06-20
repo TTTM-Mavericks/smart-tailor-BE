@@ -31,7 +31,7 @@ public class BrandExpertTailoringServiceImpl implements BrandExpertTailoringServ
             if (brand.isEmpty()) {
                 throw new CustomExeption(ErrorConstant.BAD_REQUEST);
             }
-            var expectTailoring = expertTailoringService.getExpectTailoringByID(expertTailoringID);
+            var expectTailoring = expertTailoringService.getExpertTailoringByID(expertTailoringID);
             if (expectTailoring.isEmpty()) {
                 throw new CustomExeption(ErrorConstant.BAD_REQUEST);
             }
