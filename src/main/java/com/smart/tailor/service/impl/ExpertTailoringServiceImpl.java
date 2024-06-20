@@ -167,7 +167,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
             } else {
                 return APIResponse.builder()
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_FAIL)
+                        .message(MessageConstant.DUPLICATE_EXPERT_TAILORING_DATA)
                         .data(invalidData)
                         .build();
             }
@@ -229,12 +229,16 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         }
 
         var checkExpertTailoringNameIsExisted = getByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
-        if(checkExpertTailoringNameIsExisted != null ){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.EXPERT_TAILORING_NAME_IS_EXISTED)
-                    .build();
+        if(checkExpertTailoringNameIsExisted != null){
+            System.out.println(checkExpertTailoringNameIsExisted.getExpertTailoringID());
+            System.out.println(expertTailoring.get().getExpertTailoringID());
+            if(!checkExpertTailoringNameIsExisted.getExpertTailoringID().toString().equals(expertTailoring.get().getExpertTailoringID().toString())){
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.EXPERT_TAILORING_NAME_IS_EXISTED)
+                        .build();
+            }
         }
 
         var updateExpertTailoring = expertTailoringRepository.save(

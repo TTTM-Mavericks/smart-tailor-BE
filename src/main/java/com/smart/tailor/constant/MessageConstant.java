@@ -16,6 +16,8 @@ public class MessageConstant {
      */
     public static final String INVALID_EMAIL = "Invalid Email!";
     public static final String INVALID_PASSWORD = "Invalid Password!";
+    public static final String INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING = "Invalid Data Type Column Need Type String";
+    public static final String INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC = "Invalid Data Type Column Need Type Numeric";
     public static final String INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER = "Invalid Negative Number Need Positive Number";
     public static final String ERROR_READING_EXCEL_FILE = "Error Reading Excel File";
     /**

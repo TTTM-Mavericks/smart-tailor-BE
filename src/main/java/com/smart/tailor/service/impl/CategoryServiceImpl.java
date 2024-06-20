@@ -131,11 +131,13 @@ public class CategoryServiceImpl implements CategoryService {
         var categoryNameExisted = findByCategoryName(categoryRequest.getCategoryName());
 
         if(categoryNameExisted.isPresent()){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.CONFLICT.value())
-                    .message(MessageConstant.CATEGORY_NAME_IS_EXISTED)
-                    .build();
+            if(!categoryNameExisted.get().getCategoryName().equals(((CategoryResponse) categoryResponse.getData()).getCategoryName())){
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.CONFLICT.value())
+                        .message(MessageConstant.CATEGORY_NAME_IS_EXISTED)
+                        .build();
+            }
         }
 
         // Update Category when CategoryID is Existed and CategoryName is not Existed
@@ -143,13 +145,13 @@ public class CategoryServiceImpl implements CategoryService {
                 Category
                     .builder()
                     .categoryID(categoryExisted.getCategoryID())
-                    .categoryName(categoryExisted.getCategoryName())
+                    .categoryName(categoryRequest.getCategoryName())
                     .build()
         );
 
         return APIResponse
                 .builder()
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.OK.value())
                 .message(MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY)
                 .data(categoryMapper.mapperToCategoryResponse(updateCategory))
                 .build();

@@ -10,11 +10,8 @@ import com.smart.tailor.utils.response.CellErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -23,11 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,6 +69,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 BrandMaterialRequest brandMaterialRequest = new BrandMaterialRequest();
                 boolean rowDataValid = true;
                 boolean brandPriceIsEmpty = false;
+                boolean isValid = false;
+                double numericValue = -1;
+                String message = "";
                 for(int cellIndex = 0; cellIndex < 6; cellIndex++){
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     if(cell == null || cell.getCellType() == CellType.BLANK){
@@ -108,7 +106,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                                     .rowIndex(rowIndex + 1)
                                                     .cellIndex(cellIndex + 1)
                                                     .cellName(getCellNameForBrandMaterial(cellIndex))
-                                                    .message(MessageConstant.INVALID_DATA_TYPE)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .data(cell.toString())
                                                     .build()
                                     );
@@ -126,24 +124,39 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                                     .rowIndex(rowIndex + 1)
                                                     .cellIndex(cellIndex + 1)
                                                     .cellName(getCellNameForBrandMaterial(cellIndex))
-                                                    .message(MessageConstant.INVALID_DATA_TYPE)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .data(cell.toString())
                                                     .build()
                                     );
                                 }
                                 break;
                             case 2:
-                                if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
-                                    brandMaterialRequest.setHsCode(cell.getNumericCellValue());
-                                } else{
-                                    inValidData = true;
-                                    rowDataValid = false;
-                                    String message = MessageConstant.INVALID_DATA_TYPE;
-                                    if(cell.getCellType() == CellType.BLANK){
-                                        message = MessageConstant.DATA_IS_EMPTY;
-                                    } else if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                isValid = false;
+                                numericValue = -1;
+                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    brandMaterialRequest.setHsCode(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
                                         message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
                                     }
+                                    inValidData = true;
+                                    rowDataValid = false;
                                     cellErrorResponses.add(
                                             CellErrorResponse
                                                     .builder()
@@ -168,24 +181,39 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                                     .rowIndex(rowIndex + 1)
                                                     .cellIndex(cellIndex + 1)
                                                     .cellName(getCellNameForBrandMaterial(cellIndex))
-                                                    .message(MessageConstant.INVALID_DATA_TYPE)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .data(cell.toString())
                                                     .build()
                                     );
                                 }
                                 break;
                             case 4:
-                                if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
-                                    brandMaterialRequest.setBasePrice(cell.getNumericCellValue());
+                                isValid = false;
+                                numericValue = -1;
+                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    brandMaterialRequest.setBasePrice(numericValue);
                                 }else{
-                                    inValidData = true;
-                                    rowDataValid = false;
-                                    String message = MessageConstant.INVALID_DATA_TYPE;
-                                    if(cell.getCellType() == CellType.BLANK){
-                                        message = MessageConstant.DATA_IS_EMPTY;
-                                    }else if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                    if(isValid && numericValue < 0){
                                         message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
                                     }
+                                    inValidData = true;
+                                    rowDataValid = false;
                                     cellErrorResponses.add(
                                             CellErrorResponse
                                                     .builder()
@@ -199,9 +227,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                 }
                                 break;
                             case 5:
-                                boolean isValid = false;
-                                double numericValue = -1;
-                                String message = MessageConstant.INVALID_DATA_TYPE;
+                                isValid = false;
+                                numericValue = -1;
+                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
                                         numericValue = cell.getNumericCellValue();
@@ -317,13 +345,16 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             int rowIndex = 2;
             while (rowIndex <= sheet.getLastRowNum()) {
                 Row row = sheet.getRow(rowIndex);
-                if (row == null || isRowCompletelyEmptyForSampleCategoryMaterial(row)) {
+                if (row == null || isRowCompletelyEmptyForCategoryMaterial(row)) {
                     rowIndex++;
                     continue;
                 }
 
                 MaterialRequest materialRequest = new MaterialRequest();
                 boolean rowDataValid = true;
+                boolean isValid = false;
+                String message = "";
+                double numericValue = -1;
                 for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     if (cell == null || cell.getCellType() == CellType.BLANK) {
@@ -333,8 +364,8 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                 CellErrorResponse
                                         .builder()
                                         .rowIndex(rowIndex + 1)
-                                        .cellIndex(cellIndex)
-                                        .cellName(getCellNameForSampleCategoryMaterial(cellIndex))
+                                        .cellIndex(cellIndex + 1)
+                                        .cellName(getCellNameForCategoryMaterial(cellIndex))
                                         .data("")
                                         .message(MessageConstant.DATA_IS_EMPTY)
                                         .build()
@@ -351,10 +382,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                             CellErrorResponse
                                                     .builder()
                                                     .rowIndex(rowIndex + 1)
-                                                    .cellIndex(cellIndex)
-                                                    .cellName("Category Name")
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
                                                     .data(cell.toString())
-                                                    .message(MessageConstant.DATA_IS_EMPTY)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .build()
                                     );
                                 }
@@ -369,34 +400,49 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                             CellErrorResponse
                                                     .builder()
                                                     .rowIndex(rowIndex + 1)
-                                                    .cellIndex(cellIndex)
-                                                    .cellName("Material Name")
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
                                                     .data(cell.toString())
-                                                    .message(MessageConstant.DATA_IS_EMPTY)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .build()
                                     );
                                 }
                                 break;
                             case 2:
-                                if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0) {
-                                    materialRequest.setHsCode(cell.getNumericCellValue());
-                                } else {
-                                    inValidData = true;
-                                    rowDataValid = false;
-                                    String message = MessageConstant.INVALID_DATA_TYPE;
-                                    if (cell.getCellType() == CellType.BLANK) {
-                                        message = MessageConstant.DATA_IS_EMPTY;
-                                    } else if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0) {
+                                 isValid = false;
+                                 numericValue = -1;
+                                 message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    materialRequest.setHsCode(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
                                         message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
                                     }
+                                    inValidData = true;
+                                    rowDataValid = false;
                                     cellErrorResponses.add(
                                             CellErrorResponse
                                                     .builder()
                                                     .rowIndex(rowIndex + 1)
-                                                    .cellIndex(cellIndex)
-                                                    .cellName("HS Code")
-                                                    .data(cell.toString())
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
                                                     .message(message)
+                                                    .data(cell.toString())
                                                     .build()
                                     );
                                 }
@@ -411,34 +457,49 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                             CellErrorResponse
                                                     .builder()
                                                     .rowIndex(rowIndex + 1)
-                                                    .cellIndex(cellIndex)
-                                                    .cellName("Unit")
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
                                                     .data(cell.toString())
-                                                    .message(MessageConstant.DATA_IS_EMPTY)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .build()
                                     );
                                 }
                                 break;
                             case 4:
-                                if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0) {
-                                    materialRequest.setBasePrice(cell.getNumericCellValue());
-                                } else {
-                                    inValidData = true;
-                                    rowDataValid = false;
-                                    String message = MessageConstant.INVALID_DATA_TYPE;
-                                    if (cell.getCellType() == CellType.BLANK) {
-                                        message = MessageConstant.DATA_IS_EMPTY;
-                                    } else if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0) {
+                                 isValid = false;
+                                 numericValue = -1;
+                                 message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    materialRequest.setBasePrice(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
                                         message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
                                     }
+                                    inValidData = true;
+                                    rowDataValid = false;
                                     cellErrorResponses.add(
                                             CellErrorResponse
                                                     .builder()
                                                     .rowIndex(rowIndex + 1)
-                                                    .cellIndex(cellIndex)
-                                                    .cellName("Base Price")
-                                                    .data(cell.toString())
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
                                                     .message(message)
+                                                    .data(cell.toString())
                                                     .build()
                                     );
                                 }
@@ -482,7 +543,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         }
     }
 
-    private boolean isRowCompletelyEmptyForSampleCategoryMaterial(Row row) {
+    private boolean isRowCompletelyEmptyForCategoryMaterial(Row row) {
         for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
             Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
             if (cell != null && cell.getCellType() != CellType.BLANK) {
@@ -492,7 +553,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         return true;
     }
 
-    private String getCellNameForSampleCategoryMaterial(int cellIndex) {
+    private String getCellNameForCategoryMaterial(int cellIndex) {
         switch (cellIndex) {
             case 0: return "Category Name";
             case 1: return "Material Name";
@@ -513,7 +574,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 return APIResponse
                         .builder()
                         .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
-                        .message("Wrong type of Expert Tailoring Excel file")
+                        .message(MessageConstant.WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE)
                         .data(null)
                         .build();
             }
@@ -525,7 +586,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             int rowIndex = 2;
             while (rowIndex <= sheet.getLastRowNum()) {
                 Row row = sheet.getRow(rowIndex);
-                if (row == null || isRowCompletelyEmptyForSampleExpertTailoring(row)) {
+                if (row == null || isRowCompletelyEmptyForExpertTailoring(row)) {
                     rowIndex++;
                     continue;
                 }
@@ -541,10 +602,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                 CellErrorResponse
                                         .builder()
                                         .rowIndex(rowIndex + 1)
-                                        .cellIndex(cellIndex)
-                                        .cellName(getCellNameForSampleExpertTailoring(cellIndex))
-                                        .data("")
-                                        .message("Data is empty")
+                                        .cellIndex(cellIndex + 1)
+                                        .cellName(getCellNameForExpertTailoring(cellIndex))
+                                        .data(null)
+                                        .message(MessageConstant.DATA_IS_EMPTY)
                                         .build()
                         );
                     } else {
@@ -559,10 +620,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                             CellErrorResponse
                                                     .builder()
                                                     .rowIndex(rowIndex + 1)
-                                                    .cellIndex(cellIndex)
-                                                    .cellName("Expert Tailoring Name")
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForExpertTailoring(cellIndex))
                                                     .data(cell.toString())
-                                                    .message("Data is empty")
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .build()
                                     );
                                 }
@@ -577,10 +638,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                             CellErrorResponse
                                                     .builder()
                                                     .rowIndex(rowIndex + 1)
-                                                    .cellIndex(cellIndex)
-                                                    .cellName("Size Image URL")
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForExpertTailoring(cellIndex))
                                                     .data(cell.toString())
-                                                    .message("Data is empty")
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
                                                     .build()
                                     );
                                 }
@@ -602,14 +663,14 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 return APIResponse
                         .builder()
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .message("Invalid data type")
+                        .message(MessageConstant.INVALID_DATA_TYPE)
                         .data(cellErrorResponses)
                         .build();
             } else {
                 return APIResponse
                         .builder()
                         .status(HttpStatus.OK.value())
-                        .message("Get data from Excel success")
+                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
                         .data(expertTailoringRequests)
                         .build();
             }
@@ -618,13 +679,13 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             return APIResponse
                     .builder()
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Error reading Excel file")
+                    .message(MessageConstant.ERROR_READING_EXCEL_FILE)
                     .data(null)
                     .build();
         }
     }
 
-    private boolean isRowCompletelyEmptyForSampleExpertTailoring(Row row) {
+    private boolean isRowCompletelyEmptyForExpertTailoring(Row row) {
         for (int cellIndex = 0; cellIndex < 2; cellIndex++) {
             Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
             if (cell != null && cell.getCellType() != CellType.BLANK) {
@@ -634,7 +695,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         return true;
     }
 
-    private String getCellNameForSampleExpertTailoring(int cellIndex) {
+    private String getCellNameForExpertTailoring(int cellIndex) {
         switch (cellIndex) {
             case 0: return "Expert Tailoring Name";
             case 1: return "Size Image URL";

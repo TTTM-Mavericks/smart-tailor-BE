@@ -205,7 +205,7 @@ public class MaterialServiceImpl implements MaterialService {
             } else {
                 return APIResponse.builder()
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.ADD_NEW_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_FAIL)
+                        .message(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE)
                         .data(invalidData)
                         .build();
             }
