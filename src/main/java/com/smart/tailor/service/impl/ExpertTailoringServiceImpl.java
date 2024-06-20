@@ -152,7 +152,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
             List<ExpertTailoringRequest> duplicateExcelData = new ArrayList<>();
 
             for(ExpertTailoringRequest request : excelData){
-                if(!excelNames.add(request)){xcelData.add(request);
+                if(!excelNames.add(request)){excelData.add(request);
                 } else {
                     uniqueExcelData.add(request);
                 }
