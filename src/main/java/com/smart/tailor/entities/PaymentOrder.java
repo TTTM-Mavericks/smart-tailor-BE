@@ -2,7 +2,6 @@ package com.smart.tailor.entities;
 
 import com.smart.tailor.enums.PaymentType;
 import jakarta.persistence.*;
-import jakarta.persistence.EmbeddedId;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

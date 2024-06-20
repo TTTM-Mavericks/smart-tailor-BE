@@ -2,7 +2,6 @@ package com.smart.tailor.service;
 
 
 import com.smart.tailor.entities.User;
-import com.smart.tailor.entities.VerificationToken;
 import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;

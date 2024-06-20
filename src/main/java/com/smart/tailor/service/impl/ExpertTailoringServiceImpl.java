@@ -1,5 +1,7 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.config.CustomExeption;
+import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Category;
 import com.smart.tailor.entities.ExpertTailoring;
@@ -37,6 +39,23 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     private final ExpertTailoringMapper expertTailoringMapper;
     private final ExcelExportService excelExportService;
     private final ExcelImportService excelImportService;
+
+    @Override
+    public Optional<ExpertTailoring> getExpertTailoringByID(UUID expectID) throws CustomExeption {
+        try {
+            if (expectID == null) {
+                throw new CustomExeption(ErrorConstant.MISSING_ARGUMENT);
+            }
+            var expectTailoring = expertTailoringRepository.findExpertTailoringByExpertTailoringID(expectID);
+            if (expectTailoring.isEmpty()) {
+                throw new CustomExeption(ErrorConstant.BAD_REQUEST);
+            }
+            return expectTailoring;
+        } catch (Exception ex) {
+            logger.error("ERROR IN EXPECT TAILORING SERVICE - GET EXPECT TAILORING BY ID: {}", ex.getMessage());
+            throw ex;
+        }
+    }
 
     @Override
     @Transactional
@@ -92,7 +111,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     @Override
     public ExpertTailoringResponse getByExpertTailoringName(String expertTailoringName) {
         var expertTailroingOptional = expertTailoringRepository.findByExpertTailoringName(expertTailoringName);
-        if(expertTailroingOptional.isPresent()){
+        if (expertTailroingOptional.isPresent()) {
             return mapperToExpertTailoringResponse(expertTailroingOptional.get());
         }
         return null;
@@ -133,9 +152,8 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
             List<ExpertTailoringRequest> duplicateExcelData = new ArrayList<>();
 
             for(ExpertTailoringRequest request : excelData){
-                if(!excelNames.add(request)){
-                    duplicateExcelData.add(request);
-                }else{
+                if(!excelNames.add(request)){xcelData.add(request);
+                } else {
                     uniqueExcelData.add(request);
                 }
             }
@@ -150,10 +168,10 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
             List<ExpertTailoringRequest> validData = new ArrayList<>();
             List<ExpertTailoringRequest> invalidData = new ArrayList<>();
-            for(ExpertTailoringRequest expertTailoringRequest : uniqueExcelData){
+            for (ExpertTailoringRequest expertTailoringRequest : uniqueExcelData) {
                 var saveExpertTailoringResponse = createExpertTailoring(expertTailoringRequest);
                 validData.add(expertTailoringRequest);
-                if(saveExpertTailoringResponse.getStatus() != HttpStatus.OK.value()){
+                if (saveExpertTailoringResponse.getStatus() != HttpStatus.OK.value()) {
                     invalidData.add(expertTailoringRequest);
                 }
             }

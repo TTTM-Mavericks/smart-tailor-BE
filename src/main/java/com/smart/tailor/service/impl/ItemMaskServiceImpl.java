@@ -6,7 +6,6 @@ import com.smart.tailor.service.ItemMaskService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ItemMaskRequest;
 import com.smart.tailor.utils.response.APIResponse;
-import com.smart.tailor.utils.response.ItemMaskResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;

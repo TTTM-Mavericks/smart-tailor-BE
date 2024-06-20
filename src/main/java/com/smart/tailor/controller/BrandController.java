@@ -2,14 +2,18 @@ package com.smart.tailor.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.smart.tailor.constant.APIConstant;
+import com.smart.tailor.config.CustomExeption;
+import com.smart.tailor.constant.APIConstant.BrandAPI;
+import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.mapper.BrandMapper;
+import com.smart.tailor.service.BrandExpertTailoringService;
 import com.smart.tailor.service.BrandService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.BrandExpertTailoringRequest;
 import com.smart.tailor.utils.request.BrandRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
@@ -23,15 +27,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(APIConstant.BrandAPI.BRAND)
+@RequestMapping(BrandAPI.BRAND)
 @RequiredArgsConstructor
 public class BrandController {
     private final Logger logger = LoggerFactory.getLogger(BrandController.class);
     private final BrandService brandService;
     private final UserService userService;
     private final BrandMapper brandMapper;
+    private final BrandExpertTailoringService brandExpertTailoringService;
 
-    @GetMapping(APIConstant.BrandAPI.GET_BRAND + "/{id}")
+    @GetMapping(BrandAPI.GET_BRAND + "/{id}")
     public ResponseEntity<ObjectNode> getBrandById(@PathVariable("id") UUID id) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
@@ -59,7 +64,7 @@ public class BrandController {
         }
     }
 
-    @PostMapping(APIConstant.BrandAPI.UPLOAD_BRAND_INFOR)
+    @PostMapping(BrandAPI.UPLOAD_BRAND_INFOR)
     public ResponseEntity<ObjectNode> uploadBrandInfor(@RequestBody BrandRequest brandRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
@@ -108,7 +113,7 @@ public class BrandController {
         }
     }
 
-    @PostMapping(APIConstant.BrandAPI.ADD_NEW_BRAND)
+    @PostMapping(BrandAPI.ADD_NEW_BRAND)
     public ResponseEntity<ObjectNode> addNewBrand(@RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
@@ -165,7 +170,7 @@ public class BrandController {
         }
     }
 
-    @GetMapping(APIConstant.BrandAPI.VERIFY)
+    @GetMapping(BrandAPI.VERIFY)
     public ResponseEntity<ObjectNode> verifyAccount(@RequestParam("email") String email, @RequestParam("token") String token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
@@ -188,7 +193,7 @@ public class BrandController {
         }
     }
 
-    @GetMapping(APIConstant.BrandAPI.CHECK_VERIFY + "/{email}")
+    @GetMapping(BrandAPI.CHECK_VERIFY + "/{email}")
     public ResponseEntity<ObjectNode> checkVerify(@PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
@@ -207,6 +212,56 @@ public class BrandController {
             respon.put("status", -1);
             respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
             logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
+    @PostMapping(BrandAPI.ADD_EXPERT_TAILORING_FOR_BRAND)
+    public ResponseEntity<ObjectNode> addExpertTailoringForBrand(@RequestBody BrandExpertTailoringRequest brandExpertTailoringRequest) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            if (brandExpertTailoringRequest == null) {
+                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
+                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
+                return ResponseEntity.ok(respon);
+            }
+
+            var brandID = brandExpertTailoringRequest.getBrand_id();
+            if (brandID == null) {
+                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
+                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
+                return ResponseEntity.ok(respon);
+            }
+
+            var expectTailoringID = brandExpertTailoringRequest.getExpert_tailoring_id();
+            if (expectTailoringID == null) {
+                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
+                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
+                return ResponseEntity.ok(respon);
+            }
+
+            var checked = brandExpertTailoringService.addExpertTailoringForBrand(brandID, expectTailoringID);
+            if (checked) {
+                respon.put("status", 200);
+                respon.put("message", MessageConstant.ADD_BRAND_EXPERT_TAILORING_SUCCESSFULLY);
+                return ResponseEntity.ok(respon);
+            } else {
+                respon.put("status", ErrorConstant.BAD_REQUEST.getStatusCode());
+                respon.put("message", ErrorConstant.BAD_REQUEST.getMessage());
+                return ResponseEntity.ok(respon);
+            }
+        } catch (Exception ex) {
+            if (ex instanceof CustomExeption) {
+                CustomExeption customExeption = (CustomExeption) ex;
+                respon.put("status", customExeption.getErrorConstant().getStatusCode());
+                respon.put("message", customExeption.getErrorConstant().getMessage());
+                logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
+            } else {
+                respon.put("status", -1);
+                respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+                logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
+            }
             return ResponseEntity.ok(respon);
         }
     }

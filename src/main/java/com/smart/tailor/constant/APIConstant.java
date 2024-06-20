@@ -40,6 +40,7 @@ public class APIConstant {
         public static final String ADD_NEW_BRAND = "/add-new-brand";
         public static final String CHECK_VERIFY = "/check-verify";
         public static final String UPLOAD_BRAND_INFOR = "/upload-brand-infor";
+        public static final String ADD_EXPERT_TAILORING_FOR_BRAND = "/add-expert-tailoring-for-brand";
         public static final String VERIFY = "/verify";
     }
 
@@ -123,5 +124,18 @@ public class APIConstant {
         public static final String Notification = APIConstant.API + "/notification";
         public static final String SEND_PUBLIC_NOTIFICATION = "/send-public-notification";
         public static final String SEND_NOTIFICATION = "/send-notification";
+    }
+
+    /**
+     * Product API
+     */
+    public class ProductAPI {
+        public static final String Product = APIConstant.API + "/product";
+        public static final String GET_PRODUCT = "/get-product";
+        public static final String GET_ALL_PRODUCT_BY_BRAND_NAME = "/get-all-product-by-brand-name";
+        public static final String GET_ALL_PRODUCT_BY_BRAND_ID = "/get-all-product-by-brand-id";
+        public static final String GET_ALL_PRODUCT_BY_DESIGN_ID = "/get-all-product-by-design-id";
+        public static final String GET_ALL_PRODUCT_BY_USER_ID = "/get-all-product-by-user-id";
+        public static final String ADD_NEW_PRODUCT = "/add-new-product";
     }
 }

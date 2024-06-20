@@ -2,8 +2,6 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
-import com.smart.tailor.entities.BrandMaterial;
-import com.smart.tailor.entities.BrandMaterialKey;
 import com.smart.tailor.mapper.BrandMaterialMapper;
 import com.smart.tailor.repository.BrandMaterialRepository;
 import com.smart.tailor.service.*;
@@ -14,7 +12,6 @@ import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
 import com.smart.tailor.utils.response.MaterialResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

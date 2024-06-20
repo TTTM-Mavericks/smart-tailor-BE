@@ -1,28 +1,22 @@
 package com.smart.tailor;
 
+import com.smart.tailor.entities.ExpertTailoring;
 import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.BrandStatus;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
-import com.smart.tailor.repository.BrandRepository;
-import com.smart.tailor.repository.RoleRepository;
-import com.smart.tailor.repository.UserRepository;
+import com.smart.tailor.repository.*;
 import com.smart.tailor.service.RoleService;
 import com.smart.tailor.utils.Utilities;
-import com.smart.tailor.utils.request.NotificationRequest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 
 @SpringBootApplication
 @EnableJpaAuditing()
@@ -34,6 +28,7 @@ public class SmartTailorBeApplication {
 
     }
 
+    @Order(value = 1)
     @Bean
     public CommandLineRunner createRoles(RoleService roleService) {
         return args -> {
@@ -57,13 +52,68 @@ public class SmartTailorBeApplication {
         };
     }
 
+    @Order(value = 2)
+    @Bean
+    public CommandLineRunner createBasicAccount(RoleService roleService,
+                                                UserRepository userRepository,
+                                                PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (userRepository.findAll().size() == 0) {
+                User admin = userRepository.save(User.builder()
+                        .email("smarttailor.ad@gmail.com")
+                        .password(passwordEncoder.encode("Aa@123456admin"))
+                        .phoneNumber("0816468777")
+                        .userStatus(UserStatus.ACTIVE)
+                        .provider(Provider.LOCAL)
+                        .roles(roleService.findRoleByRoleName("ADMIN").orElse(null))
+                        .build()
+                );
+
+                User manager = userRepository.save(User.builder()
+                        .email("smarttailor.ma@gmail.com")
+                        .password(passwordEncoder.encode("Aa@123456manager"))
+                        .phoneNumber("0877656849")
+                        .userStatus(UserStatus.ACTIVE)
+                        .provider(Provider.LOCAL)
+                        .roles(roleService.findRoleByRoleName("MANAGER").orElse(null))
+                        .build()
+                );
+            }
+        };
+    }
+
+    @Order(value = 3)
+    @Bean
+    public CommandLineRunner createExpertTailoring(ExpertTailoringRepository expertTailoringRepository) {
+        return args -> {
+            if (expertTailoringRepository.findAll().size() == 0) {
+                expertTailoringRepository.save(ExpertTailoring
+                        .builder()
+                        .expertTailoringName("EMBROIDER")
+                        .sizeImageUrl("http://img.com")
+                        .build()
+                );
+
+                expertTailoringRepository.save(ExpertTailoring
+                        .builder()
+                        .expertTailoringName("SEW")
+                        .sizeImageUrl("http://img.com")
+                        .build()
+                );
+            }
+        };
+    }
+
+    @Order(value = 4)
     @Bean
     public CommandLineRunner createSampleBrand(UserRepository userRepository,
                                                BrandRepository brandRepository,
                                                PasswordEncoder passwordEncoder,
-                                               RoleRepository roleRepository) {
+                                               RoleRepository roleRepository,
+                                               ExpertTailoringRepository expertTailoringRepository,
+                                               BrandExpertTailoringRepository brandExpertTailoringRepository) {
         return args -> {
-            if(userRepository.findAll().size() == 0){
+            if (brandRepository.findAll().size() == 0) {
                 User userTest1 = userRepository.save(User.builder()
                         .email("lalisa@example.com")
                         .password(passwordEncoder.encode("HASH_PASSWORD"))
@@ -84,8 +134,22 @@ public class SmartTailorBeApplication {
                         .build()
                 );
 
-                brandRepository.createShortBrand(userTest1.getUserID(),"LA LA LISA BRAND", BrandStatus.ACCEPT.name());
-                brandRepository.createShortBrand(userTest2.getUserID(),"GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
+                brandRepository.createShortBrand(userTest1.getUserID(), "LA LA LISA BRAND", BrandStatus.ACCEPT.name());
+                brandRepository.createShortBrand(userTest2.getUserID(), "GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
+
+                var brandLALALISA = brandRepository.findBrandByBrandName("LA LA LISA BRAND");
+                var brandGOYOUNJUNG = brandRepository.findBrandByBrandName("GO YOUN JUNG BRAND");
+                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringName("SEW").get();
+                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringName("EMBROIDER").get();
+                brandExpertTailoringRepository.createShortBrandExpertTailoring(
+                        brandLALALISA.get().getBrandID(),
+                        sewExpertTailoring.getExpertTailoringID()
+                );
+
+                brandExpertTailoringRepository.createShortBrandExpertTailoring(
+                        brandGOYOUNJUNG.get().getBrandID(),
+                        embroiderExpertTailoring.getExpertTailoringID()
+                );
             }
         };
     }
