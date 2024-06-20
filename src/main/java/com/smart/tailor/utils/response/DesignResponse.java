@@ -9,12 +9,17 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class DesignResponse {
+    private UUID designID;
+
+    private UserResponse userResponse;
+
     private String expertTailoringName;
 
     private String titleDesign;
