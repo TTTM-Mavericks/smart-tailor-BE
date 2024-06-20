@@ -8,21 +8,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface BrandMaterialMapper {
-//    default String mapBrandMaterialKeyToBrandName(BrandMaterialKey brandMaterialKey) {
-//        return brandMaterialKey.getBrand().getBrandName();
-//    }
-//
-//    default String mapBrandMaterialKeyToMaterialName(BrandMaterialKey brandMaterialKey) {
-//        return brandMaterialKey.getMaterial().getMaterialName();
-//    }
-//
-//    default String mapBrandMaterialKeyToCategoryName(BrandMaterialKey brandMaterialKey) {
-//        return brandMaterialKey.getMaterial().getCategory().getCategoryName();
-//    }
-//
-//    @Mapping(target = "brandName", expression = "java(mapBrandMaterialKeyToBrandName(brandMaterial.getBrandMaterialKey()))")
-//    @Mapping(target = "materialName", expression = "java(mapBrandMaterialKeyToMaterialName(brandMaterial.getBrandMaterialKey()))")
-//    @Mapping(target = "categoryName", expression = "java(mapBrandMaterialKeyToCategoryName(brandMaterial.getBrandMaterialKey()))")
     @Mapping(source = "brandMaterial.brandMaterialKey.material.materialName", target = "materialName")
     @Mapping(source = "brandMaterial.brandMaterialKey.material.category.categoryName", target = "categoryName")
     @Mapping(source = "brandMaterial.brandMaterialKey.brand.brandName", target = "brandName")

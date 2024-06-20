@@ -62,6 +62,7 @@ public class MessageConstant {
     public static final String EMAIL_IS_NOT_EXISTED = "Email is not existed!";
     public static final String PHONE_NUMBER_IS_EXISTED = "Phone Number is existed!";
     public static final String UPDATE_PASSWORD_FAILED = "Failed To Update Password!";
+    public static final String USER_IS_NOT_FOUND = "User Is Not Found";
     public static final String REGISTER_NEW_USER_FAILED = "Failed To Register New User!";
     public static final String REFRESH_TOKEN_FAILED = "Failed To Refresh Token!";
     public static final String TOKEN_ALREADY_EXPIRED = "Token already expired!";
@@ -160,4 +161,18 @@ public class MessageConstant {
     public static final String ADD_NEW_CATEGORY_FAIL = "Add New Category Fail!";
     public static final String CATEGORY_IS_EXISTED = "Category is Existed";
     public static final String CATEGORY_NAME_IS_EXISTED = "Category Name is Existed";
+
+    /**
+     * DESIGN
+     */
+    /*    SUCCESS  */
+    public static final String ADD_NEW_DESIGN_SUCCESSFULLY = "Add New Design Successfully!";
+    public static final String GET_ALL_DESIGN_BY_USER_ID_SUCCESSFULLY = "Get All Design By UserID Successfully!";
+    public static final String GET_ALL_DESIGN_SUCCESSFULLY = "Get All Design Successfully!";
+    public static final String GET_DESIGN_BY_ID_SUCCESSFULLY = "Get Design By ID Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_NEW_DESIGN_FAIL = "Add New Design Fail!";
+    public static final String CAN_NOT_FIND_ANY_DESIGN_BY_USER_ID = "Can Not Find Any Design By UserID";
+    public static final String CAN_NOT_FIND_ANY_DESIGN = "Can Not Find Any Design";
 }

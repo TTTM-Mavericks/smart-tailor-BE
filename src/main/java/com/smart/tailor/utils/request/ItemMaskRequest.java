@@ -35,10 +35,4 @@ public class ItemMaskRequest {
     private String imageUrl;
 
     private PrintType printType;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime lastModifiedDate;
 }

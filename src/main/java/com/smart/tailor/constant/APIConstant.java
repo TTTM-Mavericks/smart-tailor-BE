@@ -138,4 +138,15 @@ public class APIConstant {
         public static final String GET_ALL_PRODUCT_BY_USER_ID = "/get-all-product-by-user-id";
         public static final String ADD_NEW_PRODUCT = "/add-new-product";
     }
+
+    /**
+     * Design API
+     */
+    public class DesignAPI {
+        public static final String DESIGN = APIConstant.API + "/design";
+        public static final String ADD_NEW_DESIGN = "/add-new-design";
+        public static final String GET_DESIGN_BY_ID = "/get-design-by-id";
+        public static final String GET_ALL_DESIGN_BY_USER_ID = "/get-all-design-by-user-id";
+        public static final String GET_ALL_DESIGN = "/get-all-design";
+    }
 }
