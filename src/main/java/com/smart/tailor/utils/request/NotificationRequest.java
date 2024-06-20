@@ -13,4 +13,5 @@ public class NotificationRequest {
     private String sender;
     private String recipient;
     private String message;
+    private String type;
 }

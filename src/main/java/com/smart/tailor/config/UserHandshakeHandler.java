@@ -15,18 +15,18 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
 
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-        String userID = null;
+        String email = null;
         try {
             String query = request.getURI().getQuery();
             if (query != null) {
                 String[] pair = query.split("=");
-                userID = pair[1];
+                email = pair[1];
             }
-            LOG.info("User with ID '{}' opened the page", userID);
+            LOG.info("User with email '{}' opened the page", email);
 
         } catch (Exception ex) {
             logger.error("ERROR IN USER HANDSHAKE HANDLER: {}", ex);
         }
-        return new UserPrincipal(userID);
+        return new UserPrincipal(email);
     }
 }

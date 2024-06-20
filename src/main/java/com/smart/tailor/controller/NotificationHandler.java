@@ -25,7 +25,7 @@ public class NotificationHandler {
 
     @MessageMapping("/private-message")
     @SendToUser("/topic/private-messages")
-    public String getPrivateMessage(final NotificationRequest message) throws InterruptedException {
+    public String getPrivateMessage(final NotificationRequest message) throws Exception {
         Thread.sleep(1000);
         notificationService.sendPrivateNotification(message);
         return message.getMessage();

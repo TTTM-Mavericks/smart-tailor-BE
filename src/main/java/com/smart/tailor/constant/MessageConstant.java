@@ -2,6 +2,11 @@ package com.smart.tailor.constant;
 
 public class MessageConstant {
     /**
+     * SYSTEM MESSAGE
+     */
+    public static final String NEW_BRAND_REGISTERED = "New Brand Registered!";
+
+    /**
      * ERROR MESSAGE
      */
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
@@ -38,6 +43,10 @@ public class MessageConstant {
     public static final String GET_BRAND_SUCCESSFULLY = "Get Brand Successfully!";
     public static final String REGISTER_NEW_BRAND_FAILED = "Failed To Register New Brand!";
     public static final String REGISTER_NEW_BRAND_SUCCESSFULLY = "Register New Brand Successfully!";
+    public static final String ACCEPT_BRAND_SUCCESSFULLY = "Accept Brand Successfully!";
+    public static final String REJECT_BRAND_SUCCESSFULLY = "Reject Brand Successfully!";
+    public static final String ACCEPT_BRAND_FAILED = "Accept Brand Fail!";
+    public static final String REJECT_BRAND_FAILED = "Reject Brand Fail!";
 
 
     /**
