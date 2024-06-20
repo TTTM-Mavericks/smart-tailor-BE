@@ -95,6 +95,7 @@ public class BrandController {
                 NotificationRequest request = NotificationRequest
                         .builder()
                         .sender(brand.getUser().getEmail())
+                        .type("BRAND REGISTRATION")
                         .message(MessageConstant.NEW_BRAND_REGISTERED)
                         .recipient("smarttailor.ma@gmail.com")
                         .build();
