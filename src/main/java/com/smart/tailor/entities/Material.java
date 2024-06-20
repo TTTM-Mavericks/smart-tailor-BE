@@ -23,7 +23,6 @@ public class Material extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID materialID;
 
-    @Column(name = "material_name")
     private String materialName;
 
     @ManyToOne
@@ -32,4 +31,10 @@ public class Material extends AuditEntity implements Serializable {
 
     @Column(name = "hs_code")
     private Double hsCode;
+
+    private String unit;
+
+    private Double basePrice;
+
+    private Boolean status;
 }

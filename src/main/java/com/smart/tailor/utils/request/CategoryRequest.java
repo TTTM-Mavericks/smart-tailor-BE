@@ -1,4 +1,4 @@
-package com.smart.tailor.utils.response;
+package com.smart.tailor.utils.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryResponse {
+public class CategoryRequest {
     private UUID categoryID;
 
     private String categoryName;

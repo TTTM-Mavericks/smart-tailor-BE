@@ -3,7 +3,9 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.config.CustomExeption;
 import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Category;
 import com.smart.tailor.entities.ExpertTailoring;
+import com.smart.tailor.entities.Material;
 import com.smart.tailor.mapper.ExpertTailoringMapper;
 import com.smart.tailor.repository.ExpertTailoringRepository;
 import com.smart.tailor.service.ExcelExportService;
@@ -11,6 +13,7 @@ import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
+import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -79,6 +82,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                 ExpertTailoring.builder()
                         .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
                         .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
+                        .status(true)
                         .build()
         );
 
@@ -125,24 +129,30 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                     .build();
         }
         try {
-            var excelData = excelImportService.getExpertTailoringDataFromExcel(file.getInputStream());
+            var apiResponse = excelImportService.getExpertTailoringDataFromExcel(file.getInputStream());
 
-            if (excelData == null) {
+            if(apiResponse.getStatus() == HttpStatus.BAD_REQUEST.value() ||
+                    apiResponse.getStatus() == HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()){
+                return apiResponse;
+            }
+
+            var excelData = (List<ExpertTailoringRequest>) apiResponse.getData();
+
+            if(excelData.isEmpty()){
                 return APIResponse
                         .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE)
+                        .status(HttpStatus.OK.value())
+                        .message(MessageConstant.CATEGORY_AND_MATERIAL_EXCEL_FILE_HAS_EMPTY_DATA)
                         .data(null)
                         .build();
             }
 
-            Set<String> excelNames = new HashSet<>();
+            Set<ExpertTailoringRequest> excelNames = new HashSet<>();
             List<ExpertTailoringRequest> uniqueExcelData = new ArrayList<>();
             List<ExpertTailoringRequest> duplicateExcelData = new ArrayList<>();
 
-            for (ExpertTailoringRequest request : excelData) {
-                if (!excelNames.add(request.getExpertTailoringName())) {
-                    duplicateExcelData.add(request);
+            for(ExpertTailoringRequest request : excelData){
+                if(!excelNames.add(request)){xcelData.add(request);
                 } else {
                     uniqueExcelData.add(request);
                 }
@@ -175,7 +185,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
             } else {
                 return APIResponse.builder()
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_FAIL)
+                        .message(MessageConstant.DUPLICATE_EXPERT_TAILORING_DATA)
                         .data(invalidData)
                         .build();
             }
@@ -195,5 +205,104 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         var expertTailoringResponse = getAllExpertTailoring();
         excelExportService.exportExpertTailoringData(expertTailoringResponse, response);
         return expertTailoringResponse;
+    }
+
+    @Override
+    public void generateSampleExpertTailoringByExportExcel(HttpServletResponse response) throws IOException {
+        excelExportService.exportSampleExpertTailoring(response);
+    }
+
+    @Override
+    public ExpertTailoringResponse findByExpertTailoringID(UUID expertTailoringID) {
+        if(Utilities.isStringNotNullOrEmpty(expertTailoringID.toString())){
+            var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
+            if(expertTailoring.isPresent()){
+                return expertTailoringMapper.mapperToExpertTailoringResponse(expertTailoring.get());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public APIResponse updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest) {
+        if(
+                !Utilities.isStringNotNullOrEmpty(expertTailoringID.toString()) ||
+                !Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getExpertTailoringName()) ||
+                !Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getSizeImageUrl())
+        ){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.DATA_IS_EMPTY)
+                    .build();
+        }
+
+        var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
+        if(expertTailoring.isEmpty()){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING)
+                    .build();
+        }
+
+        var checkExpertTailoringNameIsExisted = getByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
+        if(checkExpertTailoringNameIsExisted != null){
+            System.out.println(checkExpertTailoringNameIsExisted.getExpertTailoringID());
+            System.out.println(expertTailoring.get().getExpertTailoringID());
+            if(!checkExpertTailoringNameIsExisted.getExpertTailoringID().toString().equals(expertTailoring.get().getExpertTailoringID().toString())){
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.EXPERT_TAILORING_NAME_IS_EXISTED)
+                        .build();
+            }
+        }
+
+        var updateExpertTailoring = expertTailoringRepository.save(
+                ExpertTailoring
+                        .builder()
+                        .expertTailoringID(expertTailoringID)
+                        .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
+                        .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
+                        .status(expertTailoring.get().getStatus())
+                        .build()
+        );
+
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.UPDATE_MATERIAL_SUCCESSFULLY)
+                .data(expertTailoringMapper.mapperToExpertTailoringResponse(updateExpertTailoring))
+                .build();
+    }
+
+    @Override
+    public APIResponse updateStatusExpertTailoring(UUID expertTailoringID) {
+        if(!Utilities.isStringNotNullOrEmpty(expertTailoringID.toString())){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.DATA_IS_EMPTY)
+                    .build();
+        }
+
+        var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
+        if(expertTailoring.isEmpty()){
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING)
+                    .build();
+        }
+
+        expertTailoring.get().setStatus(expertTailoring.get().getStatus() ? false : true);
+
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.UPDATE_EXPERT_TAILORING_SUCCESSFULLY)
+                .data(expertTailoringMapper.mapperToExpertTailoringResponse(expertTailoringRepository.save(expertTailoring.get())))
+                .build();
     }
 }

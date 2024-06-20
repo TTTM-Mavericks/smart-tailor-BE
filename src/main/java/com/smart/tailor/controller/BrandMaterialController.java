@@ -85,6 +85,23 @@ public class BrandMaterialController {
         }
     }
 
+    @PutMapping(APIConstant.BrandMaterialAPI.UPDATE_BRAND_MATERIAL)
+    public ResponseEntity<ObjectNode> updateBrandMaterial(@RequestBody BrandMaterialRequest brandMaterialRequest) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var apiResponse = brandMaterialService.updateBrandMaterial(brandMaterialRequest);
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN UPDATE BRAND MATERIALS. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
 
     @PostMapping(APIConstant.BrandMaterialAPI.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE)
     public ResponseEntity<ObjectNode> addNewBrandMaterialByExcelFile(@RequestParam("file") MultipartFile file,

@@ -60,6 +60,8 @@ public class APIConstant {
         public static final String CATEGORY = APIConstant.API + "/category";
         public static final String ADD_NEW_CATEGORY = "/add-new-category";
         public static final String GET_ALL_CATEGORY = "/get-all-category";
+        public static final String GET_CATEGORY_BY_ID = "/get-category-by-id";
+        public static final String UPDATE_CATEGORY = "/update-category";
     }
 
     /**
@@ -69,8 +71,13 @@ public class APIConstant {
         public static final String MATERIAL = APIConstant.API + "/material";
         public static final String ADD_NEW_MATERIAL = "/add-new-material";
         public static final String GET_ALL_MATERIAL = "/get-all-material";
+        public static final String GET_ALL_ACTIVE_MATERIAL = "/get-all-active-material";
+        public static final String GET_MATERIAL_BY_ID = "/get-material-by-id";
         public static final String ADD_NEW_CATEGORY_MATERIAL_BY_EXCEL_FILE = "/add-new-category-material-by-excel-file";
         public static final String EXPORT_CATEGORY_MATERIAL_FOR_BRAND_BY_EXCEL = "/export-category-material-for-brand-by-excel";
+        public static final String UPDATE_MATERIAL = "/update-material";
+        public static final String UPDATE_STATUS_MATERIAL = "update-status-material";
+        public static final String GENERATE_SAMPLE_CATEGORY_MATERIAL_BY_EXCEL_FILE = "/generate-sample-category-material-by-excel-file";
     }
 
     /**
@@ -82,7 +89,7 @@ public class APIConstant {
         public static final String GET_ALL_BRAND_MATERIAL = "/get-all-brand-material";
         public static final String GET_ALL_BRAND_MATERIAL_BY_BRAND_NAME = "/get-all-brand-material-by-brand-name";
         public static final String ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE = "/add-new-brand-material-by-excel-file";
-        public static final String GET_ALL_BRAND_MATERIAL_BY_EXCEL_FILE = "/get-all-brand-material-by-excel-file";
+        public static final String UPDATE_BRAND_MATERIAL = "/update-brand-material";
     }
 
     /**
@@ -103,6 +110,11 @@ public class APIConstant {
         public static final String GET_ALL_EXPERT_TAILORING_BY_EXPERT_TAILORING_NAME = "/get-expert-tailoring-by-name";
         public static final String ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE = "/add-new-expert-tailoring-by-excel-file";
         public static final String GET_ALL_EXPERT_TAILORING_BY_EXCEL_FILE = "/get-all-expert-tailoring-by-excel-file";
+        public static final String GENERATE_SAMPLE_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-expert-tailoring-by-excel-file";
+        public static final String GET_EXPERT_TAILORING_BY_ID = "/get-expert-tailoring-by-id";
+        public static final String UPDATE_EXPERT_TAILORING = "/update-expert-tailoring";
+        public static final String UPDATE_STATUS_EXPERT_TAILORING = "/update-status-expert-tailoring";
+
     }
 
     /**

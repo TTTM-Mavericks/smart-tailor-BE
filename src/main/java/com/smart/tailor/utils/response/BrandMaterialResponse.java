@@ -15,13 +15,17 @@ import java.time.LocalDateTime;
 public class BrandMaterialResponse {
     private String brandName;
 
+    private String categoryName;
+
     private String materialName;
 
-    private String categoryName;
+    private Double hsCode;
 
     private String unit;
 
-    private Double price;
+    private Double basePrice;
+
+    private Double brandPrice;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;

@@ -12,4 +12,9 @@ public class FormatConstant {
     public static final String MM_DD_YYYY_MINUS = "MM-dd-yyyy";
     public static final String YYYY_MM_DD_TIME = "yyyy-MM-dd HH:mm:ss";
     public static final String DD_MM_YYYY_TIME = "dd/MM/yyyy HH:mm:ss";
+
+    /**
+     * DATA SAMPLE CONSTANT
+     */
+    public static final Double PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE = 0.07;
 }

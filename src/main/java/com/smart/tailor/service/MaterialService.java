@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface MaterialService {
     Optional<Material> findByMaterialNameAndCategory_CategoryName(String materialName, String categoryName);
@@ -18,9 +19,19 @@ public interface MaterialService {
 
     List<MaterialResponse> findAllMaterials();
 
+    List<MaterialResponse> findAllActiveMaterials();
+
     MaterialResponse findByMaterialNameAndCategoryName(String materialName, String categoryName);
 
     APIResponse createMaterialByExcelFile(MultipartFile file);
 
     List<MaterialResponse> exportCategoryMaterialForBrandByExcel(HttpServletResponse response) throws IOException;
+
+    MaterialResponse findByMaterialID(UUID materialID);
+
+    APIResponse updateMaterial(UUID materialID, MaterialRequest materialRequest);
+
+    APIResponse updateStatusMaterial(UUID materialID);
+
+    void generateSampleCategoryMaterialByExportExcel(HttpServletResponse response) throws IOException;
 }

@@ -22,7 +22,5 @@ public class BrandMaterial extends AuditEntity implements Serializable {
     @EmbeddedId
     private BrandMaterialKey brandMaterialKey;
 
-    private String unit;
-
-    private Double price;
+    private Double brandPrice;
 }

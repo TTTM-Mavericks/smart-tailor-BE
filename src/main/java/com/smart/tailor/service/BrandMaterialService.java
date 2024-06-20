@@ -16,5 +16,5 @@ public interface BrandMaterialService {
 
     APIResponse createBrandMaterialByImportExcelData(MultipartFile file, String brandName);
 
-//    List<BrandMaterialResponse> getAllBrandMaterialByExportExcelData(HttpServletResponse response) throws IOException;
+    APIResponse updateBrandMaterial(BrandMaterialRequest brandMaterialRequest);
 }

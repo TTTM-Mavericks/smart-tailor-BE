@@ -19,4 +19,10 @@ public class MaterialResponse {
     private String categoryName;
 
     private Double hsCode;
+
+    private String unit;
+
+    private Double basePrice;
+
+    private Boolean status;
 }

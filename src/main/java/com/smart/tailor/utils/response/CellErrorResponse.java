@@ -5,14 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryResponse {
-    private UUID categoryID;
+public class CellErrorResponse{
+    private int rowIndex;
 
-    private String categoryName;
+    private int cellIndex;
+
+    private String cellName;
+
+    private Object data;
+
+    private String message;
 }

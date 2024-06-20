@@ -1,24 +1,28 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
+import com.smart.tailor.utils.response.APIResponse;
+import com.smart.tailor.utils.response.CellErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,141 +40,634 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     @Override
-    public List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, String brandName) {
+    public APIResponse getBrandMaterialDataFromExcel(InputStream inputStream, String brandName) {
         List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheet("Brand Material");
-            if(sheet == null){
-                return null;
+
+            if (sheet == null) {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                        .message(MessageConstant.WRONG_TYPE_OF_BRAND_MATERIAL_EXCEL_FILE)
+                        .data(null)
+                        .build();
             }
+
             logger.info("Inside getBrandMaterialDataFromExcel Method");
-            int rowIndex = 0;
-            for(Row row : sheet){
-                if(rowIndex == 0){
-                    ++rowIndex;
+            boolean inValidData = false;
+            List<CellErrorResponse> cellErrorResponses = new ArrayList<>();
+            int rowIndex = 2;
+            while(rowIndex <= sheet.getLastRowNum()){
+                Row row = sheet.getRow(rowIndex);
+                if(row == null || isRowCompletelyEmptyForBrandMaterial(row)){
+                    rowIndex++;
                     continue;
                 }
-                Iterator<Cell> cellIterator = row.iterator();
-                int cellIndex = 0;
+
                 BrandMaterialRequest brandMaterialRequest = new BrandMaterialRequest();
-                while(cellIterator.hasNext()){
-                    Cell cell = cellIterator.next();
-                    switch (cellIndex){
-                        case 0 :
-                            brandMaterialRequest.setCategoryName(cell.getStringCellValue());
-                            break;
-                        case 1 :
-                            brandMaterialRequest.setMaterialName(cell.getStringCellValue());
-                            break;
-                        case 2 :
-                            brandMaterialRequest.setHsCode(cell.getNumericCellValue());
-                            break;
-                        case 3 :
-                            brandMaterialRequest.setUnit(cell.getStringCellValue());
-                            break;
-                        case 4 :
-                            brandMaterialRequest.setPrice(cell.getNumericCellValue());
-                            break;
-                        default :
-                            break;
+                boolean rowDataValid = true;
+                boolean brandPriceIsEmpty = false;
+                for(int cellIndex = 0; cellIndex < 6; cellIndex++){
+                    Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    if(cell == null || cell.getCellType() == CellType.BLANK){
+                        if(cellIndex != 5) {
+                            inValidData = true;
+                            rowDataValid = false;
+                            cellErrorResponses.add(
+                                    CellErrorResponse
+                                            .builder()
+                                            .rowIndex(rowIndex + 1)
+                                            .cellIndex(cellIndex + 1)
+                                            .cellName(getCellNameForBrandMaterial(cellIndex))
+                                            .message(MessageConstant.DATA_IS_EMPTY)
+                                            .data(null)
+                                            .build()
+                            );
+                        } else{
+                            brandPriceIsEmpty = true;
+                        }
                     }
-                    ++cellIndex;
+                    else{
+                        switch (cellIndex){
+                            case 0:
+                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                    brandMaterialRequest.setCategoryName(cell.getStringCellValue());
+                                } else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForBrandMaterial(cellIndex))
+                                                    .message(MessageConstant.INVALID_DATA_TYPE)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 1:
+                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                    brandMaterialRequest.setMaterialName(cell.getStringCellValue());
+                                } else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForBrandMaterial(cellIndex))
+                                                    .message(MessageConstant.INVALID_DATA_TYPE)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 2:
+                                if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
+                                    brandMaterialRequest.setHsCode(cell.getNumericCellValue());
+                                } else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    String message = MessageConstant.INVALID_DATA_TYPE;
+                                    if(cell.getCellType() == CellType.BLANK){
+                                        message = MessageConstant.DATA_IS_EMPTY;
+                                    } else if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForBrandMaterial(cellIndex))
+                                                    .message(message)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 3:
+                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                    brandMaterialRequest.setUnit(cell.getStringCellValue());
+                                }else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForBrandMaterial(cellIndex))
+                                                    .message(MessageConstant.INVALID_DATA_TYPE)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 4:
+                                if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
+                                    brandMaterialRequest.setBasePrice(cell.getNumericCellValue());
+                                }else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    String message = MessageConstant.INVALID_DATA_TYPE;
+                                    if(cell.getCellType() == CellType.BLANK){
+                                        message = MessageConstant.DATA_IS_EMPTY;
+                                    }else if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForBrandMaterial(cellIndex))
+                                                    .message(message)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 5:
+                                boolean isValid = false;
+                                double numericValue = -1;
+                                String message = MessageConstant.INVALID_DATA_TYPE;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                 if(isValid && numericValue >= 0){
+                                    brandMaterialRequest.setBrandPrice(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForBrandMaterial(cellIndex))
+                                                    .message(message)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                        }
+                    }
                 }
-                brandMaterialRequest.setBrandName(brandName);
-                brandMaterialRequests.add(brandMaterialRequest);
+                if(rowDataValid && !brandPriceIsEmpty){
+                    brandMaterialRequest.setBrandName(brandName);
+                    brandMaterialRequests.add(brandMaterialRequest);
+                }
+                rowIndex++;
+            }
+            if (inValidData) {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.INVALID_DATA_TYPE)
+                        .data(cellErrorResponses)
+                        .build();
+            } else {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.OK.value())
+                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
+                        .data(brandMaterialRequests)
+                        .build();
             }
         } catch (IOException e) {
-            logger.error("{}", e.getMessage());
-            return null;
+            logger.error("Error reading Excel file: {}", e.getMessage());
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(MessageConstant.ERROR_READING_EXCEL_FILE)
+                    .data(null)
+                    .build();
         }
-        return brandMaterialRequests;
+    }
+
+    private boolean isRowCompletelyEmptyForBrandMaterial(Row row){
+        for(int cellIndex = 0; cellIndex < 6; cellIndex++){
+            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if(cell != null && cell.getCellType() != CellType.BLANK){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellNameForBrandMaterial(int cellIndex){
+        switch (cellIndex){
+            case 0: return "Category Name";
+            case 1: return "Material Name";
+            case 2: return "HS Code";
+            case 3: return "Unit";
+            case 4: return "Base Price";
+            case 5: return "Brand Price";
+            default: return "Unknown Data";
+        }
     }
 
     @Override
-    public List<MaterialRequest> getCategoryMaterialDataFromExcel(InputStream inputStream) {
+    public APIResponse getCategoryMaterialDataFromExcel(InputStream inputStream) {
         List<MaterialRequest> materialRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheet("Category and Material");
-            if(sheet == null){
-                return null;
+
+            if (sheet == null) {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                        .message(MessageConstant.WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE)
+                        .data(null)
+                        .build();
             }
             logger.info("Inside getCategoryMaterialDataFromExcel Method");
-            int rowIndex = 0;
-            for(Row row : sheet){
-                if(rowIndex == 0){
-                    ++rowIndex;
+
+            boolean inValidData = false;
+            List<CellErrorResponse> cellErrorResponses = new ArrayList<>();
+
+            int rowIndex = 2;
+            while (rowIndex <= sheet.getLastRowNum()) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || isRowCompletelyEmptyForCategoryMaterial(row)) {
+                    rowIndex++;
                     continue;
                 }
-                Iterator<Cell> cellIterator = row.iterator();
-                int cellIndex = 0;
+
                 MaterialRequest materialRequest = new MaterialRequest();
-                while(cellIterator.hasNext()){
-                    Cell cell = cellIterator.next();
-                    switch (cellIndex){
-                        case 0 :
-                            materialRequest.setCategoryName(cell.getStringCellValue());
-                            break;
-                        case 1 :
-                            materialRequest.setMaterialName(cell.getStringCellValue());
-                            break;
-                        case 2 :
-                            materialRequest.setHsCode(cell.getNumericCellValue());
-                            break;
-                        default :
-                            break;
+                boolean rowDataValid = true;
+                boolean isValid = false;
+                String message = "";
+                double numericValue = -1;
+                for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+                    Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        inValidData = true;
+                        rowDataValid = false;
+                        cellErrorResponses.add(
+                                CellErrorResponse
+                                        .builder()
+                                        .rowIndex(rowIndex + 1)
+                                        .cellIndex(cellIndex + 1)
+                                        .cellName(getCellNameForCategoryMaterial(cellIndex))
+                                        .data("")
+                                        .message(MessageConstant.DATA_IS_EMPTY)
+                                        .build()
+                        );
+                    } else {
+                        switch (cellIndex) {
+                            case 0:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    materialRequest.setCategoryName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 1:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    materialRequest.setMaterialName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 2:
+                                 isValid = false;
+                                 numericValue = -1;
+                                 message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    materialRequest.setHsCode(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+                                                    .message(message)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 3:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    materialRequest.setUnit(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 4:
+                                 isValid = false;
+                                 numericValue = -1;
+                                 message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    materialRequest.setBasePrice(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+                                                    .message(message)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                    ++cellIndex;
                 }
-                materialRequests.add(materialRequest);
+
+                if (rowDataValid) {
+                    materialRequests.add(materialRequest);
+                }
+
+                rowIndex++;
+            }
+
+            if (inValidData) {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.INVALID_DATA_TYPE)
+                        .data(cellErrorResponses)
+                        .build();
+            } else {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.OK.value())
+                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
+                        .data(materialRequests)
+                        .build();
             }
         } catch (IOException e) {
-            logger.error("{}", e.getMessage());
-            return null;
+            logger.error("Error reading Excel file: {}", e.getMessage());
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(MessageConstant.ERROR_READING_EXCEL_FILE)
+                    .data(null)
+                    .build();
         }
-        return materialRequests;
+    }
+
+    private boolean isRowCompletelyEmptyForCategoryMaterial(Row row) {
+        for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellNameForCategoryMaterial(int cellIndex) {
+        switch (cellIndex) {
+            case 0: return "Category Name";
+            case 1: return "Material Name";
+            case 2: return "HS Code";
+            case 3: return "Unit";
+            case 4: return "Base Price";
+            default: return "Unknown";
+        }
     }
 
     @Override
-    public List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream) {
+    public APIResponse getExpertTailoringDataFromExcel(InputStream inputStream) {
         List<ExpertTailoringRequest> expertTailoringRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheet("Expert Tailoring");
-            if(sheet == null){
-                return null;
+            if (sheet == null) {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                        .message(MessageConstant.WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE)
+                        .data(null)
+                        .build();
             }
             logger.info("Inside getExpertTailoringDataFromExcel Method");
-            int rowIndex = 0;
-            for(Row row : sheet){
-                if(rowIndex == 0){
-                    ++rowIndex;
+
+            boolean inValidData = false;
+            List<CellErrorResponse> cellErrorResponses = new ArrayList<>();
+
+            int rowIndex = 2;
+            while (rowIndex <= sheet.getLastRowNum()) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || isRowCompletelyEmptyForExpertTailoring(row)) {
+                    rowIndex++;
                     continue;
                 }
-                Iterator<Cell> cellIterator = row.iterator();
-                int cellIndex = 0;
-                ExpertTailoringRequest expertTailoringRequest  = new ExpertTailoringRequest();
-                while(cellIterator.hasNext()){
-                    Cell cell = cellIterator.next();
-                    switch (cellIndex){
-                        case 0 :
-                            expertTailoringRequest.setExpertTailoringName(cell.getStringCellValue());
-                            break;
-                        case 1 :
-                            expertTailoringRequest.setSizeImageUrl(cell.getStringCellValue());
-                            break;
-                        default :
-                            break;
+
+                ExpertTailoringRequest expertTailoringRequest = new ExpertTailoringRequest();
+                boolean rowDataValid = true;
+                for (int cellIndex = 0; cellIndex < 2; cellIndex++) {
+                    Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        inValidData = true;
+                        rowDataValid = false;
+                        cellErrorResponses.add(
+                                CellErrorResponse
+                                        .builder()
+                                        .rowIndex(rowIndex + 1)
+                                        .cellIndex(cellIndex + 1)
+                                        .cellName(getCellNameForExpertTailoring(cellIndex))
+                                        .data(null)
+                                        .message(MessageConstant.DATA_IS_EMPTY)
+                                        .build()
+                        );
+                    } else {
+                        switch (cellIndex) {
+                            case 0:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    expertTailoringRequest.setExpertTailoringName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForExpertTailoring(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 1:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    expertTailoringRequest.setSizeImageUrl(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForExpertTailoring(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                    ++cellIndex;
                 }
-                expertTailoringRequests.add(expertTailoringRequest);
+
+                if (rowDataValid) {
+                    expertTailoringRequests.add(expertTailoringRequest);
+                }
+
+                rowIndex++;
+            }
+
+            if (inValidData) {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(MessageConstant.INVALID_DATA_TYPE)
+                        .data(cellErrorResponses)
+                        .build();
+            } else {
+                return APIResponse
+                        .builder()
+                        .status(HttpStatus.OK.value())
+                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
+                        .data(expertTailoringRequests)
+                        .build();
             }
         } catch (IOException e) {
-            logger.error("{}", e.getMessage());
-            return null;
+            logger.error("Error reading Excel file: {}", e.getMessage());
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(MessageConstant.ERROR_READING_EXCEL_FILE)
+                    .data(null)
+                    .build();
         }
-        return expertTailoringRequests;
     }
+
+    private boolean isRowCompletelyEmptyForExpertTailoring(Row row) {
+        for (int cellIndex = 0; cellIndex < 2; cellIndex++) {
+            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellNameForExpertTailoring(int cellIndex) {
+        switch (cellIndex) {
+            case 0: return "Expert Tailoring Name";
+            case 1: return "Size Image URL";
+            default: return "Unknown";
+        }
+    }
+
 }

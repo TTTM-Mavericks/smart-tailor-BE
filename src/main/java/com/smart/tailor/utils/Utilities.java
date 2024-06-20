@@ -1,11 +1,14 @@
 package com.smart.tailor.utils;
 
+import com.smart.tailor.constant.FormatConstant;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,6 +92,10 @@ public class Utilities {
         return false;
     }
 
+    public static boolean isValidUUIDType(UUID uuid) {
+        return uuid != null;
+    }
+
     public static boolean isValidateDate(String dateStr, String dateFormat) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
         try {
@@ -117,5 +124,11 @@ public class Utilities {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static double roundToTwoDecimalPlaces(double value) {
+        BigDecimal bd = new BigDecimal(Double.toString(value));
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }

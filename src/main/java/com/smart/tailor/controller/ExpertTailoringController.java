@@ -6,6 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
+import com.smart.tailor.utils.request.MaterialRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(APIConstant.ExpertTailoringAPI.EXPERT_TAILORING)
@@ -128,6 +130,83 @@ public class ExpertTailoringController {
             response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
             logger.error("ERROR IN GET ALL EXPERT TAILORING. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping(APIConstant.ExpertTailoringAPI.GENERATE_SAMPLE_EXPERT_TAILORING_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> generateSampleExpertTailoringByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            httpServletResponse.setContentType("application/octet-stream");
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename = Generate_Sample_Expert_Tailoring.xlsx";
+            httpServletResponse.setHeader(headerKey, headerValue);
+            expertTailoringService.generateSampleExpertTailoringByExportExcel(httpServletResponse);
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GENERATE_SAMPLE_EXPERT_TAILORING_SUCCESSFULLY);
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GENERATE SAMPLE EXPERT TAILORING BY EXCEL FILE. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping(APIConstant.ExpertTailoringAPI.GET_EXPERT_TAILORING_BY_ID + "/{expertTailoringID}")
+    public ResponseEntity<ObjectNode> getExpertTailoringByID(@PathVariable("expertTailoringID") UUID expertTailoringID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var materials = expertTailoringService.findByExpertTailoringID(expertTailoringID);
+            if (materials != null) {
+                response.put("status", HttpStatus.OK.value());
+                response.put("message", MessageConstant.GET_EXPERT_TAILORING_BY_ID_SUCCESSFULLY);
+                response.set("data", objectMapper.valueToTree(materials));
+            } else {
+                response.put("status", HttpStatus.OK.value());
+                response.put("message", MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING);
+            }
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET EXPERT TAILORING BY ID. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @PutMapping(APIConstant.ExpertTailoringAPI.UPDATE_STATUS_EXPERT_TAILORING + "/{expertTailoringID}")
+    public ResponseEntity<ObjectNode> changeStatusExpertTailoring(@PathVariable("expertTailoringID") UUID expertTailoringID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var apiResponse = expertTailoringService.updateStatusExpertTailoring(expertTailoringID);
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN CHANGE STATUS EXPERT TAILORING. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @PutMapping(APIConstant.ExpertTailoringAPI.UPDATE_EXPERT_TAILORING + "/{expertTailoringID}")
+    public ResponseEntity<ObjectNode> updateMaterial(@PathVariable("expertTailoringID") UUID expertTailoringID,
+                                                     @RequestBody ExpertTailoringRequest expertTailoringRequest) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var apiResponse = expertTailoringService.updateExpertTailoring(expertTailoringID, expertTailoringRequest);
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN UPDATE EXPERT TAILORING. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(response);
         }
     }
