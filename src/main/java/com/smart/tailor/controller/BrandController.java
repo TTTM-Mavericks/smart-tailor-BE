@@ -7,20 +7,24 @@ import com.smart.tailor.constant.APIConstant.BrandAPI;
 import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
+import com.smart.tailor.enums.BrandStatus;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.mapper.BrandMapper;
 import com.smart.tailor.service.BrandExpertTailoringService;
 import com.smart.tailor.service.BrandService;
+import com.smart.tailor.service.NotificationService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandExpertTailoringRequest;
 import com.smart.tailor.utils.request.BrandRequest;
+import com.smart.tailor.utils.request.NotificationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -35,6 +39,7 @@ public class BrandController {
     private final UserService userService;
     private final BrandMapper brandMapper;
     private final BrandExpertTailoringService brandExpertTailoringService;
+    private final NotificationService notificationService;
 
     @GetMapping(BrandAPI.GET_BRAND + "/{id}")
     public ResponseEntity<ObjectNode> getBrandById(@PathVariable("id") UUID id) {
@@ -81,24 +86,19 @@ public class BrandController {
                 return ResponseEntity.ok(respon);
             }
 
-            /**
-             * TODO
-             * Phê duyệt như nào? gửi mail? xác minh ra sao khi data chưa có dưới DB?
-             * muon manager thay brand
-             * brand luu DB
-             * user luu DB
-             *
-             * check brand infor => update status brand <=> update status user => PENDING + ACCEPT
-             *
-             * MANAGER lam gì?
-             */
             var brand = brandService.saveBrand(brandRequest);
-//            emailSenderService.sendEmail(userRequest.getEmail(), "Account Verification", emailText);
 
             if (brand != null) {
                 respon.put("status", 200);
                 respon.put("message", MessageConstant.REGISTER_NEW_BRAND_SUCCESSFULLY);
                 respon.set("data", objectMapper.valueToTree(brandMapper.mapperToBrandResponse(brand)));
+                NotificationRequest request = NotificationRequest
+                        .builder()
+                        .sender(brand.getUser().getEmail())
+                        .message(MessageConstant.NEW_BRAND_REGISTERED)
+                        .recipient("smarttailor.ma@gmail.com")
+                        .build();
+                notificationService.sendPrivateNotification(request);
                 return ResponseEntity.ok(respon);
             } else {
                 respon.put("status", 400);
@@ -111,6 +111,35 @@ public class BrandController {
             logger.error("ERROR IN UPLOAD BRAND INFOR. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
+    }
+
+    @GetMapping(BrandAPI.GET_BRAND_REGISTRATION_PAYMENT + "/{brandEmail}")
+    public ResponseEntity<ObjectNode> getBrandRegistrationPayment(@PathVariable("brandEmail") String brandEmail) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            if (!Utilities.isNonNullOrEmpty(brandEmail)) {
+                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
+                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
+                return ResponseEntity.ok(respon);
+            }
+
+            var brand = brandService.findBrandByBrandName(brandEmail);
+
+            if (brand == null) {
+                respon.put("status", ErrorConstant.INVALID_EMAIL.getStatusCode());
+                respon.put("message", ErrorConstant.INVALID_EMAIL.getMessage());
+                return ResponseEntity.ok(respon);
+            }
+
+
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET BRAND REGISTRATION PAYMENT. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+        return null;
     }
 
     @PostMapping(BrandAPI.ADD_NEW_BRAND)
@@ -263,6 +292,76 @@ public class BrandController {
                 logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
             }
             return ResponseEntity.ok(respon);
+        }
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
+    @GetMapping(BrandAPI.ACCEPT_BRAND + "/{brand}")
+    public ResponseEntity<ObjectNode> acceptBrand(@PathVariable("brand") String brand) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            if (brand == null) {
+                response.put("status", 400);
+                response.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(response);
+            }
+
+            Optional<Brand> findedBrand = Optional.ofNullable(brandService.getBrandByEmail(brand));
+
+            if (findedBrand.isEmpty()) {
+                response.put("status", 200);
+                response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with infor: " + brand);
+                return ResponseEntity.ok(response);
+            }
+
+            findedBrand.get().setBrandStatus(BrandStatus.ACCEPT);
+            brandService.updateBrand(findedBrand.get());
+
+            response.put("status", 200);
+            response.put("message", MessageConstant.ACCEPT_BRAND_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(brandMapper.mapperToBrandResponse(findedBrand.get())));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", -1);
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN ACCEPT BRAND. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
+    @GetMapping(BrandAPI.REJECT_BRAND + "/{brand}")
+    public ResponseEntity<ObjectNode> rejectBrand(@PathVariable("brand") String brand) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            if (brand == null) {
+                response.put("status", 400);
+                response.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(response);
+            }
+
+            Optional<Brand> findedBrand = Optional.ofNullable(brandService.getBrandByEmail(brand));
+
+            if (findedBrand.isEmpty()) {
+                response.put("status", 200);
+                response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with infor: " + brand);
+                return ResponseEntity.ok(response);
+            }
+
+            findedBrand.get().setBrandStatus(BrandStatus.REJECT);
+            brandService.updateBrand(findedBrand.get());
+
+            response.put("status", 200);
+            response.put("message", MessageConstant.REJECT_BRAND_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(brandMapper.mapperToBrandResponse(findedBrand.get())));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", -1);
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN REJECT BRAND. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
         }
     }
 }

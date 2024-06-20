@@ -20,4 +20,8 @@ public interface BrandService {
     Boolean checkVerify(String email);
 
     Optional<Brand> findBrandByBrandName(String brandName);
+
+    Brand getBrandByEmail(String email) throws Exception;
+
+    Brand updateBrand(Brand brand) throws Exception;
 }

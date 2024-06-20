@@ -166,4 +166,26 @@ public class BrandServiceImpl implements BrandService {
     public Optional<Brand> findBrandByBrandName(String brandName) {
         return brandRepository.findBrandByBrandName(brandName);
     }
+
+    @Override
+    public Brand getBrandByEmail(String email) throws Exception {
+        try {
+            if (email == null || email.isEmpty() || email.isBlank()) {
+                throw new Exception(MessageConstant.MISSING_ARGUMENT);
+            }
+            return brandRepository.findBrandByUserEmail(email);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public Brand updateBrand(Brand brand) throws Exception {
+        try {
+            Brand savedBrand = brandRepository.save(brand);
+            return savedBrand;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
 }

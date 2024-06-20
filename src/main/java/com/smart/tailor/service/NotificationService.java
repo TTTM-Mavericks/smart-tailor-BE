@@ -6,4 +6,6 @@ public interface NotificationService {
     void sendGlobalNotification(NotificationRequest notificationRequest);
 
     void sendPrivateNotification(NotificationRequest notificationRequest);
+
+    void saveNotification(NotificationRequest notificationRequest);
 }

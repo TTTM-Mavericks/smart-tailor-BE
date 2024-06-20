@@ -20,4 +20,7 @@ public interface BrandRepository extends JpaRepository<Brand, UUID> {
     void createShortBrand(UUID brandID, String brandName, String brandStatus);
 
     Optional<Brand> findBrandByBrandName(String brandName);
+
+    @Query(value = "select b.* from brand b join users u on b.brand_id = u.user_id where u.email = ?1", nativeQuery = true)
+    Brand findBrandByUserEmail(String email);
 }
