@@ -69,9 +69,6 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 BrandMaterialRequest brandMaterialRequest = new BrandMaterialRequest();
                 boolean rowDataValid = true;
                 boolean brandPriceIsEmpty = false;
-                boolean isValid = false;
-                double numericValue = -1;
-                String message = "";
                 for(int cellIndex = 0; cellIndex < 6; cellIndex++){
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     if(cell == null || cell.getCellType() == CellType.BLANK){
@@ -106,7 +103,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                                     .rowIndex(rowIndex + 1)
                                                     .cellIndex(cellIndex + 1)
                                                     .cellName(getCellNameForBrandMaterial(cellIndex))
-                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE)
                                                     .data(cell.toString())
                                                     .build()
                                     );
@@ -124,39 +121,24 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                                     .rowIndex(rowIndex + 1)
                                                     .cellIndex(cellIndex + 1)
                                                     .cellName(getCellNameForBrandMaterial(cellIndex))
-                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE)
                                                     .data(cell.toString())
                                                     .build()
                                     );
                                 }
                                 break;
                             case 2:
-                                isValid = false;
-                                numericValue = -1;
-                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
-                                switch (cell.getCellType()) {
-                                    case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
-                                        isValid = true;
-                                        break;
-                                    case STRING:
-                                        try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
-                                            isValid = true;
-                                        } catch (NumberFormatException e) {
-                                            isValid = false;
-                                            System.out.println(e.getMessage());
-                                        }
-                                        break;
-                                }
-                                if(isValid && numericValue >= 0){
-                                    brandMaterialRequest.setHsCode(numericValue);
-                                }else{
-                                    if(isValid && numericValue < 0){
-                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
-                                    }
+                                if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
+                                    brandMaterialRequest.setHsCode(cell.getNumericCellValue());
+                                } else{
                                     inValidData = true;
                                     rowDataValid = false;
+                                    String message = MessageConstant.INVALID_DATA_TYPE;
+                                    if(cell.getCellType() == CellType.BLANK){
+                                        message = MessageConstant.DATA_IS_EMPTY;
+                                    } else if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
                                     cellErrorResponses.add(
                                             CellErrorResponse
                                                     .builder()
@@ -181,39 +163,24 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                                     .rowIndex(rowIndex + 1)
                                                     .cellIndex(cellIndex + 1)
                                                     .cellName(getCellNameForBrandMaterial(cellIndex))
-                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .message(MessageConstant.INVALID_DATA_TYPE)
                                                     .data(cell.toString())
                                                     .build()
                                     );
                                 }
                                 break;
                             case 4:
-                                isValid = false;
-                                numericValue = -1;
-                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
-                                switch (cell.getCellType()) {
-                                    case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
-                                        isValid = true;
-                                        break;
-                                    case STRING:
-                                        try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
-                                            isValid = true;
-                                        } catch (NumberFormatException e) {
-                                            isValid = false;
-                                            System.out.println(e.getMessage());
-                                        }
-                                        break;
-                                }
-                                if(isValid && numericValue >= 0){
-                                    brandMaterialRequest.setBasePrice(numericValue);
+                                if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() >= 0){
+                                    brandMaterialRequest.setBasePrice(cell.getNumericCellValue());
                                 }else{
-                                    if(isValid && numericValue < 0){
-                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
-                                    }
                                     inValidData = true;
                                     rowDataValid = false;
+                                    String message = MessageConstant.INVALID_DATA_TYPE;
+                                    if(cell.getCellType() == CellType.BLANK){
+                                        message = MessageConstant.DATA_IS_EMPTY;
+                                    }else if(cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
                                     cellErrorResponses.add(
                                             CellErrorResponse
                                                     .builder()
@@ -227,9 +194,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                 }
                                 break;
                             case 5:
-                                isValid = false;
-                                numericValue = -1;
-                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                boolean isValid = false;
+                                double numericValue = -1;
+                                String message = MessageConstant.INVALID_DATA_TYPE;
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
                                         numericValue = cell.getNumericCellValue();
