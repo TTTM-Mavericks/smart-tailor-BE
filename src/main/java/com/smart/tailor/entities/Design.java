@@ -7,6 +7,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -43,4 +44,7 @@ public class Design extends AuditEntity implements Serializable {
     @Lob
     @Column(name = "color", columnDefinition = "TEXT")
     private String color;
+
+    @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PartOfDesign> partOfDesignList;
 }

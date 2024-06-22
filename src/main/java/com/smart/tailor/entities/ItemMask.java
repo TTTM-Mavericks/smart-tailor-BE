@@ -28,6 +28,10 @@ public class ItemMask extends AuditEntity implements Serializable {
     @JoinColumn(name = "part_of_design_id", referencedColumnName = "part_of_design_id")
     private PartOfDesign partOfDesign;
 
+    @OneToOne
+    @JoinColumn(name = "material_id", referencedColumnName = "material_id")
+    private Material material;
+
     @Column(name = "item_mask_name")
     private String itemMaskName;
 
@@ -52,8 +56,8 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Column(name = "scale_y")
     private Float scaleY;
 
-    @Column(name = "z_index")
-    private Integer zIndex;
+    @Column(name = "index_z")
+    private Integer indexZ;
 
     @Lob
     @Column(name = "image_url", columnDefinition = "TEXT")

@@ -30,9 +30,9 @@ public class ItemMaskRequest {
 
     private Float scaleY;
 
-    private Float zIndex;
+    private Integer indexZ;
 
     private String imageUrl;
 
-    private PrintType printType;
+    private String printType;
 }

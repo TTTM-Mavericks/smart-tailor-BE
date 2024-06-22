@@ -114,18 +114,28 @@ public class SmartTailorBeApplication {
                                                BrandExpertTailoringRepository brandExpertTailoringRepository) {
         return args -> {
             if (brandRepository.findAll().size() == 0) {
-                User userTest1 = userRepository.save(User.builder()
+                User brandSample1 = userRepository.save(User.builder()
                         .email("lalisa@example.com")
                         .password(passwordEncoder.encode("HASH_PASSWORD"))
                         .phoneNumber(Utilities.generateRandomNumber())
                         .userStatus(UserStatus.ACTIVE)
                         .provider(Provider.LOCAL)
-                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
+                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
                         .build()
                 );
 
-                User userTest2 = userRepository.save(User.builder()
+                User brandSample2 = userRepository.save(User.builder()
                         .email("goyounjung@example.com")
+                        .password(passwordEncoder.encode("HASH_PASSWORD"))
+                        .phoneNumber(Utilities.generateRandomNumber())
+                        .userStatus(UserStatus.ACTIVE)
+                        .provider(Provider.LOCAL)
+                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
+                        .build()
+                );
+
+                User customerSample1 = userRepository.save(User.builder()
+                        .email("customersample1@example.com")
                         .password(passwordEncoder.encode("HASH_PASSWORD"))
                         .phoneNumber(Utilities.generateRandomNumber())
                         .userStatus(UserStatus.ACTIVE)
@@ -134,8 +144,8 @@ public class SmartTailorBeApplication {
                         .build()
                 );
 
-                brandRepository.createShortBrand(userTest1.getUserID(), "LA LA LISA BRAND", BrandStatus.ACCEPT.name());
-                brandRepository.createShortBrand(userTest2.getUserID(), "GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
+                brandRepository.createShortBrand(brandSample1.getUserID(), "LA LA LISA BRAND", BrandStatus.ACCEPT.name());
+                brandRepository.createShortBrand(brandSample2.getUserID(), "GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
 
                 var brandLALALISA = brandRepository.findBrandByBrandName("LA LA LISA BRAND");
                 var brandGOYOUNJUNG = brandRepository.findBrandByBrandName("GO YOUN JUNG BRAND");

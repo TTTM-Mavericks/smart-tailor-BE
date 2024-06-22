@@ -10,6 +10,7 @@ import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -107,5 +109,11 @@ public class UserServiceImpl implements UserService {
             return userRepository.save(userExisted);
         }
         return null;
+    }
+
+    @Override
+    public User getUserByUserID(UUID uuid) {
+        if(!Utilities.isValidUUIDType(uuid)) return null;
+        return userRepository.findById(uuid).orElse(null);
     }
 }

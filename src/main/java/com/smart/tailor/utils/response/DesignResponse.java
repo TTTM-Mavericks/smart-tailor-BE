@@ -30,7 +30,7 @@ public class DesignResponse {
 
     private String color;
 
-    private List<PartOfDesignRequest> partOfDesignRequestList;
+    private List<PartOfDesignResponse> partOfDesignList;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;

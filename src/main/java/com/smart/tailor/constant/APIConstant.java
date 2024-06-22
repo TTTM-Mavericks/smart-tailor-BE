@@ -151,5 +151,27 @@ public class APIConstant {
         public static final String GET_DESIGN_BY_ID = "/get-design-by-id";
         public static final String GET_ALL_DESIGN_BY_USER_ID = "/get-all-design-by-user-id";
         public static final String GET_ALL_DESIGN = "/get-all-design";
+        public static final String GET_ALL_DESIGN_BY_CUSTOMER_ID = "/get-all-design-by-customer-id";
+        public static final String GET_ALL_DESIGN_BY_BRAND_ID = "/get-all-design-by-brand-id";
+    }
+
+    /**
+     * PartOfDesign API
+     */
+    public class PartOfDesignAPI {
+        public static final String PART_OF_DESIGN = APIConstant.API + "/part-of-design";
+        public static final String GET_PART_OF_DESIGN_BY_ID = "/get-part-of-design-by-id";
+        public static final String GET_ALL_PART_OF_DESIGN_BY_DESIGN_ID = "/get-all-part-of-design-by-design-id";
+        public static final String GET_ALL_PART_OF_DESIGN = "/get-all-part-of-design";
+    }
+
+    /**
+     * ItemMask API
+     */
+    public class ItemMaskAPI {
+        public static final String ITEM_MASK = APIConstant.API + "/item-mask";
+        public static final String GET_ITEM_MASK_BY_ID = "/get-item-mask-by-id";
+        public static final String GET_ALL_ITEM_MASK_BY_PART_OF_DESIGN_ID = "/get-all-item-mask-by-part-of-design-id";
+        public static final String GET_ALL_ITEM_MASK = "/get-all-item-mask";
     }
 }

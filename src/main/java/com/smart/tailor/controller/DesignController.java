@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.service.DesignService;
 import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.utils.request.DesignRequest;
@@ -86,7 +87,7 @@ public class DesignController {
         } catch (Exception ex) {
             response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN GET ALL DESIGN BY USER ID. ERROR MESSAGE: {}", ex.getMessage());
+            logger.error("ERROR IN GET ALL DESIGN. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(response);
         }
     }
@@ -104,12 +105,47 @@ public class DesignController {
                 response.put("message", MessageConstant.GET_DESIGN_BY_ID_SUCCESSFULLY);
                 response.set("data", objectMapper.valueToTree(design));
             }
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET DESIGN BY DESIGN ID. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_CUSTOMER_ID + "/{userID}")
+    public ResponseEntity<ObjectNode> getAllDesignByCustomerID(@PathVariable("userID") UUID userID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var apiResponse = designService.getAllDesignByUserIDAndRoleName(userID, RoleType.CUSTOMER.name());
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.set("data", objectMapper.valueToTree(apiResponse.getData()));
 
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN GET ALL DESIGN BY USER ID. ERROR MESSAGE: {}", ex.getMessage());
+            logger.error("ERROR IN GET ALL DESIGN BY CUSTOMER ID. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_BRAND_ID + "/{brandID}")
+    public ResponseEntity<ObjectNode> getAllDesignByBrandID(@PathVariable("brandID") UUID brandID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var apiResponse = designService.getAllDesignByUserIDAndRoleName(brandID, RoleType.BRAND.name());
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET ALL DESIGN BY BRAND ID. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(response);
         }
     }
