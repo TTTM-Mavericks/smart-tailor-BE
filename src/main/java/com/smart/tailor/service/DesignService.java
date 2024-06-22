@@ -20,4 +20,6 @@ public interface DesignService {
     List<DesignResponse> getAllDesign();
 
     APIResponse getAllDesignByUserIDAndRoleName(UUID userID, String roleName);
+
+    APIResponse updatePublicStatusDesign(UUID designID);
 }

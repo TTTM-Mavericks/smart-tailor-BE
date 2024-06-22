@@ -149,4 +149,22 @@ public class DesignController {
             return ResponseEntity.ok(response);
         }
     }
+
+    @PutMapping(APIConstant.DesignAPI.UPDATE_PUBLIC_STATUS_BY_DESIGN_ID + "/{designID}")
+    public ResponseEntity<ObjectNode> updatePublicStatusByDesignID(@PathVariable("designID") UUID designID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var apiResponse = designService.updatePublicStatusDesign(designID);
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET ALL DESIGN BY BRAND ID. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
 }

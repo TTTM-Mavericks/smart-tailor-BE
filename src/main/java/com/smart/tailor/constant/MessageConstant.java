@@ -181,12 +181,14 @@ public class MessageConstant {
     public static final String GET_DESIGN_BY_ID_SUCCESSFULLY = "Get Design By ID Successfully!";
     public static final String GET_ALL_DESIGN_BY_CUSTOMER_ID_SUCCESSFULLY = "Get All Design By Customer ID Successfully!";
     public static final String GET_ALL_DESIGN_BY_BRAND_ID_SUCCESSFULLY = "Get All Design By Brand ID Successfully!";
+    public static final String UPDATE_PUBLIC_STATUS_SUCCESSFULLY = "Update Public Status Successfully";
 
     /*    FAIL     */
     public static final String ADD_NEW_DESIGN_FAIL = "Add New Design Fail!";
     public static final String GET_ALL_DESIGN_FAIL = "Get All Design Fail!";
     public static final String CAN_NOT_FIND_ANY_DESIGN_BY_USER_ID = "Can Not Find Any Design By User ID";
     public static final String CAN_NOT_FIND_ANY_DESIGN = "Can Not Find Any Design";
+    public static final String UPDATE_PUBLIC_STATUS_FAIL = "Update Public Status Fail";
 
     /**
      * PART OF DESIGN

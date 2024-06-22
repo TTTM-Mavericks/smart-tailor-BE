@@ -4,6 +4,8 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Design;
 import com.smart.tailor.entities.ItemMask;
 import com.smart.tailor.entities.PartOfDesign;
+import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.exception.ExternalServiceException;
 import com.smart.tailor.mapper.PartOfDesignMapper;
 import com.smart.tailor.repository.PartOfDesignRepository;
 import com.smart.tailor.service.ItemMaskService;
@@ -42,7 +44,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
             List<PartOfDesign> partOfDesignList = new ArrayList<>();
             for(PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList){
                 if(!Utilities.isStringNotNullOrEmpty(partOfDesignRequest.getImageUrl())){
-                    throw new Exception(MessageConstant.DATA_IS_EMPTY);
+                    throw new BadRequestException(MessageConstant.DATA_IS_EMPTY + " PartOfDesign ImageUrl");
                 }
 
                 String partOfDesignName = Optional.ofNullable(partOfDesignRequest.getPartOfDesignName()).orElse(null);
@@ -61,7 +63,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
                 var itemMaskResponse = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMaskList());
                 if(itemMaskResponse.getStatus() != HttpStatus.OK.value()){
-                    throw new Exception(itemMaskResponse.getMessage());
+                    throw new ExternalServiceException(itemMaskResponse.getMessage(), HttpStatus.valueOf(itemMaskResponse.getStatus()));
                 }
 
                 // Set List Of ItemMask belong to PartOfDesign
@@ -75,6 +77,24 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                     .status(HttpStatus.OK.value())
                     .message(MessageConstant.ADD_PART_OF_DESIGN_SUCCESSFULLY)
                     .data(partOfDesignList)
+                    .build();
+        }
+        catch (BadRequestException e){
+            logger.error("INSIDE BAD REQUEST EXCEPTION createPartOfDesign Method");
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(e.getMessage())
+                    .data(null)
+                    .build();
+        }
+        catch (ExternalServiceException e){
+            logger.error("INSIDE EXTERNAL SERVICE EXCEPTION createPartOfDesign Method");
+            return APIResponse
+                    .builder()
+                    .status(e.getHttpStatus().value())
+                    .message(e.getMessage())
+                    .data(null)
                     .build();
         }
         catch (Exception e){

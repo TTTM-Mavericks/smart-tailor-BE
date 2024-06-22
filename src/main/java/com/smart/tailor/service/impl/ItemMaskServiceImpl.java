@@ -4,6 +4,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.ItemMask;
 import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.enums.PrintType;
+import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.mapper.ItemMaskMapper;
 import com.smart.tailor.repository.ItemMaskRepository;
 import com.smart.tailor.service.ItemMaskService;
@@ -41,46 +42,46 @@ public class ItemMaskServiceImpl implements ItemMaskService {
 
             for(ItemMaskRequest itemMaskRequest : itemMaskRequestList){
                 if(!Utilities.isValidBoolean(itemMaskRequest.getIsSystemItem())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " isSystemItem");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isSystemItem");
                 }
 
                 if(!Utilities.isValidBoolean(itemMaskRequest.getIsPremium())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " isPremium");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isPremium");
                 }
 
                 if(!Utilities.isValidFloat(itemMaskRequest.getPositionX())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " positionX");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionX");
                 }
 
                 if(!Utilities.isValidFloat(itemMaskRequest.getPositionY())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " positionY");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionY");
                 }
 
                 if(!Utilities.isValidFloat(itemMaskRequest.getScaleX())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " scaleX");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleX");
                 }
 
                 if(!Utilities.isValidFloat(itemMaskRequest.getScaleY())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " scaleY");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleY");
                 }
 
                 if(!Utilities.isValidInteger(itemMaskRequest.getIndexZ())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " indexZ");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
                 }
 
                 if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getImageUrl())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " imageUrl");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " imageUrl");
                 }
 
                 if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getPrintType())){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " PrintType");
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType");
                 }
                 PrintType printType = null;
                 try {
                     printType = PrintType.valueOf(itemMaskRequest.getPrintType());
                 }
                 catch (IllegalArgumentException illegalArgumentException){
-                    throw new Exception(MessageConstant.INVALID_DATA_TYPE + " PrintType " + itemMaskRequest.getPrintType());
+                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType " + itemMaskRequest.getPrintType());
                 }
 
                 String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
@@ -111,6 +112,15 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                     .status(HttpStatus.OK.value())
                     .message(MessageConstant.ADD_ITEM_MASK_SUCCESSFULLY)
                     .data(itemMaskList)
+                    .build();
+        }
+        catch (BadRequestException e){
+            logger.error("INSIDE BAD REQUEST EXCEPTION createItemMask Method");
+            return APIResponse
+                    .builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(e.getMessage())
+                    .data(null)
                     .build();
         }
         catch (Exception e){
