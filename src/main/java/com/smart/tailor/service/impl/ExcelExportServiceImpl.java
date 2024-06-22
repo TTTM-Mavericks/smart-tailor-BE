@@ -153,10 +153,10 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         font.setBold(true);
         font.setFontHeight(16);
         style.setFont(font);
-        createCell(row, 0, "Expert Tailoring Name", style, sheet);
-        createCell(row, 1, "Size Image Url", style, sheet);
-        createCell(row, 2, "Create Date", style, sheet);
-        createCell(row, 3, "Last Modified Date", style, sheet);
+        createCell(row, 0, "Expert_Tailoring_Name", style, sheet);
+        createCell(row, 1, "Size_Image_Url", style, sheet);
+        createCell(row, 2, "Create_Date", style, sheet);
+        createCell(row, 3, "Last_Modified_Date", style, sheet);
 
         // Write Data from DB to Excel Sheet
         int rowIndex = 2;
@@ -224,12 +224,12 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         headerStyle.setBorderLeft(BorderStyle.MEDIUM);
         headerStyle.setBorderRight(BorderStyle.MEDIUM);
 
-        createCell(row, 0, "Category Name", headerStyle, sheet);
-        createCell(row, 1, "Material Name", headerStyle, sheet);
-        createCell(row, 2, "HSCode", headerStyle, sheet);
+        createCell(row, 0, "Category_Name", headerStyle, sheet);
+        createCell(row, 1, "Material_Name", headerStyle, sheet);
+        createCell(row, 2, "HS_Code", headerStyle, sheet);
         createCell(row, 3, "Unit", headerStyle, sheet);
-        createCell(row, 4, "Base Price", headerStyle, sheet);
-        createCell(row, 5, "Brand Price", headerStyle, sheet);
+        createCell(row, 4, "Base_Price", headerStyle, sheet);
+        createCell(row, 5, "Brand_Price", headerStyle, sheet);
 
         // Write Data from DB to Excel Sheet
         int rowIndex = 2;
@@ -328,8 +328,8 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         font.setFontHeight(16);
         style.setFont(font);
         style.setAlignment(HorizontalAlignment.CENTER);
-        createCell(row, 0, "Expert Tailoring Name", style, sheet);
-        createCell(row, 1, "Size Image Url", style, sheet);
+        createCell(row, 0, "Expert_Tailoring_Name", style, sheet);
+        createCell(row, 1, "Size_Image_Url", style, sheet);
 
         int rowIndex = 2;
         CellStyle styleData = workbook.createCellStyle();
@@ -405,11 +405,11 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         font.setBold(true);
         font.setFontHeight(16);
         style.setFont(font);
-        createCell(row, 0, "Category Name", style, sheet);
-        createCell(row, 1, "Material Name", style, sheet);
-        createCell(row, 2, "HSCode", style, sheet);
+        createCell(row, 0, "Category_Name", style, sheet);
+        createCell(row, 1, "Material_Name", style, sheet);
+        createCell(row, 2, "HS_Code", style, sheet);
         createCell(row, 3, "Unit", style, sheet);
-        createCell(row, 4, "Base Price", style, sheet);
+        createCell(row, 4, "Base_Price", style, sheet);
 
         int rowIndex = 2;
         XSSFFont fontData = workbook.createFont();

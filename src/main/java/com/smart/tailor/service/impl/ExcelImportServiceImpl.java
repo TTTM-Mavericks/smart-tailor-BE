@@ -312,13 +312,13 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
     private String getCellNameForBrandMaterial(int cellIndex){
         switch (cellIndex){
-            case 0: return "Category Name";
-            case 1: return "Material Name";
-            case 2: return "HS Code";
+            case 0: return "Category_Name";
+            case 1: return "Material_Name";
+            case 2: return "HS_Code";
             case 3: return "Unit";
-            case 4: return "Base Price";
-            case 5: return "Brand Price";
-            default: return "Unknown Data";
+            case 4: return "Base_Price";
+            case 5: return "Brand_Price";
+            default: return "Unknown_Data";
         }
     }
 
@@ -555,11 +555,11 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
     private String getCellNameForCategoryMaterial(int cellIndex) {
         switch (cellIndex) {
-            case 0: return "Category Name";
-            case 1: return "Material Name";
-            case 2: return "HS Code";
+            case 0: return "Category_Name";
+            case 1: return "Material_Name";
+            case 2: return "HS_Code";
             case 3: return "Unit";
-            case 4: return "Base Price";
+            case 4: return "Base_Price";
             default: return "Unknown";
         }
     }
@@ -697,9 +697,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
     private String getCellNameForExpertTailoring(int cellIndex) {
         switch (cellIndex) {
-            case 0: return "Expert Tailoring Name";
-            case 1: return "Size Image URL";
-            default: return "Unknown";
+            case 0: return "Expert_Tailoring_Name";
+            case 1: return "Size_Image_URL";
+            default: return "Unknown_Data";
         }
     }
 
