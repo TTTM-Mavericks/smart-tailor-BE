@@ -18,5 +18,5 @@ public class PartOfDesignRequest {
 
     private String successImageUrl;
 
-    private List<ItemMaskRequest> itemMaskRequestList;
+    private List<ItemMaskRequest> itemMaskList;
 }

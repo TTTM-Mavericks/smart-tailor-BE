@@ -24,5 +24,5 @@ public class DesignRequest {
 
     private String color;
 
-    private List<PartOfDesignRequest> partOfDesignRequestList;
+    private List<PartOfDesignRequest> partOfDesignList;
 }

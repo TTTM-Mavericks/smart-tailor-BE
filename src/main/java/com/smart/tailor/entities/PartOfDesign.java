@@ -7,6 +7,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -37,4 +38,7 @@ public class PartOfDesign extends AuditEntity implements Serializable {
     @Lob
     @Column(name = "success_image_url", columnDefinition = "TEXT")
     private String successImageUrl;
+
+    @OneToMany(mappedBy = "partOfDesign", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemMask> itemMaskList;
 }

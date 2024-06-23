@@ -176,12 +176,45 @@ public class MessageConstant {
      */
     /*    SUCCESS  */
     public static final String ADD_NEW_DESIGN_SUCCESSFULLY = "Add New Design Successfully!";
-    public static final String GET_ALL_DESIGN_BY_USER_ID_SUCCESSFULLY = "Get All Design By UserID Successfully!";
+    public static final String GET_ALL_DESIGN_BY_USER_ID_SUCCESSFULLY = "Get All Design By User ID Successfully!";
     public static final String GET_ALL_DESIGN_SUCCESSFULLY = "Get All Design Successfully!";
     public static final String GET_DESIGN_BY_ID_SUCCESSFULLY = "Get Design By ID Successfully!";
+    public static final String GET_ALL_DESIGN_BY_CUSTOMER_ID_SUCCESSFULLY = "Get All Design By Customer ID Successfully!";
+    public static final String GET_ALL_DESIGN_BY_BRAND_ID_SUCCESSFULLY = "Get All Design By Brand ID Successfully!";
+    public static final String UPDATE_PUBLIC_STATUS_SUCCESSFULLY = "Update Public Status Successfully";
 
     /*    FAIL     */
     public static final String ADD_NEW_DESIGN_FAIL = "Add New Design Fail!";
-    public static final String CAN_NOT_FIND_ANY_DESIGN_BY_USER_ID = "Can Not Find Any Design By UserID";
+    public static final String GET_ALL_DESIGN_FAIL = "Get All Design Fail!";
+    public static final String CAN_NOT_FIND_ANY_DESIGN_BY_USER_ID = "Can Not Find Any Design By User ID";
     public static final String CAN_NOT_FIND_ANY_DESIGN = "Can Not Find Any Design";
+    public static final String UPDATE_PUBLIC_STATUS_FAIL = "Update Public Status Fail";
+
+    /**
+     * PART OF DESIGN
+     */
+    /*    SUCCESS  */
+    public static final String ADD_PART_OF_DESIGN_SUCCESSFULLY = "Add New Part Of Design Successfully!";
+    public static final String GET_ALL_PART_OF_DESIGN_BY_DESIGN_ID_SUCCESSFULLY = "Get All Part Of Design By Design ID Successfully!";
+    public static final String GET_ALL_PART_OF_DESIGN_SUCCESSFULLY = "Get All Part Of Design Successfully!";
+    public static final String GET_PART_OF_DESIGN_BY_ID_SUCCESSFULLY = "Get Part Of Design By ID Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_PART_OF_DESIGN_FAIL = "Add New Part Of Design Fail!";
+    public static final String CAN_NOT_FIND_ANY_PART_OF_DESIGN_BY_DESIGN_ID = "Can Not Find Any Part Of Design By Design ID";
+    public static final String CAN_NOT_FIND_ANY_PART_OF_DESIGN = "Can Not Find Any Part Of Design";
+
+    /**
+     * ITEM MASK
+     */
+    /*    SUCCESS  */
+    public static final String ADD_ITEM_MASK_SUCCESSFULLY = "Add New Item Mask Successfully!";
+    public static final String GET_ALL_ITEM_MASK_BY_PART_OF_DESIGN_ID_SUCCESSFULLY = "Get All Item Mask By Part Of Design ID Successfully!";
+    public static final String GET_ALL_ITEM_MASK_SUCCESSFULLY = "Get All Item Mask Successfully!";
+    public static final String GET_ITEM_MASK_BY_ID_SUCCESSFULLY = "Get Item Mask By ID Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_ITEM_MASK_FAIL = "Add New Part Of Design Fail!";
+    public static final String CAN_NOT_FIND_ANY_ITEM_MASK_BY_PART_OF_DESIGN_ID = "Can Not Find Any Item Mask By Part Of Design ID";
+    public static final String CAN_NOT_FIND_ANY_ITEM_MASK = "Can Not Find Any Item Mask";
 }

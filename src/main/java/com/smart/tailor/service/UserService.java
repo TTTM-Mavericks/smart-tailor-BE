@@ -8,6 +8,7 @@ import com.smart.tailor.utils.response.UserResponse;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserService {
     Optional<User> getUserDetailByEmail(String email);
@@ -28,4 +29,5 @@ public interface UserService {
 
     User updateUserProfile(UserRequest userRequest);
 
+    User getUserByUserID(UUID uuid);
 }

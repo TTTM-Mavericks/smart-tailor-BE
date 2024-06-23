@@ -126,6 +126,16 @@ public class Utilities {
         }
     }
 
+    public static boolean isValidInteger(Integer integerType) {
+        if (integerType == null) return false;
+        try {
+            Integer.parseInt(integerType.toString());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static double roundToTwoDecimalPlaces(double value) {
         BigDecimal bd = new BigDecimal(Double.toString(value));
         bd = bd.setScale(2, RoundingMode.HALF_UP);
