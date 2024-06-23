@@ -37,100 +37,76 @@ public class ItemMaskServiceImpl implements ItemMaskService {
     @Override
     @Transactional
     public APIResponse createItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList) {
-        try{
-            List<ItemMask> itemMaskList = new ArrayList<>();
-
-            for(ItemMaskRequest itemMaskRequest : itemMaskRequestList){
-                if(!Utilities.isValidBoolean(itemMaskRequest.getIsSystemItem())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isSystemItem");
-                }
-
-                if(!Utilities.isValidBoolean(itemMaskRequest.getIsPremium())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isPremium");
-                }
-
-                if(!Utilities.isValidFloat(itemMaskRequest.getPositionX())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionX");
-                }
-
-                if(!Utilities.isValidFloat(itemMaskRequest.getPositionY())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionY");
-                }
-
-                if(!Utilities.isValidFloat(itemMaskRequest.getScaleX())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleX");
-                }
-
-                if(!Utilities.isValidFloat(itemMaskRequest.getScaleY())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleY");
-                }
-
-                if(!Utilities.isValidInteger(itemMaskRequest.getIndexZ())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
-                }
-
-                if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getImageUrl())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " imageUrl");
-                }
-
-                if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getPrintType())){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType");
-                }
-                PrintType printType = null;
-                try {
-                    printType = PrintType.valueOf(itemMaskRequest.getPrintType());
-                }
-                catch (IllegalArgumentException illegalArgumentException){
-                    throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType " + itemMaskRequest.getPrintType());
-                }
-
-                String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
-                String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
-
-                var itemMask = itemMaskRepository.save(
-                        ItemMask
-                                .builder()
-                                .partOfDesign(partOfDesign)
-                                .itemMaskName(itemMaskName)
-                                .typeOfItem(typeOfItem)
-                                .isSystemItem(itemMaskRequest.getIsSystemItem())
-                                .positionX(itemMaskRequest.getPositionX())
-                                .positionY(itemMaskRequest.getPositionY())
-                                .scaleX(itemMaskRequest.getScaleX())
-                                .scaleY(itemMaskRequest.getScaleY())
-                                .indexZ(itemMaskRequest.getIndexZ())
-                                .printType(printType)
-                                .build()
-                );
-
-                itemMaskList.add(itemMask);
+        List<ItemMask> itemMaskList = new ArrayList<>();
+        
+        for(ItemMaskRequest itemMaskRequest : itemMaskRequestList){
+            if(!Utilities.isValidBoolean(itemMaskRequest.getIsSystemItem())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isSystemItem");
             }
 
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.OK.value())
-                    .message(MessageConstant.ADD_ITEM_MASK_SUCCESSFULLY)
-                    .data(itemMaskList)
-                    .build();
+            if(!Utilities.isValidFloat(itemMaskRequest.getPositionX())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionX");
+            }
+
+            if(!Utilities.isValidFloat(itemMaskRequest.getPositionY())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionY");
+            }
+
+            if(!Utilities.isValidFloat(itemMaskRequest.getScaleX())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleX");
+            }
+
+            if(!Utilities.isValidFloat(itemMaskRequest.getScaleY())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleY");
+            }
+
+            if(!Utilities.isValidInteger(itemMaskRequest.getIndexZ())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
+            }
+
+            if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getImageUrl())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " imageUrl");
+            }
+
+            if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getPrintType())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType");
+            }
+            PrintType printType = null;
+            try {
+                printType = PrintType.valueOf(itemMaskRequest.getPrintType());
+            }
+            catch (IllegalArgumentException illegalArgumentException){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType " + itemMaskRequest.getPrintType());
+            }
+
+            String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
+            String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
+
+            var itemMask = itemMaskRepository.save(
+                    ItemMask
+                            .builder()
+                            .partOfDesign(partOfDesign)
+                            .itemMaskName(itemMaskName)
+                            .typeOfItem(typeOfItem)
+                            .isSystemItem(itemMaskRequest.getIsSystemItem())
+                            .positionX(itemMaskRequest.getPositionX())
+                            .positionY(itemMaskRequest.getPositionY())
+                            .scaleX(itemMaskRequest.getScaleX())
+                            .scaleY(itemMaskRequest.getScaleY())
+                            .indexZ(itemMaskRequest.getIndexZ())
+                            .printType(printType)
+                            .build()
+            );
+
+            itemMaskList.add(itemMask);
         }
-        catch (BadRequestException e){
-            logger.error("INSIDE BAD REQUEST EXCEPTION createItemMask Method");
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(e.getMessage())
-                    .data(null)
-                    .build();
-        }
-        catch (Exception e){
-            logger.error(MessageConstant.ADD_ITEM_MASK_FAIL);
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message(MessageConstant.ADD_ITEM_MASK_FAIL + " : " + e.getMessage())
-                    .data(null)
-                    .build();
-        }
+
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.ADD_ITEM_MASK_SUCCESSFULLY)
+                .data(itemMaskList)
+                .build();
     }
 
     @Override
