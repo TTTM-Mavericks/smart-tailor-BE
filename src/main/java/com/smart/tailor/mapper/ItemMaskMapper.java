@@ -1,9 +1,7 @@
 package com.smart.tailor.mapper;
 
 import com.smart.tailor.entities.ItemMask;
-import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.utils.response.ItemMaskResponse;
-import com.smart.tailor.utils.response.PartOfDesignResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -25,7 +25,7 @@ public class PartOfDesign extends AuditEntity implements Serializable {
     private UUID partOfDesignID;
 
     @ManyToOne
-    @JoinColumn(name = "design_id", referencedColumnName = "design_id")
+    @JoinColumn(name = "design_id", referencedColumnName = "design_id", nullable = false, unique = false)
     private Design design;
 
     @Column(name = "part_of_design_name")

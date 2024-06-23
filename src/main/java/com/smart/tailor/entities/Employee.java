@@ -29,14 +29,14 @@ public class Employee extends AuditEntity implements Serializable {
     private User user;
 
     @Column(name = "total_task")
-    private Integer totalTask;
+    private Integer totalTask = 0;
 
     @Column(name = "pending_task")
-    private Integer pendingTask;
+    private Integer pendingTask = 0;
 
     @Column(name = "success_task")
-    private Integer successTask;
+    private Integer successTask = 0;
 
     @Column(name = "fail_task")
-    private Integer failTask;
+    private Integer failTask = 0;
 }

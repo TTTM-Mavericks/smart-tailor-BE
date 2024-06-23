@@ -21,7 +21,7 @@ public class ReportImage extends AuditEntity implements Serializable {
     @Id
     @Column(name = "report_image_id", unique = true, nullable = false)
     @UuidGenerator
-    private UUID reportID;
+    private UUID reportImageID;
 
     @Column(name = "report_image_name")
     private String reportImageName;
@@ -32,5 +32,5 @@ public class ReportImage extends AuditEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "report_id", referencedColumnName = "report_id")
-    private Report report;
+    private Report reportID;
 }

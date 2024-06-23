@@ -10,19 +10,20 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "discount_product")
+@Table(name = "discount")
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DiscountProduct extends AuditEntity implements Serializable {
+public class Discount extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "discount_product_id")
+    @Column(name = "discount_id")
     @UuidGenerator
-    private UUID discountProductID;
+    private UUID discountID;
 
+    @Column(name = "discount_percent", nullable = false, unique = false)
     private Double discountPercent;
 
     private Integer quantity;

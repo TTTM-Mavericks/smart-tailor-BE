@@ -23,11 +23,15 @@ public class SystemProperties extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID propertyID;
 
+    @Column(name = "property_name", nullable = false, unique = true)
     private String propertyName;
 
+    @Column(name = "property_unit", nullable = true, unique = false)
     private String propertyUnit;
 
+    @Column(name = "property_detail", nullable = false, unique = false)
     private String propertyDetail;
 
+    @Column(name = "property_status")
     private Boolean propertyStatus;
 }

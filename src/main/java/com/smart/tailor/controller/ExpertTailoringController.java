@@ -6,7 +6,6 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
-import com.smart.tailor.utils.request.MaterialRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

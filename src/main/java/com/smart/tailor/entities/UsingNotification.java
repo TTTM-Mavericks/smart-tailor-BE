@@ -6,33 +6,33 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "using_notification")
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Notification extends AuditEntity implements Serializable {
+public class UsingNotification {
     @Id
-    @Column(name = "notification_id", unique = true, nullable = false)
     @UuidGenerator
+    @Column(name = "using_notification_id", nullable = false, unique = true)
+    private UUID usingNotificationID;
+
+    @Column(name = "notification_id", insertable = false, updatable = false)
     private UUID notificationID;
 
-    private String action;
+    @ManyToOne
+    @JoinColumn(name = "notification_id", unique = false, nullable = false)
+    private Notification notification;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", insertable = false, updatable = false)
     private UUID userID;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", unique = false, nullable = false)
     private User user;
-
-    private Boolean status;
-
-    private String detail;
 }

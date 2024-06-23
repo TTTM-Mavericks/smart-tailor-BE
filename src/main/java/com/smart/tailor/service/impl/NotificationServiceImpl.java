@@ -24,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendPrivateNotification(NotificationRequest notificationRequest) throws Exception {
         messagingTemplate.convertAndSendToUser(
-                notificationRequest.getRecipient().toString(),
+                notificationRequest.getRecipient(),
                 "/topic/private-notifications",
                 notificationRequest
         );
@@ -39,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
                     Notification
                             .builder()
                             .action(notificationRequest.getType())
-                            .relationID(brand.getBrandID())
+                            .userID(brand.getBrandID())
                             .status(false)
                             .detail(notificationRequest.getMessage())
                             .build()

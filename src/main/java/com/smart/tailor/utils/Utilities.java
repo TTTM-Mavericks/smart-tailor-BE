@@ -1,14 +1,14 @@
 package com.smart.tailor.utils;
 
-import com.smart.tailor.constant.FormatConstant;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,9 +85,7 @@ public class Utilities {
 
     public static boolean isStringNotNullOrEmpty(String str) {
         if (Optional.ofNullable(str).isPresent()) {
-            if (isNonNullOrEmpty(str)) {
-                return true;
-            }
+            return isNonNullOrEmpty(str);
         }
         return false;
     }

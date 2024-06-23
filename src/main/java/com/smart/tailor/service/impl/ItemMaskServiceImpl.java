@@ -94,7 +94,6 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                                 .itemMaskName(itemMaskName)
                                 .typeOfItem(typeOfItem)
                                 .isSystemItem(itemMaskRequest.getIsSystemItem())
-                                .isPremium(itemMaskRequest.getIsPremium())
                                 .positionX(itemMaskRequest.getPositionX())
                                 .positionY(itemMaskRequest.getPositionY())
                                 .scaleX(itemMaskRequest.getScaleX())

@@ -2,7 +2,6 @@ package com.smart.tailor.service.impl;
 
 
 import com.smart.tailor.service.ExcelExportService;
-import com.smart.tailor.utils.response.BrandMaterialResponse;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import com.smart.tailor.utils.response.MaterialResponse;
 import jakarta.servlet.ServletOutputStream;
@@ -45,14 +44,12 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             cell.setCellValue((Long) value);
         } else if(value instanceof Boolean){
             cell.setCellValue((Boolean) value);
-        }else if(value instanceof LocalDateTime){
-            LocalDateTime localDateTime = (LocalDateTime) value;
+        }else if(value instanceof LocalDateTime localDateTime){
             Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
             cell.setCellValue(date);
         }else if(value instanceof Date){
             cell.setCellValue((Date) value);
-        }else if(value instanceof LocalDate){
-            LocalDate localDate = (LocalDate) value;
+        }else if(value instanceof LocalDate localDate){
             Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
             cell.setCellValue(date);
         }else if(value instanceof Calendar){

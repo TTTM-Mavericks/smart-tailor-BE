@@ -24,16 +24,12 @@ public class Task extends AuditEntity implements Serializable {
     private UUID taskID;
 
     @ManyToOne
-    @JoinColumn(name = "manager_id", referencedColumnName = "user_id")
-    private User manager;
-
-    @ManyToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
-    private Employee employee;
+    private Employee employeeID;
 
     @OneToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id")
-    private Order order;
+    private Order orderID;
 
     private String detail;
 

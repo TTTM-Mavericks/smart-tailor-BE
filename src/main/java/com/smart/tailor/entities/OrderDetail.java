@@ -4,9 +4,11 @@ package com.smart.tailor.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Table(name = "order_detail")
@@ -17,12 +19,16 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDetail extends AuditEntity implements Serializable {
-    @EmbeddedId
-    private OrderDetailKey orderDetailKey;
+    @Id
+    @Column(name = "order_detail_id", nullable = false, unique = true)
+    @UuidGenerator
+    private UUID orderDetailID;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = false, unique = false)
+    private Order orderID;
 
     private Integer quantity;
 
-    @OneToOne
-    @JoinColumn(name = "discount_product_id", referencedColumnName = "discount_product_id")
-    private DiscountProduct discountProduct;
+    private String size;
 }

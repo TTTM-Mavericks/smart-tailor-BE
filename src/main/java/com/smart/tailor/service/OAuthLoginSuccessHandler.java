@@ -34,8 +34,8 @@ public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
         logger.info("{}", oauth2ClientName);
 
         String email = oauth2User.getAttribute("email");
-        String imageUrl = (String) oauth2User.getAttribute("picture");
-        String language = (String) oauth2User.getAttribute("locale");
+        String imageUrl = oauth2User.getAttribute("picture");
+        String language = oauth2User.getAttribute("locale");
         User user = userService.getUserByEmail(email);
         String targetUrl = APIConstant.AuthenticationAPI.AUTHENTICATION;
         if (user == null) {

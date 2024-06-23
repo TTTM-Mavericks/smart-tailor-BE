@@ -1,9 +1,6 @@
 package com.smart.tailor.entities;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,5 +19,6 @@ public class BrandMaterial extends AuditEntity implements Serializable {
     @EmbeddedId
     private BrandMaterialKey brandMaterialKey;
 
+    @Column(name = "brand_price", nullable = false, unique = false)
     private Double brandPrice;
 }

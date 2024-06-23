@@ -1,6 +1,5 @@
 package com.smart.tailor.service;
 
-import com.smart.tailor.utils.response.BrandMaterialResponse;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import com.smart.tailor.utils.response.MaterialResponse;
 import jakarta.servlet.http.HttpServletResponse;

@@ -34,6 +34,7 @@ public class Material extends AuditEntity implements Serializable {
 
     private String unit;
 
+    @Column(name = "base_price")
     private Double basePrice;
 
     private Boolean status;

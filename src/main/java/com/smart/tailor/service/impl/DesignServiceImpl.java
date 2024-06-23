@@ -3,7 +3,6 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Design;
 import com.smart.tailor.entities.PartOfDesign;
-import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ExternalServiceException;
@@ -213,10 +212,7 @@ public class DesignServiceImpl implements DesignService {
                     .stream()
                     .filter(design -> {
                         var user = design.getUser();
-                        if(user.getUserID().toString().equals(userID.toString()) && user.getRoles().getRoleName().contains(roleName)){
-                            return true;
-                        }
-                        return false;
+                        return user.getUserID().toString().equals(userID.toString()) && user.getRoles().getRoleName().contains(roleName);
                     })
                     .map(designMapper::mapperToDesignResponse)
                     .collect(Collectors.toList());
@@ -271,7 +267,7 @@ public class DesignServiceImpl implements DesignService {
                 throw new NotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN);
             }
 
-            designExisted.setPublicStatus(designExisted.getPublicStatus() ? false : true);
+            designExisted.setPublicStatus(!designExisted.getPublicStatus());
             designRepository.save(designExisted);
 
             return APIResponse
