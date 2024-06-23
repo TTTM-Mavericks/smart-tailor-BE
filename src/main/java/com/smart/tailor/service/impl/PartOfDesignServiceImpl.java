@@ -40,72 +40,41 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     @Override
     @Transactional
     public APIResponse createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
-        try{
-            List<PartOfDesign> partOfDesignList = new ArrayList<>();
-            for(PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList){
-                if(!Utilities.isStringNotNullOrEmpty(partOfDesignRequest.getImageUrl())){
-                    throw new BadRequestException(MessageConstant.DATA_IS_EMPTY + " PartOfDesign ImageUrl");
-                }
+        List<PartOfDesign> partOfDesignList = new ArrayList<>();
+        for(PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList){
 
-                String partOfDesignName = Optional.ofNullable(partOfDesignRequest.getPartOfDesignName()).orElse(null);
-                String imageUrl = Optional.ofNullable(partOfDesignRequest.getImageUrl()).orElse(null);
-                String successImageUrl = Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).orElse(null);
+            String partOfDesignName = Optional.ofNullable(partOfDesignRequest.getPartOfDesignName()).orElse(null);
+            String imageUrl = Optional.ofNullable(partOfDesignRequest.getImageUrl()).orElse(null);
+            String successImageUrl = Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).orElse(null);
 
-                var partOfDesign = partOfDesignRepository.save(
-                        PartOfDesign
-                                .builder()
-                                .design(design)
-                                .partOfDesignName(partOfDesignName)
-                                .imageUrl(imageUrl)
-                                .successImageUrl(successImageUrl)
-                                .build()
-                );
+            var partOfDesign = partOfDesignRepository.save(
+                    PartOfDesign
+                            .builder()
+                            .design(design)
+                            .partOfDesignName(partOfDesignName)
+                            .imageUrl(imageUrl)
+                            .successImageUrl(successImageUrl)
+                            .build()
+            );
 
-                var itemMaskResponse = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMaskList());
-                if(itemMaskResponse.getStatus() != HttpStatus.OK.value()){
-                    throw new ExternalServiceException(itemMaskResponse.getMessage(), HttpStatus.valueOf(itemMaskResponse.getStatus()));
-                }
-
-                // Set List Of ItemMask belong to PartOfDesign
-                partOfDesign.setItemMaskList((List<ItemMask>) itemMaskResponse.getData());
-
-                // Add Correct PartOfDesign to ListPartOfDesign
-                partOfDesignList.add(partOfDesign);
+            var itemMaskResponse = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMaskList());
+            if(itemMaskResponse.getStatus() != HttpStatus.OK.value()){
+                throw new ExternalServiceException(itemMaskResponse.getMessage(), HttpStatus.valueOf(itemMaskResponse.getStatus()));
             }
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.OK.value())
-                    .message(MessageConstant.ADD_PART_OF_DESIGN_SUCCESSFULLY)
-                    .data(partOfDesignList)
-                    .build();
+
+            // Set List Of ItemMask belong to PartOfDesign
+            partOfDesign.setItemMaskList((List<ItemMask>) itemMaskResponse.getData());
+
+            // Add Correct PartOfDesign to ListPartOfDesign
+            partOfDesignList.add(partOfDesign);
         }
-        catch (BadRequestException e){
-            logger.error("INSIDE BAD REQUEST EXCEPTION createPartOfDesign Method");
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(e.getMessage())
-                    .data(null)
-                    .build();
-        }
-        catch (ExternalServiceException e){
-            logger.error("INSIDE EXTERNAL SERVICE EXCEPTION createPartOfDesign Method");
-            return APIResponse
-                    .builder()
-                    .status(e.getHttpStatus().value())
-                    .message(e.getMessage())
-                    .data(null)
-                    .build();
-        }
-        catch (Exception e){
-            logger.error(MessageConstant.ADD_PART_OF_DESIGN_FAIL);
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message(MessageConstant.ADD_PART_OF_DESIGN_FAIL + " : " + e.getMessage())
-                    .data(null)
-                    .build();
-        }
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.ADD_PART_OF_DESIGN_SUCCESSFULLY)
+                .data(partOfDesignList)
+                .build();
+
     }
 
     @Override

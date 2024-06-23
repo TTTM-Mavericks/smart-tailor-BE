@@ -23,8 +23,6 @@ public class ItemMaskResponse {
 
     private Boolean isSystemItem;
 
-    private Boolean isPremium;
-
     private Float positionX;
 
     private Float positionY;

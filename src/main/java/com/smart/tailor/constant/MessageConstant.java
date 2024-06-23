@@ -16,6 +16,7 @@ public class MessageConstant {
     public static final String INVALID_DATA_TYPE = "Invalid Data Type";
     public static final String INVALID_EXCEL_FILE_FORMAT = "Invalid Excel File Format";
     public static final String DATA_IS_EMPTY = "Data is empty";
+    public static final String INVALID_INPUT = "Invalid Input";
     /**
      * FORMATION ERROR
      */
