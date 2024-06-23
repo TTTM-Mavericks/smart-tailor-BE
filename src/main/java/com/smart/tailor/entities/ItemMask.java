@@ -41,9 +41,6 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Column(name = "is_system_item")
     private Boolean isSystemItem;
 
-    @Column(name = "is_premium")
-    private Boolean isPremium;
-
     @Column(name = "position_x")
     private Float positionX;
 

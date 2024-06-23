@@ -1,7 +1,7 @@
 package com.smart.tailor.enums;
 
 public enum PaymentType {
-    BANK_TRANSFER,
-    CASH,
-    CHEQUE
+    CUSTOMER_UPGRADE,
+    BRAND_REGISTRATION,
+    ORDER
 }

@@ -4,7 +4,6 @@ import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.utils.request.ItemMaskRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.ItemMaskResponse;
-import com.smart.tailor.utils.response.PartOfDesignResponse;
 
 import java.util.List;
 import java.util.UUID;

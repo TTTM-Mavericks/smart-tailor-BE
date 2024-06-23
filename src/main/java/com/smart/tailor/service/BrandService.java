@@ -13,7 +13,7 @@ public interface BrandService {
 
     Brand saveBrand(BrandRequest brandRequest) throws Exception;
 
-    public Boolean verifyUser(String email, String token) throws Exception;
+    Boolean verifyUser(String email, String token) throws Exception;
 
     UserResponse register(UserRequest userRequest) throws Exception;
 

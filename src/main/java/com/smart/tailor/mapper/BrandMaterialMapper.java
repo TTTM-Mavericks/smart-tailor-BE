@@ -1,7 +1,6 @@
 package com.smart.tailor.mapper;
 
 import com.smart.tailor.entities.BrandMaterial;
-import com.smart.tailor.entities.BrandMaterialKey;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

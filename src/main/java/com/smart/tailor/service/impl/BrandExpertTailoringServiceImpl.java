@@ -42,10 +42,7 @@ public class BrandExpertTailoringServiceImpl implements BrandExpertTailoringServ
             );
 
             var brandExpectTailoring = brandExpertTailoringRepository.getBrandExpertTailoringByBrandExpertTailoringKey_BrandIDAndBrandExpertTailoringKey_ExpertTailoringID(brandID, expertTailoringID);
-            if (brandExpectTailoring == null) {
-                return false;
-            }
-            return true;
+            return brandExpectTailoring != null;
         } catch (Exception ex) {
             logger.error("ERROR IN BRAND EXPECT TAILORING SERVICE - ADD TAILORING FOR BRAND: {}", ex.getMessage());
             throw ex;

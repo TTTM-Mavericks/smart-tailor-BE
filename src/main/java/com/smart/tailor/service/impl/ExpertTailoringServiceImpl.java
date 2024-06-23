@@ -3,9 +3,7 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.config.CustomExeption;
 import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Category;
 import com.smart.tailor.entities.ExpertTailoring;
-import com.smart.tailor.entities.Material;
 import com.smart.tailor.mapper.ExpertTailoringMapper;
 import com.smart.tailor.repository.ExpertTailoringRepository;
 import com.smart.tailor.service.ExcelExportService;
@@ -13,7 +11,6 @@ import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
-import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -81,7 +78,6 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         ExpertTailoring expertTailoring = expertTailoringRepository.save(
                 ExpertTailoring.builder()
                         .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
-                        .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
                         .status(true)
                         .build()
         );
@@ -251,7 +247,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         if(checkExpertTailoringNameIsExisted != null){
             System.out.println(checkExpertTailoringNameIsExisted.getExpertTailoringID());
             System.out.println(expertTailoring.get().getExpertTailoringID());
-            if(!checkExpertTailoringNameIsExisted.getExpertTailoringID().toString().equals(expertTailoring.get().getExpertTailoringID().toString())){
+            if(!checkExpertTailoringNameIsExisted.getExpertTailoringID().equals(expertTailoring.get().getExpertTailoringID().toString())){
                 return APIResponse
                         .builder()
                         .status(HttpStatus.BAD_REQUEST.value())
@@ -265,7 +261,6 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                         .builder()
                         .expertTailoringID(expertTailoringID)
                         .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
-                        .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
                         .status(expertTailoring.get().getStatus())
                         .build()
         );
@@ -297,7 +292,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                     .build();
         }
 
-        expertTailoring.get().setStatus(expertTailoring.get().getStatus() ? false : true);
+        expertTailoring.get().setStatus(!expertTailoring.get().getStatus());
 
         return APIResponse
                 .builder()

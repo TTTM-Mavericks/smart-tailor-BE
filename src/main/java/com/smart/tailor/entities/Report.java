@@ -27,7 +27,7 @@ public class Report extends AuditEntity implements Serializable {
     private String typeOfReport;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
+    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
     private Order order;
 
     private String content;

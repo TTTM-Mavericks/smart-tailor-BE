@@ -282,8 +282,7 @@ public class BrandController {
                 return ResponseEntity.ok(respon);
             }
         } catch (Exception ex) {
-            if (ex instanceof CustomExeption) {
-                CustomExeption customExeption = (CustomExeption) ex;
+            if (ex instanceof CustomExeption customExeption) {
                 respon.put("status", customExeption.getErrorConstant().getStatusCode());
                 respon.put("message", customExeption.getErrorConstant().getMessage());
                 logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());

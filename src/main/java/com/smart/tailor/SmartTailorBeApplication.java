@@ -90,14 +90,12 @@ public class SmartTailorBeApplication {
                 expertTailoringRepository.save(ExpertTailoring
                         .builder()
                         .expertTailoringName("EMBROIDER")
-                        .sizeImageUrl("http://img.com")
                         .build()
                 );
 
                 expertTailoringRepository.save(ExpertTailoring
                         .builder()
                         .expertTailoringName("SEW")
-                        .sizeImageUrl("http://img.com")
                         .build()
                 );
             }

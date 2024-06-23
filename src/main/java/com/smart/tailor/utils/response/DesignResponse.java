@@ -1,7 +1,6 @@
 package com.smart.tailor.utils.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.smart.tailor.utils.request.PartOfDesignRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

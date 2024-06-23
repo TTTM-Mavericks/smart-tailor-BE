@@ -340,7 +340,7 @@ public class MaterialServiceImpl implements MaterialService {
                     .build();
         }
 
-        material.get().setStatus(material.get().getStatus() ? false : true);
+        material.get().setStatus(!material.get().getStatus());
 
         return APIResponse
                 .builder()

@@ -29,11 +29,12 @@ public class Brand extends AuditEntity implements Serializable {
     @JoinColumn(name = "brand_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
     private User user;
 
+    @Column(name = "brand_name", columnDefinition = "nvarchar(255)", unique = false, nullable = false)
     private String brandName;
 
     private Float rating;
 
-    @Column(name = "bank_name")
+    @Column(name = "bank_name", unique = false, nullable = true)
     private String bankName;
 
     @Column(name = "account_number")

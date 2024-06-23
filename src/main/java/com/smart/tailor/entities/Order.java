@@ -25,13 +25,28 @@ public class Order extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID orderID;
 
+    @Column(name = "parent_order_id", nullable = true, unique = false)
+    private UUID parentOrderID;
+
     @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
-    private Customer customer;
+    @JoinColumn(name = "design_id", referencedColumnName = "design_id")
+    private Design designID;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = true, unique = false)
+    private Brand brandID;
+
+    private Integer quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "discount_id", referencedColumnName = "discount_id", nullable = true, unique = false)
+    private Discount discountID;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_status")
     private OrderStatus orderStatus;
 
+    @Column(name = "order_type")
     private String orderType;
 
     private String address;
@@ -44,19 +59,24 @@ public class Order extends AuditEntity implements Serializable {
 
     private String phone;
 
-    private String userName;
+    @Column(name = "buyer_name")
+    private String buyerName;
 
+    @Column(name = "total_price")
     private Double totalPrice;
 
-    private Double depositPrice;
-
+    @Column(name = "expected_start_date")
     private LocalDateTime expectedStartDate;
 
+    @Column(name = "expected_product_completion_date")
     private LocalDateTime expectedProductCompletionDate;
 
+    @Column(name = "estimated_delivery_date")
     private LocalDateTime estimatedDeliveryDate;
 
+    @Column(name = "production_start_date")
     private LocalDateTime productionStartDate;
 
+    @Column(name = "product_completion_date")
     private LocalDateTime productionCompletionDate;
 }

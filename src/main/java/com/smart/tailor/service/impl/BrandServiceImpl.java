@@ -102,7 +102,7 @@ public class BrandServiceImpl implements BrandService {
                 }
 
                 // Store Object Class to HashMap
-                storageObject.put(userRequest.getEmail(), (Object) userRequest);
+                storageObject.put(userRequest.getEmail(), userRequest);
 
                 String token = UUID.randomUUID().toString();
                 verifyAccount.put(userRequest.getEmail(), token);

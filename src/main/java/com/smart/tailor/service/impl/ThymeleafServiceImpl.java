@@ -23,7 +23,7 @@ public class ThymeleafServiceImpl implements ThymeleafService {
     private static final String TEMPLATE_VERIFY_ACCOUNT = "TemplateVerifyAccount";
     private static final String TEMPLATE_RESET_PASSWORD = "TemplateResetPassword";
     private static final String TEMPLATE_CHANGE_PASSWORD = "TemplateChangePassword";
-    private static TemplateEngine templateEngine;
+    private static final TemplateEngine templateEngine;
 
     static
     {
