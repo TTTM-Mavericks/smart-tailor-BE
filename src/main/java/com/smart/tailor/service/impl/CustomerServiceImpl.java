@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -37,18 +38,18 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public APIResponse updateCustomerProfile(CustomerRequest customerRequest) {
-        if(!Utilities.isValidBoolean(customerRequest.getGender())){
+        if (!Utilities.isValidBoolean(customerRequest.getGender())) {
             return APIResponse
                     .builder()
                     .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_DATA_TYPE + " gender : " +  customerRequest.getGender())
+                    .message(MessageConstant.INVALID_DATA_TYPE + " gender : " + customerRequest.getGender())
                     .data(null)
                     .build();
 
         }
 
-        if(Utilities.isStringNotNullOrEmpty(customerRequest.getPhoneNumber())){
-            if(!Utilities.isValidVietnamesePhoneNumber(customerRequest.getPhoneNumber())){
+        if (Utilities.isStringNotNullOrEmpty(customerRequest.getPhoneNumber())) {
+            if (!Utilities.isValidVietnamesePhoneNumber(customerRequest.getPhoneNumber())) {
                 return APIResponse
                         .builder()
                         .status(HttpStatus.BAD_REQUEST.value())
@@ -59,7 +60,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
 
-        if(userService.getUserByEmail(customerRequest.getEmail()) == null){
+        if (userService.getUserByEmail(customerRequest.getEmail()) == null) {
             return APIResponse
                     .builder()
                     .status(HttpStatus.BAD_REQUEST.value())
@@ -68,8 +69,8 @@ public class CustomerServiceImpl implements CustomerService {
                     .build();
         }
 
-        if(!userService.getUserByEmail(customerRequest.getEmail()).getPhoneNumber().equals(customerRequest.getPhoneNumber())){
-            if(userService.getUserByPhoneNumber(customerRequest.getPhoneNumber()) != null){
+        if (!userService.getUserByEmail(customerRequest.getEmail()).getPhoneNumber().equals(customerRequest.getPhoneNumber())) {
+            if (userService.getUserByPhoneNumber(customerRequest.getPhoneNumber()) != null) {
                 return APIResponse
                         .builder()
                         .status(HttpStatus.BAD_REQUEST.value())
@@ -79,7 +80,7 @@ public class CustomerServiceImpl implements CustomerService {
             }
         }
 
-        if(!Utilities.isValidDate(customerRequest.getDateOfBirth(), FormatConstant.DD_MM_YYYY_MINUS)){
+        if (!Utilities.isValidDate(customerRequest.getDateOfBirth(), FormatConstant.DD_MM_YYYY_MINUS)) {
             return APIResponse
                     .builder()
                     .status(HttpStatus.BAD_REQUEST.value())
@@ -99,7 +100,7 @@ public class CustomerServiceImpl implements CustomerService {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FormatConstant.DD_MM_YYYY_MINUS);
         Date formatDate = null;
         try {
-             formatDate = simpleDateFormat.parse(customerRequest.getDateOfBirth());
+            formatDate = simpleDateFormat.parse(customerRequest.getDateOfBirth());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -107,7 +108,7 @@ public class CustomerServiceImpl implements CustomerService {
         var userUpdated = userService.updateUserProfile(userRequest);
 
         Optional<Customer> customerOptional = customerRepository.findById(userUpdated.getUserID());
-        if(customerOptional.isEmpty()){
+        if (customerOptional.isEmpty()) {
             logger.info("Inside Create Customer Profile Method");
             customerRepository.createCustomer(
                     userUpdated.getUserID(),
@@ -118,8 +119,7 @@ public class CustomerServiceImpl implements CustomerService {
                     customerRequest.getDistrict(),
                     customerRequest.getWard()
             );
-        }
-        else{
+        } else {
             logger.info("Inside Update Customer Profile Method");
             customerRepository.updateCustomer(
                     customerRequest.getGender(),
@@ -138,6 +138,12 @@ public class CustomerServiceImpl implements CustomerService {
                 .message(MessageConstant.UPDATE_PROFILE_CUSTOMER_SUCCESSFULLY)
                 .data(null)
                 .build();
+    }
+
+    @Override
+    public CustomerResponse getCustomerByUserID(UUID userID) {
+        Customer customer = customerRepository.getReferenceById(userID);
+        return mapperToCustomerResponse(customer);
     }
 
     @Override

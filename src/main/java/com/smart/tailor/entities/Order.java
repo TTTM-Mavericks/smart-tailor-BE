@@ -28,19 +28,28 @@ public class Order extends AuditEntity implements Serializable {
     @Column(name = "parent_order_id", nullable = true, unique = false)
     private UUID parentOrderID;
 
+    @Column(name = "design_id", insertable = false, updatable = false)
+    private UUID designID;
+
     @ManyToOne
     @JoinColumn(name = "design_id", referencedColumnName = "design_id")
-    private Design designID;
+    private Design design;
+
+    @Column(name = "brand_id", insertable = false, updatable = false)
+    private UUID brandID;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = true, unique = false)
-    private Brand brandID;
+    private Brand brand;
 
     private Integer quantity;
 
+    @Column(name = "discount_id", insertable = false, updatable = false)
+    private UUID discountID;
+
     @ManyToOne
     @JoinColumn(name = "discount_id", referencedColumnName = "discount_id", nullable = true, unique = false)
-    private Discount discountID;
+    private Discount discount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
