@@ -30,9 +30,9 @@ public class VerificationToken implements Serializable {
     @Enumerated(EnumType.STRING)
     private TypeOfVerification typeOfVerification;
 
+    private boolean isEnabled;
+
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
-
-    private boolean isEnabled;
 }
