@@ -3,6 +3,10 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Category;
 import com.smart.tailor.entities.Material;
+import com.smart.tailor.exception.ExcelFileDuplicateDataException;
+import com.smart.tailor.exception.ExcelFileInvalidFormatException;
+import com.smart.tailor.exception.ItemAlreadyExistException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.MaterialMapper;
 import com.smart.tailor.repository.MaterialRepository;
 import com.smart.tailor.service.CategoryService;
@@ -44,61 +48,9 @@ public class MaterialServiceImpl implements MaterialService {
         return materialRepository.findByMaterialNameAndCategory_CategoryName(materialName.toLowerCase(), categoryName.toLowerCase());
     }
 
-    private APIResponse checkValidMaterialRequestData(MaterialRequest materialRequest){
-        if(
-                !Utilities.isNonNullOrEmpty(materialRequest.getCategoryName()) ||
-                !Utilities.isNonNullOrEmpty(materialRequest.getMaterialName()) ||
-                !Utilities.isNonNullOrEmpty(materialRequest.getUnit())
-        ) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
-        }
-
-        if(!Utilities.isValidDouble(materialRequest.getHsCode().toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_DATA_TYPE + " hsCode : " + materialRequest.getHsCode().toString())
-                    .build();
-        }
-
-        if(materialRequest.getHsCode() < 0){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER + " hsCode : " + materialRequest.getHsCode())
-                    .build();
-        }
-
-        if(!Utilities.isValidDouble(materialRequest.getBasePrice().toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_DATA_TYPE + " basePrice : " + materialRequest.getBasePrice().toString())
-                    .build();
-        }
-
-        if(materialRequest.getBasePrice() < 0){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER + " basePrice : " + materialRequest.getBasePrice())
-                    .build();
-        }
-        return null;
-    }
-
     @Override
     @Transactional
     public APIResponse createMaterial(MaterialRequest materialRequest) {
-        var checkValidMaterial = checkValidMaterialRequestData(materialRequest);
-        if (checkValidMaterial != null) {
-            return checkValidMaterial;
-        }
-
         Optional<Category> categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase());
 
         Category category = null;
@@ -111,11 +63,7 @@ public class MaterialServiceImpl implements MaterialService {
         Optional<Material> materialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName().toLowerCase(), materialRequest.getCategoryName().toLowerCase());
 
         if(materialOptional.isPresent()) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.CONFLICT.value())
-                    .message(MessageConstant.MATERIAL_IS_EXISTED)
-                    .build();
+            throw new ItemAlreadyExistException(MessageConstant.MATERIAL_IS_EXISTED);
         }
         var material = materialRepository.save(
                 Material
@@ -140,20 +88,10 @@ public class MaterialServiceImpl implements MaterialService {
     @Transactional(rollbackOn = Exception.class)
     public APIResponse createMaterialByExcelFile(MultipartFile file) {
         if (!excelImportService.isValidExcelFile(file)) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
-                    .message(MessageConstant.INVALID_EXCEL_FILE_FORMAT)
-                    .data(null)
-                    .build();
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
             var apiResponse = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
-
-            if(apiResponse.getStatus() == HttpStatus.BAD_REQUEST.value() ||
-                    apiResponse.getStatus() == HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()){
-                return apiResponse;
-            }
 
             var excelData = (List<MaterialRequest>) apiResponse.getData();
 
@@ -168,7 +106,7 @@ public class MaterialServiceImpl implements MaterialService {
 
             Set<MaterialRequest> excelNames = new HashSet<>();
             List<MaterialRequest> uniqueExcelData = new ArrayList<>();
-            List<MaterialRequest> duplicateExcelData = new ArrayList<>();
+            List<Object> duplicateExcelData = new ArrayList<>();
 
             for(MaterialRequest request : excelData){
                 if(!excelNames.add(request)){
@@ -179,19 +117,16 @@ public class MaterialServiceImpl implements MaterialService {
             }
 
             if (!duplicateExcelData.isEmpty()) {
-                return APIResponse.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE)
-                        .data(duplicateExcelData)
-                        .build();
+                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
             }
 
             List<MaterialRequest> validData = new ArrayList<>();
-            List<MaterialRequest> invalidData = new ArrayList<>();
+            List<Object> invalidData = new ArrayList<>();
             for(MaterialRequest materialRequest : uniqueExcelData){
-                var saveExpertTailoringResponse = createMaterial(materialRequest);
-                validData.add(materialRequest);
-                if(saveExpertTailoringResponse.getStatus() != HttpStatus.OK.value()){
+                try{
+                    createMaterial(materialRequest);
+                    validData.add(materialRequest);
+                } catch (ItemAlreadyExistException ex){
                     invalidData.add(materialRequest);
                 }
             }
@@ -203,20 +138,11 @@ public class MaterialServiceImpl implements MaterialService {
                         .data(validData)
                         .build();
             } else {
-                return APIResponse.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE)
-                        .data(invalidData)
-                        .build();
+                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE, invalidData);
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_EXCEL_FILE_FORMAT)
-                    .data(null)
-                    .build();
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
     }
 
@@ -269,35 +195,14 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public APIResponse updateMaterial(UUID materialID, MaterialRequest materialRequest) {
-        if(!Utilities.isStringNotNullOrEmpty(materialID.toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
-        }
-
-        var checkValidMaterial = checkValidMaterialRequestData(materialRequest);
-        if(checkValidMaterial != null){
-            return checkValidMaterial;
-        }
-
         var material = findByMaterialID(materialID);
         if(material == null){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL);
         }
 
         Optional<Category> categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase());
         if(categoryOptional.isEmpty()){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY);
         }
 
         var updateMaterial = materialRepository.save(
@@ -323,21 +228,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public APIResponse updateStatusMaterial(UUID materialID) {
-        if(!Utilities.isStringNotNullOrEmpty(materialID.toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
-        }
-
         var material = materialRepository.findByMaterialID(materialID);
         if(material.isEmpty()){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL);
         }
 
         material.get().setStatus(!material.get().getStatus());

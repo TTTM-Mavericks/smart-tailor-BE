@@ -30,7 +30,7 @@ public class Material extends AuditEntity implements Serializable {
     private Category category;
 
     @Column(name = "hs_code")
-    private Double hsCode;
+    private Long hsCode;
 
     private String unit;
 

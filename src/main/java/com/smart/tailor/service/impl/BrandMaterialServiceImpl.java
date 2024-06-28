@@ -2,6 +2,7 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
+import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.BrandMaterialMapper;
 import com.smart.tailor.repository.BrandMaterialRepository;
 import com.smart.tailor.service.*;
@@ -10,6 +11,7 @@ import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -37,98 +39,26 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
     @Override
     @Transactional
-    public APIResponse createBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
-        if(
-                !Utilities.isNonNullOrEmpty(brandMaterialRequest.getBrandName()) ||
-                !Utilities.isNonNullOrEmpty(brandMaterialRequest.getMaterialName()) ||
-                !Utilities.isNonNullOrEmpty(brandMaterialRequest.getCategoryName()) ||
-                !Utilities.isNonNullOrEmpty(brandMaterialRequest.getUnit())
-        ){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .data(null)
-                    .build();
-        }
-        if(!Utilities.isValidDouble(brandMaterialRequest.getHsCode().toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_DATA_TYPE + " hsCode : " + brandMaterialRequest.getHsCode().toString())
-                    .build();
-        }
-
-        if(brandMaterialRequest.getHsCode() < 0){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER + " hsCode : " + brandMaterialRequest.getHsCode())
-                    .build();
-        }
-
-        if(!Utilities.isValidDouble(brandMaterialRequest.getBasePrice().toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_DATA_TYPE + " basePrice : " + brandMaterialRequest.getBasePrice().toString())
-                    .build();
-        }
-
-        if(brandMaterialRequest.getBasePrice() < 0){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER + " basePrice : " + brandMaterialRequest.getBasePrice())
-                    .build();
-        }
-
-        if(!Utilities.isValidDouble(brandMaterialRequest.getBrandPrice().toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_DATA_TYPE + " brandPrice : " + brandMaterialRequest.getBrandPrice().toString())
-                    .build();
-        }
-
-        if(brandMaterialRequest.getBrandPrice() < 0){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER + " brandPrice : " + brandMaterialRequest.getBrandPrice())
-                    .build();
-        }
-
+    public APIResponse createBrandMaterial(@Valid BrandMaterialRequest brandMaterialRequest) {
         // Check If Brand Name is Existed
         Optional<Brand> brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName());
         if(brand.isEmpty()) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CAN_NOT_FIND_BRAND)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_BRAND);
         }
 
         // Check if Category and Material is Existed or not
         var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
         if(materialResponse == null){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED);
         }
 
         // Check Whether BrandMaterial is Existed or not
         // If Existed ==> Fail to Store Brand Material because Each Brand only enter one MaterialName belong to one CategoryName
         var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandName(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), brandMaterialRequest.getBrandName());
         if(brandMaterialExisted != null) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.BRAND_MATERIAL_IS_EXISTED)
-                    .build();
+            throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
+
         double basePrice = brandMaterialRequest.getBasePrice();
         double brandPrice = brandMaterialRequest.getBrandPrice();
         double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
@@ -141,11 +71,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
 
         if (brandPrice < lowerBound || brandPrice > upperBound) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION)
-                    .build();
+            throw new BadRequestException(MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION);
         }
 
         // When All condition pass, store data to BrandMaterial
@@ -183,21 +109,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     @Override
     public APIResponse createBrandMaterialByImportExcelData(MultipartFile file, String brandName) {
         if (!excelImportService.isValidExcelFile(file)) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_EXCEL_FILE_FORMAT)
-                    .data(null)
-                    .build();
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
             var apiResponse = excelImportService.getBrandMaterialDataFromExcel(file.getInputStream(), brandName);
-            System.out.println(apiResponse.getData());
-
-            if(apiResponse.getStatus() == HttpStatus.BAD_REQUEST.value() ||
-                    apiResponse.getStatus() == HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()){
-                return apiResponse;
-            }
 
             var excelData = (List<BrandMaterialRequest>) apiResponse.getData();
 
@@ -212,7 +127,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
             Set<BrandMaterialRequest> excelNames = new HashSet<>();
             List<BrandMaterialRequest> uniqueExcelData = new ArrayList<>();
-            List<BrandMaterialRequest> duplicateExcelData = new ArrayList<>();
+            List<Object> duplicateExcelData = new ArrayList<>();
 
             for(BrandMaterialRequest request : excelData){
                 if(!excelNames.add(request)){
@@ -223,107 +138,60 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             }
 
             if (!duplicateExcelData.isEmpty()) {
-                return APIResponse.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE)
-                        .data(duplicateExcelData)
-                        .build();
+                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
             }
 
             List<BrandMaterialRequest> validData = new ArrayList<>();
             List<BrandMaterialRequest> invalidData = new ArrayList<>();
             for(BrandMaterialRequest brandMaterialRequest : uniqueExcelData){
-                var saveExpertTailoringResponse = createBrandMaterial(brandMaterialRequest);
-                validData.add(brandMaterialRequest);
-                if(saveExpertTailoringResponse.getStatus() != HttpStatus.OK.value()){
+                try{
+                    createBrandMaterial(brandMaterialRequest);
+                    validData.add(brandMaterialRequest);
+                } catch (Exception ex){
                     invalidData.add(brandMaterialRequest);
                 }
             }
 
             if (invalidData.isEmpty()) {
-                return APIResponse.builder()
+                return APIResponse
+                        .builder()
                         .status(HttpStatus.OK.value())
                         .message(MessageConstant.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY)
                         .data(validData)
                         .build();
             } else {
-                return APIResponse.builder()
+                return APIResponse
+                        .builder()
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.BRAND_MATERIAL_IS_EXISTED)
+                        .message(MessageConstant.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_FAIL)
                         .data(invalidData)
                         .build();
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_EXCEL_FILE_FORMAT)
-                    .data(null)
-                    .build();
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
     }
 
     @Override
     public APIResponse updateBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
-        if(
-                !Utilities.isNonNullOrEmpty(brandMaterialRequest.getBrandName()) ||
-                !Utilities.isNonNullOrEmpty(brandMaterialRequest.getMaterialName()) ||
-                !Utilities.isNonNullOrEmpty(brandMaterialRequest.getCategoryName())
-        ){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .data(null)
-                    .build();
-        }
-
-        if(!Utilities.isValidDouble(brandMaterialRequest.getBrandPrice().toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_DATA_TYPE + " brandPrice : " + brandMaterialRequest.getBrandPrice().toString())
-                    .build();
-        }
-
-        if(brandMaterialRequest.getBrandPrice() < 0){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER + " brandPrice : " + brandMaterialRequest.getBrandPrice())
-                    .build();
-        }
-
         // Check If Brand Name is Existed
         Optional<Brand> brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName());
         if(brand.isEmpty()) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CAN_NOT_FIND_BRAND)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_BRAND);
         }
 
         // Check if Category and Material is Existed or not
         var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
         if(materialResponse == null){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED);
         }
 
         // Check Whether BrandMaterial is Existed or not
         // If Existed ==> Fail to Store Brand Material because Each Brand only enter one MaterialName belong to one CategoryName
         var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandName(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), brandMaterialRequest.getBrandName());
         if(brandMaterialExisted == null) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.BRAND_MATERIAL_IS_EXISTED)
-                    .build();
+            throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
 
         double basePrice = brandMaterialExisted.getBrandPrice();
@@ -338,11 +206,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
 
         if (brandPrice < lowerBound || brandPrice > upperBound) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION)
-                    .build();
+            throw new BadRequestException(MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION);
         }
 
         brandMaterialRepository.updateBrandMaterial(brandPrice, brandMaterialExisted.getBrandMaterialKey().getBrandID(), brandMaterialExisted.getBrandMaterialKey().getMaterialID());

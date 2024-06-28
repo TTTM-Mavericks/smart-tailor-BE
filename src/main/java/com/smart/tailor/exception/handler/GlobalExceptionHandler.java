@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ExternalServiceException;
-import com.smart.tailor.exception.ResourceNotFoundException;
+import com.smart.tailor.exception.ItemAlreadyExistException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -13,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.HandlerMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,24 +33,32 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ObjectNode> handleNotFoundException(ResourceNotFoundException ex) {
+    @ExceptionHandler(ItemNotFoundException.class)
+    public ResponseEntity<ObjectNode> handleItemNotFoundException(ItemNotFoundException ex) {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(ItemAlreadyExistException.class)
+    public ResponseEntity<ObjectNode> handleItemNotFoundException(ItemAlreadyExistException ex) {
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<ObjectNode> handleExternalServiceException(ExternalServiceException ex) {
         ObjectNode response = objectMapper.createObjectNode();
-        response.put("status", ex.getHttpStatus().value());
+        response.put("status", ex.getStatusCode().value());
         response.put("message", ex.getMessage());
-        return ResponseEntity.status(ex.getHttpStatus()).body(response);
+        return ResponseEntity.status(ex.getStatusCode()).body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ObjectNode> handleGeneralException(Exception ex) {
+    public ResponseEntity<ObjectNode> handleSystemException(Exception ex) {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);

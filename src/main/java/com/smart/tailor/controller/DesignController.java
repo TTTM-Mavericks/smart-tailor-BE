@@ -45,7 +45,7 @@ public class DesignController {
         var designResponseList = designService.getAllDesignByUserID(userID);
         ObjectNode response = objectMapper.createObjectNode();
         if (designResponseList.isEmpty()) {
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_DESIGN_BY_USER_ID);
         } else {
             response.put("status", HttpStatus.OK.value());
@@ -61,7 +61,7 @@ public class DesignController {
         var designResponseList = designService.getAllDesign();
         ObjectNode response = objectMapper.createObjectNode();
         if (designResponseList.isEmpty()) {
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_DESIGN);
         } else {
             response.put("status", HttpStatus.OK.value());
@@ -76,7 +76,7 @@ public class DesignController {
         var design = designService.getDesignResponseByID(designID);
         ObjectNode response = objectMapper.createObjectNode();
         if (design == null) {
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_DESIGN);
         } else {
             response.put("status", HttpStatus.OK.value());

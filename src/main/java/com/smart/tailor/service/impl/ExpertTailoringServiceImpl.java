@@ -4,6 +4,10 @@ import com.smart.tailor.config.CustomExeption;
 import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.ExpertTailoring;
+import com.smart.tailor.exception.ExcelFileDuplicateDataException;
+import com.smart.tailor.exception.ExcelFileInvalidFormatException;
+import com.smart.tailor.exception.ItemAlreadyExistException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.ExpertTailoringMapper;
 import com.smart.tailor.repository.ExpertTailoringRepository;
 import com.smart.tailor.service.ExcelExportService;
@@ -57,27 +61,16 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     @Override
     @Transactional
     public APIResponse createExpertTailoring(ExpertTailoringRequest expertTailoringRequest) {
-        if (!Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getExpertTailoringName()) ||
-                !Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getSizeImageUrl())) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.MISSING_ARGUMENT)
-                    .build();
-        }
-
         var expertTailoringExisted = getByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
         if (expertTailoringExisted != null) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.CONFLICT.value())
-                    .message(MessageConstant.EXPERT_TAILORING_IS_EXISTED)
-                    .build();
+            throw new ItemAlreadyExistException(MessageConstant.EXPERT_TAILORING_IS_EXISTED);
         }
 
         ExpertTailoring expertTailoring = expertTailoringRepository.save(
-                ExpertTailoring.builder()
+                ExpertTailoring
+                        .builder()
                         .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
+                        .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
                         .status(true)
                         .build()
         );
@@ -117,20 +110,10 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     @Transactional(rollbackOn = Exception.class)
     public APIResponse createExpertTailoringByExcelFile(MultipartFile file) {
         if (!excelImportService.isValidExcelFile(file)) {
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_EXCEL_FILE_FORMAT)
-                    .data(null)
-                    .build();
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
             var apiResponse = excelImportService.getExpertTailoringDataFromExcel(file.getInputStream());
-
-            if(apiResponse.getStatus() == HttpStatus.BAD_REQUEST.value() ||
-                    apiResponse.getStatus() == HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()){
-                return apiResponse;
-            }
 
             var excelData = (List<ExpertTailoringRequest>) apiResponse.getData();
 
@@ -145,7 +128,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
             Set<ExpertTailoringRequest> excelNames = new HashSet<>();
             List<ExpertTailoringRequest> uniqueExcelData = new ArrayList<>();
-            List<ExpertTailoringRequest> duplicateExcelData = new ArrayList<>();
+            List<Object> duplicateExcelData = new ArrayList<>();
 
             for(ExpertTailoringRequest request : excelData){
                 if(!excelNames.add(request)){
@@ -156,19 +139,17 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
             }
 
             if (!duplicateExcelData.isEmpty()) {
-                return APIResponse.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.DUPLICATE_EXPERT_TAILORING_IN_EXCEL_FILE)
-                        .data(duplicateExcelData)
-                        .build();
+                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_EXPERT_TAILORING_IN_EXCEL_FILE, duplicateExcelData);
             }
 
             List<ExpertTailoringRequest> validData = new ArrayList<>();
-            List<ExpertTailoringRequest> invalidData = new ArrayList<>();
+            List<Object> invalidData = new ArrayList<>();
             for (ExpertTailoringRequest expertTailoringRequest : uniqueExcelData) {
-                var saveExpertTailoringResponse = createExpertTailoring(expertTailoringRequest);
-                validData.add(expertTailoringRequest);
-                if (saveExpertTailoringResponse.getStatus() != HttpStatus.OK.value()) {
+                try{
+                    createExpertTailoring(expertTailoringRequest);
+                    validData.add(expertTailoringRequest);
+                }
+                catch (ItemAlreadyExistException ex){
                     invalidData.add(expertTailoringRequest);
                 }
             }
@@ -180,20 +161,11 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                         .data(validData)
                         .build();
             } else {
-                return APIResponse.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.DUPLICATE_EXPERT_TAILORING_DATA)
-                        .data(invalidData)
-                        .build();
+                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_EXPERT_TAILORING_DATA, invalidData);
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.INVALID_EXCEL_FILE_FORMAT)
-                    .data(null)
-                    .build();
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
     }
 
@@ -211,48 +183,24 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
     @Override
     public ExpertTailoringResponse findByExpertTailoringID(UUID expertTailoringID) {
-        if(Utilities.isStringNotNullOrEmpty(expertTailoringID.toString())){
-            var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
-            if(expertTailoring.isPresent()){
-                return expertTailoringMapper.mapperToExpertTailoringResponse(expertTailoring.get());
-            }
+        var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
+        if(expertTailoring.isPresent()){
+            return expertTailoringMapper.mapperToExpertTailoringResponse(expertTailoring.get());
         }
         return null;
     }
 
     @Override
     public APIResponse updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest) {
-        if(
-                !Utilities.isStringNotNullOrEmpty(expertTailoringID.toString()) ||
-                !Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getExpertTailoringName()) ||
-                !Utilities.isStringNotNullOrEmpty(expertTailoringRequest.getSizeImageUrl())
-        ){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
-        }
-
         var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
         if(expertTailoring.isEmpty()){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING);
         }
 
         var checkExpertTailoringNameIsExisted = getByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
         if(checkExpertTailoringNameIsExisted != null){
-            System.out.println(checkExpertTailoringNameIsExisted.getExpertTailoringID());
-            System.out.println(expertTailoring.get().getExpertTailoringID());
-            if(!checkExpertTailoringNameIsExisted.getExpertTailoringID().equals(expertTailoring.get().getExpertTailoringID().toString())){
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.EXPERT_TAILORING_NAME_IS_EXISTED)
-                        .build();
+            if(!checkExpertTailoringNameIsExisted.getExpertTailoringID().toString().equals(expertTailoring.get().getExpertTailoringID().toString())){
+                throw new ItemAlreadyExistException(MessageConstant.EXPERT_TAILORING_NAME_IS_EXISTED);
             }
         }
 
@@ -275,21 +223,9 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
     @Override
     public APIResponse updateStatusExpertTailoring(UUID expertTailoringID) {
-        if(!Utilities.isStringNotNullOrEmpty(expertTailoringID.toString())){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
-        }
-
         var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
         if(expertTailoring.isEmpty()){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING)
-                    .build();
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING);
         }
 
         expertTailoring.get().setStatus(!expertTailoring.get().getStatus());

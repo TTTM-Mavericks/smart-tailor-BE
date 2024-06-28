@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
             var itemMaskResponse = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMaskList());
             if(itemMaskResponse.getStatus() != HttpStatus.OK.value()){
-                throw new ExternalServiceException(itemMaskResponse.getMessage(), HttpStatus.valueOf(itemMaskResponse.getStatus()));
+                throw new ExternalServiceException(HttpStatusCode.valueOf(itemMaskResponse.getStatus()), itemMaskResponse.getMessage());
             }
 
             // Set List Of ItemMask belong to PartOfDesign

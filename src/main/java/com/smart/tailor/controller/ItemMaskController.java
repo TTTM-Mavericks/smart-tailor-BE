@@ -36,7 +36,7 @@ public class ItemMaskController {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponses = itemMaskService.getListItemMaskByPartOfDesignID(partOfDesignID);
         if(itemMaskResponses.isEmpty()){
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_ITEM_MASK_BY_PART_OF_DESIGN_ID);
         }else{
             response.put("status", HttpStatus.OK.value());
@@ -52,7 +52,7 @@ public class ItemMaskController {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponses = itemMaskService.getAllItemMask();
         if(itemMaskResponses.isEmpty()){
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_ITEM_MASK);
         }else{
             response.put("status", HttpStatus.OK.value());
@@ -67,7 +67,7 @@ public class ItemMaskController {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponse = itemMaskService.getItemMaskByItemMaskID(itemMaskID);
         if(itemMaskResponse == null){
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_ITEM_MASK);
         }else{
             response.put("status", HttpStatus.OK.value());

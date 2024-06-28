@@ -1,17 +1,10 @@
 package com.smart.tailor.exception;
 
+import org.springframework.http.HttpStatusCode;
+import org.springframework.web.server.ResponseStatusException;
 
-import org.springframework.http.HttpStatus;
-
-public class ExternalServiceException extends RuntimeException{
-    private final HttpStatus httpStatus;
-
-    public ExternalServiceException(String message, HttpStatus httpStatus){
-        super(message);
-        this.httpStatus = httpStatus;
-    }
-
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
+public class ExternalServiceException extends ResponseStatusException {
+    public ExternalServiceException(HttpStatusCode statusCode, String message){
+        super(statusCode, message);
     }
 }
