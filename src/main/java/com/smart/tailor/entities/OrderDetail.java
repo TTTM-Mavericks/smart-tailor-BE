@@ -19,14 +19,8 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDetail extends AuditEntity implements Serializable {
-    @Id
-    @Column(name = "order_detail_id", nullable = false, unique = true)
-    @UuidGenerator
-    private UUID orderDetailID;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = false, unique = false)
-    private Order orderID;
+    @EmbeddedId
+    private OrderDetailKey orderDetailKey;
 
     private Integer quantity;
 

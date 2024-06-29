@@ -23,9 +23,13 @@ public class LaborQuantity extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID laborQuantityID;
 
-    private Double laborQuantityMinRange;
+    private Integer laborQuantityMinQuantity;
 
-    private Double laborQuantityMaxRange;
+    private Integer laborQuantityMaxQuantity;
+
+    private Double laborQuantityMinPrice;
+
+    private Double laborQuantityMaxPrice;
 
     private Boolean status;
 }
