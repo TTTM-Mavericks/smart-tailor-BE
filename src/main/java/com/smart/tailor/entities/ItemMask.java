@@ -1,5 +1,9 @@
 package com.smart.tailor.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.smart.tailor.enums.PrintType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +22,7 @@ import java.util.UUID;
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "itemMaskID")
 public class ItemMask extends AuditEntity implements Serializable {
     @Id
     @Column(name = "item_mask_id", unique = true, nullable = false)
@@ -26,10 +31,12 @@ public class ItemMask extends AuditEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "part_of_design_id", referencedColumnName = "part_of_design_id")
+    @JsonBackReference
     private PartOfDesign partOfDesign;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "material_id", referencedColumnName = "material_id")
+    @JsonBackReference
     private Material material;
 
     @Column(name = "item_mask_name")
@@ -57,8 +64,8 @@ public class ItemMask extends AuditEntity implements Serializable {
     private Integer indexZ;
 
     @Lob
-    @Column(name = "image_url", columnDefinition = "TEXT")
-    private String imageUrl;
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private byte[] imageUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "print_type")

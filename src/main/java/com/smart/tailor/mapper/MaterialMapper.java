@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface MaterialMapper {
+    @Mapping(source = "category.createDate", target = "createDate")
+    @Mapping(source = "category.lastModifiedDate", target = "lastModifiedDate")
     @Mapping(source = "category.categoryName", target = "categoryName")
     MaterialResponse mapperToMaterialResponse(Material material);
 }

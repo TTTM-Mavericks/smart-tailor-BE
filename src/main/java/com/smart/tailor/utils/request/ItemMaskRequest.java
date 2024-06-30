@@ -1,5 +1,7 @@
 package com.smart.tailor.utils.request;
 
+import com.smart.tailor.enums.PrintType;
+import com.smart.tailor.validate.ValidEnumValue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +18,10 @@ public class ItemMaskRequest {
     private String itemMaskName;
 
     private String typeOfItem;
+
+    @NotEmpty(message = "materialName is not empty")
+    @NotBlank(message = "materialName is not blank")
+    private String materialName;
 
     @NotNull(message = "isSystemItem is required")
     private Boolean isSystemItem;
@@ -39,7 +45,8 @@ public class ItemMaskRequest {
     @NotBlank(message = "imageUrl is required")
     private String imageUrl;
 
-    @NotEmpty(message = "imageUrl is not empty")
+    @NotEmpty(message = "printType is not empty")
     @NotBlank(message = "printType is required")
+    @ValidEnumValue(name = "printType", enumClass = PrintType.class)
     private String printType;
 }

@@ -1,14 +1,14 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Design;
-import com.smart.tailor.entities.ItemMask;
-import com.smart.tailor.entities.PartOfDesign;
+import com.smart.tailor.entities.*;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ExternalServiceException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.PartOfDesignMapper;
 import com.smart.tailor.repository.PartOfDesignRepository;
 import com.smart.tailor.service.ItemMaskService;
+import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.service.PartOfDesignService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.PartOfDesignRequest;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 public class PartOfDesignServiceImpl implements PartOfDesignService {
     private final PartOfDesignRepository partOfDesignRepository;
     private final ItemMaskService itemMaskService;
+    private final MaterialService materialService;
     private final PartOfDesignMapper partOfDesignMapper;
     private final Logger logger = LoggerFactory.getLogger(PartOfDesignServiceImpl.class);
 
@@ -45,20 +47,38 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
         for(PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList){
 
             String partOfDesignName = Optional.ofNullable(partOfDesignRequest.getPartOfDesignName()).orElse(null);
-            String imageUrl = Optional.ofNullable(partOfDesignRequest.getImageUrl()).orElse(null);
-            String successImageUrl = Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).orElse(null);
+
+            // Check Whether ImageUrl is existed or not. Then Convert It to Base64
+            byte[] base64ImageUrl = null;
+            if(Optional.ofNullable(partOfDesignRequest.getImageUrl()).isPresent()){
+                 base64ImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getImageUrl());
+            }
+
+            // Check Whether SuccessImageUrl is existed or not. Then Convert It to Base64
+            byte[] base64SuccessImageUrl = null;
+            if(Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).isPresent()){
+                base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
+            }
+
+            var material = materialService.findByMaterialName(partOfDesignRequest.getMaterialName())
+                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
 
             var partOfDesign = partOfDesignRepository.save(
                     PartOfDesign
                             .builder()
                             .design(design)
                             .partOfDesignName(partOfDesignName)
-                            .imageUrl(imageUrl)
-                            .successImageUrl(successImageUrl)
+                            .imageUrl(base64ImageUrl)
+                            .successImageUrl(base64SuccessImageUrl)
+                            .material(material)
                             .build()
             );
 
-            var itemMaskResponse = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMaskList());
+            if(Optional.ofNullable(partOfDesignRequest.getItemMask()).isEmpty()){
+                throw new BadRequestException(MessageConstant.ITEM_MASK_LIST_REQUEST_IS_EMPTY);
+            }
+
+            var itemMaskResponse = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMask());
             if(itemMaskResponse.getStatus() != HttpStatus.OK.value()){
                 throw new ExternalServiceException(HttpStatusCode.valueOf(itemMaskResponse.getStatus()), itemMaskResponse.getMessage());
             }

@@ -60,11 +60,13 @@ public class MaterialServiceImpl implements MaterialService {
         }
         else category = categoryOptional.get();
 
-        Optional<Material> materialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName().toLowerCase(), materialRequest.getCategoryName().toLowerCase());
+        Optional<Material> categoryMaterialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName().toLowerCase(), materialRequest.getCategoryName().toLowerCase());
+        Optional<Material> materialOptional = findByMaterialName(materialRequest.getMaterialName().toLowerCase());
 
-        if(materialOptional.isPresent()) {
+        if(materialOptional.isPresent() || categoryMaterialOptional.isPresent()) {
             throw new ItemAlreadyExistException(MessageConstant.MATERIAL_IS_EXISTED);
         }
+
         var material = materialRepository.save(
                 Material
                         .builder()
@@ -246,5 +248,10 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public void generateSampleCategoryMaterialByExportExcel(HttpServletResponse response) throws IOException {
         excelExportService.exportSampleCategoryMaterial(response);
+    }
+
+    @Override
+    public Optional<Material> findByMaterialName(String materialName) {
+        return materialRepository.findByMaterialName(materialName);
     }
 }

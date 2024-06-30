@@ -4,14 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.exception.ExcelFileErrorReadingException;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
-import com.smart.tailor.validate.ValidDataType;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -54,7 +51,7 @@ public class ExpertTailoringController {
     @GetMapping(APIConstant.ExpertTailoringAPI.GET_ALL_EXPERT_TAILORING_BY_EXPERT_TAILORING_NAME + "/{expertTailoringName}")
     public ResponseEntity<ObjectNode> getExpertTailoringByName(@PathVariable("expertTailoringName") String expertTailoringName) {
         ObjectNode response = objectMapper.createObjectNode();
-        var expertTailoring = expertTailoringService.getByExpertTailoringName(expertTailoringName);
+        var expertTailoring = expertTailoringService.getExpertTailoringResponseByExpertTailoringName(expertTailoringName);
         if (expertTailoring != null) {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_EXPERT_TAILORING_BY_NAME_SUCCESSFULLY);

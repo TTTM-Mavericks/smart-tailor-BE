@@ -19,7 +19,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VerificationToken implements Serializable {
     @Id
-    @Column(name = "verification_token_id", unique = true, nullable = false)
+    @Column(name = "verification_token_id")
     @UuidGenerator
     private UUID verificationTokenID;
 

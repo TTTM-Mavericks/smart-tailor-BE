@@ -1,6 +1,5 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidDataType;
 import com.smart.tailor.validate.ValidEmail;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -35,5 +34,5 @@ public class DesignRequest {
     private String color;
 
     @Valid
-    private List<@Valid PartOfDesignRequest> partOfDesignList;
+    private List<@Valid PartOfDesignRequest> partOfDesign;
 }
