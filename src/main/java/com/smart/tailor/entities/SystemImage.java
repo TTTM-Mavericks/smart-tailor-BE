@@ -34,6 +34,6 @@ public class SystemImage {
     @Column(name = "image_type")
     private String imageType;
 
-    @Column(name = "premium")
-    private Boolean premium;
+    @Column(name = "is_premium")
+    private Boolean isPremium;
 }

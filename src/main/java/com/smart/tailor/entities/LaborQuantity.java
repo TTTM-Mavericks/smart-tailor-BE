@@ -10,24 +10,22 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "expert_tailoring")
+@Table(name = "labor_quantity")
 @Data
 @AllArgsConstructor
-@Builder
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ExpertTailoring extends AuditEntity implements Serializable {
+@EntityListeners(AuditingEntityListener.class)
+public class LaborQuantity extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "expert_tailoring_id", unique = true, nullable = false)
+    @Column(name = "labor_quantity_id")
     @UuidGenerator
-    private UUID expertTailoringID;
+    private UUID laborQuantityID;
 
-    @Column(name = "expert_tailoring_name")
-    private String expertTailoringName;
+    private Double laborQuantityMinRange;
 
-    @Column(name = "size_image_url")
-    private String sizeImageUrl;
+    private Double laborQuantityMaxRange;
 
     private Boolean status;
 }
