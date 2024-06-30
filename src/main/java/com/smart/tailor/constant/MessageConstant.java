@@ -229,4 +229,11 @@ public class MessageConstant {
 
     /*    FAIL     */
     public static final String ADD_PART_OF_DESIGN_MATERIAL_FAIL = "Add New Part Of Design Material Fail!";
+
+    /**
+     * DISCOUNT
+     */
+    public static final String ADD_NEW_DISCOUNT_SUCCESSFULLY = "Add New Discount Successfully!";
+    public static final String GET_ALL_DISCOUNT_SUCCESSFULLY = "Get All Discount Successfully!";
+    public static final String GET_ALL_VALID_DISCOUNT_SUCCESSFULLY = "Get All Valid Discount Successfully!";
 }
