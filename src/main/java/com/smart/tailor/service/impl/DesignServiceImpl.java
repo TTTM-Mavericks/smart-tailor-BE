@@ -6,7 +6,7 @@ import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ExternalServiceException;
-import com.smart.tailor.exception.ResourceNotFoundException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignMapper;
 import com.smart.tailor.repository.DesignRepository;
 import com.smart.tailor.service.DesignService;
@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -51,12 +52,12 @@ public class DesignServiceImpl implements DesignService {
         }
 
         var user = userService.getUserDetailByEmail(designRequest.getUserEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
         var expertTailoringResponse = expertTailoringService.getByExpertTailoringName(designRequest.getExpertTailoringName());
 
         if (expertTailoringResponse == null){
-            throw new ResourceNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING);
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING);
         }
 
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
@@ -74,7 +75,7 @@ public class DesignServiceImpl implements DesignService {
 
         APIResponse partOfDesignResponse = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesignList());
         if(partOfDesignResponse.getStatus() != HttpStatus.OK.value()){
-            throw new ExternalServiceException(partOfDesignResponse.getMessage(), HttpStatus.valueOf(partOfDesignResponse.getStatus()));
+            throw new ExternalServiceException(HttpStatusCode.valueOf(partOfDesignResponse.getStatus()), partOfDesignResponse.getMessage());
         }
 
         var partOfDesignList = (List<PartOfDesign>) partOfDesignResponse.getData();
@@ -143,11 +144,11 @@ public class DesignServiceImpl implements DesignService {
 
         var userExisted = userService.getUserByUserID(userID);
         if (userExisted == null) {
-            throw new ResourceNotFoundException(MessageConstant.USER_IS_NOT_FOUND);
+            throw new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND);
         }
 
         if (!userExisted.getRoles().getRoleName().contains(roleName)) {
-            throw new ResourceNotFoundException(MessageConstant.CAN_NOT_FIND_ROLE);
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ROLE);
         }
 
         var designResponse = designRepository
@@ -178,7 +179,7 @@ public class DesignServiceImpl implements DesignService {
     public APIResponse updatePublicStatusDesign(UUID designID) {
         var designExisted = getDesignByID(designID);
         if (designExisted == null) {
-            throw new ResourceNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN);
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN);
         }
 
         designExisted.setPublicStatus(designExisted.getPublicStatus() ? false : true);

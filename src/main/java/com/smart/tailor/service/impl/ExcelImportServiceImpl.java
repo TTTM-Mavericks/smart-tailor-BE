@@ -1,6 +1,9 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.exception.ExcelFileErrorReadingException;
+import com.smart.tailor.exception.ExcelFileNotSupportException;
+import com.smart.tailor.exception.ExcelFileInvalidDataTypeException;
 import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
@@ -47,17 +50,12 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             XSSFSheet sheet = workbook.getSheet("Brand Material");
 
             if (sheet == null) {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
-                        .message(MessageConstant.WRONG_TYPE_OF_BRAND_MATERIAL_EXCEL_FILE)
-                        .data(null)
-                        .build();
+                throw new ExcelFileNotSupportException(MessageConstant.WRONG_TYPE_OF_BRAND_MATERIAL_EXCEL_FILE);
             }
 
             logger.info("Inside getBrandMaterialDataFromExcel Method");
             boolean inValidData = false;
-            List<CellErrorResponse> cellErrorResponses = new ArrayList<>();
+            List<Object> cellErrorResponses = new ArrayList<>();
             int rowIndex = 2;
             while(rowIndex <= sheet.getLastRowNum()){
                 Row row = sheet.getRow(rowIndex);
@@ -132,16 +130,16 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                 break;
                             case 2:
                                 isValid = false;
-                                numericValue = -1;
+                                long longValue = -1;
                                 message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
+                                        longValue = (long) cell.getNumericCellValue();
                                         isValid = true;
                                         break;
                                     case STRING:
                                         try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            longValue = Long.parseLong(cell.getStringCellValue());
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
@@ -149,10 +147,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                         }
                                         break;
                                 }
-                                if(isValid && numericValue >= 0){
-                                    brandMaterialRequest.setHsCode(numericValue);
+                                if(isValid && longValue >= 0){
+                                    brandMaterialRequest.setHsCode(longValue);
                                 }else{
-                                    if(isValid && numericValue < 0){
+                                    if(isValid && longValue < 0){
                                         message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
                                     }
                                     inValidData = true;
@@ -275,12 +273,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 rowIndex++;
             }
             if (inValidData) {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.INVALID_DATA_TYPE)
-                        .data(cellErrorResponses)
-                        .build();
+                throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
             } else {
                 return APIResponse
                         .builder()
@@ -291,12 +284,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             }
         } catch (IOException e) {
             logger.error("Error reading Excel file: {}", e.getMessage());
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message(MessageConstant.ERROR_READING_EXCEL_FILE)
-                    .data(null)
-                    .build();
+            throw new ExcelFileErrorReadingException(MessageConstant.ERROR_READING_EXCEL_FILE);
         }
     }
 
@@ -330,17 +318,12 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             XSSFSheet sheet = workbook.getSheet("Category and Material");
 
             if (sheet == null) {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
-                        .message(MessageConstant.WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE)
-                        .data(null)
-                        .build();
+                throw new ExcelFileNotSupportException(MessageConstant.WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE);
             }
             logger.info("Inside getCategoryMaterialDataFromExcel Method");
 
             boolean inValidData = false;
-            List<CellErrorResponse> cellErrorResponses = new ArrayList<>();
+            List<Object> cellErrorResponses = new ArrayList<>();
 
             int rowIndex = 2;
             while (rowIndex <= sheet.getLastRowNum()) {
@@ -410,16 +393,16 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                 break;
                             case 2:
                                  isValid = false;
-                                 numericValue = -1;
+                                 long longValue = -1;
                                  message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
+                                        longValue = (long) cell.getNumericCellValue();
                                         isValid = true;
                                         break;
                                     case STRING:
                                         try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            longValue = Long.parseLong(cell.getStringCellValue());
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
@@ -427,10 +410,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                                         }
                                         break;
                                 }
-                                if(isValid && numericValue >= 0){
-                                    materialRequest.setHsCode(numericValue);
+                                if(isValid && longValue >= 0){
+                                    materialRequest.setHsCode(longValue);
                                 }else{
-                                    if(isValid && numericValue < 0){
+                                    if(isValid && longValue < 0){
                                         message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
                                     }
                                     inValidData = true;
@@ -518,12 +501,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             }
 
             if (inValidData) {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.INVALID_DATA_TYPE)
-                        .data(cellErrorResponses)
-                        .build();
+                throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
             } else {
                 return APIResponse
                         .builder()
@@ -534,12 +512,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             }
         } catch (IOException e) {
             logger.error("Error reading Excel file: {}", e.getMessage());
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message(MessageConstant.ERROR_READING_EXCEL_FILE)
-                    .data(null)
-                    .build();
+            throw new ExcelFileErrorReadingException(MessageConstant.ERROR_READING_EXCEL_FILE);
         }
     }
 
@@ -571,17 +544,13 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheet("Expert Tailoring");
             if (sheet == null) {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
-                        .message(MessageConstant.WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE)
-                        .data(null)
-                        .build();
+                throw new ExcelFileNotSupportException(MessageConstant.WRONG_TYPE_OF_EXPERT_TAILORING_EXCEL_FILE);
             }
+
             logger.info("Inside getExpertTailoringDataFromExcel Method");
 
             boolean inValidData = false;
-            List<CellErrorResponse> cellErrorResponses = new ArrayList<>();
+            List<Object> cellErrorResponses = new ArrayList<>();
 
             int rowIndex = 2;
             while (rowIndex <= sheet.getLastRowNum()) {
@@ -660,12 +629,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             }
 
             if (inValidData) {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.INVALID_DATA_TYPE)
-                        .data(cellErrorResponses)
-                        .build();
+                throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
             } else {
                 return APIResponse
                         .builder()
@@ -676,12 +640,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             }
         } catch (IOException e) {
             logger.error("Error reading Excel file: {}", e.getMessage());
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message(MessageConstant.ERROR_READING_EXCEL_FILE)
-                    .data(null)
-                    .build();
+            throw new ExcelFileErrorReadingException(MessageConstant.ERROR_READING_EXCEL_FILE);
         }
     }
 

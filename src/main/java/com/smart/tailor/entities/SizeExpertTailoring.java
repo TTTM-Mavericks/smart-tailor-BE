@@ -22,9 +22,9 @@ public class SizeExpertTailoring extends AuditEntity implements Serializable {
     @EmbeddedId
     private SizeExpertTailoringKey sizeExpertTailoringKey;
 
-    private Double minRange;
+    private Double minFabric;
 
-    private Double maxRange;
+    private Double maxFabric;
 
     private Boolean status;
 }

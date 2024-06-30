@@ -32,7 +32,7 @@ public class PartOfDesignController {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponses = partOfDesignService.getListPartOfDesignByDesignID(designID);
         if(partOfDesignResponses.isEmpty()){
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_PART_OF_DESIGN_BY_DESIGN_ID);
         }else{
             response.put("status", HttpStatus.OK.value());
@@ -48,7 +48,7 @@ public class PartOfDesignController {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponses = partOfDesignService.getAllPartOfDesign();
         if(partOfDesignResponses.isEmpty()){
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_PART_OF_DESIGN);
         }else{
             response.put("status", HttpStatus.OK.value());
@@ -63,7 +63,7 @@ public class PartOfDesignController {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponse = partOfDesignService.getPartOfDesignByPartOfDesignID(partOfDesignID);
         if(partOfDesignResponse == null){
-            response.put("status", HttpStatus.OK.value());
+            response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_PART_OF_DESIGN);
         }else{
             response.put("status", HttpStatus.OK.value());

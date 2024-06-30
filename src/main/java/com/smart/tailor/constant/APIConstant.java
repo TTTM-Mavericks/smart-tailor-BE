@@ -104,7 +104,7 @@ public class APIConstant {
     }
 
     /**
-     * Customer API
+     * Expert Tailoring API
      */
     public class ExpertTailoringAPI {
         public static final String EXPERT_TAILORING = APIConstant.API + "/expert-tailoring";

@@ -18,7 +18,7 @@ public class MaterialResponse {
 
     private String categoryName;
 
-    private Double hsCode;
+    private Long hsCode;
 
     private String unit;
 

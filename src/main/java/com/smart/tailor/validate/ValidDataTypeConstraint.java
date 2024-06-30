@@ -12,20 +12,19 @@ public class ValidDataTypeConstraint implements ConstraintValidator<ValidDataTyp
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         if (value == null) {
-            return true; // or false, depending on your validation requirements for null values
+            return true;
         }
 
         if (value instanceof Boolean) {
-            return true; // Boolean values are always valid
+            return true;
         } else if (value instanceof Double) {
-            return true; // Double values are always valid
+            return true;
         } else if (value instanceof Float) {
-            return true; // Float values are always valid
+            return true;
         } else if (value instanceof Integer) {
-            return true; // Integer values are always valid
+            return true;
         }
 
-        // If the value is not of the expected types, return false
         return false;
     }
 }

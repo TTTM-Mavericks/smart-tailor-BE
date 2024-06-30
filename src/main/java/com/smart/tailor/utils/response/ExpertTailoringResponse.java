@@ -7,13 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ExpertTailoringResponse {
-    private String expertTailoringID;
+    private UUID expertTailoringID;
 
     private String expertTailoringName;
 
