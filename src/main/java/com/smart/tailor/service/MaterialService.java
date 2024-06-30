@@ -34,4 +34,6 @@ public interface MaterialService {
     APIResponse updateStatusMaterial(UUID materialID);
 
     void generateSampleCategoryMaterialByExportExcel(HttpServletResponse response) throws IOException;
+
+    Optional<Material> findByMaterialName(String materialName);
 }

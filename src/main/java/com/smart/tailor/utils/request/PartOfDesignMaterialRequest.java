@@ -14,21 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PartOfDesignRequest {
-    @NotNull(message = "PartOfDesignName is not null")
-    @NotBlank(message = "PartOfDesignName is not blank")
-    private String partOfDesignName;
-
-    @NotNull(message = "PartOfDesign imageUrl is not null")
-    @NotBlank(message = "PartOfDesign imageUrl is not blank")
-    private String imageUrl;
-
+public class PartOfDesignMaterialRequest {
     @NotNull(message = "materialName is not null")
     @NotBlank(message = "materialName is not blank")
     private String materialName;
-
-    private String successImageUrl;
-
-    @Valid
-    private List<@Valid ItemMaskRequest> itemMask;
 }

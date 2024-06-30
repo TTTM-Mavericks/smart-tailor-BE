@@ -21,6 +21,8 @@ public class ItemMaskResponse {
 
     private String typeOfItem;
 
+    private MaterialResponse material;
+
     private Boolean isSystemItem;
 
     private Float positionX;

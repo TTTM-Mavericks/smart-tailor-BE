@@ -4,14 +4,22 @@ import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.utils.response.PartOfDesignResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import java.util.Base64;
 
-import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {ItemMaskMapper.class})
 public interface PartOfDesignMapper {
     @Mapping(source = "partOfDesign.partOfDesignID", target = "partOfDesignID")
-    @Mapping(source = "partOfDesign.itemMaskList", target = "itemMaskList")
+    @Mapping(source = "partOfDesign.itemMaskList", target = "itemMask")
+    @Mapping(source = "partOfDesign.material", target = "material")
+    @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getImageUrl()))")
+    @Mapping(target = "successImageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getSuccessImageUrl()))")
     PartOfDesignResponse mapperToPartOfDesignResponse(PartOfDesign partOfDesign);
 
-    List<PartOfDesignResponse> mapperToListPartOfDesignResponse(List<PartOfDesign> partOfDesign);
+    default String decodeByteArrayToString(byte[] values){
+        if(values != null){
+            return new String(Base64.getDecoder().decode(values));
+        }
+        return null;
+    }
 }

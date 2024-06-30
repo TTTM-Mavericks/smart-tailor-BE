@@ -5,9 +5,11 @@ import com.smart.tailor.entities.ItemMask;
 import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.enums.PrintType;
 import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.ItemMaskMapper;
 import com.smart.tailor.repository.ItemMaskRepository;
 import com.smart.tailor.service.ItemMaskService;
+import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ItemMaskRequest;
 import com.smart.tailor.utils.response.APIResponse;
@@ -32,13 +34,14 @@ import java.util.stream.Collectors;
 public class ItemMaskServiceImpl implements ItemMaskService {
     private final ItemMaskRepository itemMaskRepository;
     private final ItemMaskMapper itemMaskMapper;
+    private final MaterialService materialService;
     private final Logger logger = LoggerFactory.getLogger(ItemMaskServiceImpl.class);
 
     @Override
     @Transactional
     public APIResponse createItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList) {
         List<ItemMask> itemMaskList = new ArrayList<>();
-        
+
         for(ItemMaskRequest itemMaskRequest : itemMaskRequestList){
             if(!Utilities.isValidBoolean(itemMaskRequest.getIsSystemItem())){
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isSystemItem");
@@ -64,29 +67,24 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
             }
 
-            if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getImageUrl())){
-                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " imageUrl");
-            }
-
-            if(!Utilities.isStringNotNullOrEmpty(itemMaskRequest.getPrintType())){
-                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType");
-            }
-            PrintType printType = null;
-            try {
-                printType = PrintType.valueOf(itemMaskRequest.getPrintType());
-            }
-            catch (IllegalArgumentException illegalArgumentException){
-                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " PrintType " + itemMaskRequest.getPrintType());
+            // Check Whether ImageUrl is existed or not. Then Convert It to Base64
+            byte[] base64ImageUrl = null;
+            if(Optional.ofNullable(itemMaskRequest.getImageUrl()).isPresent()){
+                base64ImageUrl = Utilities.encodeStringToBase64(itemMaskRequest.getImageUrl());
             }
 
             String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
             String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
+
+            var material = materialService.findByMaterialName(itemMaskRequest.getMaterialName())
+                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED));
 
             var itemMask = itemMaskRepository.save(
                     ItemMask
                             .builder()
                             .partOfDesign(partOfDesign)
                             .itemMaskName(itemMaskName)
+                            .material(material)
                             .typeOfItem(typeOfItem)
                             .isSystemItem(itemMaskRequest.getIsSystemItem())
                             .positionX(itemMaskRequest.getPositionX())
@@ -94,7 +92,8 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                             .scaleX(itemMaskRequest.getScaleX())
                             .scaleY(itemMaskRequest.getScaleY())
                             .indexZ(itemMaskRequest.getIndexZ())
-                            .printType(printType)
+                            .imageUrl(base64ImageUrl)
+                            .printType(PrintType.valueOf(itemMaskRequest.getPrintType()))
                             .build()
             );
 

@@ -28,8 +28,9 @@ public class Design extends AuditEntity implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
 
-    @Column(name = "expert_tailoring_name")
-    private String expertTailoringName;
+    @ManyToOne
+    @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id")
+    private ExpertTailoring expertTailoring;
 
     @Column(name = "title_design")
     private String titleDesign;
@@ -38,11 +39,11 @@ public class Design extends AuditEntity implements Serializable {
     private Boolean publicStatus;
 
     @Lob
-    @Column(name = "image_url", columnDefinition = "TEXT")
-    private String imageUrl;
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private byte[] imageUrl;
 
     @Lob
-    @Column(name = "color", columnDefinition = "TEXT")
+    @Column(name = "color")
     private String color;
 
     @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)

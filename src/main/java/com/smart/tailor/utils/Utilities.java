@@ -2,10 +2,12 @@ package com.smart.tailor.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -138,5 +140,14 @@ public class Utilities {
         BigDecimal bd = new BigDecimal(Double.toString(value));
         bd = bd.setScale(2, RoundingMode.HALF_UP);
         return bd.doubleValue();
+    }
+
+    public static byte[] encodeStringToBase64(String stringToCode){
+        byte[] bytesToEncode = stringToCode.getBytes();
+        return Base64.getEncoder().encode(bytesToEncode);
+    }
+
+    public static String decodeByteArrayToString(byte[] bytes){
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

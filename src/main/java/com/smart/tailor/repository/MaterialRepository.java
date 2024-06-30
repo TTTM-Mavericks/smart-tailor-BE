@@ -12,4 +12,6 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
     Optional<Material> findByMaterialID(UUID materialID);
 
     Optional<Material> findByMaterialNameAndCategory_CategoryName(String materialName, String categoryName);
+
+    Optional<Material> findByMaterialName(String materialName);
 }

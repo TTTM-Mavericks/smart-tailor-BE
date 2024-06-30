@@ -22,7 +22,9 @@ public interface ExpertTailoringService {
 
     List<ExpertTailoringResponse> getAllExpertTailoring();
 
-    ExpertTailoringResponse getByExpertTailoringName(String expertTailoringName);
+    ExpertTailoringResponse getExpertTailoringResponseByExpertTailoringName(String expertTailoringName);
+
+    Optional<ExpertTailoring> getExpertTailoringByExpertTailoringName(String expertTailoringName);
 
     APIResponse createExpertTailoringByExcelFile(MultipartFile file);
 

@@ -13,7 +13,6 @@ import com.smart.tailor.repository.ExpertTailoringRepository;
 import com.smart.tailor.service.ExcelExportService;
 import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.service.ExpertTailoringService;
-import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
@@ -61,7 +60,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     @Override
     @Transactional
     public APIResponse createExpertTailoring(ExpertTailoringRequest expertTailoringRequest) {
-        var expertTailoringExisted = getByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
+        var expertTailoringExisted = getExpertTailoringResponseByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
         if (expertTailoringExisted != null) {
             throw new ItemAlreadyExistException(MessageConstant.EXPERT_TAILORING_IS_EXISTED);
         }
@@ -98,12 +97,17 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     }
 
     @Override
-    public ExpertTailoringResponse getByExpertTailoringName(String expertTailoringName) {
+    public ExpertTailoringResponse getExpertTailoringResponseByExpertTailoringName(String expertTailoringName) {
         var expertTailroingOptional = expertTailoringRepository.findByExpertTailoringName(expertTailoringName);
         if (expertTailroingOptional.isPresent()) {
             return mapperToExpertTailoringResponse(expertTailroingOptional.get());
         }
         return null;
+    }
+
+    @Override
+    public Optional<ExpertTailoring> getExpertTailoringByExpertTailoringName(String expertTailoringName) {
+        return expertTailoringRepository.findByExpertTailoringName(expertTailoringName);
     }
 
     @Override
@@ -197,7 +201,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
             throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING);
         }
 
-        var checkExpertTailoringNameIsExisted = getByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
+        var checkExpertTailoringNameIsExisted = getExpertTailoringResponseByExpertTailoringName(expertTailoringRequest.getExpertTailoringName());
         if(checkExpertTailoringNameIsExisted != null){
             if(!checkExpertTailoringNameIsExisted.getExpertTailoringID().toString().equals(expertTailoring.get().getExpertTailoringID().toString())){
                 throw new ItemAlreadyExistException(MessageConstant.EXPERT_TAILORING_NAME_IS_EXISTED);

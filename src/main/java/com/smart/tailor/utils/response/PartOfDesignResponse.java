@@ -23,7 +23,9 @@ public class PartOfDesignResponse {
 
     private String successImageUrl;
 
-    private List<ItemMaskResponse> itemMaskList;
+    private MaterialResponse material;
+
+    private List<ItemMaskResponse> itemMask;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;

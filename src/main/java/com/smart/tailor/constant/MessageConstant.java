@@ -202,6 +202,7 @@ public class MessageConstant {
 
     /*    FAIL     */
     public static final String ADD_PART_OF_DESIGN_FAIL = "Add New Part Of Design Fail!";
+    public static final String PART_OF_DESIGN_LIST_REQUEST_IS_EMPTY = "Part Of Design List Request is Empty";
     public static final String CAN_NOT_FIND_ANY_PART_OF_DESIGN_BY_DESIGN_ID = "Can Not Find Any Part Of Design By Design ID";
     public static final String CAN_NOT_FIND_ANY_PART_OF_DESIGN = "Can Not Find Any Part Of Design";
 
@@ -216,6 +217,16 @@ public class MessageConstant {
 
     /*    FAIL     */
     public static final String ADD_ITEM_MASK_FAIL = "Add New Part Of Design Fail!";
+    public static final String ITEM_MASK_LIST_REQUEST_IS_EMPTY = "Item Mask List Request is Empty";
     public static final String CAN_NOT_FIND_ANY_ITEM_MASK_BY_PART_OF_DESIGN_ID = "Can Not Find Any Item Mask By Part Of Design ID";
     public static final String CAN_NOT_FIND_ANY_ITEM_MASK = "Can Not Find Any Item Mask";
+
+    /**
+     * PART OF DESIGN MATERIAL
+     */
+    /*    SUCCESS  */
+    public static final String ADD_PART_OF_DESIGN_MATERIAL_SUCCESSFULLY = "Add New Part Of Design Material Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_PART_OF_DESIGN_MATERIAL_FAIL = "Add New Part Of Design Material Fail!";
 }

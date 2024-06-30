@@ -54,11 +54,8 @@ public class DesignServiceImpl implements DesignService {
         var user = userService.getUserDetailByEmail(designRequest.getUserEmail())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
-        var expertTailoringResponse = expertTailoringService.getByExpertTailoringName(designRequest.getExpertTailoringName());
-
-        if (expertTailoringResponse == null){
-            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING);
-        }
+        var expertTailoringResponse = expertTailoringService.getExpertTailoringByExpertTailoringName(designRequest.getExpertTailoringName())
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
 
@@ -66,25 +63,29 @@ public class DesignServiceImpl implements DesignService {
                 Design
                         .builder()
                         .user(user)
-                        .expertTailoringName(designRequest.getExpertTailoringName())
+                        .expertTailoring(expertTailoringResponse)
                         .titleDesign(designRequest.getTitleDesign())
                         .publicStatus(designRequest.getPublicStatus())
                         .color(color)
                         .build()
         );
 
-        APIResponse partOfDesignResponse = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesignList());
+        if(Optional.ofNullable(designRequest.getPartOfDesign()).isEmpty()){
+            throw new BadRequestException(MessageConstant.PART_OF_DESIGN_LIST_REQUEST_IS_EMPTY);
+        }
+
+        APIResponse partOfDesignResponse = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
         if(partOfDesignResponse.getStatus() != HttpStatus.OK.value()){
             throw new ExternalServiceException(HttpStatusCode.valueOf(partOfDesignResponse.getStatus()), partOfDesignResponse.getMessage());
         }
 
         var partOfDesignList = (List<PartOfDesign>) partOfDesignResponse.getData();
 
-        String imageUrl = Optional.ofNullable(designRequest.getPartOfDesignList())
+        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
-                .map(PartOfDesignRequest::getImageUrl)
+                .map(partOfDesign -> partOfDesign.getImageUrl())
                 .findFirst()
                 .orElse(null);
 

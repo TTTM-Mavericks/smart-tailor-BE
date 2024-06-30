@@ -1,6 +1,7 @@
 package com.smart.tailor.utils.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +18,9 @@ import java.util.UUID;
 public class DesignResponse {
     private UUID designID;
 
-    private UserResponse userResponse;
+    private UserResponse user;
 
-    private String expertTailoringName;
+    private ExpertTailoringResponse expertTailoring;
 
     private String titleDesign;
 
@@ -29,7 +30,7 @@ public class DesignResponse {
 
     private String color;
 
-    private List<PartOfDesignResponse> partOfDesignList;
+    private List<PartOfDesignResponse> partOfDesign;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;

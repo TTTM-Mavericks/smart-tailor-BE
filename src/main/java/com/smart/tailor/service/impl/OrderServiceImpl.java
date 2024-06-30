@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": orderType");
         }
 
-        UserResponse userResponse = designResponse.getUserResponse();
+        UserResponse userResponse = designResponse.getUser();
         CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
 
         String address = "";
