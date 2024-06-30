@@ -175,4 +175,14 @@ public class APIConstant {
         public static final String GET_ALL_ITEM_MASK_BY_PART_OF_DESIGN_ID = "/get-all-item-mask-by-part-of-design-id";
         public static final String GET_ALL_ITEM_MASK = "/get-all-item-mask";
     }
+
+    /**
+     * Discount API
+     */
+    public class DiscountAPI {
+        public static final String DISCOUNT = APIConstant.API + "/discount";
+        public static final String ADD_NEW_DISCOUNT = "/add-new-discount";
+        public static final String GET_ALL_DISCOUNT = "/get-all-discount";
+        public static final String GET_ALL_VALID_DISCOUNT = "/get-all-valid_discount";
+    }
 }
