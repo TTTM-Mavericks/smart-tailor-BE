@@ -177,12 +177,35 @@ public class APIConstant {
     }
 
     /**
-     * Discount API
+     * LaborQuantity API
      */
-    public class DiscountAPI {
-        public static final String DISCOUNT = APIConstant.API + "/discount";
-        public static final String ADD_NEW_DISCOUNT = "/add-new-discount";
-        public static final String GET_ALL_DISCOUNT = "/get-all-discount";
-        public static final String GET_ALL_VALID_DISCOUNT = "/get-all-valid_discount";
+    public class LaborQuantityAPI {
+        public static final String LABOR_QUANTITY = APIConstant.API + "/labor-quantity";
+        public static final String ADD_NEW_LABOR_QUANTITY = "/add-new-labor-quantity";
+        public static final String GET_ALL_LABOR_QUANTITY = "/get-all-labor-quantity";
+        public static final String UPDATE_LABOR_QUANTITY = "/update-labor-quantity";
+    }
+
+    /**
+     * BrandLaborQuantity API
+     */
+    public class BrandLaborQuantityAPI {
+        public static final String BRAND_LABOR_QUANTITY = APIConstant.API + "/brand-labor-quantity";
+        public static final String ADD_NEW_BRAND_LABOR_QUANTITY = "/add-new-brand-labor-quantity";
+        public static final String GET_ALL_BRAND_LABOR_QUANTITY = "/get-all-brand-labor-quantity";
+        public static final String GET_ALL_BRAND_LABOR_QUANTITY_BY_BRAND_ID = "/get-all-brand-labor-quantity-by-brand-id";
+        public static final String UPDATE_BRAND_LABOR_QUANTITY = "/update-brand-labor-quantity";
+    }
+
+    /**
+     * User API
+     */
+    public class UserAPI{
+        public static final String USER = APIConstant.API + "/user";
+        public static final String GET_ALL_CUSTOMER = "/get-all-customer";
+        public static final String GET_ALL_BRAND = "/get-all-brand";
+        public static final String GET_ALL_EMPLOYEE = "/get-all-employee";
+        public static final String GET_ALL_ACCOUNTANT = "/get-all-accountant";
+        public static final String GET_ALL_MANAGER = "/get-all-manager";
     }
 }

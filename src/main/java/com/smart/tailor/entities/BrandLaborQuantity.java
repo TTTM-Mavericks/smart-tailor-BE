@@ -1,9 +1,6 @@
 package com.smart.tailor.entities;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,7 +19,15 @@ public class BrandLaborQuantity extends AuditEntity implements Serializable {
     @EmbeddedId
     private BrandLaborQuantityKey brandLaborQuantityKey;
 
-    private Double laborCostPerQuantity;
+    @ManyToOne
+    @JoinColumn(name = "labor_quantity_id", referencedColumnName = "labor_quantity_id", nullable = false, insertable = false, updatable = false)
+    private LaborQuantity laborQuantity;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
+    private Brand brand;
+
+    private Double brandLaborCostPerQuantity;
 
     private Boolean status;
 }

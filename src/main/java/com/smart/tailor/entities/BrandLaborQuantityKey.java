@@ -20,14 +20,6 @@ public class BrandLaborQuantityKey implements Serializable {
     @Column(name = "labor_quantity_id", nullable = false)
     private UUID laborQuantityID;
 
-    @ManyToOne
-    @JoinColumn(name = "labor_quantity_id", referencedColumnName = "labor_quantity_id", nullable = false, insertable = false, updatable = false)
-    private LaborQuantity laborQuantity;
-
     @Column(name = "brand_id", nullable = false)
     private UUID brandID;
-
-    @ManyToOne
-    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
-    private Brand brand;
 }

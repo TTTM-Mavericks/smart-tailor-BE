@@ -49,7 +49,6 @@ public class MessageConstant {
     public static final String ACCEPT_BRAND_FAILED = "Accept Brand Fail!";
     public static final String REJECT_BRAND_FAILED = "Reject Brand Fail!";
 
-
     /**
      * AUTHENTICATION
      */
@@ -222,18 +221,48 @@ public class MessageConstant {
     public static final String CAN_NOT_FIND_ANY_ITEM_MASK = "Can Not Find Any Item Mask";
 
     /**
-     * PART OF DESIGN MATERIAL
+     * LABOR QUANTITY
      */
     /*    SUCCESS  */
-    public static final String ADD_PART_OF_DESIGN_MATERIAL_SUCCESSFULLY = "Add New Part Of Design Material Successfully!";
+    public static final String ADD_LABOR_QUANTITY_SUCCESSFULLY = "Add New Labor Quantity Successfully!";
+    public static final String GET_ALL_LABOR_QUANTITY_SUCCESSFULLY = "Get All Labor Quantity Successfully!";
+    public static final String UPDATE_LABOR_QUANTITY_SUCCESSFULLY = "Update Labor Quantity Successfully!";
 
     /*    FAIL     */
-    public static final String ADD_PART_OF_DESIGN_MATERIAL_FAIL = "Add New Part Of Design Material Fail!";
+    public static final String ADD_LABOR_QUANTITY_FAIL = "Add New Part Of Design Fail!";
+    public static final String LABOR_QUANTITY_IS_EXISTED = "Labor Quantity is Existed";
+    public static final String CAN_NOT_FIND_ANY_LABOR_QUANTITY = "Can Not Find Any Labor Quantity";
 
     /**
-     * DISCOUNT
+     * BRAND LABOR QUANTITY
      */
-    public static final String ADD_NEW_DISCOUNT_SUCCESSFULLY = "Add New Discount Successfully!";
-    public static final String GET_ALL_DISCOUNT_SUCCESSFULLY = "Get All Discount Successfully!";
-    public static final String GET_ALL_VALID_DISCOUNT_SUCCESSFULLY = "Get All Valid Discount Successfully!";
+    /*    SUCCESS  */
+    public static final String ADD_BRAND_LABOR_QUANTITY_SUCCESSFULLY = "Add New Brand Labor Quantity Successfully!";
+    public static final String GET_ALL_BRAND_LABOR_QUANTITY_SUCCESSFULLY = "Get All Brand Labor Quantity Successfully!";
+    public static final String GET_BRAND_LABOR_QUANTITY_BY_BRAND_ID_SUCCESSFULLY = "Get Brand Labor Quantity By Brand ID Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_BRAND_LABOR_QUANTITY_FAIL = "Add New Part Of Design Fail!";
+    public static final String BRAND_LABOR_QUANTITY_IS_EXISTED = "Brand Labor Quantity is Existed";
+    public static final String BRAND_LABOR_QUANTITY_LIST_REQUEST_IS_EMPTY = "Brand Labor Quantity List Request is Empty";
+    public static final String CAN_NOT_FIND_ANY_BRAND_LABOR_QUANTITY_BY_BRAND_ID = "Can Not Find Any Brand Labor Quantity By Brand ID";
+
+    /**
+     * USER
+     */
+    /*    SUCCESS  */
+    public static final String GET_ALL_CUSTOMER_SUCCESSFULLY = "Get All Customer Successfully";
+    public static final String GET_ALL_BRAND_SUCCESSFULLY = "Get All Brand Successfully";
+    public static final String GET_ALL_ACCOUNTANT_SUCCESSFULLY = "Get All Accountant Successfully";
+    public static final String GET_ALL_EMPLOYEE_SUCCESSFULLY = "Get All Employee Successfully";
+    public static final String GET_ALL_MANAGER_SUCCESSFULLY = "Get All Manager Successfully";
+
+    /*    FAIL     */
+    public static final String CAN_NOT_FIND_ANY_CUSTOMER = "Can not find any customer";
+    public static final String CAN_NOT_FIND_ANY_BRAND = "Can not find any brand";
+    public static final String CAN_NOT_FIND_ANY_ACCOUNTANT = "Can not find any accountant";
+    public static final String CAN_NOT_FIND_ANY_EMPLOYEE = "Can not find any employee";
+    public static final String CAN_NOT_FIND_ANY_MANAGER = "Can not find any manager";
+
+
 }

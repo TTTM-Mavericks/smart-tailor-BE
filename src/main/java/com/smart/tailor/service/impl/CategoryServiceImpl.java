@@ -2,6 +2,9 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Category;
+import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.exception.ItemAlreadyExistException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.CategoryMapper;
 import com.smart.tailor.repository.CategoryRepository;
 import com.smart.tailor.service.CategoryService;
@@ -39,35 +42,26 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public APIResponse createCategory(String categoryName) {
         if(!Utilities.isStringNotNullOrEmpty(categoryName)){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
+            throw new BadRequestException(MessageConstant.DATA_IS_EMPTY + " : categoryName");
         }
-        Optional<Category> categoryOptional = findByCategoryName(categoryName.toLowerCase());
-        if(categoryOptional.isEmpty()) {
-            var category = categoryRepository.save(
-                    Category
-                            .builder()
-                            .categoryName(categoryName.toLowerCase())
-                            .build()
-            );
 
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.OK.value())
-                    .message(MessageConstant.ADD_NEW_CATEGORY_SUCCESSFULLY)
-                    .data(categoryMapper.mapperToCategoryResponse(category))
-                    .build();
+        Optional<Category> categoryOptional = findByCategoryName(categoryName.toLowerCase());
+        if(categoryOptional.isPresent()) {
+            throw new ItemAlreadyExistException(MessageConstant.CATEGORY_IS_EXISTED);
         }
+        var category = categoryRepository.save(
+                Category
+                        .builder()
+                        .categoryName(categoryName.toLowerCase())
+                        .build()
+        );
 
         return APIResponse
                 .builder()
-                .status(HttpStatus.CONFLICT.value())
-                .message(MessageConstant.CATEGORY_IS_EXISTED)
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.ADD_NEW_CATEGORY_SUCCESSFULLY)
+                .data(categoryMapper.mapperToCategoryResponse(category))
                 .build();
-
     }
 
     @Override
@@ -80,63 +74,27 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public APIResponse findCategoryByID(UUID categoryID) {
-        if(!Utilities.isValidUUIDType(categoryID)){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
-        }
+    public CategoryResponse findCategoryByID(UUID categoryID) {
         var categoryOptional = categoryRepository.findByCategoryID(categoryID);
         if(categoryOptional.isPresent()){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.OK.value())
-                    .message(MessageConstant.GET_CATEGORY_BY_ID_SUCCESSFULLY)
-                    .data(categoryMapper.mapperToCategoryResponse(categoryOptional.get()))
-                    .build();
+            return categoryMapper.mapperToCategoryResponse(categoryOptional.get());
         }
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY)
-                .build();
+        return null;
     }
 
     @Override
     @Transactional
     public APIResponse updateCategory(CategoryRequest categoryRequest) {
-        if(
-                !Utilities.isValidUUIDType(categoryRequest.getCategoryID()) ||
-                !Utilities.isStringNotNullOrEmpty(categoryRequest.getCategoryName())
-        ){
-            return APIResponse
-                    .builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(MessageConstant.DATA_IS_EMPTY)
-                    .build();
-        }
-
         // Check Category ID is Existed or not
-        var categoryResponse = findCategoryByID(categoryRequest.getCategoryID());
-
-        if(!categoryResponse.getMessage().equals(MessageConstant.GET_CATEGORY_BY_ID_SUCCESSFULLY)){
-            return categoryResponse;
-        }
-
-        var categoryExisted = (CategoryResponse) categoryResponse.getData();
+        var categoryResponse = categoryRepository.findByCategoryID(UUID.fromString(categoryRequest.getCategoryID()))
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
 
         // Check Category Name is Existed or not
         var categoryNameExisted = findByCategoryName(categoryRequest.getCategoryName());
 
         if(categoryNameExisted.isPresent()){
-            if(!categoryNameExisted.get().getCategoryName().equals(((CategoryResponse) categoryResponse.getData()).getCategoryName())){
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.CONFLICT.value())
-                        .message(MessageConstant.CATEGORY_NAME_IS_EXISTED)
-                        .build();
+            if(!categoryNameExisted.get().getCategoryID().toString().equals((categoryResponse.getCategoryID().toString()))){
+                throw new ItemAlreadyExistException(MessageConstant.CATEGORY_IS_EXISTED);
             }
         }
 
@@ -144,7 +102,7 @@ public class CategoryServiceImpl implements CategoryService {
         var updateCategory = categoryRepository.save(
                 Category
                     .builder()
-                    .categoryID(categoryExisted.getCategoryID())
+                    .categoryID(categoryResponse.getCategoryID())
                     .categoryName(categoryRequest.getCategoryName())
                     .build()
         );

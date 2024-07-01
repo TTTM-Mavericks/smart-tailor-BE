@@ -188,4 +188,9 @@ public class BrandServiceImpl implements BrandService {
             throw ex;
         }
     }
+
+    @Override
+    public Optional<Brand> findBrandById(UUID brandID) {
+        return brandRepository.findById(brandID);
+    }
 }
