@@ -23,7 +23,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final BrandService brandService;
     private final DesignService designService;
-    private final DiscountService discountService;
     private final CustomerService customerService;
 
     @Override
@@ -83,11 +82,7 @@ public class OrderServiceImpl implements OrderService {
             buyerName = customerResponse.getFullName();
         }
         Order order = Order.builder()
-                .parentOrderID(parentOrderID)
-                .designID(designID)
-                .brandID(brandID)
                 .quantity(quantity)
-                .discountID(discountID)
                 .address(address)
                 .province(province)
                 .district(district)
