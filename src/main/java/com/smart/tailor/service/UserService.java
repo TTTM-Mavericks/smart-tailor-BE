@@ -2,6 +2,7 @@ package com.smart.tailor.service;
 
 
 import com.smart.tailor.entities.User;
+import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
@@ -30,4 +31,6 @@ public interface UserService {
     User updateUserProfile(UserRequest userRequest);
 
     User getUserByUserID(UUID uuid);
+
+    List<UserResponse> findAllUserByRoleName(RoleType roleType);
 }

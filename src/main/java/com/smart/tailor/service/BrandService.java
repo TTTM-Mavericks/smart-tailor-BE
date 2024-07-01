@@ -24,4 +24,6 @@ public interface BrandService {
     Brand getBrandByEmail(String email) throws Exception;
 
     Brand updateBrand(Brand brand) throws Exception;
+
+    Optional<Brand> findBrandById(UUID brandID);
 }
