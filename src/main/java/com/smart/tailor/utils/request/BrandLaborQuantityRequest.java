@@ -1,5 +1,6 @@
 package com.smart.tailor.utils.request;
 
+import com.smart.tailor.validate.ValidStringUUID;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -15,10 +16,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class BrandLaborQuantityRequest {
-    @ValidUUID(message = "laborQuantityID is not type of UUID")
-    private UUID laborQuantityID;
+    @ValidStringUUID(message = "laborQuantityID is not type of UUID")
+    private String laborQuantityID;
 
-    @NotNull(message = "laborCostPerQuantity is required")
-    @Min(value = 0, message = "laborCostPerQuantity can not less than 0")
-    private Double laborCostPerQuantity;
+    @NotNull(message = "brandLaborCostPerQuantity is required")
+    @Min(value = 0, message = "brandLaborCostPerQuantity can not less than 0")
+    private Double brandLaborCostPerQuantity;
 }

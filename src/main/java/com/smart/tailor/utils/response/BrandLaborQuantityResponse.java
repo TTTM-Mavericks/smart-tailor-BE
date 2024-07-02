@@ -7,19 +7,30 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class BrandLaborQuantityResponse {
-    private LaborQuantityResponse laborQuantityResponse;
+    private UUID laborQuantityID;
+
+    private Integer laborQuantityMinQuantity;
+
+    private Integer laborQuantityMaxQuantity;
+
+    private Double laborQuantityMinPrice;
+
+    private Double laborQuantityMaxPrice;
+
+    private Boolean laborQuantityStatus;
 
     private Double laborCostPerQuantity;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createDate;
+    private Boolean brandLaborQuantityStatus;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime lastModifiedDate;
+    private String createDate;
+
+    private String lastModifiedDate;
 }

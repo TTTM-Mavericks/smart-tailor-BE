@@ -5,6 +5,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -115,5 +117,15 @@ public class UserServiceImpl implements UserService {
     public User getUserByUserID(UUID uuid) {
         if(!Utilities.isValidUUIDType(uuid)) return null;
         return userRepository.findById(uuid).orElse(null);
+    }
+
+    @Override
+    public List<UserResponse> findAllUserByRoleName(RoleType roleType) {
+        return userRepository
+                .findAll()
+                .stream()
+                .filter(user -> user.getRoles().getRoleName().equals(roleType.name()))
+                .map(userMapper::mapperToUserResponse)
+                .collect(Collectors.toList());
     }
 }

@@ -64,7 +64,7 @@ public class BadRequestExceptionHander {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("message", MessageConstant.INVALID_INPUT);
-        response.put("error", error);
+        response.put("errors", error);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
