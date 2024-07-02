@@ -244,7 +244,7 @@ public class MessageConstant {
     /*    FAIL     */
     public static final String ADD_BRAND_LABOR_QUANTITY_FAIL = "Add New Part Of Design Fail!";
     public static final String BRAND_LABOR_QUANTITY_IS_EXISTED = "Brand Labor Quantity is Existed";
-    public static final String BRAND_LABOR_QUANTITY_LIST_REQUEST_IS_EMPTY = "Brand Labor Quantity List Request is Empty";
+    public static final String CAN_NOT_FIND_ANY_BRAND_LABOR_QUANTITY = "Can Not Find Any Brand Labor Quantity";
     public static final String CAN_NOT_FIND_ANY_BRAND_LABOR_QUANTITY_BY_BRAND_ID = "Can Not Find Any Brand Labor Quantity By Brand ID";
 
     /**

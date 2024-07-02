@@ -1,6 +1,7 @@
 package com.smart.tailor.service;
 
 import com.smart.tailor.utils.request.BrandLaborQuantityListRequest;
+import com.smart.tailor.utils.request.BrandLaborQuantityRequest;
 import com.smart.tailor.utils.response.BrandLaborQuantityResponse;
 
 import java.util.List;
@@ -11,5 +12,5 @@ public interface BrandLaborQuantityService {
 
     List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(UUID brandID);
 
-    void updateBrandLaborQuantity(UUID brandID, BrandLaborQuantityListRequest brandLaborQuantityListRequest);
+    void updateBrandLaborQuantity(UUID brandID, BrandLaborQuantityRequest brandLaborQuantityListRequest);
 }

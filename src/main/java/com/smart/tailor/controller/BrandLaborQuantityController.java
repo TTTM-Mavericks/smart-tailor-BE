@@ -7,6 +7,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.BrandLaborQuantityService;
 import com.smart.tailor.service.LaborQuantityService;
 import com.smart.tailor.utils.request.BrandLaborQuantityListRequest;
+import com.smart.tailor.utils.request.BrandLaborQuantityRequest;
 import com.smart.tailor.utils.request.LaborQuantityRequest;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
@@ -57,14 +58,14 @@ public class BrandLaborQuantityController {
         return ResponseEntity.ok(response);
     }
 
-//    @PutMapping(APIConstant.BrandLaborQuantityAPI.UPDATE_LABOR_QUANTITY + "/{laborQuantityID}")
-//    public ResponseEntity<ObjectNode> updateLaborQuantity(@ValidUUID @PathVariable("laborQuantityID") UUID laborQuantityID,
-//                                                          @Valid @RequestBody LaborQuantityRequest laborQuantityRequest) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        ObjectNode response = objectMapper.createObjectNode();
-//        laborQuantityService.updateLaborQuantity(laborQuantityID, laborQuantityRequest);
-//        response.put("status", HttpStatus.OK.value());
-//        response.put("message", MessageConstant.UPDATE_LABOR_QUANTITY_SUCCESSFULLY);
-//        return ResponseEntity.ok(response);
-//    }
+    @PutMapping(APIConstant.BrandLaborQuantityAPI.UPDATE_BRAND_LABOR_QUANTITY + "/{brandID}")
+    public ResponseEntity<ObjectNode> updateLaborQuantity(@ValidUUID @PathVariable("brandID") UUID brandID,
+                                                          @Valid @RequestBody BrandLaborQuantityRequest brandLaborQuantityRequest) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        brandLaborQuantityService.updateBrandLaborQuantity(brandID, brandLaborQuantityRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.UPDATE_LABOR_QUANTITY_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
 }

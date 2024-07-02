@@ -3,10 +3,7 @@ package com.smart.tailor.exception.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.exception.BadRequestException;
-import com.smart.tailor.exception.ExternalServiceException;
-import com.smart.tailor.exception.ItemAlreadyExistException;
-import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -86,5 +83,14 @@ public class GlobalExceptionHandler {
         response.put("message", "Malformed JSON request");
         response.put("errors", ex.getLocalizedMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(DuplicateDataException.class)
+    public ResponseEntity<ObjectNode> handleDuplicateDataException(DuplicateDataException ex) {
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("message", ex.getMessage());
+        response.set("errors", objectMapper.valueToTree(ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }
