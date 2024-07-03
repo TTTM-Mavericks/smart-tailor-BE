@@ -1,0 +1,22 @@
+package com.smart.tailor.utils.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class DesignDetailResponse {
+    private UUID designDetailId;
+    private DesignResponse design;
+    private OrderResponse order;
+    private BrandResponse brand;
+    private Integer quantity;
+    private String size;
+    private Boolean detailStatus;
+}

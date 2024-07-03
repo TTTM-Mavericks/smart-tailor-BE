@@ -25,15 +25,15 @@ public class DesignDetail extends AuditEntity implements Serializable {
     private UUID designDetailID;
 
     @ManyToOne
-    @JoinColumn(name = "design_id", referencedColumnName = "design_id")
+    @JoinColumn(name = "design_id", referencedColumnName = "design_id", unique = false, nullable = false)
     private Design design;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
+    @JoinColumn(name = "order_id", referencedColumnName = "order_id", unique = false, nullable = true)
     private Order order;
 
     @ManyToOne
-    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id")
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", unique = false, nullable = true)
     private Brand brand;
 
     private Integer quantity;

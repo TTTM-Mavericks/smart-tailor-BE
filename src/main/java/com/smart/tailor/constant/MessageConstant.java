@@ -287,4 +287,23 @@ public class MessageConstant {
     public static final String ADD_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE_FAIL = "Add New Size Expert Tailoring By Excel File Fail!";
     public static final String SIZE_EXPERT_TAILORING_IS_EXISTED = "Size Expert Tailoring is Existed";
     public static final String CAN_NOT_FIND_ANY_SIZE_EXPERT_TAILORING = "Can Not Find Any Size Expert Tailoring";
+
+    /**
+     * DESIGN DETAIL
+     */
+    /*    SUCCESS  */
+    public static final String ADD_NEW_DESIGN_DETAIL_SUCCESSFULLY = "Add New Design Detail Successfully!";
+    public static final String GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID_SUCCESSFULLY = "Get All Design Detail By Design ID Successfully!";
+    public static final String GET_ALL_DESIGN_DETAIL_SUCCESSFULLY = "Get All Design Detail Successfully!";
+    public static final String GET_DESIGN_DETAIL_BY_ID_SUCCESSFULLY = "Get Design Detail By ID Successfully!";
+    public static final String GET_ALL_DESIGN_DETAIL_BY_CUSTOMER_ID_SUCCESSFULLY = "Get All Design Detail By Customer ID Successfully!";
+    public static final String GET_ALL_DESIGN_DETAIL_BY_BRAND_ID_SUCCESSFULLY = "Get All Design Detail By Brand ID Successfully!";
+    public static final String UPDATE_DESIGN_DETAIL_PUBLIC_STATUS_SUCCESSFULLY = "Update Public Status Successfully";
+
+    /*    FAIL     */
+    public static final String ADD_NEW_DESIGN_DETAIL_FAIL = "Add New Design Detail Fail!";
+    public static final String GET_ALL_DESIGN_DETAIL_FAIL = "Get All Design Detail Fail!";
+    public static final String CAN_NOT_FIND_ANY_DESIGN_DETAIL_BY_USER_ID = "Can Not Find Any Design Detail By User ID";
+    public static final String CAN_NOT_FIND_ANY_DESIGN_DETAIL = "Can Not Find Any Design Detail";
+    public static final String UPDATE_DESIGN_DETAIL_PUBLIC_STATUS_FAIL = "Update Public Status Fail";
 }
