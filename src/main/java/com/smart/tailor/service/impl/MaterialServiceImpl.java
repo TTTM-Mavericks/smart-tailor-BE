@@ -1,12 +1,8 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Category;
 import com.smart.tailor.entities.Material;
-import com.smart.tailor.exception.ExcelFileDuplicateDataException;
-import com.smart.tailor.exception.ExcelFileInvalidFormatException;
-import com.smart.tailor.exception.ItemAlreadyExistException;
-import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.MaterialMapper;
 import com.smart.tailor.repository.MaterialRepository;
 import com.smart.tailor.service.CategoryService;
@@ -15,8 +11,8 @@ import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.MaterialRequest;
-import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.CategoryResponse;
+import com.smart.tailor.utils.response.ErrorData;
 import com.smart.tailor.utils.response.MaterialResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -24,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,15 +45,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     @Transactional
-    public APIResponse createMaterial(MaterialRequest materialRequest) {
-        Optional<Category> categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase());
-
-        Category category = null;
-        if(categoryOptional.isEmpty()){
-            var categoryResponse = categoryService.createCategory(materialRequest.getCategoryName());
-            category = categoryService.mapperToCategory((CategoryResponse) categoryResponse.getData());
-        }
-        else category = categoryOptional.get();
+    public void createMaterial(MaterialRequest materialRequest) {
+        var category = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase())
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
 
         Optional<Material> categoryMaterialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName().toLowerCase(), materialRequest.getCategoryName().toLowerCase());
         Optional<Material> materialOptional = findByMaterialName(materialRequest.getMaterialName().toLowerCase());
@@ -67,7 +56,7 @@ public class MaterialServiceImpl implements MaterialService {
             throw new ItemAlreadyExistException(MessageConstant.MATERIAL_IS_EXISTED);
         }
 
-        var material = materialRepository.save(
+        materialRepository.save(
                 Material
                         .builder()
                         .materialName(materialRequest.getMaterialName().toLowerCase())
@@ -78,32 +67,19 @@ public class MaterialServiceImpl implements MaterialService {
                         .status(true)
                         .build()
         );
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.ADD_NEW_MATERIAL_SUCCESSFULLY)
-                .data(materialMapper.mapperToMaterialResponse(material))
-                .build();
     }
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
-    public APIResponse createMaterialByExcelFile(MultipartFile file) {
+    @Transactional
+    public void createMaterialByExcelFile(MultipartFile file) {
         if (!excelImportService.isValidExcelFile(file)) {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
-            var apiResponse = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
-
-            var excelData = (List<MaterialRequest>) apiResponse.getData();
+            var excelData = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
 
             if(excelData.isEmpty()){
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.CATEGORY_AND_MATERIAL_EXCEL_FILE_HAS_EMPTY_DATA)
-                        .data(null)
-                        .build();
+                throw new BadRequestException("Category and Material Excel File Has Empty Data");
             }
 
             Set<MaterialRequest> excelNames = new HashSet<>();
@@ -122,25 +98,27 @@ public class MaterialServiceImpl implements MaterialService {
                 throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
             }
 
-            List<MaterialRequest> validData = new ArrayList<>();
             List<Object> invalidData = new ArrayList<>();
             for(MaterialRequest materialRequest : uniqueExcelData){
                 try{
                     createMaterial(materialRequest);
-                    validData.add(materialRequest);
-                } catch (ItemAlreadyExistException ex){
-                    invalidData.add(materialRequest);
+                } catch (ItemNotFoundException ex) {
+                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_CATEGORY;
+                    logger.error("Error creating Material: Item not found - {}", errorMessage, ex);
+                    invalidData.add(new ErrorData(materialRequest, errorMessage));
+                }
+                catch (ItemAlreadyExistException ex){
+                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.MATERIAL_IS_EXISTED;
+                    logger.error("Error creating Material: Already exists - {}", errorMessage, ex);
+                    invalidData.add(new ErrorData(materialRequest, errorMessage));
+                } catch (Exception ex) {
+                    logger.error("Error creating Material - {}", ex.getMessage());
+                    invalidData.add(new ErrorData(materialRequest, ex.getMessage()));
                 }
             }
 
-            if (invalidData.isEmpty()) {
-                return APIResponse.builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.ADD_NEW_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY)
-                        .data(validData)
-                        .build();
-            } else {
-                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE, invalidData);
+            if(!invalidData.isEmpty()){
+                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
@@ -196,58 +174,45 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public APIResponse updateMaterial(UUID materialID, MaterialRequest materialRequest) {
-        var material = findByMaterialID(materialID);
-        if(material == null){
-            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL);
-        }
+    public void updateMaterial(UUID materialID, MaterialRequest materialRequest) {
+        var material = materialRepository.findById(materialID)
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
 
-        Optional<Category> categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase());
-        if(categoryOptional.isEmpty()){
-            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY);
-        }
+        var categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase())
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
 
-        var updateMaterial = materialRepository.save(
+        materialRepository.save(
                 Material
                         .builder()
                         .materialID(materialID)
                         .materialName(materialRequest.getMaterialName().toLowerCase())
-                        .category(categoryOptional.get())
+                        .category(categoryOptional)
                         .hsCode(materialRequest.getHsCode())
                         .unit(materialRequest.getUnit())
                         .basePrice(materialRequest.getBasePrice())
                         .status(material.getStatus())
                         .build()
         );
-
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.UPDATE_MATERIAL_SUCCESSFULLY)
-                .data(materialMapper.mapperToMaterialResponse(updateMaterial))
-                .build();
     }
 
     @Override
-    public APIResponse updateStatusMaterial(UUID materialID) {
-        var material = materialRepository.findByMaterialID(materialID);
-        if(material.isEmpty()){
-            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL);
-        }
+    public void updateStatusMaterial(UUID materialID) {
+        var material = materialRepository.findByMaterialID(materialID)
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
 
-        material.get().setStatus(!material.get().getStatus());
-
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.UPDATE_MATERIAL_SUCCESSFULLY)
-                .data(materialMapper.mapperToMaterialResponse(materialRepository.save(material.get())))
-                .build();
+        material.setStatus(!material.getStatus());
+        materialRepository.save(material);
     }
 
     @Override
     public void generateSampleCategoryMaterialByExportExcel(HttpServletResponse response) throws IOException {
-        excelExportService.exportSampleCategoryMaterial(response);
+        String[] categoryNames = categoryService
+                .findAllCatgories()
+                .stream()
+                .map(CategoryResponse::getCategoryName)
+                .toList().toArray(String[]::new);
+
+        excelExportService.exportSampleCategoryMaterial(response, categoryNames);
     }
 
     @Override

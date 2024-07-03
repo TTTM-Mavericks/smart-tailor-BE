@@ -66,10 +66,9 @@ public class ExpertTailoringController {
     @PostMapping(APIConstant.ExpertTailoringAPI.ADD_NEW_EXPERT_TAILORING)
     public ResponseEntity<ObjectNode> addNewExpertTailoring(@Valid @RequestBody ExpertTailoringRequest expertTailoringRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = expertTailoringService.createExpertTailoring(expertTailoringRequest);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        expertTailoringService.createExpertTailoring(expertTailoringRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_EXPERT_TAILORING_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -77,10 +76,9 @@ public class ExpertTailoringController {
     @PostMapping(APIConstant.ExpertTailoringAPI.ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE)
     public ResponseEntity<ObjectNode> addNewExpertTailoringByExcelFile(@RequestParam("file") MultipartFile file) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = expertTailoringService.createExpertTailoringByExcelFile(file);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        expertTailoringService.createExpertTailoringByExcelFile(file);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -141,10 +139,9 @@ public class ExpertTailoringController {
     @PutMapping(APIConstant.ExpertTailoringAPI.UPDATE_STATUS_EXPERT_TAILORING + "/{expertTailoringID}")
     public ResponseEntity<ObjectNode> changeStatusExpertTailoring(@ValidUUID @PathVariable("expertTailoringID") UUID expertTailoringID) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = expertTailoringService.updateStatusExpertTailoring(expertTailoringID);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        expertTailoringService.updateStatusExpertTailoring(expertTailoringID);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.CHANGE_STATUS_EXPERT_TAILORING_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -152,10 +149,9 @@ public class ExpertTailoringController {
     public ResponseEntity<ObjectNode> updateExpertTailoring(@ValidUUID @PathVariable("expertTailoringID") UUID expertTailoringID,
                                                      @Valid @RequestBody ExpertTailoringRequest expertTailoringRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = expertTailoringService.updateExpertTailoring(expertTailoringID, expertTailoringRequest);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        expertTailoringService.updateExpertTailoring(expertTailoringID, expertTailoringRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.UPDATE_EXPERT_TAILORING_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 }

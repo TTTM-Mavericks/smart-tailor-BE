@@ -3,7 +3,6 @@ package com.smart.tailor.service;
 import com.smart.tailor.config.CustomExeption;
 import com.smart.tailor.entities.ExpertTailoring;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
-import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +15,7 @@ import java.util.UUID;
 public interface ExpertTailoringService {
     Optional<ExpertTailoring> getExpertTailoringByID(UUID expectID) throws CustomExeption;
 
-    APIResponse createExpertTailoring(ExpertTailoringRequest expertTailoringRequest);
+    void createExpertTailoring(ExpertTailoringRequest expertTailoringRequest);
 
     ExpertTailoringResponse mapperToExpertTailoringResponse(ExpertTailoring expertTailoring);
 
@@ -26,7 +25,7 @@ public interface ExpertTailoringService {
 
     Optional<ExpertTailoring> getExpertTailoringByExpertTailoringName(String expertTailoringName);
 
-    APIResponse createExpertTailoringByExcelFile(MultipartFile file);
+    void createExpertTailoringByExcelFile(MultipartFile file);
 
     List<ExpertTailoringResponse> getAllExpertTailoringByExportExcelData(HttpServletResponse response) throws IOException;
 
@@ -34,7 +33,7 @@ public interface ExpertTailoringService {
 
     ExpertTailoringResponse findByExpertTailoringID(UUID expertTailoringID);
 
-    APIResponse updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest);
+    void updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest);
 
-    APIResponse updateStatusExpertTailoring(UUID expertTailoringID);
+    void updateStatusExpertTailoring(UUID expertTailoringID);
 }

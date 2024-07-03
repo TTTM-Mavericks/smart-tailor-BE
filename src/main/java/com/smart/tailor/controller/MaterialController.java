@@ -87,10 +87,9 @@ public class MaterialController {
     @PutMapping(APIConstant.MaterialAPI.UPDATE_STATUS_MATERIAL + "/{materialID}")
     public ResponseEntity<ObjectNode> changeStatusMaterial(@ValidUUID @PathVariable("materialID") UUID materialID) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = materialService.updateStatusMaterial(materialID);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        materialService.updateStatusMaterial(materialID);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.CHANGE_STATUS_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -98,38 +97,34 @@ public class MaterialController {
     public ResponseEntity<ObjectNode> updateMaterial(@ValidUUID  @PathVariable("materialID") UUID materialID,
                                                      @Valid @RequestBody MaterialRequest materialRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = materialService.updateMaterial(materialID, materialRequest);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        materialService.updateMaterial(materialID, materialRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.UPDATE_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
-
 
     @PostMapping(APIConstant.MaterialAPI.ADD_NEW_MATERIAL)
     public ResponseEntity<ObjectNode> addNewMaterial(@Valid @RequestBody MaterialRequest materialRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = materialService.createMaterial(materialRequest);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        materialService.createMaterial(materialRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping(APIConstant.MaterialAPI.ADD_NEW_CATEGORY_MATERIAL_BY_EXCEL_FILE)
     public ResponseEntity<ObjectNode> addNewMaterialByExcelFile(@RequestParam("file") MultipartFile file) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = materialService.createMaterialByExcelFile(file);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        materialService.createMaterialByExcelFile(file);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_CATEGORY_AND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(APIConstant.MaterialAPI.EXPORT_CATEGORY_MATERIAL_FOR_BRAND_BY_EXCEL)
     public ResponseEntity<ObjectNode> exportCategoryMaterialForBrandByExcel(HttpServletResponse httpServletResponse) throws IOException {
         ObjectNode response = objectMapper.createObjectNode();
-        httpServletResponse.setContentType("application/octet-stream");
+//        httpServletResponse.setContentType("application/octet-stream");
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename = Export_Category_Material_For_Brand.xlsx";
         httpServletResponse.setHeader(headerKey, headerValue);
@@ -148,7 +143,7 @@ public class MaterialController {
     @GetMapping(APIConstant.MaterialAPI.GENERATE_SAMPLE_CATEGORY_MATERIAL_BY_EXCEL_FILE)
     public ResponseEntity<ObjectNode> generateSampleCategoryMaterialByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
         ObjectNode response = objectMapper.createObjectNode();
-        httpServletResponse.setContentType("application/octet-stream");
+//        httpServletResponse.setContentType("application/octet-stream");
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename = Generate_Sample_Category_Material.xlsx";
         httpServletResponse.setHeader(headerKey, headerValue);

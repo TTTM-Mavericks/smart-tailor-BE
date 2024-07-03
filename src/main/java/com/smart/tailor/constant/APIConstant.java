@@ -227,6 +227,7 @@ public class APIConstant {
         public static final String ADD_NEW_SIZE_EXPERT_TAILORING = "/add-new-size-expert-tailoring";
         public static final String GET_ALL_SIZE_EXPERT_TAILORING = "/get-all-size-expert-tailoring";
         public static final String UPDATE_SIZE_EXPERT_TAILORING = "/update-size-expert-tailoring";
+        public static final String ADD_NEW_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE = "/add-new-size-expert-tailoring-by-excel-file";
         public static final String GENERATE_SAMPLE_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-size-expert-tailoring-by-excel-file";
     }
 }

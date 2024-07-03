@@ -380,7 +380,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     }
 
     @Override
-    public void exportSampleCategoryMaterial(HttpServletResponse response) throws IOException {
+    public void exportSampleCategoryMaterial(HttpServletResponse response, String[] categoryNames) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Category and Material");
 
@@ -438,11 +438,11 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         DataValidationHelper dataValidationHelper = new XSSFDataValidationHelper(sheet);
 
         // Apply Constraint to Cell 0 <=> CategoryName
-        DataValidationConstraint constraint = dataValidationHelper.createCustomConstraint("ISTEXT(A3)");
+        DataValidationConstraint constraint = dataValidationHelper.createExplicitListConstraint(categoryNames);
         CellRangeAddressList categoryNameRange = new CellRangeAddressList(2, 200, 0,0);
         DataValidation categoryNameValidation = dataValidationHelper.createValidation(constraint, categoryNameRange);
         categoryNameValidation.setShowErrorBox(true);
-        categoryNameValidation.createErrorBox("Invalid Input", "Category Name must be Type String");
+        categoryNameValidation.createErrorBox("Invalid Input", "Category Name must be one of predefined values");
         sheet.addValidationData(categoryNameValidation);
 
         // Apply Constraint to Cell 1 <=> MaterialName

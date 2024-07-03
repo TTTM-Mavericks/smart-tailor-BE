@@ -64,10 +64,9 @@ public class CategoryController {
     public ResponseEntity<ObjectNode> addNewCategory(@RequestParam(value = "categoryName") String categoryName) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = categoryService.createCategory(categoryName);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        categoryService.createCategory(categoryName);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message",MessageConstant.ADD_NEW_CATEGORY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -75,10 +74,9 @@ public class CategoryController {
     public ResponseEntity<ObjectNode> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = categoryService.updateCategory(categoryRequest);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        categoryService.updateCategory(categoryRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message",MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 }

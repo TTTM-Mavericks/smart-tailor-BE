@@ -278,11 +278,13 @@ public class MessageConstant {
      */
     /*    SUCCESS  */
     public static final String ADD_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Add New Size Expert Tailoring Successfully!";
+    public static final String ADD_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Size Expert Tailoring By Excel File Successfully!";
     public static final String GET_ALL_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Get All Size Expert Tailoring Successfully!";
     public static final String UPDATE_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Update Size Expert Tailoring Successfully!";
     public static final String GENERATE_SAMPLE_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Generate Sample Size Expert Tailoring Successfully!";
 
     /*    FAIL     */
+    public static final String ADD_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE_FAIL = "Add New Size Expert Tailoring By Excel File Fail!";
     public static final String SIZE_EXPERT_TAILORING_IS_EXISTED = "Size Expert Tailoring is Existed";
     public static final String CAN_NOT_FIND_ANY_SIZE_EXPERT_TAILORING = "Can Not Find Any Size Expert Tailoring";
 }

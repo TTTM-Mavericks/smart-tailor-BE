@@ -52,7 +52,7 @@ public class BrandMaterialController {
             response.set("data", objectMapper.valueToTree(materials));
         } else {
             response.put("status", HttpStatus.NOT_FOUND.value());
-            response.put("message", MessageConstant.CAN_NOT_FIND_BRAND);
+            response.put("message", MessageConstant.CAN_NOT_FIND_ANY_BRAND_MATERIAL);
         }
         return ResponseEntity.ok(response);
     }
@@ -60,20 +60,18 @@ public class BrandMaterialController {
     @PostMapping(APIConstant.BrandMaterialAPI.ADD_NEW_BRAND_MATERIAL)
     public ResponseEntity<ObjectNode> addNewBrandMaterial(@Valid @RequestBody BrandMaterialRequest brandMaterialRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = brandMaterialService.createBrandMaterial(brandMaterialRequest);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        brandMaterialService.createBrandMaterial(brandMaterialRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_BRAND_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping(APIConstant.BrandMaterialAPI.UPDATE_BRAND_MATERIAL)
     public ResponseEntity<ObjectNode> updateBrandMaterial(@Valid @RequestBody BrandMaterialRequest brandMaterialRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = brandMaterialService.updateBrandMaterial(brandMaterialRequest);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+       brandMaterialService.updateBrandMaterial(brandMaterialRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.UPDATE_BRAND_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -82,10 +80,9 @@ public class BrandMaterialController {
     public ResponseEntity<ObjectNode> addNewBrandMaterialByExcelFile(@RequestParam("file") MultipartFile file,
                                                                      @RequestParam("brandName") String brandName) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = brandMaterialService.createBrandMaterialByImportExcelData(file, brandName);
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        brandMaterialService.createBrandMaterialByImportExcelData(file, brandName);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 

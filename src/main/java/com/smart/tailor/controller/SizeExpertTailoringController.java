@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -73,22 +74,25 @@ public class SizeExpertTailoringController {
     public ResponseEntity<ObjectNode> generateSampleSizeExpertTailoringByExcelFile(HttpServletResponse httpServletResponse) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
+//        httpServletResponse.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=Generate_Size_Expert_Tailoring.xlsx";
+        httpServletResponse.setHeader(headerKey, headerValue);
 
-        try {
-            httpServletResponse.setContentType("application/octet-stream");
-            String headerKey = "Content-Disposition";
-            String headerValue = "attachment; filename=Generate_Size_Expert_Tailoring.xlsx";
-            httpServletResponse.setHeader(headerKey, headerValue);
+        sizeExpertTailoringService.generateSampleSizeExpertTailoringByExcelFile(httpServletResponse);
 
-            sizeExpertTailoringService.generateSampleSizeExpertTailoringByExcelFile(httpServletResponse);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.GENERATE_SAMPLE_SIZE_EXPERT_TAILORING_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
 
-            response.put("status", HttpStatus.OK.value());
-            response.put("message", MessageConstant.GENERATE_SAMPLE_SIZE_EXPERT_TAILORING_SUCCESSFULLY);
-            return ResponseEntity.ok(response);
-        } catch (IOException e) {
-            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.put("message", "Failed to generate the sample size expert tailoring file.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+    @PostMapping(APIConstant.SizeExpertTailoringAPI.ADD_NEW_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> addNewSizeExpertTailoringByExcelFile(@RequestParam("file") MultipartFile file) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        sizeExpertTailoringService.createSizeExpertTailoringByExcelFile(file);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
     }
 }
