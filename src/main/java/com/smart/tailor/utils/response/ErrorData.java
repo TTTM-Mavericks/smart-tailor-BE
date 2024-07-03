@@ -5,18 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryResponse {
-    private UUID categoryID;
+public class ErrorData {
+    private Object data;
 
-    private String categoryName;
-
-    private String createDate;
-
-    private String lastModifiedDate;
+    private String message;
 }

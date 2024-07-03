@@ -11,10 +11,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryResponse {
-    private UUID categoryID;
+public class SizeResponse {
+    private UUID sizeID;
 
-    private String categoryName;
+    private String sizeName;
+
+    private Boolean status;
 
     private String createDate;
 

@@ -14,7 +14,7 @@ public interface BrandMaterialMapper {
     @Mapping(source = "brandMaterial.brandMaterialKey.material.unit", target = "unit")
     @Mapping(source = "brandMaterial.brandMaterialKey.material.basePrice", target = "basePrice")
     @Mapping(source = "brandMaterial.brandPrice", target = "brandPrice")
-    @Mapping(source = "brandMaterial.createDate", target = "createDate")
-    @Mapping(source = "brandMaterial.lastModifiedDate", target = "lastModifiedDate")
+    @Mapping(source = "brandMaterial.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "brandMaterial.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     BrandMaterialResponse mapperToBrandMaterialResponse(BrandMaterial brandMaterial);
 }

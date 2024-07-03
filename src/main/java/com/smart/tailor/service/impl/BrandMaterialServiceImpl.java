@@ -8,15 +8,13 @@ import com.smart.tailor.repository.BrandMaterialRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
-import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
+import com.smart.tailor.utils.response.ErrorData;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,12 +37,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
     @Override
     @Transactional
-    public APIResponse createBrandMaterial(@Valid BrandMaterialRequest brandMaterialRequest) {
+    public void createBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
         // Check If Brand Name is Existed
-        Optional<Brand> brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName());
-        if(brand.isEmpty()) {
-            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_BRAND);
-        }
+        var brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName())
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_BRAND));
 
         // Check if Category and Material is Existed or not
         var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
@@ -75,14 +71,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
 
         // When All condition pass, store data to BrandMaterial
-        brandMaterialRepository.createBrandMaterial(brand.get().getBrandID(), materialResponse.getMaterialID(), brandMaterialRequest.getBrandPrice());
-
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.ADD_NEW_BRAND_MATERIAL_SUCCESSFULLY)
-                .data(null)
-                .build();
+        brandMaterialRepository.createBrandMaterial(brand.getBrandID(), materialResponse.getMaterialID(), brandMaterialRequest.getBrandPrice());
     }
 
     @Override
@@ -107,22 +96,15 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public APIResponse createBrandMaterialByImportExcelData(MultipartFile file, String brandName) {
+    public void createBrandMaterialByImportExcelData(MultipartFile file, String brandName) {
         if (!excelImportService.isValidExcelFile(file)) {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
-            var apiResponse = excelImportService.getBrandMaterialDataFromExcel(file.getInputStream(), brandName);
-
-            var excelData = (List<BrandMaterialRequest>) apiResponse.getData();
+            var excelData = excelImportService.getBrandMaterialDataFromExcel(file.getInputStream(), brandName);
 
             if(excelData.isEmpty()){
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.BRAND_MATERIAL_EXCEL_FILE_HAS_EMPTY_DATA)
-                        .data(null)
-                        .build();
+                throw new BadRequestException("Brand Material Excel File Has Empty Data");
             }
 
             Set<BrandMaterialRequest> excelNames = new HashSet<>();
@@ -141,31 +123,31 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
             }
 
-            List<BrandMaterialRequest> validData = new ArrayList<>();
-            List<BrandMaterialRequest> invalidData = new ArrayList<>();
+            List<Object> invalidData = new ArrayList<>();
+
             for(BrandMaterialRequest brandMaterialRequest : uniqueExcelData){
                 try{
                     createBrandMaterial(brandMaterialRequest);
-                    validData.add(brandMaterialRequest);
-                } catch (Exception ex){
-                    invalidData.add(brandMaterialRequest);
+                } catch (ItemNotFoundException ex) {
+                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_BRAND;
+                    logger.error("Error creating BrandMaterial: Item not found - {}", errorMessage, ex);
+                    invalidData.add(new ErrorData(brandMaterialRequest, errorMessage));
+                } catch (ItemAlreadyExistException ex) {
+                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.BRAND_MATERIAL_IS_EXISTED;
+                    logger.error("Error creating BrandMaterial: Already exists - {}", errorMessage, ex);
+                    invalidData.add(new ErrorData(brandMaterialRequest, errorMessage));
+                } catch (BadRequestException ex) {
+                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION;
+                    logger.error("Error creating BrandMaterial: Bad request - {}", errorMessage, ex);
+                    invalidData.add(new ErrorData(brandMaterialRequest, errorMessage));
+                } catch (Exception ex) {
+                    logger.error("Error creating BrandMaterial - {}", ex.getMessage());
+                    invalidData.add(new ErrorData(brandMaterialRequest, ex.getMessage()));
                 }
             }
 
-            if (invalidData.isEmpty()) {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY)
-                        .data(validData)
-                        .build();
-            } else {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message(MessageConstant.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_FAIL)
-                        .data(invalidData)
-                        .build();
+            if(!invalidData.isEmpty()){
+                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
@@ -174,12 +156,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public APIResponse updateBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
+    public void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
         // Check If Brand Name is Existed
-        Optional<Brand> brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName());
-        if(brand.isEmpty()) {
-            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_BRAND);
-        }
+        var brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName())
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_BRAND));
 
         // Check if Category and Material is Existed or not
         var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
@@ -210,11 +190,5 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
 
         brandMaterialRepository.updateBrandMaterial(brandPrice, brandMaterialExisted.getBrandMaterialKey().getBrandID(), brandMaterialExisted.getBrandMaterialKey().getMaterialID());
-
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.UPDATE_BRAND_MATERIAL_SUCCESSFULLY)
-                .build();
     }
 }

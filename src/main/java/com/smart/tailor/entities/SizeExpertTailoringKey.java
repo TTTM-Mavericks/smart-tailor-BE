@@ -20,14 +20,6 @@ public class SizeExpertTailoringKey implements Serializable {
     @Column(name = "expert_tailoring_id", nullable = false)
     private UUID expertTailoringID;
 
-    @ManyToOne
-    @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id", nullable = false, insertable = false, updatable = false)
-    private ExpertTailoring expertTailoring;
-
     @Column(name = "size_id", nullable = false)
     private UUID sizeID;
-
-    @ManyToOne
-    @JoinColumn(name = "size_id", referencedColumnName = "size_id", nullable = false, insertable = false, updatable = false)
-    private Size size;
 }

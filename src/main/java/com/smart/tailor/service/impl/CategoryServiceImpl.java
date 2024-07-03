@@ -10,14 +10,12 @@ import com.smart.tailor.repository.CategoryRepository;
 import com.smart.tailor.service.CategoryService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.CategoryRequest;
-import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.CategoryResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public APIResponse createCategory(String categoryName) {
+    public void createCategory(String categoryName) {
         if(!Utilities.isStringNotNullOrEmpty(categoryName)){
             throw new BadRequestException(MessageConstant.DATA_IS_EMPTY + " : categoryName");
         }
@@ -49,19 +47,13 @@ public class CategoryServiceImpl implements CategoryService {
         if(categoryOptional.isPresent()) {
             throw new ItemAlreadyExistException(MessageConstant.CATEGORY_IS_EXISTED);
         }
-        var category = categoryRepository.save(
+
+        categoryRepository.save(
                 Category
                         .builder()
                         .categoryName(categoryName.toLowerCase())
                         .build()
         );
-
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.ADD_NEW_CATEGORY_SUCCESSFULLY)
-                .data(categoryMapper.mapperToCategoryResponse(category))
-                .build();
     }
 
     @Override
@@ -84,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public APIResponse updateCategory(CategoryRequest categoryRequest) {
+    public void updateCategory(CategoryRequest categoryRequest) {
         // Check Category ID is Existed or not
         var categoryResponse = categoryRepository.findByCategoryID(UUID.fromString(categoryRequest.getCategoryID()))
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
@@ -99,24 +91,12 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         // Update Category when CategoryID is Existed and CategoryName is not Existed
-        var updateCategory = categoryRepository.save(
+        categoryRepository.save(
                 Category
                     .builder()
                     .categoryID(categoryResponse.getCategoryID())
                     .categoryName(categoryRequest.getCategoryName())
                     .build()
         );
-
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY)
-                .data(categoryMapper.mapperToCategoryResponse(updateCategory))
-                .build();
-    }
-
-    @Override
-    public Category mapperToCategory(CategoryResponse categoryResponse) {
-        return categoryMapper.mapperToCategory(categoryResponse);
     }
 }

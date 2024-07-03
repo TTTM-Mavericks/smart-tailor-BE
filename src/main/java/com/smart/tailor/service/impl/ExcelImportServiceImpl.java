@@ -8,6 +8,7 @@ import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
+import com.smart.tailor.utils.request.SizeExpertTailoringRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.CellErrorResponse;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     @Override
-    public APIResponse getBrandMaterialDataFromExcel(InputStream inputStream, String brandName) {
+    public List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, String brandName) {
         List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
@@ -275,12 +276,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             if (inValidData) {
                 throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
             } else {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
-                        .data(brandMaterialRequests)
-                        .build();
+                return brandMaterialRequests;
             }
         } catch (IOException e) {
             logger.error("Error reading Excel file: {}", e.getMessage());
@@ -311,7 +307,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     @Override
-    public APIResponse getCategoryMaterialDataFromExcel(InputStream inputStream) {
+    public List<MaterialRequest> getCategoryMaterialDataFromExcel(InputStream inputStream) {
         List<MaterialRequest> materialRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
@@ -503,12 +499,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             if (inValidData) {
                 throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
             } else {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
-                        .data(materialRequests)
-                        .build();
+                return materialRequests;
             }
         } catch (IOException e) {
             logger.error("Error reading Excel file: {}", e.getMessage());
@@ -538,7 +529,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     @Override
-    public APIResponse getExpertTailoringDataFromExcel(InputStream inputStream) {
+    public List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream) {
         List<ExpertTailoringRequest> expertTailoringRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
@@ -631,12 +622,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             if (inValidData) {
                 throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
             } else {
-                return APIResponse
-                        .builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.GET_DATA_FROM_EXCEL_SUCCESS)
-                        .data(expertTailoringRequests)
-                        .build();
+                return expertTailoringRequests;
             }
         } catch (IOException e) {
             logger.error("Error reading Excel file: {}", e.getMessage());
@@ -662,4 +648,225 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         }
     }
 
+    @Override
+    public List<SizeExpertTailoringRequest> getSizeExpertTailoringRequestFromExcel(InputStream inputStream) {
+        List<SizeExpertTailoringRequest> sizeExpertTailoringRequests = new ArrayList<>();
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+            XSSFSheet sheet = workbook.getSheet("Size Expert Tailoring");
+
+            if (sheet == null) {
+                throw new ExcelFileNotSupportException(MessageConstant.WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE);
+            }
+            logger.info("Inside getSizeExpertTailoringRequestFromExcel Method");
+
+            boolean inValidData = false;
+            List<Object> cellErrorResponses = new ArrayList<>();
+
+            int rowIndex = 2;
+            while (rowIndex <= sheet.getLastRowNum()) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || isRowCompletelyEmptyForSizeExpertTailoring(row)) {
+                    rowIndex++;
+                    continue;
+                }
+
+                SizeExpertTailoringRequest sizeExpertTailoringRequest = new SizeExpertTailoringRequest();
+                boolean rowDataValid = true;
+                boolean isValid = false;
+                String message = "";
+                double doubleValue = -1;
+                for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+                    Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        inValidData = true;
+                        rowDataValid = false;
+                        cellErrorResponses.add(
+                                CellErrorResponse
+                                        .builder()
+                                        .rowIndex(rowIndex + 1)
+                                        .cellIndex(cellIndex + 1)
+                                        .cellName(getCellNameForSizeExpertTailoring(cellIndex))
+                                        .data("")
+                                        .message(MessageConstant.DATA_IS_EMPTY)
+                                        .build()
+                        );
+                    } else {
+                        switch (cellIndex) {
+                            case 0:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    sizeExpertTailoringRequest.setExpertTailoringName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForSizeExpertTailoring(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 1:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    sizeExpertTailoringRequest.setSizeName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForSizeExpertTailoring(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 2:
+                                isValid = false;
+                                doubleValue = -1;
+                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        doubleValue = (double) cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            doubleValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && doubleValue >= 0){
+                                    sizeExpertTailoringRequest.setMinFabric(doubleValue);
+                                }else{
+                                    if(isValid && doubleValue < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForSizeExpertTailoring(cellIndex))
+                                                    .message(message)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 3:
+                                isValid = false;
+                                doubleValue = -1;
+                                message = MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_NUMERIC;
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        doubleValue = (double) cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            doubleValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && doubleValue >= 0){
+                                    sizeExpertTailoringRequest.setMaxFabric(doubleValue);
+                                }else{
+                                    if(isValid && doubleValue < 0){
+                                        message = MessageConstant.INVALID_NEGATIVE_NUMBER_NEED_POSITIVE_NUMBER;
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForSizeExpertTailoring(cellIndex))
+                                                    .message(message)
+                                                    .data(cell.toString())
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 4:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    sizeExpertTailoringRequest.setUnit(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForSizeExpertTailoring(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                if (rowDataValid) {
+                    sizeExpertTailoringRequests.add(sizeExpertTailoringRequest);
+                }
+
+                rowIndex++;
+            }
+
+            if (inValidData) {
+                throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
+            } else {
+               return sizeExpertTailoringRequests;
+            }
+        } catch (IOException e) {
+            logger.error("Error reading Excel file: {}", e.getMessage());
+            throw new ExcelFileErrorReadingException(MessageConstant.ERROR_READING_EXCEL_FILE);
+        }
+    }
+
+    private boolean isRowCompletelyEmptyForSizeExpertTailoring(Row row) {
+        for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellNameForSizeExpertTailoring(int cellIndex) {
+        switch (cellIndex) {
+            case 0: return "Expert_Tailoring_Name";
+            case 1: return "Size_Name";
+            case 2: return "Min_Fabric";
+            case 3: return "Max_Fabric";
+            case 4: return "Unit";
+            default: return "Unknown";
+        }
+    }
 }
