@@ -229,7 +229,6 @@ public class MessageConstant {
     public static final String UPDATE_LABOR_QUANTITY_SUCCESSFULLY = "Update Labor Quantity Successfully!";
 
     /*    FAIL     */
-    public static final String ADD_LABOR_QUANTITY_FAIL = "Add New Part Of Design Fail!";
     public static final String LABOR_QUANTITY_IS_EXISTED = "Labor Quantity is Existed";
     public static final String CAN_NOT_FIND_ANY_LABOR_QUANTITY = "Can Not Find Any Labor Quantity";
 
@@ -238,11 +237,9 @@ public class MessageConstant {
      */
     /*    SUCCESS  */
     public static final String ADD_BRAND_LABOR_QUANTITY_SUCCESSFULLY = "Add New Brand Labor Quantity Successfully!";
-    public static final String GET_ALL_BRAND_LABOR_QUANTITY_SUCCESSFULLY = "Get All Brand Labor Quantity Successfully!";
     public static final String GET_BRAND_LABOR_QUANTITY_BY_BRAND_ID_SUCCESSFULLY = "Get Brand Labor Quantity By Brand ID Successfully!";
 
     /*    FAIL     */
-    public static final String ADD_BRAND_LABOR_QUANTITY_FAIL = "Add New Part Of Design Fail!";
     public static final String BRAND_LABOR_QUANTITY_IS_EXISTED = "Brand Labor Quantity is Existed";
     public static final String CAN_NOT_FIND_ANY_BRAND_LABOR_QUANTITY = "Can Not Find Any Brand Labor Quantity";
     public static final String CAN_NOT_FIND_ANY_BRAND_LABOR_QUANTITY_BY_BRAND_ID = "Can Not Find Any Brand Labor Quantity By Brand ID";
@@ -264,5 +261,28 @@ public class MessageConstant {
     public static final String CAN_NOT_FIND_ANY_EMPLOYEE = "Can not find any employee";
     public static final String CAN_NOT_FIND_ANY_MANAGER = "Can not find any manager";
 
+    /**
+     * SIZE
+     */
+    /*    SUCCESS  */
+    public static final String ADD_SIZE_SUCCESSFULLY = "Add New Size Successfully!";
+    public static final String GET_ALL_SIZE_SUCCESSFULLY = "Get All Size Successfully!";
+    public static final String UPDATE_SIZE_SUCCESSFULLY = "Update Size Successfully!";
 
+    /*    FAIL     */
+    public static final String SIZE_IS_EXISTED = "Size is Existed";
+    public static final String CAN_NOT_FIND_ANY_SIZE = "Can Not Find Any Size";
+
+    /**
+     * SIZE_EXPERT_TAILORING
+     */
+    /*    SUCCESS  */
+    public static final String ADD_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Add New Size Expert Tailoring Successfully!";
+    public static final String GET_ALL_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Get All Size Expert Tailoring Successfully!";
+    public static final String UPDATE_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Update Size Expert Tailoring Successfully!";
+    public static final String GENERATE_SAMPLE_SIZE_EXPERT_TAILORING_SUCCESSFULLY = "Generate Sample Size Expert Tailoring Successfully!";
+
+    /*    FAIL     */
+    public static final String SIZE_EXPERT_TAILORING_IS_EXISTED = "Size Expert Tailoring is Existed";
+    public static final String CAN_NOT_FIND_ANY_SIZE_EXPERT_TAILORING = "Can Not Find Any Size Expert Tailoring";
 }

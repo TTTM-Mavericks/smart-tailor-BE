@@ -1,9 +1,6 @@
 package com.smart.tailor.entities;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,9 +19,19 @@ public class SizeExpertTailoring extends AuditEntity implements Serializable {
     @EmbeddedId
     private SizeExpertTailoringKey sizeExpertTailoringKey;
 
+    @ManyToOne
+    @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id", nullable = false, insertable = false, updatable = false)
+    private ExpertTailoring expertTailoring;
+
+    @ManyToOne
+    @JoinColumn(name = "size_id", referencedColumnName = "size_id", nullable = false, insertable = false, updatable = false)
+    private Size size;
+
     private Double minFabric;
 
     private Double maxFabric;
+
+    private String unit;
 
     private Boolean status;
 }

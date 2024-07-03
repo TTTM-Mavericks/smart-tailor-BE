@@ -11,18 +11,20 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LaborQuantityResponse {
-    private UUID laborQuantityID;
+public class SizeExpertTailoringResponse {
+    private UUID expertTailoringID;
 
-    private Integer laborQuantityMinQuantity;
+    private String expertTailoringName;
 
-    private Integer laborQuantityMaxQuantity;
+    private UUID sizeID;
 
-    private Double laborQuantityMinPrice;
+    private String sizeName;
 
-    private Double laborQuantityMaxPrice;
+    private Double minFabric;
 
-    private Boolean status;
+    private Double maxFabric;
+
+    private String unit;
 
     private String createDate;
 

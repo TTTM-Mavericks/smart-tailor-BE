@@ -208,4 +208,25 @@ public class APIConstant {
         public static final String GET_ALL_ACCOUNTANT = "/get-all-accountant";
         public static final String GET_ALL_MANAGER = "/get-all-manager";
     }
+
+    /**
+     * Size API
+     */
+    public class SizeAPI {
+        public static final String SIZE = APIConstant.API + "/size";
+        public static final String ADD_NEW_SIZE = "/add-new-size";
+        public static final String GET_ALL_SIZE = "/get-all-size";
+        public static final String UPDATE_SIZE = "/update-size";
+    }
+
+    /**
+     * Size Expert Tailoring API
+     */
+    public class SizeExpertTailoringAPI {
+        public static final String SIZE_EXPERT_TAILORING = APIConstant.API + "/size-expert-tailoring";
+        public static final String ADD_NEW_SIZE_EXPERT_TAILORING = "/add-new-size-expert-tailoring";
+        public static final String GET_ALL_SIZE_EXPERT_TAILORING = "/get-all-size-expert-tailoring";
+        public static final String UPDATE_SIZE_EXPERT_TAILORING = "/update-size-expert-tailoring";
+        public static final String GENERATE_SAMPLE_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-size-expert-tailoring-by-excel-file";
+    }
 }
