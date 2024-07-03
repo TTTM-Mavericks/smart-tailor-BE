@@ -1,9 +1,11 @@
 package com.smart.tailor.service;
 
+import com.smart.tailor.entities.Order;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.response.OrderResponse;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface OrderService {
@@ -12,6 +14,7 @@ public interface OrderService {
     void updateOrderStatus(UUID orderID, String orderStatus);
 
     OrderResponse getOrderByOrderID(UUID orderID);
+    Optional<Order> getOrderById(UUID orderID);
 
     List<OrderResponse> getOrderByBrandID(UUID brandID);
 

@@ -4,7 +4,10 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.repository.OrderRepository;
-import com.smart.tailor.service.*;
+import com.smart.tailor.service.BrandService;
+import com.smart.tailor.service.CustomerService;
+import com.smart.tailor.service.DesignService;
+import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.response.CustomerResponse;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -104,6 +108,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse getOrderByOrderID(UUID orderID) {
         return null;
+    }
+
+    @Override
+    public Optional<Order> getOrderById(UUID orderID) {
+        return orderRepository.findById(orderID);
     }
 
     @Override

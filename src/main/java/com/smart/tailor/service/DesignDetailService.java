@@ -1,0 +1,16 @@
+package com.smart.tailor.service;
+
+import com.smart.tailor.utils.request.DesignDetailRequest;
+import com.smart.tailor.utils.response.APIResponse;
+import com.smart.tailor.utils.response.DesignDetailResponse;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface DesignDetailService {
+    List<DesignDetailResponse> getAllByDesignID(UUID designID);
+
+    APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
+
+    DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, String size);
+}

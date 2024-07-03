@@ -200,7 +200,7 @@ public class APIConstant {
     /**
      * User API
      */
-    public class UserAPI{
+    public class UserAPI {
         public static final String USER = APIConstant.API + "/user";
         public static final String GET_ALL_CUSTOMER = "/get-all-customer";
         public static final String GET_ALL_BRAND = "/get-all-brand";
@@ -229,5 +229,15 @@ public class APIConstant {
         public static final String UPDATE_SIZE_EXPERT_TAILORING = "/update-size-expert-tailoring";
         public static final String ADD_NEW_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE = "/add-new-size-expert-tailoring-by-excel-file";
         public static final String GENERATE_SAMPLE_SIZE_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-size-expert-tailoring-by-excel-file";
+    }
+
+    /**
+     * Design Detail API
+     */
+    public class DesignDetailAPI {
+        public static final String DESIGN_DETAIL = APIConstant.API + "/design-detail";
+        public static final String ADD_NEW_DESIGN_DETAIL = "/add-new-design-detail";
+        public static final String GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID = "/get-all-design-detail-by-design-id";
+
     }
 }
