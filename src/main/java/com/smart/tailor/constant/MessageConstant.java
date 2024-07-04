@@ -306,4 +306,9 @@ public class MessageConstant {
     public static final String CAN_NOT_FIND_ANY_DESIGN_DETAIL_BY_USER_ID = "Can Not Find Any Design Detail By User ID";
     public static final String CAN_NOT_FIND_ANY_DESIGN_DETAIL = "Can Not Find Any Design Detail";
     public static final String UPDATE_DESIGN_DETAIL_PUBLIC_STATUS_FAIL = "Update Public Status Fail";
+
+    /**
+     * ORDER
+     */
+    public static final String CREATE_ORDER_SUCCESSFULLY = "Create Order Successfully";
 }

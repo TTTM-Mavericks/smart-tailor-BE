@@ -240,4 +240,13 @@ public class APIConstant {
         public static final String GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID = "/get-all-design-detail-by-design-id";
 
     }
+
+    /**
+     * Order API
+     */
+    public class OrderAPI {
+        public static final String ORDER = APIConstant.API + "/order";
+        public static final String CREATE_ORDER = "/create-order";
+
+    }
 }
