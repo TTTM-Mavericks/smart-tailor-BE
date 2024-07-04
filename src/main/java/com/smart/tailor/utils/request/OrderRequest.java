@@ -13,9 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderRequest {
     private UUID designID;
-    private UUID brandID;
     private Integer quantity;
-    private UUID discountID;
     private String orderType;
     private String address;
     private String province;

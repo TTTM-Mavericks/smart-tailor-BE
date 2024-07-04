@@ -41,12 +41,10 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException(MessageConstant.INVALID_INPUT + ": designID");
         }
 
-        UUID brandID = orderRequest.getBrandID() != null ? orderRequest.getBrandID() : null;
         Integer quantity = orderRequest.getQuantity() != null
                 && Utilities.isValidNumber(orderRequest.getQuantity().toString())
                 ? orderRequest.getQuantity()
                 : null;
-        UUID discountID = orderRequest.getDiscountID() != null ? orderRequest.getDiscountID() : null;
         if (!Utilities.isStringNotNullOrEmpty(orderRequest.getOrderType())) {
             throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": orderType");
         }
