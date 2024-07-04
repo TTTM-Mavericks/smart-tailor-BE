@@ -31,7 +31,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void createOrder(OrderRequest orderRequest) {
-        UUID parentOrderID = orderRequest.getParentOrderID() != null ? orderRequest.getParentOrderID() : null;
         if (!Utilities.isStringNotNullOrEmpty(orderRequest.getDesignID().toString())) {
             throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
         }

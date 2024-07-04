@@ -12,7 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderRequest {
-    private UUID parentOrderID;
     private UUID designID;
     private UUID brandID;
     private Integer quantity;

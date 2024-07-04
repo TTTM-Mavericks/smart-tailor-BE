@@ -14,6 +14,7 @@ public interface OrderService {
     void updateOrderStatus(UUID orderID, String orderStatus);
 
     OrderResponse getOrderByOrderID(UUID orderID);
+
     Optional<Order> getOrderById(UUID orderID);
 
     List<OrderResponse> getOrderByBrandID(UUID brandID);
