@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface DesignDetailRepository extends JpaRepository<DesignDetail, UUID> {
     List<DesignDetail> findAllByDesignDesignID(UUID designID);
 
-    DesignDetail findByDesignDetailIDAndSize(UUID designID, String size);
+    DesignDetail findDesignDetailByDesignDesignIDAndSizeSizeID(UUID designID, UUID sizeID);
 }

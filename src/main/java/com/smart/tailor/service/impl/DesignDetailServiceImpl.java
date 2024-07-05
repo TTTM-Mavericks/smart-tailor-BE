@@ -6,12 +6,10 @@ import com.smart.tailor.entities.Design;
 import com.smart.tailor.entities.DesignDetail;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
-import com.smart.tailor.service.BrandService;
-import com.smart.tailor.service.DesignDetailService;
-import com.smart.tailor.service.DesignService;
-import com.smart.tailor.service.OrderService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.DesignDetailRequest;
 import com.smart.tailor.utils.response.APIResponse;
@@ -36,6 +34,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final BrandService brandService;
     private final DesignService designService;
     private final OrderService orderService;
+    private final SizeService sizeService;
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
     @Override
@@ -74,13 +73,13 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             }
             UUID designId = designDetailRequest.getDesignId();
 
-            if (designDetailRequest.getSize() == null) {
+            if (designDetailRequest.getSizeID() == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": size");
             }
-            String size = designDetailRequest.getSize();
-            if (!Utilities.isStringNotNullOrEmpty(size)) {
-                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": size");
-            }
+//            String sizeID = designDetailRequest.getSize();
+//            if (!Utilities.isStringNotNullOrEmpty(size)) {
+//                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": size");
+//            }
 
             if (designDetailRequest.getQuantity() == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": quantity");
@@ -107,6 +106,9 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 existedOrder = order.get();
             }
 
+            var size = sizeService.findByID(UUID.fromString(designDetailRequest.getSizeID()))
+                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE));
+
             DesignDetail detail = DesignDetail
                     .builder()
                     .design(design)
@@ -118,7 +120,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     .build();
 
             designDetailRepository.save(detail);
-            DesignDetailResponse detailResponse = getDesignDetailByDesignAndSize(designId, size);
+            DesignDetailResponse detailResponse = getDesignDetailByDesignAndSize(designId, size.getSizeID());
 
             if (detailResponse != null) {
                 APIResponse
@@ -135,23 +137,23 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     }
 
     @Override
-    public DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, String size) {
+    public DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID sizeID) {
         try {
             if (designID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
             }
 
-            if (size == null) {
+            if (sizeID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": size");
             }
-            if (!Utilities.isStringNotNullOrEmpty(size)) {
+            if (!Utilities.isStringNotNullOrEmpty(sizeID.toString())) {
                 throw new BadRequestException(MessageConstant.INVALID_INPUT + ": size");
             }
 
             return designDetailMapper.mapperToDesignDetailResponse(
-                    designDetailRepository.findByDesignDetailIDAndSize(
+                    designDetailRepository.findDesignDetailByDesignDesignIDAndSizeSizeID(
                             designID,
-                            size.trim().toUpperCase()
+                            sizeID
                     )
             );
         } catch (Exception ex) {

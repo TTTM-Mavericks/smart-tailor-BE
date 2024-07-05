@@ -17,6 +17,6 @@ public class DesignDetailResponse {
     private OrderResponse order;
     private BrandResponse brand;
     private Integer quantity;
-    private String size;
+    private SizeResponse size;
     private Boolean detailStatus;
 }
