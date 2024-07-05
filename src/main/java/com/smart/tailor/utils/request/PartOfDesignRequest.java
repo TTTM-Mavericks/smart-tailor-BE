@@ -1,5 +1,6 @@
 package com.smart.tailor.utils.request;
 
+import com.smart.tailor.validate.ValidStringUUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,9 +24,10 @@ public class PartOfDesignRequest {
     @NotBlank(message = "PartOfDesign imageUrl is not blank")
     private String imageUrl;
 
-    @NotNull(message = "materialName is not null")
-    @NotBlank(message = "materialName is not blank")
-    private String materialName;
+    @NotNull(message = "materialID is not null")
+    @NotBlank(message = "materialID is not blank")
+    @ValidStringUUID(message = "materialID is invalid of type UUID")
+    private String materialID;
 
     private String successImageUrl;
 

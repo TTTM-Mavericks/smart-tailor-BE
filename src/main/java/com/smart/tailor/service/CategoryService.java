@@ -18,4 +18,6 @@ public interface CategoryService {
     CategoryResponse findCategoryByID(UUID categoryID);
 
     void updateCategory(CategoryRequest categoryRequest);
+
+    Optional<Category> findCategoryOptionalByID(UUID categoryID);
 }

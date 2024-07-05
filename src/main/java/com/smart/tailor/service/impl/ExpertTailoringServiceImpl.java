@@ -208,4 +208,9 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         expertTailoring.setStatus(!expertTailoring.getStatus());
         expertTailoringRepository.save(expertTailoring);
     }
+
+    @Override
+    public Optional<ExpertTailoring> findExpertTailoringByID(UUID expertTailoringID) {
+        return expertTailoringRepository.findById(expertTailoringID);
+    }
 }

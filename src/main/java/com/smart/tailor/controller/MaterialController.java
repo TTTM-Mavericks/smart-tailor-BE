@@ -84,6 +84,21 @@ public class MaterialController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(APIConstant.MaterialAPI.GET_LIST_MATERIAL_BY_CATEGORY_ID + "/{categoryID}")
+    public ResponseEntity<ObjectNode> getListMaterialByCategoryID(@ValidUUID @PathVariable("categoryID") UUID categoryID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        var materials = materialService.findListMaterialByCategoryID(categoryID);
+        if (materials != null) {
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GET_LIST_MATERIAL_BY_CATEGORY_ID_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(materials));
+        } else {
+            response.put("status", HttpStatus.NOT_FOUND.value());
+            response.put("message", MessageConstant.CAN_NOT_FIND_ANY_MATERIAL);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping(APIConstant.MaterialAPI.UPDATE_STATUS_MATERIAL + "/{materialID}")
     public ResponseEntity<ObjectNode> changeStatusMaterial(@ValidUUID @PathVariable("materialID") UUID materialID) {
         ObjectNode response = objectMapper.createObjectNode();

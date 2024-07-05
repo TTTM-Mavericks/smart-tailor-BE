@@ -36,4 +36,6 @@ public interface ExpertTailoringService {
     void updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest);
 
     void updateStatusExpertTailoring(UUID expertTailoringID);
+
+    Optional<ExpertTailoring> findExpertTailoringByID(UUID expertTailoringID);
 }
