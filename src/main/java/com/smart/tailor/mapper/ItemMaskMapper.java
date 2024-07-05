@@ -12,6 +12,8 @@ public interface ItemMaskMapper {
     @Mapping(source = "itemMask.itemMaskID", target = "itemMaskID")
     @Mapping(source = "itemMask.indexZ", target = "indexZ")
     @Mapping(source = "itemMask.material", target = "material")
+    @Mapping(source = "itemMask.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "itemMask.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(itemMask.getImageUrl()))")
     ItemMaskResponse mapperToItemMaskResponse(ItemMask itemMask);
 

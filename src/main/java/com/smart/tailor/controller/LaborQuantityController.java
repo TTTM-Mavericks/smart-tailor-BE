@@ -8,6 +8,7 @@ import com.smart.tailor.service.CategoryService;
 import com.smart.tailor.service.LaborQuantityService;
 import com.smart.tailor.utils.request.CategoryRequest;
 import com.smart.tailor.utils.request.LaborQuantityRequest;
+import com.smart.tailor.utils.request.LaborQuantityRequestList;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -47,10 +49,10 @@ public class LaborQuantityController {
     }
 
     @PostMapping(APIConstant.LaborQuantityAPI.ADD_NEW_LABOR_QUANTITY)
-    public ResponseEntity<ObjectNode> addNewLaborQuantity(@Valid @RequestBody LaborQuantityRequest laborQuantityRequest) {
+    public ResponseEntity<ObjectNode> addNewLaborQuantity(@Valid @RequestBody LaborQuantityRequestList laborQuantityRequestList) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        laborQuantityService.createLaborQuantity(laborQuantityRequest);
+        laborQuantityService.createLaborQuantity(laborQuantityRequestList);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.ADD_LABOR_QUANTITY_SUCCESSFULLY);
         return ResponseEntity.ok(response);

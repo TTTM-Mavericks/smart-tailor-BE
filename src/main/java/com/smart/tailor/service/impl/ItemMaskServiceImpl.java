@@ -39,7 +39,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
 
     @Override
     @Transactional
-    public APIResponse createItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList) {
+    public List<ItemMask> createItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList) {
         List<ItemMask> itemMaskList = new ArrayList<>();
 
         for(ItemMaskRequest itemMaskRequest : itemMaskRequestList){
@@ -96,16 +96,10 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                             .printType(PrintType.valueOf(itemMaskRequest.getPrintType()))
                             .build()
             );
-
             itemMaskList.add(itemMask);
         }
 
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.ADD_ITEM_MASK_SUCCESSFULLY)
-                .data(itemMaskList)
-                .build();
+        return itemMaskList;
     }
 
     @Override

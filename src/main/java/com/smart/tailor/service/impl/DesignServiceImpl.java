@@ -14,6 +14,7 @@ import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.service.PartOfDesignService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
 import com.smart.tailor.utils.request.PartOfDesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
@@ -46,12 +47,12 @@ public class DesignServiceImpl implements DesignService {
 
     @Transactional
     @Override
-    public APIResponse createDesign(DesignRequest designRequest) {
+    public void addNewDesign(DesignRequest designRequest) {
         if(!Utilities.isValidBoolean(designRequest.getPublicStatus())){
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
 
-        var user = userService.getUserDetailByEmail(designRequest.getUserEmail())
+        var user = userService.getUserByUserID(UUID.fromString(designRequest.getUserID()))
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
         var expertTailoringResponse = expertTailoringService.getExpertTailoringByExpertTailoringName(designRequest.getExpertTailoringName())
@@ -74,12 +75,16 @@ public class DesignServiceImpl implements DesignService {
             throw new BadRequestException(MessageConstant.PART_OF_DESIGN_LIST_REQUEST_IS_EMPTY);
         }
 
-        APIResponse partOfDesignResponse = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
-        if(partOfDesignResponse.getStatus() != HttpStatus.OK.value()){
-            throw new ExternalServiceException(HttpStatusCode.valueOf(partOfDesignResponse.getStatus()), partOfDesignResponse.getMessage());
+        List<PartOfDesign> partOfDesignList = null;
+        try{
+            partOfDesignList = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
+        }  catch (BadRequestException ex) {
+            logger.error("Bad Request Exception in create Item Mask {}",ex.getMessage());
+            throw new BadRequestException(ex.getMessage());
+        } catch(ItemNotFoundException ex){
+            logger.error("Item Not Found Exception in create Item Mask {}",ex.getMessage());
+            throw new ItemNotFoundException(ex.getMessage());
         }
-
-        var partOfDesignList = (List<PartOfDesign>) partOfDesignResponse.getData();
 
         byte[] imageUrl = Optional.ofNullable(partOfDesignList)
                 .orElseGet(Collections::emptyList)
@@ -94,14 +99,6 @@ public class DesignServiceImpl implements DesignService {
 
         // Update List PartOfDesign belong to Design
         design.setPartOfDesignList(partOfDesignList);
-
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.ADD_NEW_DESIGN_SUCCESSFULLY)
-                .data(designMapper.mapperToDesignResponse(design))
-                .build();
-
     }
 
     @Override
@@ -143,10 +140,8 @@ public class DesignServiceImpl implements DesignService {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " roleName");
         }
 
-        var userExisted = userService.getUserByUserID(userID);
-        if (userExisted == null) {
-            throw new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND);
-        }
+        var userExisted = userService.getUserByUserID(userID)
+                .orElseThrow(() -> new  ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
         if (!userExisted.getRoles().getRoleName().contains(roleName)) {
             throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ROLE);
@@ -177,20 +172,36 @@ public class DesignServiceImpl implements DesignService {
 
 
     @Override
-    public APIResponse updatePublicStatusDesign(UUID designID) {
-        var designExisted = getDesignByID(designID);
-        if (designExisted == null) {
-            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN);
-        }
+    public void updatePublicStatusDesign(UUID designID) {
+        var designExisted = designRepository.findById(designID)
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN));
 
-        designExisted.setPublicStatus(designExisted.getPublicStatus() ? false : true);
+        designExisted.setPublicStatus(!designExisted.getPublicStatus());
         designRepository.save(designExisted);
+    }
 
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.UPDATE_PUBLIC_STATUS_SUCCESSFULLY)
-                .data(designMapper.mapperToDesignResponse(designExisted))
-                .build();
+    @Override
+    public void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest) {
+        var user = userService.getUserByUserID(UUID.fromString(cloneDesignRequest.getUserID()))
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
+
+        var brandDesign = designRepository.findById(UUID.fromString(cloneDesignRequest.getBrandDesignID()))
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_BY_BRAND_ID));
+
+        Design cloneDesign = designRepository.save(
+                Design
+                        .builder()
+                        .user(user)
+                        .expertTailoring(brandDesign.getExpertTailoring())
+                        .titleDesign(brandDesign.getTitleDesign())
+                        .publicStatus(brandDesign.getPublicStatus())
+                        .color(brandDesign.getColor())
+                        .partOfDesignList(brandDesign.getPartOfDesignList())
+                        .build()
+        );
+
+
+
+        logger.info("Create Clone Design {}", cloneDesign);
     }
 }
