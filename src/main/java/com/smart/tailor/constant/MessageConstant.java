@@ -176,6 +176,7 @@ public class MessageConstant {
      */
     /*    SUCCESS  */
     public static final String ADD_NEW_DESIGN_SUCCESSFULLY = "Add New Design Successfully!";
+    public static final String ADD_NEW_CLONE_DESIGN_SUCCESSFULLY = "Add New Clone Design Successfully!";
     public static final String GET_ALL_DESIGN_BY_USER_ID_SUCCESSFULLY = "Get All Design By User ID Successfully!";
     public static final String GET_ALL_DESIGN_SUCCESSFULLY = "Get All Design Successfully!";
     public static final String GET_DESIGN_BY_ID_SUCCESSFULLY = "Get Design By ID Successfully!";
@@ -188,6 +189,7 @@ public class MessageConstant {
     public static final String GET_ALL_DESIGN_FAIL = "Get All Design Fail!";
     public static final String CAN_NOT_FIND_ANY_DESIGN_BY_USER_ID = "Can Not Find Any Design By User ID";
     public static final String CAN_NOT_FIND_ANY_DESIGN = "Can Not Find Any Design";
+    public static final String CAN_NOT_FIND_ANY_DESIGN_BY_BRAND_ID = "Can Not Find Any Design By Brand ID";
     public static final String UPDATE_PUBLIC_STATUS_FAIL = "Update Public Status Fail";
 
     /**

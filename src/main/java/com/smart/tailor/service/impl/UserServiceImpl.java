@@ -114,9 +114,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByUserID(UUID uuid) {
-        if(!Utilities.isValidUUIDType(uuid)) return null;
-        return userRepository.findById(uuid).orElse(null);
+    public Optional<User> getUserByUserID(UUID uuid) {
+        return userRepository.findById(uuid);
     }
 
     @Override

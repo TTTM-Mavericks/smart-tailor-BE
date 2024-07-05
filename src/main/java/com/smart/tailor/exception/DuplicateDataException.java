@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class DuplicateDataException extends RuntimeException{
+public class DuplicateDataException extends RuntimeException {
     private List<Object> errors;
     public DuplicateDataException(String message, List<Object> errors){
         super(message);

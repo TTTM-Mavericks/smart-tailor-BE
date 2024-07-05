@@ -30,7 +30,7 @@ public interface UserService {
 
     User updateUserProfile(UserRequest userRequest);
 
-    User getUserByUserID(UUID uuid);
+    Optional<User> getUserByUserID(UUID uuid);
 
     List<UserResponse> findAllUserByRoleName(RoleType roleType);
 }

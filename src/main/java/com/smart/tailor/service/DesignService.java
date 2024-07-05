@@ -1,7 +1,9 @@
 package com.smart.tailor.service;
 
 import com.smart.tailor.entities.Design;
+import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
+import com.smart.tailor.utils.request.PartOfDesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignResponse;
 
@@ -9,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DesignService {
-    APIResponse createDesign(DesignRequest designRequest);
+    void addNewDesign(DesignRequest designRequest);
 
     Design getDesignByID(UUID designID);
 
@@ -21,5 +23,7 @@ public interface DesignService {
 
     APIResponse getAllDesignByUserIDAndRoleName(UUID userID, String roleName);
 
-    APIResponse updatePublicStatusDesign(UUID designID);
+    void updatePublicStatusDesign(UUID designID);
+
+    void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest);
 }

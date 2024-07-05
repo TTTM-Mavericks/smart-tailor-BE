@@ -1,11 +1,13 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidEmail;
 import com.smart.tailor.validate.ValidStringUUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -13,26 +15,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DesignRequest {
+public class CloneDesignRequest {
     @NotBlank(message = "userID can not be blank")
     @NotNull(message = "userID can not be null")
     @ValidStringUUID(message = "userID is invalid of type UUID")
     private String userID;
 
-    @NotNull(message = "expertTailoringName is not null")
-    @NotBlank(message = "expertTailoringName is not blank")
-    private String expertTailoringName;
-
-    @NotNull(message = "titleDesign is not null")
-    @NotBlank(message = "titleDesign is not blank")
-    private String titleDesign;
-
-    @NotNull(message = "publicStatus is required")
-    private Boolean publicStatus;
-
-    private String imageUrl;
-
-    private String color;
+    @NotBlank(message = "brandDesignID can not be blank")
+    @NotNull(message = "brandDesignID can not be null")
+    @ValidStringUUID(message = "brandDesignID is invalid of type UUID")
+    private String brandDesignID;
 
     @Valid
     private List<@Valid PartOfDesignRequest> partOfDesign;

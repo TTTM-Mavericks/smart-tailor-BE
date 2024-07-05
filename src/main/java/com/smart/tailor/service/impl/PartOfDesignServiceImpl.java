@@ -3,7 +3,6 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.exception.BadRequestException;
-import com.smart.tailor.exception.ExternalServiceException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.PartOfDesignMapper;
 import com.smart.tailor.repository.PartOfDesignRepository;
@@ -20,9 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +39,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
     @Override
     @Transactional
-    public APIResponse createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
+    public List<PartOfDesign> createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
         List<PartOfDesign> partOfDesignList = new ArrayList<>();
         for(PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList){
 
@@ -78,23 +75,24 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                 throw new BadRequestException(MessageConstant.ITEM_MASK_LIST_REQUEST_IS_EMPTY);
             }
 
-            var itemMaskResponse = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMask());
-            if(itemMaskResponse.getStatus() != HttpStatus.OK.value()){
-                throw new ExternalServiceException(HttpStatusCode.valueOf(itemMaskResponse.getStatus()), itemMaskResponse.getMessage());
+            List<ItemMask> itemMaskList = null;
+            try{
+                itemMaskList = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMask());
+            } catch (BadRequestException ex) {
+                logger.error("Bad Request Exception in create Item Mask {}",ex.getMessage());
+                throw new BadRequestException(ex.getMessage());
+            } catch(ItemNotFoundException ex){
+                logger.error("Item Not Found Exception in create Item Mask {}",ex.getMessage());
+                throw new ItemNotFoundException(ex.getMessage());
             }
 
             // Set List Of ItemMask belong to PartOfDesign
-            partOfDesign.setItemMaskList((List<ItemMask>) itemMaskResponse.getData());
+            partOfDesign.setItemMaskList(itemMaskList);
 
             // Add Correct PartOfDesign to ListPartOfDesign
             partOfDesignList.add(partOfDesign);
         }
-        return APIResponse
-                .builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageConstant.ADD_PART_OF_DESIGN_SUCCESSFULLY)
-                .data(partOfDesignList)
-                .build();
+        return partOfDesignList;
 
     }
 

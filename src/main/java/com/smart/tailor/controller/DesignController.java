@@ -6,7 +6,9 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.service.DesignService;
+import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
+import com.smart.tailor.utils.request.PartOfDesignRequest;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,11 +35,10 @@ public class DesignController {
 
     @PostMapping(APIConstant.DesignAPI.ADD_NEW_DESIGN)
     public ResponseEntity<ObjectNode> addNewDesign(@Valid @RequestBody DesignRequest designRequest) {
-        var apiResponse = designService.createDesign(designRequest);
+        designService.addNewDesign(designRequest);
         ObjectNode response = objectMapper.createObjectNode();
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_DESIGN_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -108,11 +110,19 @@ public class DesignController {
 
     @PutMapping(APIConstant.DesignAPI.UPDATE_PUBLIC_STATUS_BY_DESIGN_ID + "/{designID}")
     public ResponseEntity<ObjectNode> updatePublicStatusByDesignID(@ValidUUID @PathVariable("designID") UUID designID) {
-        var apiResponse = designService.updatePublicStatusDesign(designID);
+       designService.updatePublicStatusDesign(designID);
         ObjectNode response = objectMapper.createObjectNode();
-        response.put("status", apiResponse.getStatus());
-        response.put("message", apiResponse.getMessage());
-        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.UPDATE_PUBLIC_STATUS_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(APIConstant.DesignAPI.ADD_NEW_CLONE_DESIGN)
+    public ResponseEntity<ObjectNode> addNewCloneDesign(@Valid @RequestBody CloneDesignRequest cloneDesignRequest) {
+        designService.addNewCloneDesignFromBrandDesign(cloneDesignRequest);
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_NEW_CLONE_DESIGN_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 }
