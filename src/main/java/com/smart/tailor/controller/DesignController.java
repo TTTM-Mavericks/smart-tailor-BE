@@ -9,6 +9,7 @@ import com.smart.tailor.service.DesignService;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
 import com.smart.tailor.utils.request.PartOfDesignRequest;
+import com.smart.tailor.utils.request.UpdateDesignRequest;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -123,6 +124,15 @@ public class DesignController {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.ADD_NEW_CLONE_DESIGN_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(APIConstant.DesignAPI.UPDATE_DESIGN)
+    public ResponseEntity<ObjectNode> updateDesign(@Valid @RequestBody UpdateDesignRequest updateDesignRequest) {
+        designService.updateDesign(updateDesignRequest);
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.UPDATE_DESIGN_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 }

@@ -17,6 +17,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
 import com.smart.tailor.utils.request.PartOfDesignRequest;
+import com.smart.tailor.utils.request.UpdateDesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignResponse;
 import jakarta.transaction.Transactional;
@@ -79,10 +80,10 @@ public class DesignServiceImpl implements DesignService {
         try{
             partOfDesignList = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
         }  catch (BadRequestException ex) {
-            logger.error("Bad Request Exception in create Item Mask {}",ex.getMessage());
+            logger.error("Bad Request Exception in create Part Of Design {}",ex.getMessage());
             throw new BadRequestException(ex.getMessage());
         } catch(ItemNotFoundException ex){
-            logger.error("Item Not Found Exception in create Item Mask {}",ex.getMessage());
+            logger.error("Item Not Found Exception in Part Of Design {}",ex.getMessage());
             throw new ItemNotFoundException(ex.getMessage());
         }
 
@@ -99,6 +100,8 @@ public class DesignServiceImpl implements DesignService {
 
         // Update List PartOfDesign belong to Design
         design.setPartOfDesignList(partOfDesignList);
+
+        designRepository.save(design);
     }
 
     @Override
@@ -180,6 +183,7 @@ public class DesignServiceImpl implements DesignService {
         designRepository.save(designExisted);
     }
 
+    @Transactional
     @Override
     public void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest) {
         var user = userService.getUserByUserID(UUID.fromString(cloneDesignRequest.getUserID()))
@@ -200,8 +204,41 @@ public class DesignServiceImpl implements DesignService {
                         .build()
         );
 
-
-
         logger.info("Create Clone Design {}", cloneDesign);
+    }
+
+    @Transactional
+    @Override
+    public void updateDesign(UpdateDesignRequest updateDesignRequest) {
+        var design = designRepository.findById(UUID.fromString(updateDesignRequest.getDesignID()))
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN));
+
+        List<PartOfDesign> partOfDesignList = null;
+        try{
+            design.getPartOfDesignList().clear();
+            partOfDesignList = partOfDesignService.updatePartOfDesign(design, updateDesignRequest.getPartOfDesign());
+        }  catch (BadRequestException ex) {
+            logger.error("Bad Request Exception in Update Part Of Design {}",ex.getMessage());
+            throw new BadRequestException(ex.getMessage());
+        } catch(ItemNotFoundException ex){
+            logger.error("Item Not Found Exception in Update Part Of Design {}",ex.getMessage());
+            throw new ItemNotFoundException(ex.getMessage());
+        }
+
+        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
+                .map(partOfDesign -> partOfDesign.getImageUrl())
+                .findFirst()
+                .orElse(null);
+
+        // Set ImageUrl From Front PartOfDesign to Design
+        design.setImageUrl(imageUrl);
+
+        // Update List PartOfDesign belong to Design
+        design.setPartOfDesignList(partOfDesignList);
+
+        designRepository.save(design);
     }
 }

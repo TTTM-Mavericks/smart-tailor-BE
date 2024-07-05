@@ -4,6 +4,7 @@ import com.smart.tailor.entities.Design;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
 import com.smart.tailor.utils.request.PartOfDesignRequest;
+import com.smart.tailor.utils.request.UpdateDesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignResponse;
 
@@ -26,4 +27,6 @@ public interface DesignService {
     void updatePublicStatusDesign(UUID designID);
 
     void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest);
+
+    void updateDesign(UpdateDesignRequest updateDesignRequest);
 }

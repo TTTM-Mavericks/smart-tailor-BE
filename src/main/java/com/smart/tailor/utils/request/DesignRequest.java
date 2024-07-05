@@ -4,6 +4,7 @@ import com.smart.tailor.validate.ValidEmail;
 import com.smart.tailor.validate.ValidStringUUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -35,6 +36,7 @@ public class DesignRequest {
 
     private String color;
 
+    @NotEmpty(message = "partOfDesign is not empty")
     @Valid
     private List<@Valid PartOfDesignRequest> partOfDesign;
 }
