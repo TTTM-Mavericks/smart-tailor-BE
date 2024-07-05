@@ -36,9 +36,11 @@ public class DesignDetail extends AuditEntity implements Serializable {
     @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", unique = false, nullable = true)
     private Brand brand;
 
-    private Integer quantity;
+    @ManyToOne
+    @JoinColumn(name = "size_id", referencedColumnName = "size_id", unique = false, nullable = true)
+    private Size size;
 
-    private String size;
+    private Integer quantity;
 
     private Boolean detailStatus;
 }

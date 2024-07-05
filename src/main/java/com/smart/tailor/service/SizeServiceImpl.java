@@ -90,4 +90,9 @@ public class SizeServiceImpl implements SizeService{
     public Optional<Size> findBySizeName(String sizeName) {
         return sizeRepository.findBySizeName(sizeName);
     }
+
+    @Override
+    public Optional<Size> findByID(UUID sizeID) {
+        return sizeRepository.findById(sizeID);
+    }
 }

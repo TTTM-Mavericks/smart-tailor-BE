@@ -12,5 +12,5 @@ public interface DesignDetailService {
 
     APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
 
-    DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, String size);
+    DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID size);
 }

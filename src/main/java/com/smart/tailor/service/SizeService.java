@@ -17,4 +17,6 @@ public interface SizeService {
     void updateSize(UUID sizeID, SizeRequest sizeRequest);
 
     Optional<Size> findBySizeName(String sizeName);
+
+    Optional<Size> findByID(UUID sizeID);
 }

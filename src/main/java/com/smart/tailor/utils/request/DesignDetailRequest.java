@@ -16,6 +16,6 @@ public class DesignDetailRequest {
     private UUID orderId;
     private UUID brandId;
     private Integer quantity;
-    private String size;
+    private String sizeID;
     private Boolean detailStatus;
 }
