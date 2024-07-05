@@ -57,7 +57,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                 base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
             }
 
-            var material = materialService.findByMaterialName(partOfDesignRequest.getMaterialName())
+            var material = materialService.findMaterialByID(UUID.fromString(partOfDesignRequest.getMaterialID()))
                     .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
 
             var partOfDesign = partOfDesignRepository.save(

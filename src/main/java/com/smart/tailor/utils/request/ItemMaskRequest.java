@@ -2,6 +2,7 @@ package com.smart.tailor.utils.request;
 
 import com.smart.tailor.enums.PrintType;
 import com.smart.tailor.validate.ValidEnumValue;
+import com.smart.tailor.validate.ValidStringUUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -19,9 +20,10 @@ public class ItemMaskRequest {
 
     private String typeOfItem;
 
-    @NotEmpty(message = "materialName is not empty")
-    @NotBlank(message = "materialName is not blank")
-    private String materialName;
+    @NotEmpty(message = "materialID is not empty")
+    @NotBlank(message = "materialID is not blank")
+    @ValidStringUUID(message = "materialID is invalid of type UUID")
+    private String materialID;
 
     @NotNull(message = "isSystemItem is required")
     private Boolean isSystemItem;

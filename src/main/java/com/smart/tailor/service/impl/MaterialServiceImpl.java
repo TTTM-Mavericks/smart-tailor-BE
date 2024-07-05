@@ -219,4 +219,21 @@ public class MaterialServiceImpl implements MaterialService {
     public Optional<Material> findByMaterialName(String materialName) {
         return materialRepository.findByMaterialName(materialName);
     }
+
+    @Override
+    public Optional<Material> findMaterialByID(UUID materialID) {
+        return materialRepository.findById(materialID);
+    }
+
+    @Override
+    public List<MaterialResponse> findListMaterialByCategoryID(UUID categoryID) {
+        var category = categoryService.findCategoryOptionalByID(categoryID)
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+
+        return materialRepository
+                .findListMaterialByCategoryID(categoryID)
+                .stream()
+                .map(materialMapper::mapperToMaterialResponse)
+                .collect(Collectors.toList());
+    }
 }

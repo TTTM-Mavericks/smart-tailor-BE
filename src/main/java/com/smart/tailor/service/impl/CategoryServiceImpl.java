@@ -99,4 +99,9 @@ public class CategoryServiceImpl implements CategoryService {
                     .build()
         );
     }
+
+    @Override
+    public Optional<Category> findCategoryOptionalByID(UUID categoryID) {
+        return categoryRepository.findById(categoryID);
+    }
 }

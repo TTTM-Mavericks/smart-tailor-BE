@@ -19,9 +19,10 @@ public class DesignRequest {
     @ValidStringUUID(message = "userID is invalid of type UUID")
     private String userID;
 
-    @NotNull(message = "expertTailoringName is not null")
-    @NotBlank(message = "expertTailoringName is not blank")
-    private String expertTailoringName;
+    @NotNull(message = "expertTailoringID is not null")
+    @NotBlank(message = "expertTailoringID is not blank")
+    @ValidStringUUID(message = "expertTailoringID is invalid of type UUID")
+    private String expertTailoringID;
 
     @NotNull(message = "titleDesign is not null")
     @NotBlank(message = "titleDesign is not blank")

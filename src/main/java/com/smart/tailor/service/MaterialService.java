@@ -36,4 +36,8 @@ public interface MaterialService {
     void generateSampleCategoryMaterialByExportExcel(HttpServletResponse response) throws IOException;
 
     Optional<Material> findByMaterialName(String materialName);
+
+    Optional<Material> findMaterialByID(UUID materialID);
+
+    List<MaterialResponse> findListMaterialByCategoryID(UUID categoryID);
 }

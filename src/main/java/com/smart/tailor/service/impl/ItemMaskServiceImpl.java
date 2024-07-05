@@ -76,7 +76,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
             String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
             String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
 
-            var material = materialService.findByMaterialName(itemMaskRequest.getMaterialName())
+            var material = materialService.findMaterialByID(UUID.fromString(itemMaskRequest.getMaterialID()))
                     .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED));
 
             var itemMask = itemMaskRepository.save(

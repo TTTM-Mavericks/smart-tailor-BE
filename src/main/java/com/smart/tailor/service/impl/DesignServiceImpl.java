@@ -55,7 +55,7 @@ public class DesignServiceImpl implements DesignService {
         var user = userService.getUserByUserID(UUID.fromString(designRequest.getUserID()))
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
-        var expertTailoringResponse = expertTailoringService.getExpertTailoringByExpertTailoringName(designRequest.getExpertTailoringName())
+        var expertTailoringResponse = expertTailoringService.findExpertTailoringByID(UUID.fromString(designRequest.getExpertTailoringID()))
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
