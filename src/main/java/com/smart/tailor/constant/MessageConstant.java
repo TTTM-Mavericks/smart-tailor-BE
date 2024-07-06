@@ -100,6 +100,7 @@ public class MessageConstant {
     public static final String GET_MATERIAL_BY_ID_SUCCESSFULLY = "Get Material By ID Successfully";
     public static final String GET_MATERIAL_BY_NAME_SUCCESSFULLY = "Get Material By Name Successfully";
     public static final String GET_LIST_MATERIAL_BY_CATEGORY_ID_SUCCESSFULLY = "Get List Material By Category ID Successfully";
+    public static final String GET_LIST_MATERIAL_BY_CATEGORY_NAME_SUCCESSFULLY = "Get List Material By Category Name Successfully";
     public static final String CHANGE_STATUS_MATERIAL_SUCCESSFULLY = "Change Status Material Successfully";
     public static final String GENERATE_SAMPLE_CATEGORY_MATERIAL_SUCCESSFULLY = "Generate Sample Category Material Successfully!";
 

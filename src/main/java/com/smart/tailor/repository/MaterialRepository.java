@@ -20,4 +20,7 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
 
     @Query(value = "select * from material where category_id = ?1", nativeQuery = true)
     List<Material> findListMaterialByCategoryID(UUID materialID);
+
+    @Query(value = "select m.* from material m join category c on m.category_id = c.category_id where c.category_name like ?1", nativeQuery = true)
+    List<Material> findListMaterialByCategoryName(String categoryName);
 }

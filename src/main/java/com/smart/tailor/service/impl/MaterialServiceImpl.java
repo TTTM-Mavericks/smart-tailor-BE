@@ -52,7 +52,7 @@ public class MaterialServiceImpl implements MaterialService {
         Optional<Material> categoryMaterialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName().toLowerCase(), materialRequest.getCategoryName().toLowerCase());
         Optional<Material> materialOptional = findByMaterialName(materialRequest.getMaterialName().toLowerCase());
 
-        if(materialOptional.isPresent() || categoryMaterialOptional.isPresent()) {
+        if (materialOptional.isPresent() || categoryMaterialOptional.isPresent()) {
             throw new ItemAlreadyExistException(MessageConstant.MATERIAL_IS_EXISTED);
         }
 
@@ -78,7 +78,7 @@ public class MaterialServiceImpl implements MaterialService {
         try {
             var excelData = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
 
-            if(excelData.isEmpty()){
+            if (excelData.isEmpty()) {
                 throw new BadRequestException("Category and Material Excel File Has Empty Data");
             }
 
@@ -86,10 +86,10 @@ public class MaterialServiceImpl implements MaterialService {
             List<MaterialRequest> uniqueExcelData = new ArrayList<>();
             List<Object> duplicateExcelData = new ArrayList<>();
 
-            for(MaterialRequest request : excelData){
-                if(!excelNames.add(request)){
+            for (MaterialRequest request : excelData) {
+                if (!excelNames.add(request)) {
                     duplicateExcelData.add(request);
-                }else{
+                } else {
                     uniqueExcelData.add(request);
                 }
             }
@@ -99,15 +99,14 @@ public class MaterialServiceImpl implements MaterialService {
             }
 
             List<Object> invalidData = new ArrayList<>();
-            for(MaterialRequest materialRequest : uniqueExcelData){
-                try{
+            for (MaterialRequest materialRequest : uniqueExcelData) {
+                try {
                     createMaterial(materialRequest);
                 } catch (ItemNotFoundException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_CATEGORY;
                     logger.error("Error creating Material: Item not found - {}", errorMessage, ex);
                     invalidData.add(new ErrorData(materialRequest, errorMessage));
-                }
-                catch (ItemAlreadyExistException ex){
+                } catch (ItemAlreadyExistException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.MATERIAL_IS_EXISTED;
                     logger.error("Error creating Material: Already exists - {}", errorMessage, ex);
                     invalidData.add(new ErrorData(materialRequest, errorMessage));
@@ -117,7 +116,7 @@ public class MaterialServiceImpl implements MaterialService {
                 }
             }
 
-            if(!invalidData.isEmpty()){
+            if (!invalidData.isEmpty()) {
                 throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
             }
         } catch (IOException ex) {
@@ -148,7 +147,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public MaterialResponse findByMaterialNameAndCategoryName(String materialName, String categoryName) {
         var materialOptional = findByMaterialNameAndCategory_CategoryName(materialName.toLowerCase(), categoryName.toLowerCase());
-        if(materialOptional.isPresent()){
+        if (materialOptional.isPresent()) {
             return materialMapper.mapperToMaterialResponse(materialOptional.get());
         }
 
@@ -164,9 +163,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public MaterialResponse findByMaterialID(UUID materialID) {
-        if(Utilities.isStringNotNullOrEmpty(materialID.toString())){
+        if (Utilities.isStringNotNullOrEmpty(materialID.toString())) {
             var material = materialRepository.findByMaterialID(materialID);
-            if(material.isPresent()){
+            if (material.isPresent()) {
                 return materialMapper.mapperToMaterialResponse(material.get());
             }
         }
@@ -232,6 +231,18 @@ public class MaterialServiceImpl implements MaterialService {
 
         return materialRepository
                 .findListMaterialByCategoryID(categoryID)
+                .stream()
+                .map(materialMapper::mapperToMaterialResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MaterialResponse> findListMaterialByCategoryName(String categoryName) {
+        var category = categoryService.findByCategoryName(categoryName)
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+
+        return materialRepository
+                .findListMaterialByCategoryName("%" + categoryName + "%")
                 .stream()
                 .map(materialMapper::mapperToMaterialResponse)
                 .collect(Collectors.toList());
