@@ -167,4 +167,19 @@ public class MaterialController {
         response.put("message", MessageConstant.GENERATE_SAMPLE_CATEGORY_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(APIConstant.MaterialAPI.GET_MATERIAL_BY_MATERIAL_NAME + "/{materialName}")
+    public ResponseEntity<ObjectNode> getMaterialByMaterialName(@ValidUUID @PathVariable("materialName") String materialName) {
+        ObjectNode response = objectMapper.createObjectNode();
+        var materials = materialService.findByMaterialName(materialName);
+        if (materials != null) {
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GET_MATERIAL_BY_ID_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(materials));
+        } else {
+            response.put("status", HttpStatus.NOT_FOUND.value());
+            response.put("message", MessageConstant.CAN_NOT_FIND_ANY_MATERIAL);
+        }
+        return ResponseEntity.ok(response);
+    }
 }
