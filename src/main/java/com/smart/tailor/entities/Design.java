@@ -46,6 +46,6 @@ public class Design extends AuditEntity implements Serializable {
     @Column(name = "color")
     private String color;
 
-    @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "design")
     private List<PartOfDesign> partOfDesignList;
 }

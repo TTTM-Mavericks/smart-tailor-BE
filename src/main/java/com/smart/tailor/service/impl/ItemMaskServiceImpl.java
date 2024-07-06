@@ -129,4 +129,10 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                 .map(itemMaskMapper::mapperToItemMaskResponse)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    @Override
+    public void deleteItemMaskByPartOfDesignID(UUID partOfDesignID) {
+        itemMaskRepository.deleteItemMaskByPartOfDesignID(partOfDesignID);
+    }
 }
