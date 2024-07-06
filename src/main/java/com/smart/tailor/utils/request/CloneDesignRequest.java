@@ -21,10 +21,10 @@ public class CloneDesignRequest {
     @ValidStringUUID(message = "userID is invalid of type UUID")
     private String userID;
 
-    @NotBlank(message = "brandDesignID can not be blank")
-    @NotNull(message = "brandDesignID can not be null")
-    @ValidStringUUID(message = "brandDesignID is invalid of type UUID")
-    private String brandDesignID;
+    @NotBlank(message = "designID can not be blank")
+    @NotNull(message = "designID can not be null")
+    @ValidStringUUID(message = "designID is invalid of type UUID")
+    private String designID;
 
     @Valid
     private List<@Valid PartOfDesignRequest> partOfDesign;

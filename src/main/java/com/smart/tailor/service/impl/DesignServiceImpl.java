@@ -189,7 +189,7 @@ public class DesignServiceImpl implements DesignService {
         var user = userService.getUserByUserID(UUID.fromString(cloneDesignRequest.getUserID()))
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
-        var brandDesign = designRepository.findById(UUID.fromString(cloneDesignRequest.getBrandDesignID()))
+        var brandDesign = designRepository.findById(UUID.fromString(cloneDesignRequest.getDesignID()))
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_BY_BRAND_ID));
 
         Design cloneDesign = designRepository.save(
@@ -200,11 +200,40 @@ public class DesignServiceImpl implements DesignService {
                         .titleDesign(brandDesign.getTitleDesign())
                         .publicStatus(brandDesign.getPublicStatus())
                         .color(brandDesign.getColor())
-                        .partOfDesignList(brandDesign.getPartOfDesignList())
                         .build()
         );
-
         logger.info("Create Clone Design {}", cloneDesign);
+
+        if(Optional.ofNullable(cloneDesignRequest.getPartOfDesign()).isEmpty()){
+            throw new BadRequestException(MessageConstant.PART_OF_DESIGN_LIST_REQUEST_IS_EMPTY);
+        }
+
+        List<PartOfDesign> partOfDesignList = null;
+        try{
+            partOfDesignList = partOfDesignService.createPartOfDesign(cloneDesign, cloneDesignRequest.getPartOfDesign());
+        }  catch (BadRequestException ex) {
+            logger.error("Bad Request Exception in create Part Of Design {}",ex.getMessage());
+            throw new BadRequestException(ex.getMessage());
+        } catch(ItemNotFoundException ex){
+            logger.error("Item Not Found Exception in Part Of Design {}",ex.getMessage());
+            throw new ItemNotFoundException(ex.getMessage());
+        }
+
+        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
+                .map(partOfDesign -> partOfDesign.getImageUrl())
+                .findFirst()
+                .orElse(null);
+
+        // Set ImageUrl From Front PartOfDesign to Design
+        cloneDesign.setImageUrl(imageUrl);
+
+        // Update List PartOfDesign belong to Design
+        cloneDesign.setPartOfDesignList(partOfDesignList);
+
+        designRepository.save(cloneDesign);
     }
 
     @Transactional
