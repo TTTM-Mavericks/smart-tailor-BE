@@ -20,6 +20,8 @@ public class ExpertTailoringResponse {
 
     private String sizeImageUrl;
 
+    private String modelImageUrl;
+
     private Boolean status;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

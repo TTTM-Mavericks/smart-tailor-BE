@@ -91,6 +91,7 @@ public class SmartTailorBeApplication {
                         .builder()
                         .expertTailoringName("EMBROIDER")
                         .sizeImageUrl("EMBROIDER IMAGE URL")
+                        .modelImageUrl("EMBROIDER MODEL URL")
                         .status(true)
                         .build()
                 );
@@ -99,6 +100,7 @@ public class SmartTailorBeApplication {
                         .builder()
                         .expertTailoringName("SEW")
                         .sizeImageUrl("SEW IMAGE URL")
+                        .modelImageUrl("SEW MODEL URL")
                         .status(true)
                         .build()
                 );

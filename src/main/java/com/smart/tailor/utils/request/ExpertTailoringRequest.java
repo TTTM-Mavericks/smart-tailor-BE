@@ -19,4 +19,8 @@ public class ExpertTailoringRequest {
     @NotNull(message = "sizeImageUrl is not null")
     @NotEmpty(message = "sizeImageUrl is not empty")
     private String sizeImageUrl;
+
+    @NotNull(message = "modelImageUrl is not null")
+    @NotEmpty(message = "modelImageUrl is not empty")
+    private String modelImageUrl;
 }
