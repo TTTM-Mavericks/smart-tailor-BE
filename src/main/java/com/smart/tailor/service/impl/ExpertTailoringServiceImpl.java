@@ -192,6 +192,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                         .builder()
                         .expertTailoringID(expertTailoringID)
                         .expertTailoringName(expertTailoringRequest.getExpertTailoringName())
+                        .sizeImageUrl(expertTailoringRequest.getSizeImageUrl())
                         .status(expertTailoring.getStatus())
                         .build()
         );
