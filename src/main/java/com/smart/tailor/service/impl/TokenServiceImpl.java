@@ -46,4 +46,9 @@ public class TokenServiceImpl implements TokenService {
         });
         tokenRepository.saveAll(tokens);
     }
+
+    @Override
+    public void deleteTokenByUserID(UUID userID) {
+        tokenRepository.deleteTokenByUserID(userID);
+    }
 }
