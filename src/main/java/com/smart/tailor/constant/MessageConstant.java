@@ -186,7 +186,7 @@ public class MessageConstant {
     public static final String GET_ALL_DESIGN_BY_CUSTOMER_ID_SUCCESSFULLY = "Get All Design By Customer ID Successfully!";
     public static final String GET_ALL_DESIGN_BY_BRAND_ID_SUCCESSFULLY = "Get All Design By Brand ID Successfully!";
     public static final String UPDATE_PUBLIC_STATUS_SUCCESSFULLY = "Update Public Status Successfully";
-    public static final String UPDATE_DESIGN_SUCCESSFULLY  = "Update Design Successfully";
+    public static final String UPDATE_DESIGN_SUCCESSFULLY = "Update Design Successfully";
 
     /*    FAIL     */
     public static final String CAN_NOT_FIND_ANY_DESIGN_BY_USER_ID = "Can Not Find Any Design By User ID";
@@ -314,4 +314,14 @@ public class MessageConstant {
      * ORDER
      */
     public static final String CREATE_ORDER_SUCCESSFULLY = "Create Order Successfully";
+
+    /**
+     * System Image
+     */
+    public static final String GET_ALL_SYSTEM_IMAGE_SUCCESSFULLY = "Get All System Image Successfully!";
+    public static final String ADD_NEW_SYSTEM_IMAGE_SUCCESSFULLY = "Add New System Image Successfully!";
+    public static final String GET_SYSTEM_IMAGE_SUCCESSFULLY = "Get System Image Successfully!";
+    public static final String CAN_NOT_FIND_ANY_SYSTEM_IMAGE = "Can not find any System Image";
+    public static final String ADD_NEW_SYSTEM_IMAGE_FAIL = "Fail To Add New System Image";
+
 }

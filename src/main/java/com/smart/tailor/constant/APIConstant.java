@@ -254,4 +254,16 @@ public class APIConstant {
         public static final String CREATE_ORDER = "/create-order";
 
     }
+
+    /**
+     * System Image
+     */
+    public class SystemImageAPI{
+        public static final String SYSTEM_IMAGE = APIConstant.API + "/system-image";
+        public static final String ADD_NEW_SYSTEM_IMAGE = "/add-new-system-image";
+        public static final String GET_ALL_SYSTEM_IMAGE = "/get-all-system-image";
+        public static final String GET_ALL_SYSTEM_IMAGE_BY_ID = "/get-all-system-image-by-id";
+        public static final String GET_ALL_SYSTEM_IMAGE_BY_IMAGE_TYPE = "/get-all-system-image-by-image-type";
+        public static final String GET_ALL_SYSTEM_IMAGE_BY_IMAGE_TYPE_AND_PREMIUM = "/get-all-system-image-by-image-type-and-premium";
+    }
 }
