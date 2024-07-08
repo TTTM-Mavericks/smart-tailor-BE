@@ -1,6 +1,7 @@
 package com.smart.tailor.mapper;
 
 import com.smart.tailor.entities.Design;
+import com.smart.tailor.utils.response.DesignCustomResponse;
 import com.smart.tailor.utils.response.DesignResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,4 +26,12 @@ public interface DesignMapper {
         }
         return null;
     }
+
+    @Mapping(source = "design.designID", target = "designID")
+    @Mapping(source = "user", target = "user")
+    @Mapping(source = "expertTailoring", target = "expertTailoring")
+    @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(design.getImageUrl()))")
+    @Mapping(source = "design.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "design.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    DesignCustomResponse mapperToDesignCustomResponse(Design design);
 }

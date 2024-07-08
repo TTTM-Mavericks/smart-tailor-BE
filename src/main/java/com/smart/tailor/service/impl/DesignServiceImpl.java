@@ -5,7 +5,6 @@ import com.smart.tailor.entities.Design;
 import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.BadRequestException;
-import com.smart.tailor.exception.ExternalServiceException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignMapper;
 import com.smart.tailor.repository.DesignRepository;
@@ -16,7 +15,6 @@ import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
-import com.smart.tailor.utils.request.PartOfDesignRequest;
 import com.smart.tailor.utils.request.UpdateDesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignResponse;
@@ -26,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -48,7 +45,7 @@ public class DesignServiceImpl implements DesignService {
 
     @Transactional
     @Override
-    public void addNewDesign(DesignRequest designRequest) {
+    public APIResponse addNewDesign(DesignRequest designRequest) {
         if(!Utilities.isValidBoolean(designRequest.getPublicStatus())){
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
@@ -101,7 +98,14 @@ public class DesignServiceImpl implements DesignService {
         // Update List PartOfDesign belong to Design
         design.setPartOfDesignList(partOfDesignList);
 
-        designRepository.save(design);
+        var saveDesign = designRepository.save(design);
+
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.ADD_NEW_DESIGN_SUCCESSFULLY)
+                .data(designMapper.mapperToDesignCustomResponse(saveDesign))
+                .build();
     }
 
     @Override
@@ -238,14 +242,26 @@ public class DesignServiceImpl implements DesignService {
 
     @Transactional
     @Override
-    public void updateDesign(UpdateDesignRequest updateDesignRequest) {
-        var design = designRepository.findById(UUID.fromString(updateDesignRequest.getDesignID()))
+    public APIResponse updateDesign(UUID designID, DesignRequest designRequest) {
+        if(!Utilities.isValidBoolean(designRequest.getPublicStatus())){
+            throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
+        }
+
+        var user = userService.getUserByUserID(UUID.fromString(designRequest.getUserID()))
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
+
+        var expertTailoringResponse = expertTailoringService.findExpertTailoringByID(UUID.fromString(designRequest.getExpertTailoringID()))
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
+
+        String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
+
+        var design = designRepository.findById(designID)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN));
 
         List<PartOfDesign> partOfDesignList = null;
         try{
             design.getPartOfDesignList().clear();
-            partOfDesignList = partOfDesignService.updatePartOfDesign(design, updateDesignRequest.getPartOfDesign());
+            partOfDesignList = partOfDesignService.updatePartOfDesign(design, designRequest.getPartOfDesign());
         }  catch (BadRequestException ex) {
             logger.error("Bad Request Exception in Update Part Of Design {}",ex.getMessage());
             throw new BadRequestException(ex.getMessage());
@@ -262,12 +278,25 @@ public class DesignServiceImpl implements DesignService {
                 .findFirst()
                 .orElse(null);
 
-        // Set ImageUrl From Front PartOfDesign to Design
-        design.setImageUrl(imageUrl);
+        var updateDesign = designRepository.save(
+                Design
+                        .builder()
+                        .designID(designID)
+                        .user(user)
+                        .expertTailoring(expertTailoringResponse)
+                        .titleDesign(designRequest.getTitleDesign())
+                        .publicStatus(designRequest.getPublicStatus())
+                        .color(color)
+                        .imageUrl(imageUrl)
+                        .partOfDesignList(partOfDesignList)
+                        .build()
+        );
 
-        // Update List PartOfDesign belong to Design
-        design.setPartOfDesignList(partOfDesignList);
-
-        designRepository.save(design);
+        return APIResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageConstant.UPDATE_DESIGN_SUCCESSFULLY)
+                .data(designMapper.mapperToDesignCustomResponse(updateDesign))
+                .build();
     }
 }

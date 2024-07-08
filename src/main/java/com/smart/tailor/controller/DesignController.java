@@ -36,10 +36,11 @@ public class DesignController {
 
     @PostMapping(APIConstant.DesignAPI.ADD_NEW_DESIGN)
     public ResponseEntity<ObjectNode> addNewDesign(@Valid @RequestBody DesignRequest designRequest) {
-        designService.addNewDesign(designRequest);
         ObjectNode response = objectMapper.createObjectNode();
-        response.put("status", HttpStatus.OK.value());
-        response.put("message", MessageConstant.ADD_NEW_DESIGN_SUCCESSFULLY);
+        var apiResponse = designService.addNewDesign(designRequest);
+        response.put("status", apiResponse.getStatus());
+        response.put("message", apiResponse.getMessage());
+        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
         return ResponseEntity.ok(response);
     }
 
@@ -127,12 +128,14 @@ public class DesignController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(APIConstant.DesignAPI.UPDATE_DESIGN)
-    public ResponseEntity<ObjectNode> updateDesign(@Valid @RequestBody UpdateDesignRequest updateDesignRequest) {
-        designService.updateDesign(updateDesignRequest);
+    @PutMapping(APIConstant.DesignAPI.UPDATE_DESIGN + "/{designID}")
+    public ResponseEntity<ObjectNode> updateDesign(@ValidUUID @PathVariable("designID") UUID designID,
+                                                   @Valid @RequestBody DesignRequest designRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        response.put("status", HttpStatus.OK.value());
-        response.put("message", MessageConstant.UPDATE_DESIGN_SUCCESSFULLY);
+        var apiResponse = designService.updateDesign(designID, designRequest);
+        response.put("status", apiResponse.getStatus());
+        response.put("message", apiResponse.getMessage());
+        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
         return ResponseEntity.ok(response);
     }
 }
