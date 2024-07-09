@@ -81,7 +81,7 @@ public class DesignServiceImpl implements DesignService {
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
-                .map(partOfDesign -> partOfDesign.getImageUrl())
+                .map(partOfDesign -> partOfDesign.getSuccessImageUrl())
                 .findFirst()
                 .orElse(null);
 
