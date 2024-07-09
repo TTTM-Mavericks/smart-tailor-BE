@@ -19,4 +19,6 @@ public interface ItemMaskService {
     List<ItemMaskResponse> getAllItemMask();
 
     void deleteItemMaskByPartOfDesignID(UUID partOfDesignID);
+
+    void deleteItemMaskByDesignID(UUID designID);
 }

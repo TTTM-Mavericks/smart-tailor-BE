@@ -135,4 +135,10 @@ public class ItemMaskServiceImpl implements ItemMaskService {
     public void deleteItemMaskByPartOfDesignID(UUID partOfDesignID) {
         itemMaskRepository.deleteItemMaskByPartOfDesignID(partOfDesignID);
     }
+
+    @Transactional
+    @Override
+    public void deleteItemMaskByDesignID(UUID designID) {
+        itemMaskRepository.deleteItemMaskByDesignID(designID);
+    }
 }

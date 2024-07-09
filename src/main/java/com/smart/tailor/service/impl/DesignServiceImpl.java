@@ -261,7 +261,8 @@ public class DesignServiceImpl implements DesignService {
         List<PartOfDesign> partOfDesignList = null;
         try{
             design.getPartOfDesignList().clear();
-            partOfDesignList = partOfDesignService.updatePartOfDesign(design, designRequest.getPartOfDesign());
+            partOfDesignService.deletePartOfDesignByDesignID(designID);
+            partOfDesignList = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
         }  catch (BadRequestException ex) {
             logger.error("Bad Request Exception in Update Part Of Design {}",ex.getMessage());
             throw new BadRequestException(ex.getMessage());
