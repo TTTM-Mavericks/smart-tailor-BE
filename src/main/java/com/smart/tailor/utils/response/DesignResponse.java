@@ -32,6 +32,8 @@ public class DesignResponse {
 
     private List<PartOfDesignResponse> partOfDesign;
 
+    private List<DesignMaterialDetail> materialDetail;
+
     private String createDate;
 
     private String lastModifiedDate;

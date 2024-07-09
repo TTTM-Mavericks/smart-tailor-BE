@@ -44,14 +44,14 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
         // Check if Category and Material is Existed or not
         var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
-        if(materialResponse == null){
+        if (materialResponse == null) {
             throw new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED);
         }
 
         // Check Whether BrandMaterial is Existed or not
         // If Existed ==> Fail to Store Brand Material because Each Brand only enter one MaterialName belong to one CategoryName
         var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandName(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), brandMaterialRequest.getBrandName());
-        if(brandMaterialExisted != null) {
+        if (brandMaterialExisted != null) {
             throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
 
@@ -86,7 +86,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     @Override
     public List<BrandMaterialResponse> getAllBrandMaterialByBrandName(String brandName) {
         Optional<Brand> brand = brandService.findBrandByBrandName(brandName);
-        if(brand.isEmpty()) return null;
+        if (brand.isEmpty()) return null;
         return brandMaterialRepository
                 .findAll()
                 .stream()
@@ -103,7 +103,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         try {
             var excelData = excelImportService.getBrandMaterialDataFromExcel(file.getInputStream(), brandName);
 
-            if(excelData.isEmpty()){
+            if (excelData.isEmpty()) {
                 throw new BadRequestException("Brand Material Excel File Has Empty Data");
             }
 
@@ -111,10 +111,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             List<BrandMaterialRequest> uniqueExcelData = new ArrayList<>();
             List<Object> duplicateExcelData = new ArrayList<>();
 
-            for(BrandMaterialRequest request : excelData){
-                if(!excelNames.add(request)){
+            for (BrandMaterialRequest request : excelData) {
+                if (!excelNames.add(request)) {
                     duplicateExcelData.add(request);
-                }else{
+                } else {
                     uniqueExcelData.add(request);
                 }
             }
@@ -125,8 +125,8 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
             List<Object> invalidData = new ArrayList<>();
 
-            for(BrandMaterialRequest brandMaterialRequest : uniqueExcelData){
-                try{
+            for (BrandMaterialRequest brandMaterialRequest : uniqueExcelData) {
+                try {
                     createBrandMaterial(brandMaterialRequest);
                 } catch (ItemNotFoundException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_BRAND;
@@ -146,7 +146,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 }
             }
 
-            if(!invalidData.isEmpty()){
+            if (!invalidData.isEmpty()) {
                 throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
             }
         } catch (IOException ex) {
@@ -163,14 +163,14 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
         // Check if Category and Material is Existed or not
         var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
-        if(materialResponse == null){
+        if (materialResponse == null) {
             throw new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED);
         }
 
         // Check Whether BrandMaterial is Existed or not
         // If Existed ==> Fail to Store Brand Material because Each Brand only enter one MaterialName belong to one CategoryName
         var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandName(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), brandMaterialRequest.getBrandName());
-        if(brandMaterialExisted == null) {
+        if (brandMaterialExisted == null) {
             throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
 
@@ -190,5 +190,15 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
 
         brandMaterialRepository.updateBrandMaterial(brandPrice, brandMaterialExisted.getBrandMaterialKey().getBrandID(), brandMaterialExisted.getBrandMaterialKey().getMaterialID());
+    }
+
+    @Override
+    public Double getMinPriceByMaterialID(UUID materialID) {
+        return brandMaterialRepository.getMinPriceByMaterialID(materialID);
+    }
+
+    @Override
+    public Double getMaxPriceByMaterialID(UUID materialID) {
+        return brandMaterialRepository.getMaxPriceByMaterialID(materialID);
     }
 }

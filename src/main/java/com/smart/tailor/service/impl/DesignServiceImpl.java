@@ -8,16 +8,11 @@ import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignMapper;
 import com.smart.tailor.repository.DesignRepository;
-import com.smart.tailor.service.DesignService;
-import com.smart.tailor.service.ExpertTailoringService;
-import com.smart.tailor.service.PartOfDesignService;
-import com.smart.tailor.service.UserService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
-import com.smart.tailor.utils.request.UpdateDesignRequest;
-import com.smart.tailor.utils.response.APIResponse;
-import com.smart.tailor.utils.response.DesignResponse;
+import com.smart.tailor.utils.response.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +31,7 @@ public class DesignServiceImpl implements DesignService {
     private final DesignRepository designRepository;
     private final PartOfDesignService partOfDesignService;
     private final ExpertTailoringService expertTailoringService;
+    private final BrandMaterialService brandMaterialService;
     private final UserService userService;
     private final DesignMapper designMapper;
     private final Logger logger = LoggerFactory.getLogger(DesignServiceImpl.class);
@@ -46,7 +39,7 @@ public class DesignServiceImpl implements DesignService {
     @Transactional
     @Override
     public APIResponse addNewDesign(DesignRequest designRequest) {
-        if(!Utilities.isValidBoolean(designRequest.getPublicStatus())){
+        if (!Utilities.isValidBoolean(designRequest.getPublicStatus())) {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
 
@@ -69,18 +62,18 @@ public class DesignServiceImpl implements DesignService {
                         .build()
         );
 
-        if(Optional.ofNullable(designRequest.getPartOfDesign()).isEmpty()){
+        if (Optional.ofNullable(designRequest.getPartOfDesign()).isEmpty()) {
             throw new BadRequestException(MessageConstant.PART_OF_DESIGN_LIST_REQUEST_IS_EMPTY);
         }
 
         List<PartOfDesign> partOfDesignList = null;
-        try{
+        try {
             partOfDesignList = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
-        }  catch (BadRequestException ex) {
-            logger.error("Bad Request Exception in create Part Of Design {}",ex.getMessage());
+        } catch (BadRequestException ex) {
+            logger.error("Bad Request Exception in create Part Of Design {}", ex.getMessage());
             throw new BadRequestException(ex.getMessage());
-        } catch(ItemNotFoundException ex){
-            logger.error("Item Not Found Exception in Part Of Design {}",ex.getMessage());
+        } catch (ItemNotFoundException ex) {
+            logger.error("Item Not Found Exception in Part Of Design {}", ex.getMessage());
             throw new ItemNotFoundException(ex.getMessage());
         }
 
@@ -126,8 +119,68 @@ public class DesignServiceImpl implements DesignService {
     @Override
     public DesignResponse getDesignResponseByID(UUID designID) {
         var designOptional = designRepository.findById(designID);
-        if(designOptional.isPresent()){
-            return designMapper.mapperToDesignResponse(designOptional.get());
+        if (designOptional.isPresent()) {
+            DesignResponse designResponse = designMapper.mapperToDesignResponse(designOptional.get());
+            List<DesignMaterialDetail> materialDetailList = new ArrayList<>();
+
+            List<PartOfDesignResponse> partOfDesignList = designResponse.getPartOfDesign();
+            for (PartOfDesignResponse partOfDesign : partOfDesignList) {
+                MaterialResponse materialResponse = partOfDesign.getMaterial();
+                DesignMaterialDetail designMaterialDetail = DesignMaterialDetail
+                        .builder()
+                        .materialResponse(materialResponse)
+                        .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
+                        .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
+                        .build();
+                boolean constain = false;
+                for (int index = 0; index < materialDetailList.size(); index++) {
+                    if (materialDetailList.get(index).getMaterialResponse().getMaterialID().equals(materialResponse.getMaterialID())) {
+                        designMaterialDetail.setMaxPrice(
+                                designMaterialDetail.getMaxPrice() + materialDetailList.get(index).getMaxPrice()
+                        );
+                        designMaterialDetail.setMinPrice(
+                                designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
+                        );
+                        materialDetailList.set(index, designMaterialDetail);
+                        constain = true;
+                    }
+                }
+                if (!constain) {
+                    materialDetailList.add(designMaterialDetail);
+                }
+
+                List<ItemMaskResponse> itemMaskResponseList = partOfDesign.getItemMask();
+                for (ItemMaskResponse itemMaskResponse : itemMaskResponseList) {
+                    materialResponse = itemMaskResponse.getMaterial();
+                    designMaterialDetail = DesignMaterialDetail
+                            .builder()
+                            .materialResponse(materialResponse)
+                            .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
+                            .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
+                            .build();
+                    constain = false;
+                    for (int index = 0; index < materialDetailList.size(); index++) {
+                        if (materialDetailList.get(index).getMaterialResponse().getMaterialID().equals(materialResponse.getMaterialID())) {
+                            designMaterialDetail.setMaxPrice(
+                                    designMaterialDetail.getMaxPrice() + materialDetailList.get(index).getMaxPrice()
+                            );
+                            designMaterialDetail.setMinPrice(
+                                    designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
+                            );
+                            materialDetailList.set(index, designMaterialDetail);
+                            constain = true;
+                        }
+                    }
+                    if (!constain) {
+                        materialDetailList.add(designMaterialDetail);
+                    }
+                }
+            }
+
+            designResponse.setMaterialDetail(
+                    materialDetailList
+            );
+            return designResponse;
         }
         return null;
     }
@@ -148,7 +201,7 @@ public class DesignServiceImpl implements DesignService {
         }
 
         var userExisted = userService.getUserByUserID(userID)
-                .orElseThrow(() -> new  ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
         if (!userExisted.getRoles().getRoleName().contains(roleName)) {
             throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ROLE);
@@ -159,7 +212,7 @@ public class DesignServiceImpl implements DesignService {
                 .stream()
                 .filter(design -> {
                     var user = design.getUser();
-                    if(user.getUserID().toString().equals(userID.toString()) && user.getRoles().getRoleName().contains(roleName)){
+                    if (user.getUserID().toString().equals(userID.toString()) && user.getRoles().getRoleName().contains(roleName)) {
                         return true;
                     }
                     return false;
@@ -208,18 +261,18 @@ public class DesignServiceImpl implements DesignService {
         );
         logger.info("Create Clone Design {}", cloneDesign);
 
-        if(Optional.ofNullable(cloneDesignRequest.getPartOfDesign()).isEmpty()){
+        if (Optional.ofNullable(cloneDesignRequest.getPartOfDesign()).isEmpty()) {
             throw new BadRequestException(MessageConstant.PART_OF_DESIGN_LIST_REQUEST_IS_EMPTY);
         }
 
         List<PartOfDesign> partOfDesignList = null;
-        try{
+        try {
             partOfDesignList = partOfDesignService.createPartOfDesign(cloneDesign, cloneDesignRequest.getPartOfDesign());
-        }  catch (BadRequestException ex) {
-            logger.error("Bad Request Exception in create Part Of Design {}",ex.getMessage());
+        } catch (BadRequestException ex) {
+            logger.error("Bad Request Exception in create Part Of Design {}", ex.getMessage());
             throw new BadRequestException(ex.getMessage());
-        } catch(ItemNotFoundException ex){
-            logger.error("Item Not Found Exception in Part Of Design {}",ex.getMessage());
+        } catch (ItemNotFoundException ex) {
+            logger.error("Item Not Found Exception in Part Of Design {}", ex.getMessage());
             throw new ItemNotFoundException(ex.getMessage());
         }
 
@@ -243,7 +296,7 @@ public class DesignServiceImpl implements DesignService {
     @Transactional
     @Override
     public APIResponse updateDesign(UUID designID, DesignRequest designRequest) {
-        if(!Utilities.isValidBoolean(designRequest.getPublicStatus())){
+        if (!Utilities.isValidBoolean(designRequest.getPublicStatus())) {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
 
@@ -259,15 +312,15 @@ public class DesignServiceImpl implements DesignService {
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN));
 
         List<PartOfDesign> partOfDesignList = null;
-        try{
+        try {
             design.getPartOfDesignList().clear();
             partOfDesignService.deletePartOfDesignByDesignID(designID);
             partOfDesignList = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
-        }  catch (BadRequestException ex) {
-            logger.error("Bad Request Exception in Update Part Of Design {}",ex.getMessage());
+        } catch (BadRequestException ex) {
+            logger.error("Bad Request Exception in Update Part Of Design {}", ex.getMessage());
             throw new BadRequestException(ex.getMessage());
-        } catch(ItemNotFoundException ex){
-            logger.error("Item Not Found Exception in Update Part Of Design {}",ex.getMessage());
+        } catch (ItemNotFoundException ex) {
+            logger.error("Item Not Found Exception in Update Part Of Design {}", ex.getMessage());
             throw new ItemNotFoundException(ex.getMessage());
         }
 

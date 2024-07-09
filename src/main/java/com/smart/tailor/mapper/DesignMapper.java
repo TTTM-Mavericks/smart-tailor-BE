@@ -20,8 +20,8 @@ public interface DesignMapper {
     @Mapping(source = "design.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     DesignResponse mapperToDesignResponse(Design design);
 
-    default String decodeByteArrayToString(byte[] values){
-        if(values != null){
+    default String decodeByteArrayToString(byte[] values) {
+        if (values != null) {
             return new String(Base64.getDecoder().decode(values));
         }
         return null;
