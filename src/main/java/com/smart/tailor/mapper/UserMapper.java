@@ -8,5 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     @Mapping(source = "roles.roleName", target = "roleName")
+    @Mapping(source = "user.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "user.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     UserResponse mapperToUserResponse(User user);
 }

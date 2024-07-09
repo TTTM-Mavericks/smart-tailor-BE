@@ -2,7 +2,9 @@ package com.smart.tailor.repository;
 
 
 import com.smart.tailor.entities.Token;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +19,9 @@ public interface TokenRepository extends JpaRepository<Token, UUID> {
     List<Token> findAllValidTokenByUser(UUID userID);
 
     Optional<Token> findByToken(String token);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from token t where t.user_id = ?1", nativeQuery = true)
+    void deleteTokenByUserID(UUID userID);
 }

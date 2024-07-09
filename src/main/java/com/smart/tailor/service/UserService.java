@@ -33,4 +33,8 @@ public interface UserService {
     Optional<User> getUserByUserID(UUID uuid);
 
     List<UserResponse> findAllUserByRoleName(RoleType roleType);
+
+    List<User> findAllUnverifiedUser();
+
+    void deleteUnverifiedUser(UUID userID);
 }

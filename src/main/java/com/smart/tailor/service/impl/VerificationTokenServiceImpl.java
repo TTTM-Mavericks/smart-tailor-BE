@@ -83,4 +83,9 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         verificationToken.setEnabled(true);
         verificationTokenRepository.save(verificationToken);
     }
+
+    @Override
+    public void deleteVerificationTokenByUserID(UUID userID) {
+        verificationTokenRepository.deleteVerificationTokenByUserID(userID);
+    }
 }

@@ -19,4 +19,6 @@ public interface VerificationTokenService {
     VerificationToken findVerificationTokenByUserEmail(String userEmail);
 
     void enableVerificationToken(VerificationToken verificationToken);
+
+    void deleteVerificationTokenByUserID(UUID userID);
 }

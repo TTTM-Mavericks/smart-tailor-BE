@@ -32,4 +32,8 @@ public class UserResponse {
     private String roleName;
 
     private String imageUrl;
+
+    private String createDate;
+
+    private String lastModifiedDate;
 }

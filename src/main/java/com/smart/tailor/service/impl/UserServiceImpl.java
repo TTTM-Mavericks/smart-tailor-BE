@@ -6,11 +6,14 @@ import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.RoleType;
+import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
+import com.smart.tailor.service.TokenService;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.service.VerificationTokenService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
@@ -28,6 +31,8 @@ public class UserServiceImpl implements UserService {
     private final RoleService roleService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final VerificationTokenService verificationTokenService;
+    private final TokenService tokenService;
 
     @Override
     public Optional<User> getUserDetailByEmail(String email) {
@@ -126,5 +131,20 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> user.getRoles().getRoleName().equals(roleType.name()))
                 .map(userMapper::mapperToUserResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> findAllUnverifiedUser() {
+        return userRepository
+                .getAllUserWithEmailUnverified(false, TypeOfVerification.VERIFY_ACCOUNT.name())
+                .stream()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteUnverifiedUser(UUID userID) {
+        verificationTokenService.deleteVerificationTokenByUserID(userID);
+        tokenService.deleteTokenByUserID(userID);
+        userRepository.deleteUserByUserID(userID);
     }
 }

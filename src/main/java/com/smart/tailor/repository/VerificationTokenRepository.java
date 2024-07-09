@@ -1,7 +1,9 @@
 package com.smart.tailor.repository;
 
 import com.smart.tailor.entities.VerificationToken;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +20,9 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     @Query(value = "select v.* from verification_token v join users u on v.user_id = u.user_id" +
             " where u.email = ?1", nativeQuery = true)
     VerificationToken findVerificationTokenByUserEmail(String email);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from verification_token v where v.user_id = ?1", nativeQuery = true)
+    void deleteVerificationTokenByUserID(UUID userID);
 }
