@@ -12,6 +12,7 @@ import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.DesignDetailRequest;
+import com.smart.tailor.utils.request.DesignDetailSize;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignDetailResponse;
 import jakarta.transaction.Transactional;
@@ -72,65 +73,74 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designId");
             }
             UUID designId = designDetailRequest.getDesignId();
-
-            if (designDetailRequest.getSizeID() == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": size");
-            }
-//            String sizeID = designDetailRequest.getSize();
-//            if (!Utilities.isStringNotNullOrEmpty(size)) {
-//                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": size");
-//            }
-
-            if (designDetailRequest.getQuantity() == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": quantity");
-            }
-            Integer quantity = designDetailRequest.getQuantity();
-            if (!Utilities.isValidNumber(quantity.toString()) || quantity <= 0) {
-                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": quantity");
-            }
-
             Design design = designService.getDesignByID(designId);
-            var brand = brandService.getBrandById(designDetailRequest.getBrandId());
-            Brand existedBrand;
-            if (brand.isEmpty()) {
-                existedBrand = null;
-            } else {
-                existedBrand = brand.get();
+            if (design == null) {
+                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
+            }
+            Order existedOrder = null;
+            if (designDetailRequest.getOrderId() != null) {
+                var order = orderService.getOrderById(designDetailRequest.getOrderId());
+                if (order.isEmpty()) {
+                    existedOrder = null;
+                } else {
+                    existedOrder = order.get();
+                }
             }
 
-            var order = orderService.getOrderById(designDetailRequest.getOrderId());
-            Order existedOrder;
-            if (order.isEmpty()) {
-                existedOrder = null;
-            } else {
-                existedOrder = order.get();
+            List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
+            int index = -1;
+            List<DesignDetail> designDetailList = new ArrayList<>();
+            for (DesignDetailSize sizeRequest : sizeList) {
+                index++;
+                if (sizeRequest.getSizeID() == null) {
+                    throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " at [" + index + "]: sizeID");
+                }
+                var size = sizeService.findByID(UUID.fromString(sizeRequest.getSizeID()))
+                        .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE));
+
+                if (sizeRequest.getQuantity() == null) {
+                    throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " at [" + index + "]: quantity");
+                }
+                Integer quantity = sizeRequest.getQuantity();
+                if (!Utilities.isValidNumber(quantity.toString()) || quantity <= 0) {
+                    throw new BadRequestException(MessageConstant.INVALID_INPUT + " at [" + index + "]: quantity");
+                }
+
+                Brand existedBrand = null;
+                if (sizeRequest.getBrandId() != null) {
+                    var brand = brandService.getBrandById(sizeRequest.getBrandId());
+                    if (brand.isEmpty()) {
+                        existedBrand = null;
+                    } else {
+                        existedBrand = brand.get();
+                    }
+                }
+
+                designDetailList.add(
+                        DesignDetail
+                                .builder()
+                                .design(design)
+                                .brand(existedBrand)
+                                .order(existedOrder)
+                                .size(size)
+                                .quantity(quantity)
+                                .detailStatus(true)
+                                .build()
+                );
+
             }
 
-            var size = sizeService.findByID(UUID.fromString(designDetailRequest.getSizeID()))
-                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE));
+            designDetailRepository.saveAll(designDetailList);
 
-            DesignDetail detail = DesignDetail
+            return APIResponse
                     .builder()
-                    .design(design)
-                    .brand(existedBrand)
-                    .order(existedOrder)
-                    .size(size)
-                    .quantity(quantity)
-                    .detailStatus(true)
+                    .status(HttpStatus.OK.value())
+                    .message(MessageConstant.ADD_NEW_DESIGN_DETAIL_SUCCESSFULLY)
+                    .data(sizeList)
                     .build();
 
-            designDetailRepository.save(detail);
-            DesignDetailResponse detailResponse = getDesignDetailByDesignAndSize(designId, size.getSizeID());
-
-            if (detailResponse != null) {
-                APIResponse
-                        .builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageConstant.ADD_NEW_DESIGN_DETAIL_SUCCESSFULLY)
-                        .data(detailResponse)
-                        .build();
-            }
-        } catch (Exception ex) {
+        } catch (
+                Exception ex) {
             logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());
         }
         return null;

@@ -7,7 +7,6 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.DesignDetailService;
 import com.smart.tailor.utils.request.DesignDetailRequest;
 import com.smart.tailor.validate.ValidUUID;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,7 @@ public class DesignDetailController {
     private final DesignDetailService designDetailService;
 
     @PostMapping(DesignDetailAPI.ADD_NEW_DESIGN_DETAIL)
-    public ResponseEntity<ObjectNode> addNewDesignDetail(@Valid @RequestBody DesignDetailRequest designDetailRequest) {
+    public ResponseEntity<ObjectNode> addNewDesignDetail(@RequestBody DesignDetailRequest designDetailRequest) {
         var apiResponse = designDetailService.createDesignDetail(designDetailRequest);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", apiResponse.getStatus());
