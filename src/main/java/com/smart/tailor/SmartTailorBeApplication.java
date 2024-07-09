@@ -8,7 +8,9 @@ import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.repository.*;
 import com.smart.tailor.service.RoleService;
+import com.smart.tailor.service.SystemImageService;
 import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.SystemImageRequest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -89,20 +91,74 @@ public class SmartTailorBeApplication {
     public CommandLineRunner createExpertTailoring(ExpertTailoringRepository expertTailoringRepository) {
         return args -> {
             if (expertTailoringRepository.findAll().size() == 0) {
+//                expertTailoringRepository.save(ExpertTailoring
+//                        .builder()
+//                        .expertTailoringName("EMBROIDER")
+//                        .sizeImageUrl("EMBROIDER IMAGE URL")
+//                        .modelImageUrl("EMBROIDER MODEL URL")
+//                        .status(true)
+//                        .build()
+//                );
+//
+//                expertTailoringRepository.save(ExpertTailoring
+//                        .builder()
+//                        .expertTailoringName("SEW")
+//                        .sizeImageUrl("SEW IMAGE URL")
+//                        .modelImageUrl("SEW MODEL URL")
+//                        .status(true)
+//                        .build()
+//                );
+
                 expertTailoringRepository.save(ExpertTailoring
                         .builder()
-                        .expertTailoringName("EMBROIDER")
-                        .sizeImageUrl("EMBROIDER IMAGE URL")
-                        .modelImageUrl("EMBROIDER MODEL URL")
+                        .expertTailoringName("shirtModel")
+                        .sizeImageUrl("IMAGE URL")
+                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/mplmusqeleocefrsqrzf.png")
                         .status(true)
                         .build()
                 );
 
                 expertTailoringRepository.save(ExpertTailoring
                         .builder()
-                        .expertTailoringName("SEW")
-                        .sizeImageUrl("SEW IMAGE URL")
-                        .modelImageUrl("SEW MODEL URL")
+                        .expertTailoringName("hoodieModel")
+                        .sizeImageUrl("IMAGE URL")
+                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/kn5egywxx2qj4wwzwxts.png")
+                        .status(true)
+                        .build()
+                );
+
+                expertTailoringRepository.save(ExpertTailoring
+                        .builder()
+                        .expertTailoringName("longSkirtModel")
+                        .sizeImageUrl("IMAGE URL")
+                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/qf9prnqsfwofv9khp3cr.png")
+                        .status(true)
+                        .build()
+                );
+
+                expertTailoringRepository.save(ExpertTailoring
+                        .builder()
+                        .expertTailoringName("skirtFullModel")
+                        .sizeImageUrl("IMAGE URL")
+                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/wibukocpklimkobvv5sa.png")
+                        .status(true)
+                        .build()
+                );
+
+                expertTailoringRepository.save(ExpertTailoring
+                        .builder()
+                        .expertTailoringName("womenSkirtTopModel")
+                        .sizeImageUrl("IMAGE URL")
+                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/bwzhszbvmtqckax4oomk.png")
+                        .status(true)
+                        .build()
+                );
+
+                expertTailoringRepository.save(ExpertTailoring
+                        .builder()
+                        .expertTailoringName("womenSkirtBottomModel")
+                        .sizeImageUrl("IMAGE URL")
+                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/jfsmttronovmyw9xz2cg.png")
                         .status(true)
                         .build()
                 );
@@ -155,8 +211,8 @@ public class SmartTailorBeApplication {
 
                 var brandLALALISA = brandRepository.findBrandByBrandName("LA LA LISA BRAND");
                 var brandGOYOUNJUNG = brandRepository.findBrandByBrandName("GO YOUN JUNG BRAND");
-                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringName("SEW").get();
-                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringName("EMBROIDER").get();
+                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringName("shirtModel").get();
+                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringName("hoodieModel").get();
                 brandExpertTailoringRepository.createShortBrandExpertTailoring(
                         brandLALALISA.get().getBrandID(),
                         sewExpertTailoring.getExpertTailoringID()
@@ -166,6 +222,45 @@ public class SmartTailorBeApplication {
                         brandGOYOUNJUNG.get().getBrandID(),
                         embroiderExpertTailoring.getExpertTailoringID()
                 );
+            }
+        };
+    }
+
+    @Order(value = 5)
+    @Bean
+    public CommandLineRunner createSystemImage(SystemImageService systemImageService) {
+        return args -> {
+            if (systemImageService.getAllSystemImage().size() == 0) {
+                systemImageService.addNewSystemImage(
+                        SystemImageRequest
+                                .builder()
+                                .imageName("Ảnh con rồng con")
+                                .imageURL("https://th.bing.com/th/id/OIP.28898F789NfJAXbpwl1pwwHaEK?w=318&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7")
+                                .imageType("STAMP")
+                                .isPremium(false)
+                                .build()
+                );
+
+                systemImageService.addNewSystemImage(
+                        SystemImageRequest
+                                .builder()
+                                .imageName("Ảnh rồng mẹ")
+                                .imageURL("https://khoinguonsangtao.vn/wp-content/uploads/2022/08/avatar-nu-de-thuong.jpg")
+                                .imageType("STAMP")
+                                .isPremium(true)
+                                .build()
+                );
+
+                systemImageService.addNewSystemImage(
+                        SystemImageRequest
+                                .builder()
+                                .imageName("Ảnh rồng ba")
+                                .imageURL("https://animeanime.global/wp-content/uploads/2020/04/329423.png")
+                                .imageType("STAMP")
+                                .isPremium(true)
+                                .build()
+                );
+
             }
         };
     }
