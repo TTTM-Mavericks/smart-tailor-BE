@@ -123,59 +123,8 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
     @Transactional
     @Override
-    public List<PartOfDesign> updatePartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
-        List<PartOfDesign> partOfDesignList = new ArrayList<>();
-        for(PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList){
-            var oldPartOfDesign = partOfDesignRepository.findPartOfDesignByDesign_DesignIDAndPartOfDesignName(
-                    design.getDesignID(), partOfDesignRequest.getPartOfDesignName()
-            ).orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_PART_OF_DESIGN_BY_DESIGN_ID));
-
-            // Check Whether ImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64ImageUrl = null;
-            if(Optional.ofNullable(partOfDesignRequest.getImageUrl()).isPresent()){
-                base64ImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getImageUrl());
-            }
-
-            // Check Whether SuccessImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64SuccessImageUrl = null;
-            if(Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).isPresent()){
-                base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
-            }
-
-            var material = materialService.findMaterialByID(UUID.fromString(partOfDesignRequest.getMaterialID()))
-                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
-
-            if(Optional.ofNullable(partOfDesignRequest.getItemMask()).isEmpty()) continue;
-
-            List<ItemMask> itemMaskList = null;
-            try{
-                oldPartOfDesign.getItemMaskList().clear();
-                itemMaskService.deleteItemMaskByPartOfDesignID(oldPartOfDesign.getPartOfDesignID());
-                itemMaskList = itemMaskService.createItemMask(oldPartOfDesign, partOfDesignRequest.getItemMask());
-            } catch (BadRequestException ex) {
-                logger.error("Bad Request Exception in Create Item Mask {}",ex.getMessage());
-                throw new BadRequestException(ex.getMessage());
-            } catch(ItemNotFoundException ex){
-                logger.error("Item Not Found Exception in Create Item Mask {}",ex.getMessage());
-                throw new ItemNotFoundException(ex.getMessage());
-            }
-
-            var updatePartOfDesign = partOfDesignRepository.save(
-                    PartOfDesign
-                            .builder()
-                            .partOfDesignID(oldPartOfDesign.getPartOfDesignID())
-                            .design(design)
-                            .partOfDesignName(oldPartOfDesign.getPartOfDesignName())
-                            .imageUrl(base64ImageUrl)
-                            .successImageUrl(base64SuccessImageUrl)
-                            .material(material)
-                            .itemMaskList(itemMaskList)
-                            .build()
-            );
-
-            // Add Correct PartOfDesign to ListPartOfDesign
-            partOfDesignList.add(updatePartOfDesign);
-        }
-        return partOfDesignList;
+    public void deletePartOfDesignByDesignID(UUID designID) {
+        itemMaskService.deleteItemMaskByDesignID(designID);
+        partOfDesignRepository.deletePartOfDesignByDesignID(designID);
     }
 }

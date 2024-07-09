@@ -18,5 +18,5 @@ public interface PartOfDesignService {
 
     List<PartOfDesignResponse> getAllPartOfDesign();
 
-    List<PartOfDesign> updatePartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList);
+    void deletePartOfDesignByDesignID(UUID designID);
 }

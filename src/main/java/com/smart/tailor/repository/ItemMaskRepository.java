@@ -15,4 +15,10 @@ public interface ItemMaskRepository extends JpaRepository<ItemMask, UUID> {
     @Modifying
     @Query(value = "delete from item_mask im where im.part_of_design_id = ?1", nativeQuery = true)
     void deleteItemMaskByPartOfDesignID(UUID partOfDesignId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete it from item_mask it join part_of_design p on it.part_of_design_id = p.part_of_design_id " +
+            "where p.design_id = ?1", nativeQuery = true)
+    void deleteItemMaskByDesignID(UUID designID);
 }
