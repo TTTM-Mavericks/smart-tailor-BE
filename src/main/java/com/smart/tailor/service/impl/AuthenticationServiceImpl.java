@@ -1,6 +1,8 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.constant.FormatConstant;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Customer;
 import com.smart.tailor.entities.Token;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.entities.VerificationToken;
@@ -27,7 +29,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,6 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final CustomerService customerService;
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final VerificationTokenService verificationTokenService;
@@ -51,6 +58,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
             userRequest.setProvider(provider);
             var user = userService.registerNewUsers(userRequest);
+
+            if (user != null && user.getRoles().getRoleName().equals("CUSTOMER")) {
+                logger.info("Inside Create Customer Profile Method");
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FormatConstant.DD_MM_YYYY_MINUS);
+                Date formatDate = null;
+                try {
+                    formatDate = simpleDateFormat.parse(new Date().toString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                customerService.createCustomer(
+                        user.getUserID(),
+                        true,
+                        formatDate,
+                        "",
+                        "",
+                        "",
+                        ""
+                );
+            }
 
             var jwtToken = jwtService.generateToken(user);
             var refreshToken = jwtService.generateRefreshToken(user);
@@ -76,7 +105,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     throw new Exception("MISSING ARGUMENT");
                 }
 
-                if(!Utilities.isValidEmail(authenticationRequest.getEmail())){
+                if (!Utilities.isValidEmail(authenticationRequest.getEmail())) {
                     throw new Exception("EMAIL IS INVALID");
                 }
 
