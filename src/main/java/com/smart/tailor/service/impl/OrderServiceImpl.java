@@ -19,6 +19,7 @@ import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -105,13 +106,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponse getParentOrderByDesignID(UUID designID) {
-        OrderResponse orderResponse = orderMapper.mapToOrderResponse(
-                orderRepository.findParentOrderByDesignID(designID)
-        );
-        orderResponse.setDesignResponse(
-                designService.getDesignResponseByID(designID)
-        );
+    public List<OrderResponse> getParentOrderByDesignID(UUID designID) {
+        List<Order> orderList = orderRepository.findParentOrderByDesignID(designID);
+        List<OrderResponse> orderResponse = new ArrayList<>();
+        for(Order order: orderList) {
+            var response = orderMapper.mapToOrderResponse(order);
+            response.setDesignResponse(
+                    designService.getDesignResponseByID(designID)
+            );
+            orderResponse.add(response);
+        };
+
         return orderResponse;
     }
 

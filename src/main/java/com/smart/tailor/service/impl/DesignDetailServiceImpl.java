@@ -80,14 +80,14 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
             }
             Order existedOrder = null;
-            if (designDetailRequest.getOrderId() != null) {
-                var order = orderService.getOrderById(designDetailRequest.getOrderId());
-                if (order.isEmpty()) {
-                    throw new BadRequestException("CAN NOT FIND ORDER BY ODER ID.");
-                } else {
-                    existedOrder = order.get();
-                }
-            } else {
+//            if (designDetailRequest.getOrderId() != null) {
+//                var order = orderService.getOrderById(designDetailRequest.getOrderId());
+//                if (order.isEmpty()) {
+//                    throw new BadRequestException("CAN NOT FIND ORDER BY ODER ID.");
+//                } else {
+//                    existedOrder = order.get();
+//                }
+//            } else {
                 OrderResponse createdOrder = orderService.createOrder(
                         OrderRequest
                                 .builder()
@@ -96,7 +96,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                                 .build()
                 );
                 existedOrder = orderService.getOrderById(createdOrder.getOrderID()).get();
-            }
+//            }
 
             List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
             int index = -1;
