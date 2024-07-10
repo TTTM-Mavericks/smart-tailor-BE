@@ -33,6 +33,6 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
     @Query(value = "SELECT MIN(brand_price) FROM brand_material where material_id = ?1", nativeQuery = true)
     Double getMinPriceByMaterialID(UUID materialID);
 
-    @Query(value = "SELECT MAX(brand_price) FROM brand_material where material_id =", nativeQuery = true)
+    @Query(value = "SELECT MAX(brand_price) FROM brand_material where material_id =?1", nativeQuery = true)
     Double getMaxPriceByMaterialID(UUID materialID);
 }

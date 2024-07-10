@@ -194,11 +194,19 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
     @Override
     public Double getMinPriceByMaterialID(UUID materialID) {
-        return brandMaterialRepository.getMinPriceByMaterialID(materialID);
+        var value = brandMaterialRepository.getMinPriceByMaterialID(materialID);
+        if (value == null) {
+            return 0.0;
+        }
+        return value;
     }
 
     @Override
     public Double getMaxPriceByMaterialID(UUID materialID) {
-        return brandMaterialRepository.getMaxPriceByMaterialID(materialID);
+        var value = brandMaterialRepository.getMaxPriceByMaterialID(materialID);
+        if (value == null) {
+            return 0.0;
+        }
+        return value;
     }
 }
