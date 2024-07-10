@@ -9,7 +9,5 @@ import org.mapstruct.Mapping;
 public interface ExpertTailoringMapper {
     @Mapping(source = "expertTailoring.expertTailoringID", target = "expertTailoringID")
     @Mapping(source = "expertTailoring.status", target = "status")
-    @Mapping(source = "expertTailoring.createDate", target = "createDate")
-    @Mapping(source = "expertTailoring.lastModifiedDate", target = "lastModifiedDate")
     ExpertTailoringResponse mapperToExpertTailoringResponse(ExpertTailoring expertTailoring);
 }
