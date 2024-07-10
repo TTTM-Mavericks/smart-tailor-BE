@@ -25,7 +25,7 @@ public class PartOfDesignResponse {
 
     private MaterialResponse material;
 
-    private List<ItemMaskResponse> itemMask;
+    private List<ItemMaskResponse> itemMasks;
 
     private String createDate;
 

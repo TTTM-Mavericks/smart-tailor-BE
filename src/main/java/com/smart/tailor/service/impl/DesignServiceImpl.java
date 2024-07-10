@@ -149,7 +149,7 @@ public class DesignServiceImpl implements DesignService {
                     materialDetailList.add(designMaterialDetail);
                 }
 
-                List<ItemMaskResponse> itemMaskResponseList = partOfDesign.getItemMask();
+                List<ItemMaskResponse> itemMaskResponseList = partOfDesign.getItemMasks();
                 for (ItemMaskResponse itemMaskResponse : itemMaskResponseList) {
                     materialResponse = itemMaskResponse.getMaterial();
                     designMaterialDetail = DesignMaterialDetail
