@@ -28,5 +28,6 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     void updateCustomer(Boolean gender, Date dateOfBirth, String address,
                         String province, String district, String ward, UUID customerID);
 
+    @Query(value = "select * from customer where customer_id = ?1", nativeQuery = true)
     Customer findByCustomerID(UUID customerID);
 }
