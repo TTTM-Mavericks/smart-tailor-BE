@@ -16,6 +16,7 @@ import com.smart.tailor.utils.request.DesignDetailSize;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignDetailResponse;
+import com.smart.tailor.utils.response.OrderDetailResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -148,7 +149,12 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     .builder()
                     .status(HttpStatus.OK.value())
                     .message(MessageConstant.ADD_NEW_DESIGN_DETAIL_SUCCESSFULLY)
-                    .data(sizeList)
+                    .data(
+                            OrderDetailResponse.builder()
+                                    .sizeList(sizeList)
+                                    .orderID(existedOrder.getOrderID())
+                                    .build()
+                    )
                     .build();
 
         } catch (
