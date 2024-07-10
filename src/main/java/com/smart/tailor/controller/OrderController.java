@@ -71,7 +71,7 @@ public class OrderController {
         }
     }
 
-    @GetMapping(OrderAPI.GET_PARENT_ORDER_BY_DESIGN_ID)
+    @GetMapping(OrderAPI.GET_PARENT_ORDER_BY_DESIGN_ID + "/{designID}")
     public ResponseEntity<ObjectNode> getParentOrderByDesignID(@Valid @PathVariable("designID") UUID designID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
