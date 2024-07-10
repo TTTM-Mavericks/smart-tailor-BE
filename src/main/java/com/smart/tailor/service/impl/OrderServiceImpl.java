@@ -109,13 +109,14 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponse> getParentOrderByDesignID(UUID designID) {
         List<Order> orderList = orderRepository.findParentOrderByDesignID(designID);
         List<OrderResponse> orderResponse = new ArrayList<>();
-        for(Order order: orderList) {
+        for (Order order : orderList) {
             var response = orderMapper.mapToOrderResponse(order);
-            response.setDesignResponse(
-                    designService.getDesignResponseByID(designID)
-            );
+//            response.setDesignResponse(
+//                    designService.getDesignResponseByID(designID)
+//            );
             orderResponse.add(response);
-        };
+        }
+        ;
 
         return orderResponse;
     }
@@ -127,8 +128,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse getOrderByOrderID(UUID orderID) {
-        return orderMapper.mapToOrderResponse(
-                orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null);
+        var order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
+        var response = orderMapper.mapToOrderResponse(order);
+        return response;
     }
 
     @Override
