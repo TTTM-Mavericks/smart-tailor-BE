@@ -15,9 +15,13 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderResponse {
     private UUID orderID;
+    private UUID parentOrderID;
     private DesignResponse designResponse;
+    private BrandResponse brandResponse;
     private Integer quantity;
+    private DiscountResponse discountResponse;
     private OrderStatus orderStatus;
+    private String orderType;
     private String address;
     private String province;
     private String district;
@@ -28,4 +32,6 @@ public class OrderResponse {
     private LocalDateTime expectedStartDate;
     private LocalDateTime expectedProductCompletionDate;
     private LocalDateTime estimatedDeliveryDate;
+    private LocalDateTime productionStartDate;
+    private LocalDateTime productionCompletionDate;
 }
