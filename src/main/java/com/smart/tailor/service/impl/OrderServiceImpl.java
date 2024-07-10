@@ -2,6 +2,7 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Order;
+import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.OrderRepository;
@@ -48,9 +49,9 @@ public class OrderServiceImpl implements OrderService {
                     && Utilities.isValidNumber(orderRequest.getQuantity().toString())
                     ? orderRequest.getQuantity()
                     : 0;
-            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getOrderType())) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": orderType");
-            }
+//            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getOrderType())) {
+//                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": orderType");
+//            }
 
             UserResponse userResponse = designResponse.getUser();
             CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
@@ -94,12 +95,20 @@ public class OrderServiceImpl implements OrderService {
                     .orderType(orderType)
                     .phone(phone)
                     .buyerName(buyerName)
+                    .orderStatus(OrderStatus.PENDING)
                     .build();
             var orderResponse = orderRepository.save(order);
             return orderMapper.mapToOrderResponse(orderResponse);
         } catch (Exception ex) {
             throw ex;
         }
+    }
+
+    @Override
+    public OrderResponse getParentOrderByDesignID(UUID designID) {
+        return orderMapper.mapToOrderResponse(
+                orderRepository.findParentOrderByDesignID(designID)
+        );
     }
 
     @Override
@@ -130,5 +139,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderResponse> getSubOrderByParentID(UUID parentOrderID) {
         return null;
+    }
+
+    @Override
+    public List<OrderResponse> getAllOrder() {
+        return orderRepository.findAll().stream().map(orderMapper::mapToOrderResponse).toList();
+    }
+
+    @Override
+    public void updateOrder(Order order) {
+        orderRepository.save(order);
     }
 }

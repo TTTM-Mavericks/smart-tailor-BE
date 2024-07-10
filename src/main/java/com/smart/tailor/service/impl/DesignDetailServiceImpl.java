@@ -13,8 +13,10 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.DesignDetailRequest;
 import com.smart.tailor.utils.request.DesignDetailSize;
+import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignDetailResponse;
+import com.smart.tailor.utils.response.OrderResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -81,10 +83,19 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             if (designDetailRequest.getOrderId() != null) {
                 var order = orderService.getOrderById(designDetailRequest.getOrderId());
                 if (order.isEmpty()) {
-                    existedOrder = null;
+                    throw new BadRequestException("CAN NOT FIND ORDER BY ODER ID.");
                 } else {
                     existedOrder = order.get();
                 }
+            } else {
+                OrderResponse createdOrder = orderService.createOrder(
+                        OrderRequest
+                                .builder()
+                                .designID(designId)
+                                .orderType("PARENT_ORDER")
+                                .build()
+                );
+                existedOrder = orderService.getOrderById(createdOrder.getOrderID()).get();
             }
 
             List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
@@ -115,7 +126,8 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                         existedBrand = brand.get();
                     }
                 }
-
+                existedOrder.setQuantity(existedOrder.getQuantity() + quantity);
+                orderService.updateOrder(existedOrder);
                 designDetailList.add(
                         DesignDetail
                                 .builder()
@@ -170,5 +182,10 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public DesignDetailResponse updateDesignDetail(DesignDetail designDetail) {
+        return designDetailMapper.mapperToDesignDetailResponse(designDetailRepository.save(designDetail));
     }
 }

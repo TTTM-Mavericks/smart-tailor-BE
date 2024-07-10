@@ -55,4 +55,34 @@ public class OrderController {
             return null;
         }
     }
+
+    @GetMapping(OrderAPI.GET_ALL_ORDER)
+    public ResponseEntity<ObjectNode> getAllOrder() {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+            var orderResponse = orderService.getAllOrder();
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    @GetMapping(OrderAPI.GET_PARENT_ORDER_BY_DESIGN_ID)
+    public ResponseEntity<ObjectNode> getParentOrderByDesignID(@Valid @PathVariable("designID") UUID designID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+            var orderResponse = orderService.getParentOrderByDesignID(designID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
 }

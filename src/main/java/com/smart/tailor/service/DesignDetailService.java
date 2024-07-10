@@ -1,5 +1,6 @@
 package com.smart.tailor.service;
 
+import com.smart.tailor.entities.DesignDetail;
 import com.smart.tailor.utils.request.DesignDetailRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignDetailResponse;
@@ -13,4 +14,6 @@ public interface DesignDetailService {
     APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
 
     DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID size);
+
+    DesignDetailResponse updateDesignDetail(DesignDetail designDetail);
 }
