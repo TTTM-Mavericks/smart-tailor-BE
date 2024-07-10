@@ -142,7 +142,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse getCustomerByUserID(UUID userID) {
-        Customer customer = customerRepository.getReferenceById(userID);
+        Customer customer = customerRepository.findByCustomerID(userID);
         return mapperToCustomerResponse(customer);
     }
 

@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface OrderService {
-    void createOrder(OrderRequest orderRequest);
+    OrderResponse createOrder(OrderRequest orderRequest);
 
     void updateOrderStatus(UUID orderID, String orderStatus);
 
