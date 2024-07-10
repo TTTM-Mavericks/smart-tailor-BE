@@ -6,6 +6,7 @@ import com.smart.tailor.constant.APIConstant.OrderAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.request.OrderRequest;
+import com.smart.tailor.utils.response.OrderResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -31,7 +32,8 @@ public class OrderController {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
             response.put("message", MessageConstant.CREATE_ORDER_SUCCESSFULLY);
-            var orderResponse = orderService.createOrder(orderRequest);
+            OrderResponse orderResponse = orderService.createOrder(orderRequest);
+            response.set("data", objectMapper.valueToTree(orderResponse));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
