@@ -61,21 +61,25 @@ public class OrderServiceImpl implements OrderService {
             String province = "";
             String district = "";
             String ward = "";
-            String orderType = orderRequest.getOrderType();
             if (!Utilities.isStringNotNullOrEmpty(orderRequest.getAddress())
                     && !Utilities.isStringNotNullOrEmpty(orderRequest.getProvince())
                     && !Utilities.isStringNotNullOrEmpty(orderRequest.getDistrict())
                     && !Utilities.isStringNotNullOrEmpty(orderRequest.getWard())) {
+                address = orderRequest.getAddress();
+                province = orderRequest.getProvince();
+                district = orderRequest.getDistrict();
+                ward = orderRequest.getWard();
+            } else {
                 address = customerResponse.getAddress();
                 province = customerResponse.getProvince();
                 district = customerResponse.getDistrict();
                 ward = customerResponse.getWard();
             }
 
-            String phone;
-            if (orderRequest.getPhone() != null && !Utilities.isValidVietnamesePhoneNumber(orderRequest.getPhone())) {
-                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": phone");
-            } else if (orderRequest.getPhone() == null) {
+            String phone = "";
+            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getPhone())) {
+                phone = customerResponse.getPhoneNumber();
+            } else if (!Utilities.isValidVietnamesePhoneNumber(orderRequest.getPhone())) {
                 phone = customerResponse.getPhoneNumber();
             } else {
                 phone = orderRequest.getPhone();
@@ -87,6 +91,9 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 buyerName = customerResponse.getFullName();
             }
+
+            String orderType = orderRequest.getOrderType();
+
             Order order = Order.builder()
                     .quantity(quantity)
                     .address(address)
