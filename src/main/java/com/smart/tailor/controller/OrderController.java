@@ -12,10 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(OrderAPI.ORDER)
@@ -32,7 +31,21 @@ public class OrderController {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
             response.put("message", MessageConstant.CREATE_ORDER_SUCCESSFULLY);
-            orderService.createOrder(orderRequest);
+            var orderResponse = orderService.createOrder(orderRequest);
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    @GetMapping(OrderAPI.GET_ORDER_BY_ID + "/{orderID}")
+    public ResponseEntity<ObjectNode> getOrderByID(@Valid @PathVariable("orderID") UUID orderID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.CREATE_ORDER_SUCCESSFULLY);
+            var orderResponse = orderService.getOrderByOrderID(orderID);
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());

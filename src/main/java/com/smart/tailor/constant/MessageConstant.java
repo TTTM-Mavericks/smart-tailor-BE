@@ -314,6 +314,7 @@ public class MessageConstant {
      * ORDER
      */
     public static final String CREATE_ORDER_SUCCESSFULLY = "Create Order Successfully";
+    public static final String GET_ORDER_SUCCESSFULLY = "Get Order Successfully";
 
     /**
      * System Image

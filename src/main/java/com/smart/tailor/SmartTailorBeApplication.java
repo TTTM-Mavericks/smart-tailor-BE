@@ -196,15 +196,15 @@ public class SmartTailorBeApplication {
                         .build()
                 );
 
-                User customerSample1 = userRepository.save(User.builder()
-                        .email("customersample1@example.com")
-                        .password(passwordEncoder.encode("HASH_PASSWORD"))
-                        .phoneNumber(Utilities.generateRandomNumber())
-                        .userStatus(UserStatus.ACTIVE)
-                        .provider(Provider.LOCAL)
-                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
-                        .build()
-                );
+//                User customerSample1 = userRepository.save(User.builder()
+//                        .email("customersample1@example.com")
+//                        .password(passwordEncoder.encode("HASH_PASSWORD"))
+//                        .phoneNumber(Utilities.generateRandomNumber())
+//                        .userStatus(UserStatus.ACTIVE)
+//                        .provider(Provider.LOCAL)
+//                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
+//                        .build()
+//                );
 
                 brandRepository.createShortBrand(brandSample1.getUserID(), "LA LA LISA BRAND", BrandStatus.ACCEPT.name());
                 brandRepository.createShortBrand(brandSample2.getUserID(), "GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());

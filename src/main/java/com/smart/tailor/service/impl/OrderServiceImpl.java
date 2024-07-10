@@ -3,6 +3,7 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.OrderRepository;
 import com.smart.tailor.service.BrandService;
 import com.smart.tailor.service.CustomerService;
@@ -28,73 +29,77 @@ public class OrderServiceImpl implements OrderService {
     private final BrandService brandService;
     private final DesignService designService;
     private final CustomerService customerService;
+    private final OrderMapper orderMapper;
 
     @Override
-    public void createOrder(OrderRequest orderRequest) {
-        if (!Utilities.isStringNotNullOrEmpty(orderRequest.getDesignID().toString())) {
-            throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
-        }
-        UUID designID = orderRequest.getDesignID();
+    public OrderResponse createOrder(OrderRequest orderRequest) {
+        try {
+            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getDesignID().toString())) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
+            }
+            UUID designID = orderRequest.getDesignID();
 
-        DesignResponse designResponse = designService.getDesignResponseByID(designID);
-        if (designResponse == null) {
-            throw new BadRequestException(MessageConstant.INVALID_INPUT + ": designID");
-        }
+            DesignResponse designResponse = designService.getDesignResponseByID(designID);
+            if (designResponse == null) {
+                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": designID");
+            }
 
-        Integer quantity = orderRequest.getQuantity() != null
-                && Utilities.isValidNumber(orderRequest.getQuantity().toString())
-                ? orderRequest.getQuantity()
-                : null;
-        if (!Utilities.isStringNotNullOrEmpty(orderRequest.getOrderType())) {
-            throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": orderType");
-        }
+            Integer quantity = orderRequest.getQuantity() != null
+                    && Utilities.isValidNumber(orderRequest.getQuantity().toString())
+                    ? orderRequest.getQuantity()
+                    : 0;
+            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getOrderType())) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": orderType");
+            }
 
-        UserResponse userResponse = designResponse.getUser();
-        CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
+            UserResponse userResponse = designResponse.getUser();
+            CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
 
-        String address = "";
-        String province = "";
-        String district = "";
-        String ward = "";
-        String orderType = orderRequest.getOrderType();
-        if (!Utilities.isStringNotNullOrEmpty(orderRequest.getAddress())
-                && !Utilities.isStringNotNullOrEmpty(orderRequest.getProvince())
-                && !Utilities.isStringNotNullOrEmpty(orderRequest.getDistrict())
-                && !Utilities.isStringNotNullOrEmpty(orderRequest.getWard())) {
-            address = customerResponse.getAddress();
-            province = customerResponse.getProvince();
-            district = customerResponse.getDistrict();
-            ward = customerResponse.getWard();
-        }
+            String address = "";
+            String province = "";
+            String district = "";
+            String ward = "";
+            String orderType = orderRequest.getOrderType();
+            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getAddress())
+                    && !Utilities.isStringNotNullOrEmpty(orderRequest.getProvince())
+                    && !Utilities.isStringNotNullOrEmpty(orderRequest.getDistrict())
+                    && !Utilities.isStringNotNullOrEmpty(orderRequest.getWard())) {
+                address = customerResponse.getAddress();
+                province = customerResponse.getProvince();
+                district = customerResponse.getDistrict();
+                ward = customerResponse.getWard();
+            }
 
-        String phone;
-        if (orderRequest.getPhone() != null && !Utilities.isValidVietnamesePhoneNumber(orderRequest.getPhone())) {
-            throw new BadRequestException(MessageConstant.INVALID_INPUT + ": phone");
-        } else if (orderRequest.getPhone() == null) {
-            phone = customerResponse.getPhoneNumber();
-        } else {
-            phone = orderRequest.getPhone();
-        }
+            String phone;
+            if (orderRequest.getPhone() != null && !Utilities.isValidVietnamesePhoneNumber(orderRequest.getPhone())) {
+                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": phone");
+            } else if (orderRequest.getPhone() == null) {
+                phone = customerResponse.getPhoneNumber();
+            } else {
+                phone = orderRequest.getPhone();
+            }
 
-        String buyerName;
-        if (!Utilities.isStringNotNullOrEmpty(orderRequest.getBuyerName())) {
-            buyerName = orderRequest.getBuyerName();
-        } else {
-            buyerName = customerResponse.getFullName();
+            String buyerName;
+            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getBuyerName())) {
+                buyerName = orderRequest.getBuyerName();
+            } else {
+                buyerName = customerResponse.getFullName();
+            }
+            Order order = Order.builder()
+                    .quantity(quantity)
+                    .address(address)
+                    .province(province)
+                    .district(district)
+                    .ward(ward)
+                    .orderType(orderType)
+                    .phone(phone)
+                    .buyerName(buyerName)
+                    .build();
+            var orderResponse = orderRepository.save(order);
+            return orderMapper.mapToOrderResponse(orderResponse);
+        } catch (Exception ex) {
+            throw ex;
         }
-        Order order = Order.builder()
-                .quantity(quantity)
-                .address(address)
-                .province(province)
-                .district(district)
-                .ward(ward)
-                .orderType(orderType)
-                .phone(phone)
-                .buyerName(buyerName)
-                .build();
-        orderRepository.save(
-                order
-        );
     }
 
     @Override
@@ -104,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse getOrderByOrderID(UUID orderID) {
-        return null;
+        return orderMapper.mapToOrderResponse(orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null);
     }
 
     @Override
