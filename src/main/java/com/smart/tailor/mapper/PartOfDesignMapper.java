@@ -10,7 +10,7 @@ import java.util.Base64;
 @Mapper(componentModel = "spring", uses = {ItemMaskMapper.class})
 public interface PartOfDesignMapper {
     @Mapping(source = "partOfDesign.partOfDesignID", target = "partOfDesignID")
-    @Mapping(source = "partOfDesign.itemMaskList", target = "itemMask")
+    @Mapping(source = "partOfDesign.itemMaskList", target = "itemMasks")
     @Mapping(source = "partOfDesign.material", target = "material")
     @Mapping(source = "partOfDesign.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "partOfDesign.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
