@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface OrderService {
     OrderResponse createOrder(OrderRequest orderRequest);
 
+    OrderResponse getParentOrderByDesignID(UUID designID);
+
     void updateOrderStatus(UUID orderID, String orderStatus);
 
     OrderResponse getOrderByOrderID(UUID orderID);
@@ -22,4 +24,8 @@ public interface OrderService {
     List<OrderResponse> getOrderByDesignID(UUID designID);
 
     List<OrderResponse> getSubOrderByParentID(UUID parentOrderID);
+
+    List<OrderResponse> getAllOrder();
+
+    void updateOrder(Order order);
 }
