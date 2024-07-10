@@ -15,6 +15,8 @@ public interface DesignService {
 
     Design getDesignByID(UUID designID);
 
+    DesignResponse getDesignByOrderID(UUID orderID);
+
     DesignResponse getDesignResponseByID(UUID designID);
 
     List<DesignResponse> getAllDesignByUserID(UUID userID);
