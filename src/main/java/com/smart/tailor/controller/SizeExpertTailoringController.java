@@ -50,6 +50,22 @@ public class SizeExpertTailoringController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(APIConstant.SizeExpertTailoringAPI.GET_ALL_SIZE_BY_EXPERT_TAILORING + "/{expectTailoringID}")
+    public ResponseEntity<ObjectNode> findAllSizeByExpectTailoringID(@PathVariable("expectTailoringID") UUID expectTailoringID){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var sizeExpertTailoringResponses = sizeExpertTailoringService.findAllSizeExpertTailoringID(expectTailoringID);
+        if (!sizeExpertTailoringResponses.isEmpty()) {
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GET_ALL_SIZE_EXPERT_TAILORING_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(sizeExpertTailoringResponses));
+        } else {
+            response.put("status", HttpStatus.NOT_FOUND.value());
+            response.put("message", MessageConstant.CAN_NOT_FIND_ANY_SIZE_EXPERT_TAILORING);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(APIConstant.SizeExpertTailoringAPI.ADD_NEW_SIZE_EXPERT_TAILORING)
     public ResponseEntity<ObjectNode> addNewSize(@Valid @RequestBody SizeExpertTailoringRequest sizeExpertTailoringRequest) {
         ObjectMapper objectMapper = new ObjectMapper();

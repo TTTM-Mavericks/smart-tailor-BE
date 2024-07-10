@@ -7,24 +7,22 @@ import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.SizeExpertTailoringMapper;
 import com.smart.tailor.repository.SizeExpertTailoringRepository;
 import com.smart.tailor.service.*;
-import com.smart.tailor.utils.request.ExpertTailoringRequest;
 import com.smart.tailor.utils.request.SizeExpertTailoringRequest;
-import com.smart.tailor.utils.response.*;
+import com.smart.tailor.utils.response.ErrorData;
+import com.smart.tailor.utils.response.ExpertTailoringResponse;
+import com.smart.tailor.utils.response.SizeExpertTailoringResponse;
+import com.smart.tailor.utils.response.SizeResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,11 +47,11 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
         var sizeExpertTailoringExisted = sizeExpertTailoringRepository.findSizeExpertTailoringBySizeIDAndExpertTailoringID(size.getSizeID(), expertTailoring.getExpertTailoringID());
-        if(sizeExpertTailoringExisted != null){
+        if (sizeExpertTailoringExisted != null) {
             throw new ItemAlreadyExistException(MessageConstant.SIZE_EXPERT_TAILORING_IS_EXISTED);
         }
 
-        if(sizeExpertTailoringRequest.getMinFabric() > sizeExpertTailoringRequest.getMaxFabric()){
+        if (sizeExpertTailoringRequest.getMinFabric() > sizeExpertTailoringRequest.getMaxFabric()) {
             throw new BadRequestException("Min Fabric can not greater than Max Fabric");
         }
 
@@ -86,6 +84,18 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<SizeExpertTailoringResponse> findAllSizeExpertTailoringID(UUID expectTailoringID) {
+        return sizeExpertTailoringRepository
+                .findAll()
+                .stream()
+                .filter(sizeExpertTailoring -> {
+                    return sizeExpertTailoring.getExpertTailoring().getExpertTailoringID().equals(expectTailoringID);
+                })
+                .map(sizeExpertTailoringMapper::mapperToSizeExpertTailoringResponse)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     @Override
     public void updateSizeExpertTailoring(SizeExpertTailoringRequest sizeExpertTailoringRequest) {
@@ -96,11 +106,11 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
         var sizeExpertTailoringExisted = sizeExpertTailoringRepository.findSizeExpertTailoringBySizeIDAndExpertTailoringID(size.getSizeID(), expertTailoring.getExpertTailoringID());
-        if(sizeExpertTailoringExisted == null){
+        if (sizeExpertTailoringExisted == null) {
             throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE_EXPERT_TAILORING);
         }
 
-        if(sizeExpertTailoringRequest.getMinFabric() > sizeExpertTailoringRequest.getMaxFabric()){
+        if (sizeExpertTailoringRequest.getMinFabric() > sizeExpertTailoringRequest.getMaxFabric()) {
             throw new BadRequestException("Min Fabric can not greater than Max Fabric");
         }
 
@@ -133,7 +143,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
         try {
             var excelData = excelImportService.getSizeExpertTailoringRequestFromExcel(file.getInputStream());
 
-            if(excelData.isEmpty()){
+            if (excelData.isEmpty()) {
                 throw new BadRequestException("Size Expert Tailoring Excel File Has Empty Data");
             }
 
@@ -141,8 +151,8 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
             List<SizeExpertTailoringRequest> uniqueExcelData = new ArrayList<>();
             List<Object> duplicateExcelData = new ArrayList<>();
 
-            for(SizeExpertTailoringRequest request : excelData){
-                if(!excelNames.add(request)){
+            for (SizeExpertTailoringRequest request : excelData) {
+                if (!excelNames.add(request)) {
                     duplicateExcelData.add(request);
                 } else {
                     uniqueExcelData.add(request);
@@ -176,7 +186,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 }
             }
 
-            if(!invalidData.isEmpty()){
+            if (!invalidData.isEmpty()) {
                 throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
             }
 
@@ -189,18 +199,18 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
     @Override
     public void generateSampleSizeExpertTailoringByExcelFile(HttpServletResponse response) throws IOException {
         String[] expertTailoringNames = expertTailoringService
-                        .getAllExpertTailoring()
-                        .stream()
-                        .map(ExpertTailoringResponse::getExpertTailoringName)
-                        .toList()
-                        .toArray(String[]::new);
+                .getAllExpertTailoring()
+                .stream()
+                .map(ExpertTailoringResponse::getExpertTailoringName)
+                .toList()
+                .toArray(String[]::new);
 
         String[] sizeNames = sizeService
-                        .findAllSizeResponse()
-                        .stream()
-                        .map(SizeResponse::getSizeName)
-                        .toList()
-                        .toArray(String[]::new);
+                .findAllSizeResponse()
+                .stream()
+                .map(SizeResponse::getSizeName)
+                .toList()
+                .toArray(String[]::new);
 
         excelExportService.exportSampleSizeExpertTailoring(response, expertTailoringNames, sizeNames);
     }
