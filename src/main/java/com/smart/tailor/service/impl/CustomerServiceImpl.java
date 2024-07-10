@@ -36,6 +36,16 @@ public class CustomerServiceImpl implements CustomerService {
     private final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Override
+    public void createCustomer(UUID customerID, Boolean gender, Date dateOfBirth, String address, String province, String district, String ward) {
+        customerRepository.createCustomer(customerID, gender, dateOfBirth, address, province, district, ward);
+    }
+
+    @Override
+    public Optional<Customer> findById(UUID customerID) {
+        return customerRepository.findById(customerID);
+    }
+
+    @Override
     @Transactional
     public APIResponse updateCustomerProfile(CustomerRequest customerRequest) {
         if (!Utilities.isValidBoolean(customerRequest.getGender())) {
