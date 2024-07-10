@@ -46,8 +46,9 @@ public class OrderController {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
-            response.put("message", MessageConstant.CREATE_ORDER_SUCCESSFULLY);
+            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
             var orderResponse = orderService.getOrderByOrderID(orderID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
