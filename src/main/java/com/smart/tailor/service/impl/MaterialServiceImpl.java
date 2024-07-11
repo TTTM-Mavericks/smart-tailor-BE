@@ -5,10 +5,7 @@ import com.smart.tailor.entities.Material;
 import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.MaterialMapper;
 import com.smart.tailor.repository.MaterialRepository;
-import com.smart.tailor.service.CategoryService;
-import com.smart.tailor.service.ExcelExportService;
-import com.smart.tailor.service.ExcelImportService;
-import com.smart.tailor.service.MaterialService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.CategoryResponse;
@@ -249,5 +246,14 @@ public class MaterialServiceImpl implements MaterialService {
                 .stream()
                 .map(materialMapper::mapperToMaterialResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MaterialResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID) {
+        return materialRepository
+                .findAllMaterialByExpertTailoringIDAndCategoryID(expertTailoringID, categoryID)
+                .stream()
+                .map(materialMapper::mapperToMaterialResponse)
+                .toList();
     }
 }

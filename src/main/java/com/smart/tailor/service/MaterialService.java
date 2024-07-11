@@ -41,4 +41,6 @@ public interface MaterialService {
     List<MaterialResponse> findListMaterialByCategoryID(UUID categoryID);
 
     List<MaterialResponse> findListMaterialByCategoryName(String categoryName);
+
+    List<MaterialResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
 }

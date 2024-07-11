@@ -3,6 +3,7 @@ package com.smart.tailor.service;
 import com.smart.tailor.entities.ExpertTailoringMaterial;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
 import com.smart.tailor.utils.response.ExpertTailoringMaterialResponse;
+import com.smart.tailor.utils.response.MaterialResponse;
 
 import java.util.List;
 import java.util.Optional;
