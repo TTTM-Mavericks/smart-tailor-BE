@@ -61,10 +61,10 @@ public class OrderServiceImpl implements OrderService {
             String province = "";
             String district = "";
             String ward = "";
-            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getAddress())
-                    && !Utilities.isStringNotNullOrEmpty(orderRequest.getProvince())
-                    && !Utilities.isStringNotNullOrEmpty(orderRequest.getDistrict())
-                    && !Utilities.isStringNotNullOrEmpty(orderRequest.getWard())) {
+            if (Utilities.isNonNullOrEmpty(orderRequest.getAddress())
+                    && Utilities.isNonNullOrEmpty(orderRequest.getProvince())
+                    && Utilities.isNonNullOrEmpty(orderRequest.getDistrict())
+                    && Utilities.isNonNullOrEmpty(orderRequest.getWard())) {
                 address = orderRequest.getAddress();
                 province = orderRequest.getProvince();
                 district = orderRequest.getDistrict();
