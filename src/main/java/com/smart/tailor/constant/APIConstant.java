@@ -282,6 +282,7 @@ public class APIConstant {
         public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_ID = "/get-all-expert-tailoring-material-by-expert-tailoring-id";
         public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_NAME = "/get-all-expert-tailoring-material-by-expert-tailoring-name";
         public static final String CHANGE_STATUS_EXPERT_TAILORING_MATERIAL = "/change-status-expert-tailoring-material";
+        public static final String GENERATE_SAMPLE_CATEGORY_MATERIAL_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-category-material-expert-tailoring-by-excel-file";
     }
 
 }

@@ -604,4 +604,99 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         workbook.close();
         outputStream.close();
     }
+
+    @Override
+    public void exportSampleExpertTailoringMaterial(HttpServletResponse response, List<MaterialResponse> materialResponses) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Expert Tailoring Material");
+
+        // Create Title Row of Excel Sheet
+        Row row = sheet.createRow(0);
+        CellStyle titleStyle = workbook.createCellStyle();
+        XSSFFont font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeight(20);
+        titleStyle.setFont(font);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        createCell(row, 0, "Expert Tailoring Material List", titleStyle, sheet);
+        CellRangeAddress rangeAddress = new CellRangeAddress(0, 0, 0, 2);
+        sheet.addMergedRegion(rangeAddress);
+        RegionUtil.setBorderTop(BorderStyle.MEDIUM, rangeAddress, sheet);
+        RegionUtil.setBorderBottom(BorderStyle.MEDIUM, rangeAddress, sheet);
+        RegionUtil.setBorderLeft(BorderStyle.MEDIUM, rangeAddress, sheet);
+        RegionUtil.setBorderRight(BorderStyle.MEDIUM, rangeAddress, sheet);
+        font.setFontHeightInPoints((short) 10);
+
+        // Create Header of Excel Sheet
+        row = sheet.createRow(1);
+        font.setBold(true);
+        font.setFontHeight(16);
+        titleStyle.setFont(font);
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.cloneStyleFrom(titleStyle);
+        headerStyle.setBorderTop(BorderStyle.MEDIUM);
+        headerStyle.setBorderBottom(BorderStyle.MEDIUM);
+        headerStyle.setBorderLeft(BorderStyle.MEDIUM);
+        headerStyle.setBorderRight(BorderStyle.MEDIUM);
+
+        createCell(row, 0, "Category_Name", headerStyle, sheet);
+        createCell(row, 1, "Material_Name", headerStyle, sheet);
+        createCell(row, 2, "Expert_Tailoring_Name", headerStyle, sheet);
+
+        // Write Data from DB to Excel Sheet
+        int rowIndex = 2;
+        XSSFFont fontData = workbook.createFont();
+        fontData.setBold(false);
+        fontData.setFontHeight(14);
+
+        CellStyle lockedData = workbook.createCellStyle();
+        lockedData.setLocked(true);
+        lockedData.setFont(fontData);
+        lockedData.setAlignment(HorizontalAlignment.CENTER);
+        lockedData.setBorderTop(BorderStyle.MEDIUM);
+        lockedData.setBorderBottom(BorderStyle.MEDIUM);
+        lockedData.setBorderLeft(BorderStyle.MEDIUM);
+        lockedData.setBorderRight(BorderStyle.MEDIUM);
+
+        CellStyle styleData = workbook.createCellStyle();
+        styleData.setLocked(false);
+        styleData.setFont(fontData);
+        styleData.setAlignment(HorizontalAlignment.CENTER);
+        styleData.setBorderTop(BorderStyle.MEDIUM);
+        styleData.setBorderBottom(BorderStyle.MEDIUM);
+        styleData.setBorderLeft(BorderStyle.MEDIUM);
+        styleData.setBorderRight(BorderStyle.MEDIUM);
+
+        for(var materialResponse : materialResponses){
+            Row rowSheet = sheet.createRow(rowIndex++);
+            int countIndex = 0;
+            createCell(rowSheet, countIndex++, materialResponse.getCategoryName(), lockedData, sheet);
+            createCell(rowSheet, countIndex++, materialResponse.getMaterialName(), lockedData, sheet);
+            createCell(rowSheet, countIndex++, null, styleData, sheet);
+        }
+
+        // Set Password to Unlock Columns and Rows
+        sheet.protectSheet("Aa@123456");
+
+        // Apply Constraint to Cell 3 <=> Expert Tailoring
+        DataValidationHelper dataValidationHelper = new XSSFDataValidationHelper(sheet);
+        DataValidationConstraint constraint = dataValidationHelper.createCustomConstraint("ISTEXT(C3)");
+        CellRangeAddressList unitRange = new CellRangeAddressList(2, 300, 2, 2);
+        DataValidation unitValidation = dataValidationHelper.createValidation(constraint, unitRange);
+        unitValidation.setShowErrorBox(true);
+        unitValidation.createErrorBox("Invalid Input", "Expert Tailoring Name must be Type String");
+        sheet.addValidationData(unitValidation);
+
+        // Set Width for Specific Column
+        sheet.setColumnWidth(0, 35 * 256);
+        sheet.setColumnWidth(1, 50 * 256);
+        sheet.setColumnWidth(2, 35 * 256);
+
+
+        // Export Data to Excel
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+    }
 }

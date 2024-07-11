@@ -19,4 +19,6 @@ public interface ExcelExportService {
     void exportSampleCategoryMaterial(HttpServletResponse response, String[] categoryNames) throws IOException;
 
     void exportSampleSizeExpertTailoring(HttpServletResponse response, String[] expertTailoringNames, String[] sizeNames) throws IOException;
+
+    void exportSampleExpertTailoringMaterial(HttpServletResponse response, List<MaterialResponse> materialResponses) throws IOException;
 }
