@@ -297,7 +297,7 @@ public class MessageConstant {
      */
     /*    SUCCESS  */
     public static final String ADD_NEW_DESIGN_DETAIL_SUCCESSFULLY = "Add New Design Detail Successfully!";
-    public static final String GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID_SUCCESSFULLY = "Get All Design Detail By Design ID Successfully!";
+    public static final String GET_ALL_DESIGN_DETAIL_BY_ORDER_ID_SUCCESSFULLY = "Get All Design Detail By Order ID Successfully!";
     public static final String GET_ALL_DESIGN_DETAIL_SUCCESSFULLY = "Get All Design Detail Successfully!";
     public static final String GET_DESIGN_DETAIL_BY_ID_SUCCESSFULLY = "Get Design Detail By ID Successfully!";
     public static final String GET_ALL_DESIGN_DETAIL_BY_CUSTOMER_ID_SUCCESSFULLY = "Get All Design Detail By Customer ID Successfully!";

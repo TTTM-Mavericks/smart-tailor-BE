@@ -112,6 +112,11 @@ public class DesignServiceImpl implements DesignService {
     }
 
     @Override
+    public Design getDesignObjectByOrderID(UUID orderID) {
+        return designRepository.findByOrderID(orderID);
+    }
+
+    @Override
     public List<DesignResponse> getAllDesignByUserID(UUID userID) {
         return designRepository
                 .findAll()

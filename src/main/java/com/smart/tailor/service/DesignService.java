@@ -3,7 +3,6 @@ package com.smart.tailor.service;
 import com.smart.tailor.entities.Design;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
-import com.smart.tailor.utils.request.UpdateDesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignResponse;
 
@@ -16,6 +15,8 @@ public interface DesignService {
     Design getDesignByID(UUID designID);
 
     DesignResponse getDesignByOrderID(UUID orderID);
+
+    Design getDesignObjectByOrderID(UUID orderID);
 
     DesignResponse getDesignResponseByID(UUID designID);
 
