@@ -197,4 +197,20 @@ public class MaterialController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(APIConstant.MaterialAPI.GET_LIST_MATERIAL_BY_EXPERT_TAILORING_ID_AND_CATEGORY_ID)
+    public ResponseEntity<ObjectNode> getListMaterialByCategoryID(@ValidUUID @RequestParam("expertTailoringID") UUID expertTailoringID,
+                                                                  @ValidUUID @RequestParam("categoryID") UUID categoryID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        var materials = materialService.findAllMaterialByExpertTailoringIDAndCategoryID(expertTailoringID, categoryID);
+        if (!materials.isEmpty()) {
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GET_LIST_MATERIAL_BY_EXPERT_TAILORING_ID_AND_CATEGORY_ID_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(materials));
+        } else {
+            response.put("status", HttpStatus.NOT_FOUND.value());
+            response.put("message", MessageConstant.CAN_NOT_FIND_ANY_MATERIAL);
+        }
+        return ResponseEntity.ok(response);
+    }
 }

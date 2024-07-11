@@ -77,6 +77,7 @@ public class APIConstant {
         public static final String GET_ALL_ACTIVE_MATERIAL = "/get-all-active-material";
         public static final String GET_MATERIAL_BY_ID = "/get-material-by-id";
         public static final String GET_LIST_MATERIAL_BY_CATEGORY_ID = "/get-list-material-by-category-id";
+        public static final String GET_LIST_MATERIAL_BY_EXPERT_TAILORING_ID_AND_CATEGORY_ID = "/get-list-material-by-expert-tailoring-id-and-category-id";
         public static final String GET_LIST_MATERIAL_BY_CATEGORY_NAME = "/get-list-material-by-category-name";
         public static final String GET_MATERIAL_BY_MATERIAL_NAME = "/get-material-by-name";
         public static final String ADD_NEW_CATEGORY_MATERIAL_BY_EXCEL_FILE = "/add-new-category-material-by-excel-file";
