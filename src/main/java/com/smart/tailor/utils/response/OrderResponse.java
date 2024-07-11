@@ -16,10 +16,7 @@ import java.util.UUID;
 public class OrderResponse {
     private UUID orderID;
     private UUID parentOrderID;
-    private DesignResponse designResponse;
-    private BrandResponse brandResponse;
     private Integer quantity;
-    private DiscountResponse discountResponse;
     private OrderStatus orderStatus;
     private String orderType;
     private String address;

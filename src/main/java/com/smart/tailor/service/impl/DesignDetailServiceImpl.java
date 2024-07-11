@@ -8,6 +8,7 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
+import com.smart.tailor.mapper.DesignMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
@@ -32,6 +33,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
     private final DesignDetailRepository designDetailRepository;
     private final DesignDetailMapper designDetailMapper;
+    private final DesignMapper designMapper;
     private final BrandService brandService;
     private final DesignService designService;
     private final CustomerService customerService;
@@ -40,21 +42,27 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
     @Override
-    public List<DesignDetailResponse> findAllByOrderID(UUID orderID) {
+    public DesignDetailCustomResponse findAllByOrderID(UUID orderID) {
         try {
             if (orderID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
             }
             List<DesignDetail> designDetailList = designDetailRepository.findAllByOrderOrderID(orderID);
-            List<DesignDetailResponse> responseList = null;
+            DesignDetailCustomResponse responseList = new DesignDetailCustomResponse();
+            List<DesignDetailResponse> detailList = null;
             if (!designDetailList.isEmpty()) {
                 for (DesignDetail detail : designDetailList) {
-                    if (responseList == null) {
-                        responseList = new ArrayList<>();
+                    if (detailList == null) {
+                        detailList = new ArrayList<>();
                     }
-                    responseList.add(designDetailMapper.mapperToDesignDetailResponse(detail));
+                    detailList.add(designDetailMapper.mapperToDesignDetailResponse(detail));
                 }
             }
+            responseList.setDesign(designMapper.mapperToDesignCustomResponse(
+                    designService.getDesignObjectByOrderID(orderID)
+            ));
+            responseList.setOrder(orderService.getOrderByOrderID(orderID));
+            responseList.setDesignDetail(detailList);
             return responseList;
         } catch (Exception ex) {
             logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());

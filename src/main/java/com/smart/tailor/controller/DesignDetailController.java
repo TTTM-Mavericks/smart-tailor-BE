@@ -41,7 +41,7 @@ public class DesignDetailController {
         var designDetailResponseList = designDetailService.findAllByOrderID(designID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
-        response.put("message", MessageConstant.GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID_SUCCESSFULLY);
+        response.put("message", MessageConstant.GET_ALL_DESIGN_DETAIL_BY_ORDER_ID_SUCCESSFULLY);
         response.set("data", objectMapper.valueToTree(designDetailResponseList));
         return ResponseEntity.ok(response);
     }

@@ -8,8 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {OrderMapper.class, BrandMapper.class})
 public interface DesignDetailMapper {
     @Mapping(source = "designDetail.designDetailID", target = "designDetailId")
-    @Mapping(source = "designDetail.order", target = "order")
-    @Mapping(source = "designDetail.brand", target = "brand")
     @Mapping(source = "designDetail.quantity", target = "quantity")
     @Mapping(source = "designDetail.size", target = "size")
     @Mapping(source = "designDetail.detailStatus", target = "detailStatus")

@@ -22,7 +22,6 @@ class OrderMapperImpl implements OrderMapper {
         }
 
         OrderResponse.OrderResponseBuilder orderResponse = OrderResponse.builder();
-        orderResponse.designResponse(designService.getDesignByOrderID(order.getOrderID()));
         orderResponse.orderType(order.getOrderType());
         orderResponse.orderID(order.getOrderID());
         orderResponse.quantity(order.getQuantity());

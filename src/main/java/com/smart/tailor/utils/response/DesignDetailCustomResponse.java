@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DesignDetailResponse {
-    private UUID designDetailId;
-    private Integer quantity;
-    private SizeResponse size;
-    private Boolean detailStatus;
+public class DesignDetailCustomResponse {
+    DesignCustomResponse design;
+    OrderResponse order;
+    List<DesignDetailResponse> designDetail;
 }
