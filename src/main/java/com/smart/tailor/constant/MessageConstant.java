@@ -325,4 +325,21 @@ public class MessageConstant {
     public static final String CAN_NOT_FIND_ANY_SYSTEM_IMAGE = "Can not find any System Image";
     public static final String ADD_NEW_SYSTEM_IMAGE_FAIL = "Fail To Add New System Image";
 
+    /**
+     * Expert Tailoring Material
+     */
+    /*    SUCCESS  */
+    public static final String ADD_EXPERT_TAILORING_MATERIAL_SUCCESSFULLY = "Add New Expert Tailoring Material Successfully!";
+    public static final String ADD_EXPERT_TAILORING_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY = "Add New Expert Tailoring Material By Excel File Successfully!";
+    public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_SUCCESSFULLY = "Get All Expert Tailoring Material Successfully!";
+    public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_ID_SUCCESSFULLY = "Get All Expert Tailoring Material By Expert Tailoring ID Successfully!";
+    public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_NAME = "Get All Expert Tailoring Material By Expert Tailoring Name Successfully!";
+    public static final String UPDATE_EXPERT_TAILORING_MATERIAL_SUCCESSFULLY = "Update Expert Tailoring Material Successfully!";
+    public static final String GENERATE_SAMPLE_EXPERT_TAILORING_MATERIAL_SUCCESSFULLY = "Generate Sample Expert Tailoring Material Successfully!";
+
+    /*    FAIL     */
+    public static final String ADD_EXPERT_TAILORING_MATERIAL_BY_EXCEL_FILE_FAIL = "Add New Expert Tailoring Material By Excel File Fail!";
+    public static final String EXPERT_TAILORING_MATERIAL_IS_EXISTED = "Expert Tailoring Material is Existed";
+    public static final String CAN_NOT_FIND_ANY_EXPERT_TAILORING_MATERIAL = "Can Not Find Any Expert Tailoring Material";
+
 }

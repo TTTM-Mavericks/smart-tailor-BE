@@ -40,17 +40,20 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public Optional<Material> findByMaterialNameAndCategory_CategoryName(String materialName, String categoryName) {
-        return materialRepository.findByMaterialNameAndCategory_CategoryName(materialName.toLowerCase(), categoryName.toLowerCase());
+        var category = categoryService.findByCategoryName(categoryName)
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+
+        return materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialName, categoryName);
     }
 
     @Override
     @Transactional
     public void createMaterial(MaterialRequest materialRequest) {
-        var category = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase())
+        var category = categoryService.findByCategoryName(materialRequest.getCategoryName())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
 
-        Optional<Material> categoryMaterialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName().toLowerCase(), materialRequest.getCategoryName().toLowerCase());
-        Optional<Material> materialOptional = findByMaterialName(materialRequest.getMaterialName().toLowerCase());
+        Optional<Material> categoryMaterialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName(), materialRequest.getCategoryName());
+        Optional<Material> materialOptional = findByMaterialName(materialRequest.getMaterialName());
 
         if (materialOptional.isPresent() || categoryMaterialOptional.isPresent()) {
             throw new ItemAlreadyExistException(MessageConstant.MATERIAL_IS_EXISTED);
@@ -59,7 +62,7 @@ public class MaterialServiceImpl implements MaterialService {
         materialRepository.save(
                 Material
                         .builder()
-                        .materialName(materialRequest.getMaterialName().toLowerCase())
+                        .materialName(materialRequest.getMaterialName())
                         .category(category)
                         .hsCode(materialRequest.getHsCode())
                         .unit(materialRequest.getUnit())
@@ -146,7 +149,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public MaterialResponse findByMaterialNameAndCategoryName(String materialName, String categoryName) {
-        var materialOptional = findByMaterialNameAndCategory_CategoryName(materialName.toLowerCase(), categoryName.toLowerCase());
+        var materialOptional = findByMaterialNameAndCategory_CategoryName(materialName, categoryName);
         if (materialOptional.isPresent()) {
             return materialMapper.mapperToMaterialResponse(materialOptional.get());
         }
@@ -177,14 +180,14 @@ public class MaterialServiceImpl implements MaterialService {
         var material = materialRepository.findById(materialID)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
 
-        var categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName().toLowerCase())
+        var categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
 
         materialRepository.save(
                 Material
                         .builder()
                         .materialID(materialID)
-                        .materialName(materialRequest.getMaterialName().toLowerCase())
+                        .materialName(materialRequest.getMaterialName())
                         .category(categoryOptional)
                         .hsCode(materialRequest.getHsCode())
                         .unit(materialRequest.getUnit())

@@ -33,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Optional<Category> findByCategoryName(String categoryName) {
-        return categoryRepository.findByCategoryName(categoryName.toLowerCase());
+        return categoryRepository.findByCategoryName(categoryName);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BadRequestException(MessageConstant.DATA_IS_EMPTY + " : categoryName");
         }
 
-        Optional<Category> categoryOptional = findByCategoryName(categoryName.toLowerCase());
+        Optional<Category> categoryOptional = findByCategoryName(categoryName);
         if(categoryOptional.isPresent()) {
             throw new ItemAlreadyExistException(MessageConstant.CATEGORY_IS_EXISTED);
         }
@@ -51,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(
                 Category
                         .builder()
-                        .categoryName(categoryName.toLowerCase())
+                        .categoryName(categoryName)
                         .build()
         );
     }

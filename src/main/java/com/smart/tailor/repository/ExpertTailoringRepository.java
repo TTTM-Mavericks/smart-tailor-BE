@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface ExpertTailoringRepository extends JpaRepository<ExpertTailoring, UUID> {
     Optional<ExpertTailoring> findByExpertTailoringID(UUID expertTailoringID);
 
-    Optional<ExpertTailoring> findByExpertTailoringName(String expertTailoringName);
+    Optional<ExpertTailoring> findByExpertTailoringNameIgnoreCase(String expertTailoringName);
 
     Optional<ExpertTailoring> findExpertTailoringByExpertTailoringID(UUID expectTailoringID);
 }

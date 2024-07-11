@@ -89,7 +89,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
     @Override
     public ExpertTailoringResponse getExpertTailoringResponseByExpertTailoringName(String expertTailoringName) {
-        var expertTailroingOptional = expertTailoringRepository.findByExpertTailoringName(expertTailoringName);
+        var expertTailroingOptional = expertTailoringRepository.findByExpertTailoringNameIgnoreCase(expertTailoringName);
         if (expertTailroingOptional.isPresent()) {
             return mapperToExpertTailoringResponse(expertTailroingOptional.get());
         }
@@ -98,7 +98,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
     @Override
     public Optional<ExpertTailoring> getExpertTailoringByExpertTailoringName(String expertTailoringName) {
-        return expertTailoringRepository.findByExpertTailoringName(expertTailoringName);
+        return expertTailoringRepository.findByExpertTailoringNameIgnoreCase(expertTailoringName);
     }
 
     @Override

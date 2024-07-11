@@ -270,4 +270,17 @@ public class APIConstant {
         public static final String GET_ALL_SYSTEM_IMAGE_BY_IMAGE_TYPE = "/get-all-system-image-by-image-type";
         public static final String GET_ALL_SYSTEM_IMAGE_BY_IMAGE_TYPE_AND_PREMIUM = "/get-all-system-image-by-image-type-and-premium";
     }
+
+    /**
+     * ExpertTailoringMaterial API
+     */
+    public class ExpertTailoringMaterialAPI {
+        public static final String EXPERT_TAILORING_MATERIAL = APIConstant.API + "/expert-tailoring-material";
+        public static final String ADD_NEW_EXPERT_TAILORING_MATERIAL = "/add-new-expert-tailoring-material";
+        public static final String GET_ALL_EXPERT_TAILORING_MATERIAL = "/get-all-expert-tailoring-material";
+        public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_ID = "/get-all-expert-tailoring-material-by-expert-tailoring-id";
+        public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_NAME = "/get-all-expert-tailoring-material-by-expert-tailoring-name";
+        public static final String CHANGE_STATUS_EXPERT_TAILORING_MATERIAL = "/change-status-expert-tailoring-material";
+    }
+
 }

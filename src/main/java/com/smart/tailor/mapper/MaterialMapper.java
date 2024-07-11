@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface MaterialMapper {
+    @Mapping(source = "material.category.categoryName", target = "categoryName")
     @Mapping(source = "material.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "material.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     MaterialResponse mapperToMaterialResponse(Material material);
