@@ -79,14 +79,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
             }
             Order existedOrder = null;
-//            if (designDetailRequest.getOrderId() != null) {
-//                var order = orderService.getOrderById(designDetailRequest.getOrderId());
-//                if (order.isEmpty()) {
-//                    throw new BadRequestException("CAN NOT FIND ORDER BY ODER ID.");
-//                } else {
-//                    existedOrder = order.get();
-//                }
-//            } else {
             DesignResponse designResponse = designService.getDesignResponseByID(designId);
             UserResponse userResponse = designResponse.getUser();
             CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
@@ -94,10 +86,10 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             String province = "";
             String district = "";
             String ward = "";
-            if (!Utilities.isStringNotNullOrEmpty(designDetailRequest.getAddress())
-                    && !Utilities.isStringNotNullOrEmpty(designDetailRequest.getProvince())
-                    && !Utilities.isStringNotNullOrEmpty(designDetailRequest.getDistrict())
-                    && !Utilities.isStringNotNullOrEmpty(designDetailRequest.getWard())) {
+            if (Utilities.isNonNullOrEmpty(designDetailRequest.getAddress())
+                    && Utilities.isNonNullOrEmpty(designDetailRequest.getProvince())
+                    && Utilities.isNonNullOrEmpty(designDetailRequest.getDistrict())
+                    && Utilities.isNonNullOrEmpty(designDetailRequest.getWard())) {
                 address = designDetailRequest.getAddress();
                 province = designDetailRequest.getProvince();
                 district = designDetailRequest.getDistrict();
@@ -138,7 +130,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             .build()
             );
             existedOrder = orderService.getOrderById(createdOrder.getOrderID()).get();
-//            }
 
             List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
             int index = -1;
