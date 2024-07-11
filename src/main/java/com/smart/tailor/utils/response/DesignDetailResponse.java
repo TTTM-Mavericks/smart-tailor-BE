@@ -13,7 +13,6 @@ import java.util.UUID;
 @Builder
 public class DesignDetailResponse {
     private UUID designDetailId;
-    private DesignResponse design;
     private OrderResponse order;
     private BrandResponse brand;
     private Integer quantity;
