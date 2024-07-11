@@ -14,10 +14,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.DesignDetailRequest;
 import com.smart.tailor.utils.request.DesignDetailSize;
 import com.smart.tailor.utils.request.OrderRequest;
-import com.smart.tailor.utils.response.APIResponse;
-import com.smart.tailor.utils.response.DesignDetailResponse;
-import com.smart.tailor.utils.response.OrderDetailResponse;
-import com.smart.tailor.utils.response.OrderResponse;
+import com.smart.tailor.utils.response.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -37,6 +34,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final DesignDetailMapper designDetailMapper;
     private final BrandService brandService;
     private final DesignService designService;
+    private final CustomerService customerService;
     private final OrderService orderService;
     private final SizeService sizeService;
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
@@ -89,14 +87,57 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 //                    existedOrder = order.get();
 //                }
 //            } else {
-                OrderResponse createdOrder = orderService.createOrder(
-                        OrderRequest
-                                .builder()
-                                .designID(designId)
-                                .orderType("PARENT_ORDER")
-                                .build()
-                );
-                existedOrder = orderService.getOrderById(createdOrder.getOrderID()).get();
+            DesignResponse designResponse = designService.getDesignResponseByID(designId);
+            UserResponse userResponse = designResponse.getUser();
+            CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
+            String address = "";
+            String province = "";
+            String district = "";
+            String ward = "";
+            if (!Utilities.isStringNotNullOrEmpty(designDetailRequest.getAddress())
+                    && !Utilities.isStringNotNullOrEmpty(designDetailRequest.getProvince())
+                    && !Utilities.isStringNotNullOrEmpty(designDetailRequest.getDistrict())
+                    && !Utilities.isStringNotNullOrEmpty(designDetailRequest.getWard())) {
+                address = designDetailRequest.getAddress();
+                province = designDetailRequest.getProvince();
+                district = designDetailRequest.getDistrict();
+                ward = designDetailRequest.getWard();
+            } else {
+                address = customerResponse.getAddress();
+                province = customerResponse.getProvince();
+                district = customerResponse.getDistrict();
+                ward = customerResponse.getWard();
+            }
+
+            String phone = "";
+            if (!Utilities.isStringNotNullOrEmpty(designDetailRequest.getPhone())) {
+                phone = customerResponse.getPhoneNumber();
+            } else if (!Utilities.isValidVietnamesePhoneNumber(designDetailRequest.getPhone())) {
+                phone = customerResponse.getPhoneNumber();
+            } else {
+                phone = designDetailRequest.getPhone();
+            }
+
+            String buyerName;
+            if (!Utilities.isStringNotNullOrEmpty(designDetailRequest.getBuyerName())) {
+                buyerName = designDetailRequest.getBuyerName();
+            } else {
+                buyerName = customerResponse.getFullName();
+            }
+            OrderResponse createdOrder = orderService.createOrder(
+                    OrderRequest
+                            .builder()
+                            .designID(designId)
+                            .orderType("PARENT_ORDER")
+                            .address(address)
+                            .province(province)
+                            .district(district)
+                            .ward(ward)
+                            .phone(phone)
+                            .buyerName(buyerName)
+                            .build()
+            );
+            existedOrder = orderService.getOrderById(createdOrder.getOrderID()).get();
 //            }
 
             List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();

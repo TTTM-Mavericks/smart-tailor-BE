@@ -17,4 +17,10 @@ public class DesignDetailRequest {
     private UUID orderId;
     List<DesignDetailSize> sizeList;
     private Boolean detailStatus;
+    private String address;
+    private String province;
+    private String district;
+    private String ward;
+    private String phone;
+    private String buyerName;
 }
