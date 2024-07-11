@@ -7,6 +7,7 @@ import com.smart.tailor.exception.DuplicateDataException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.ExpertTailoringMaterialMapper;
 import com.smart.tailor.repository.ExpertTailoringMaterialRepository;
+import com.smart.tailor.service.ExcelExportService;
 import com.smart.tailor.service.ExpertTailoringMaterialService;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.service.MaterialService;
@@ -14,6 +15,8 @@ import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialRequest;
 import com.smart.tailor.utils.response.ExpertTailoringMaterialResponse;
 import com.smart.tailor.utils.response.MaterialResponse;
+import jakarta.persistence.Tuple;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +39,7 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
     private final ExpertTailoringService expertTailoringService;
     private final MaterialService materialService;
     private final ExpertTailoringMaterialMapper expertTailoringMaterialMapper;
+    private final ExcelExportService excelExportService;
     private final Logger logger = LoggerFactory.getLogger(ExpertTailoringMaterialServiceImpl.class);
 
     @Transactional
@@ -146,5 +151,9 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
                 .collect(Collectors.toList());
     }
 
-
+    @Override
+    public void generateSampleExpertTailoringMaterial(HttpServletResponse response) throws IOException {
+        var materialResponse = materialService.findAllActiveMaterials();
+        excelExportService.exportSampleExpertTailoringMaterial(response, materialResponse);
+    }
 }

@@ -7,6 +7,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ExpertTailoringMaterialService;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
 import com.smart.tailor.validate.ValidUUID;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -94,6 +96,19 @@ public class ExpertTailoringMaterialController {
         expertTailoringMaterialService.changeStatusExpertTailoringMaterial(expertTailoringID, materialID);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.UPDATE_EXPERT_TAILORING_MATERIAL_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(APIConstant.ExpertTailoringMaterialAPI.GENERATE_SAMPLE_CATEGORY_MATERIAL_EXPERT_TAILORING_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> generateSampleExpertTailoringMaterial(HttpServletResponse httpServletResponse) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename = Generate_Sample_Expert_Tailoring_Material.xlsx";
+        httpServletResponse.setHeader(headerKey, headerValue);
+        expertTailoringMaterialService.generateSampleExpertTailoringMaterial(httpServletResponse);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.GENERATE_SAMPLE_EXPERT_TAILORING_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 }
