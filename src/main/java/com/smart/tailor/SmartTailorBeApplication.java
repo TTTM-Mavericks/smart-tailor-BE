@@ -211,8 +211,8 @@ public class SmartTailorBeApplication {
 
                 var brandLALALISA = brandRepository.findBrandByBrandName("LA LA LISA BRAND");
                 var brandGOYOUNJUNG = brandRepository.findBrandByBrandName("GO YOUN JUNG BRAND");
-                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringName("shirtModel").get();
-                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringName("hoodieModel").get();
+                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("shirtModel").get();
+                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("hoodieModel").get();
                 brandExpertTailoringRepository.createShortBrandExpertTailoring(
                         brandLALALISA.get().getBrandID(),
                         sewExpertTailoring.getExpertTailoringID()
