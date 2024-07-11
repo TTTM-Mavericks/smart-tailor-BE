@@ -36,9 +36,9 @@ public class DesignDetailController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(DesignDetailAPI.GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> getAllDesignDetailByDesignID(@ValidUUID @PathVariable("designID") UUID designID) {
-        var designDetailResponseList = designDetailService.getAllByDesignID(designID);
+    @GetMapping(DesignDetailAPI.GET_ALL_DESIGN_DETAIL_BY_ORDER_ID + "/{orderID}")
+    public ResponseEntity<ObjectNode> getAllDesignDetailByDesignID(@ValidUUID @PathVariable("orderID") UUID designID) {
+        var designDetailResponseList = designDetailService.findAllByOrderID(designID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID_SUCCESSFULLY);

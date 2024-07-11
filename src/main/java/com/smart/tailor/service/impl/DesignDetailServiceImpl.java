@@ -40,12 +40,12 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
     @Override
-    public List<DesignDetailResponse> getAllByDesignID(UUID designID) {
+    public List<DesignDetailResponse> findAllByOrderID(UUID orderID) {
         try {
-            if (designID == null) {
+            if (orderID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
             }
-            List<DesignDetail> designDetailList = designDetailRepository.findAllByDesignDesignID(designID);
+            List<DesignDetail> designDetailList = designDetailRepository.findAllByOrderOrderID(orderID);
             List<DesignDetailResponse> responseList = null;
             if (!designDetailList.isEmpty()) {
                 for (DesignDetail detail : designDetailList) {

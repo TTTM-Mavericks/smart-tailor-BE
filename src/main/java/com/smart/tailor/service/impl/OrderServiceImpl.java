@@ -1,6 +1,7 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Employee;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
@@ -50,9 +51,6 @@ public class OrderServiceImpl implements OrderService {
                     && Utilities.isValidNumber(orderRequest.getQuantity().toString())
                     ? orderRequest.getQuantity()
                     : 0;
-//            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getOrderType())) {
-//                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": orderType");
-//            }
 
             UserResponse userResponse = designResponse.getUser();
             CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
