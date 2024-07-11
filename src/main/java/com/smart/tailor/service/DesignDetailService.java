@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DesignDetailService {
-    List<DesignDetailResponse> getAllByDesignID(UUID designID);
+    List<DesignDetailResponse> findAllByOrderID(UUID orderID);
 
     APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
 

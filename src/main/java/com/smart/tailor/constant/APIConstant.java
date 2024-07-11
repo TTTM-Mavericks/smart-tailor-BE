@@ -244,7 +244,7 @@ public class APIConstant {
     public class DesignDetailAPI {
         public static final String DESIGN_DETAIL = APIConstant.API + "/design-detail";
         public static final String ADD_NEW_DESIGN_DETAIL = "/add-new-design-detail";
-        public static final String GET_ALL_DESIGN_DETAIL_BY_DESIGN_ID = "/get-all-design-detail-by-design-id";
+        public static final String GET_ALL_DESIGN_DETAIL_BY_ORDER_ID = "/get-all-design-detail-by-order-id";
 
     }
 

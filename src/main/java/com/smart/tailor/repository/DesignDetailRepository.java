@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface DesignDetailRepository extends JpaRepository<DesignDetail, UUID> {
-    List<DesignDetail> findAllByDesignDesignID(UUID designID);
+    List<DesignDetail> findAllByOrderOrderID(UUID orderID);
 
     DesignDetail findDesignDetailByDesignDesignIDAndSizeSizeID(UUID designID, UUID sizeID);
 }
