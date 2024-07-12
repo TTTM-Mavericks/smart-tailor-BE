@@ -618,7 +618,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         font.setFontHeight(20);
         titleStyle.setFont(font);
         titleStyle.setAlignment(HorizontalAlignment.CENTER);
-        createCell(row, 0, "Expert Tailoring Material List", titleStyle, sheet);
+        createCell(row, 0, "Expert Tailoring Material (use comma to separate multiple values)", titleStyle, sheet);
         CellRangeAddress rangeAddress = new CellRangeAddress(0, 0, 0, 2);
         sheet.addMergedRegion(rangeAddress);
         RegionUtil.setBorderTop(BorderStyle.MEDIUM, rangeAddress, sheet);
@@ -680,17 +680,20 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 3 <=> Expert Tailoring
         DataValidationHelper dataValidationHelper = new XSSFDataValidationHelper(sheet);
-        DataValidationConstraint constraint = dataValidationHelper.createCustomConstraint("ISTEXT(C3)");
-        CellRangeAddressList unitRange = new CellRangeAddressList(2, 300, 2, 2);
-        DataValidation unitValidation = dataValidationHelper.createValidation(constraint, unitRange);
-        unitValidation.setShowErrorBox(true);
-        unitValidation.createErrorBox("Invalid Input", "Expert Tailoring Name must be Type String");
-        sheet.addValidationData(unitValidation);
+        DataValidationConstraint constraint = dataValidationHelper.createCustomConstraint("AND(ISTEXT(C3))");
+
+        CellRangeAddressList expertTailoringNameRange = new CellRangeAddressList(2, 300, 2, 2);
+        DataValidation expertTailoringNameValidation = dataValidationHelper.createValidation(constraint, expertTailoringNameRange);
+        expertTailoringNameValidation.setShowErrorBox(true);
+        expertTailoringNameValidation.createErrorBox( "Invalid Input",
+                "Expert Tailoring Name must be Type String. If multiple values, they have to be separated by commas."
+        );
+        sheet.addValidationData(expertTailoringNameValidation);
 
         // Set Width for Specific Column
-        sheet.setColumnWidth(0, 35 * 256);
+        sheet.setColumnWidth(0, 28 * 256);
         sheet.setColumnWidth(1, 50 * 256);
-        sheet.setColumnWidth(2, 35 * 256);
+        sheet.setColumnWidth(2, 50 * 256);
 
 
         // Export Data to Excel

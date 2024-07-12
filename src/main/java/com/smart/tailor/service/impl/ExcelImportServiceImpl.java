@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -869,6 +870,148 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
     @Override
     public List<ExpertTailoringMaterialListRequest> getExpertTailoringMaterialDataFromExcel(InputStream inputStream) {
-        return null;
+        List<ExpertTailoringMaterialListRequest> expertTailoringMaterialListRequests = new ArrayList<>();
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+            XSSFSheet sheet = workbook.getSheet("Expert Tailoring Material");
+
+            if (sheet == null) {
+                throw new ExcelFileNotSupportException(MessageConstant.WRONG_TYPE_OF_EXPERT_TAILORING_MATERIAL_EXCEL_FILE);
+            }
+            logger.info("Inside getExpertTailoringMaterialDataFromExcel Method");
+
+            boolean inValidData = false;
+            List<Object> cellErrorResponses = new ArrayList<>();
+
+            int rowIndex = 2;
+            while (rowIndex <= sheet.getLastRowNum()) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || isRowCompletelyEmptyForExpertTailoringMaterial(row)) {
+                    rowIndex++;
+                    continue;
+                }
+
+                ExpertTailoringMaterialListRequest expertTailoringMaterialListRequest = new ExpertTailoringMaterialListRequest();
+                boolean rowDataValid = true;
+                boolean isValid = false;
+                String message = "";
+                double doubleValue = -1;
+                for (int cellIndex = 0; cellIndex < 3; cellIndex++) {
+                    Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        inValidData = true;
+                        rowDataValid = false;
+                        cellErrorResponses.add(
+                                CellErrorResponse
+                                        .builder()
+                                        .rowIndex(rowIndex + 1)
+                                        .cellIndex(cellIndex + 1)
+                                        .cellName(getCellNameForExpertTailoringMaterial(cellIndex))
+                                        .data("")
+                                        .message(MessageConstant.DATA_IS_EMPTY)
+                                        .build()
+                        );
+                    } else {
+                        switch (cellIndex) {
+                            case 0:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    expertTailoringMaterialListRequest.setCategoryName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForExpertTailoringMaterial(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 1:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    expertTailoringMaterialListRequest.setMaterialName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForExpertTailoringMaterial(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 2:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    String[] expertTailoringNames = cell.getStringCellValue().split(",");
+                                    List<String> trimmedNames = Arrays.stream(expertTailoringNames)
+                                            .map(String::trim)
+                                            .toList();
+                                    expertTailoringMaterialListRequest.setExpertTailoringNames(trimmedNames);
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    cellErrorResponses.add(
+                                            CellErrorResponse
+                                                    .builder()
+                                                    .rowIndex(rowIndex + 1)
+                                                    .cellIndex(cellIndex + 1)
+                                                    .cellName(getCellNameForExpertTailoringMaterial(cellIndex))
+                                                    .data(cell.toString())
+                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+                                                    .build()
+                                    );
+                                }
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                if (rowDataValid) {
+                    expertTailoringMaterialListRequests.add(expertTailoringMaterialListRequest);
+                }
+
+                rowIndex++;
+            }
+
+            if (inValidData) {
+                throw new ExcelFileInvalidDataTypeException(MessageConstant.INVALID_DATA_TYPE, cellErrorResponses);
+            } else {
+                return expertTailoringMaterialListRequests;
+            }
+        } catch (IOException e) {
+            logger.error("Error reading Excel file: {}", e.getMessage());
+            throw new ExcelFileErrorReadingException(MessageConstant.ERROR_READING_EXCEL_FILE);
+        }
+    }
+
+    private boolean isRowCompletelyEmptyForExpertTailoringMaterial(Row row) {
+        for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellNameForExpertTailoringMaterial(int cellIndex) {
+        switch (cellIndex) {
+            case 0: return "Category_Name";
+            case 1: return "Material_Name";
+            case 2: return "Expert_Tailoring_Name";
+            default: return "Unknown";
+        }
     }
 }

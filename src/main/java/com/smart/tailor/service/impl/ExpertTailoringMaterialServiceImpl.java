@@ -47,13 +47,13 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
 
         var material = materialService.findByMaterialNameAndCategory_CategoryName(
                         materialName, categoryName)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL + " : " + materialName));
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
 
         List<Object> duplicateExpertTailoringMaterials = new ArrayList<>();
 
         for(String expertTailoringName : expertTailoringMaterialListRequest.getExpertTailoringNames()){
             var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(expertTailoringName)
-                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING + " : " + expertTailoringName));
+                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
             var expertTailoringMaterialExisted = findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(
                     expertTailoring.getExpertTailoringID(), material.getMaterialID());
@@ -157,56 +157,56 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
     @Transactional
     @Override
     public void createExpertTailoringMaterialByExcelFile(MultipartFile file) {
-//        if (!excelImportService.isValidExcelFile(file)) {
-//            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
-//        }
-//        try {
-//            var excelData = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
-//
-//            if (excelData.isEmpty()) {
-//                throw new BadRequestException("Category and Material Excel File Has Empty Data");
-//            }
-//
-//            Set<MaterialRequest> excelNames = new HashSet<>();
-//            List<MaterialRequest> uniqueExcelData = new ArrayList<>();
-//            List<Object> duplicateExcelData = new ArrayList<>();
-//
-//            for (MaterialRequest request : excelData) {
-//                if (!excelNames.add(request)) {
-//                    duplicateExcelData.add(request);
-//                } else {
-//                    uniqueExcelData.add(request);
-//                }
-//            }
-//
-//            if (!duplicateExcelData.isEmpty()) {
-//                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
-//            }
-//
-//            List<Object> invalidData = new ArrayList<>();
-//            for (MaterialRequest materialRequest : uniqueExcelData) {
-//                try {
-//                    createExpertTailoringMaterial(materialRequest);
-//                } catch (ItemNotFoundException ex) {
-//                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_CATEGORY;
-//                    logger.error("Error creating Material: Item not found - {}", errorMessage, ex);
-//                    invalidData.add(new ErrorData(materialRequest, errorMessage));
-//                } catch (ItemAlreadyExistException ex) {
-//                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.MATERIAL_IS_EXISTED;
-//                    logger.error("Error creating Material: Already exists - {}", errorMessage, ex);
-//                    invalidData.add(new ErrorData(materialRequest, errorMessage));
-//                } catch (Exception ex) {
-//                    logger.error("Error creating Material - {}", ex.getMessage());
-//                    invalidData.add(new ErrorData(materialRequest, ex.getMessage()));
-//                }
-//            }
-//
-//            if (!invalidData.isEmpty()) {
-//                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
-//            }
-//        } catch (IOException ex) {
-//            logger.error("Error processing excel file", ex);
-//            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
-//        }
+        if (!excelImportService.isValidExcelFile(file)) {
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
+        }
+        try {
+            var excelData = excelImportService.getExpertTailoringMaterialDataFromExcel(file.getInputStream());
+
+            if (excelData.isEmpty()) {
+                throw new BadRequestException("Category and Material Excel File Has Empty Data");
+            }
+
+            Set<ExpertTailoringMaterialListRequest> excelNames = new HashSet<>();
+            List<ExpertTailoringMaterialListRequest> uniqueExcelData = new ArrayList<>();
+            List<Object> duplicateExcelData = new ArrayList<>();
+
+            for (ExpertTailoringMaterialListRequest request : excelData) {
+                if (!excelNames.add(request)) {
+                    duplicateExcelData.add(request);
+                } else {
+                    uniqueExcelData.add(request);
+                }
+            }
+
+            if (!duplicateExcelData.isEmpty()) {
+                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_EXPERT_TAILORING_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
+            }
+
+            List<Object> invalidData = new ArrayList<>();
+            for (ExpertTailoringMaterialListRequest materialRequest : uniqueExcelData) {
+                try {
+                    createExpertTailoringMaterial(materialRequest);
+                } catch (ItemNotFoundException ex) {
+                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_MATERIAL;
+                    logger.error("Error creating Expert Tailoring Material: Item not found - {}", errorMessage, ex);
+                    invalidData.add(new ErrorData(materialRequest, errorMessage));
+                } catch (DuplicateDataException ex) {
+                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.EXPERT_TAILORING_MATERIAL_IS_EXISTED;
+                    logger.error("Error creating Expert Tailoring Material: Already exists - {}", errorMessage, ex);
+                    invalidData.add(new ErrorData(ex.getErrors(), errorMessage));
+                } catch (Exception ex) {
+                    logger.error("Error creating Expert Tailoring Material - {}", ex.getMessage());
+                    invalidData.add(new ErrorData(materialRequest, ex.getMessage()));
+                }
+            }
+
+            if (!invalidData.isEmpty()) {
+                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
+            }
+        } catch (IOException ex) {
+            logger.error("Error processing excel file", ex);
+            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
+        }
     }
 }
