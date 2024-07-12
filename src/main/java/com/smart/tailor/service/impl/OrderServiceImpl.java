@@ -1,7 +1,6 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Employee;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
@@ -13,10 +12,7 @@ import com.smart.tailor.service.DesignService;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.OrderRequest;
-import com.smart.tailor.utils.response.CustomerResponse;
-import com.smart.tailor.utils.response.DesignResponse;
-import com.smart.tailor.utils.response.OrderResponse;
-import com.smart.tailor.utils.response.UserResponse;
+import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -132,9 +128,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponse getOrderByOrderID(UUID orderID) {
+    public OrderCustomResponse getOrderByOrderID(UUID orderID) {
         var order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
-        var response = orderMapper.mapToOrderResponse(order);
+        var response = orderMapper.mapToOrderCustomeResponse(order);
         return response;
     }
 

@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class DesignDetailCustomResponse {
-    DesignCustomResponse design;
+    DesignResponse design;
     OrderResponse order;
     List<DesignDetailResponse> designDetail;
 }
