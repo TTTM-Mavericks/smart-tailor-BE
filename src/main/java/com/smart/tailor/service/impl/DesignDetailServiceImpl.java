@@ -9,6 +9,7 @@ import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.DesignMapper;
+import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
@@ -34,6 +35,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final DesignDetailRepository designDetailRepository;
     private final DesignDetailMapper designDetailMapper;
     private final DesignMapper designMapper;
+    private final OrderMapper orderMapper;
     private final BrandService brandService;
     private final DesignService designService;
     private final CustomerService customerService;
@@ -58,10 +60,10 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     detailList.add(designDetailMapper.mapperToDesignDetailResponse(detail));
                 }
             }
-            responseList.setDesign(designMapper.mapperToDesignCustomResponse(
+            responseList.setDesign(designMapper.mapperToDesignResponse(
                     designService.getDesignObjectByOrderID(orderID)
             ));
-            responseList.setOrder(orderService.getOrderByOrderID(orderID));
+            responseList.setOrder(orderMapper.mapToOrderResponse(orderService.getOrderById(orderID).get()));
             responseList.setDesignDetail(detailList);
             return responseList;
         } catch (Exception ex) {
