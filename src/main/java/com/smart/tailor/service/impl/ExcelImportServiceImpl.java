@@ -896,7 +896,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 boolean isValid = false;
                 String message = "";
                 double doubleValue = -1;
-                for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+                for (int cellIndex = 0; cellIndex < 3; cellIndex++) {
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     if (cell == null || cell.getCellType() == CellType.BLANK) {
                         inValidData = true;
@@ -952,7 +952,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                             case 2:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     String[] expertTailoringNames = cell.getStringCellValue().split(",");
-                                    expertTailoringMaterialListRequest.setExpertTailoringNames(Arrays.stream(expertTailoringNames).toList());
+                                    List<String> trimmedNames = Arrays.stream(expertTailoringNames)
+                                            .map(String::trim)
+                                            .toList();
+                                    expertTailoringMaterialListRequest.setExpertTailoringNames(trimmedNames);
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;

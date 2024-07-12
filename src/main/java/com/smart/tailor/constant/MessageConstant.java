@@ -343,5 +343,6 @@ public class MessageConstant {
     public static final String EXPERT_TAILORING_MATERIAL_IS_EXISTED = "Expert Tailoring Material is Existed";
     public static final String CAN_NOT_FIND_ANY_EXPERT_TAILORING_MATERIAL = "Can Not Find Any Expert Tailoring Material";
     public static final String WRONG_TYPE_OF_EXPERT_TAILORING_MATERIAL_EXCEL_FILE = "Wrong Type Of Expert Tailoring Material Excel File!";
+    public static final String DUPLICATE_EXPERT_TAILORING_MATERIAL_IN_EXCEL_FILE = "Duplicate Expert Tailoring Material in Excel File!";
 
 }
