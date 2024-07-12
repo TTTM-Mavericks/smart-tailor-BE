@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -109,6 +110,16 @@ public class ExpertTailoringMaterialController {
         expertTailoringMaterialService.generateSampleExpertTailoringMaterial(httpServletResponse);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.GENERATE_SAMPLE_EXPERT_TAILORING_MATERIAL_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(APIConstant.ExpertTailoringMaterialAPI.ADD_NEW_EXPERT_TAILORING_MATERIAL_BY_EXCEL_FILE)
+    public ResponseEntity<ObjectNode> addNewExpertTailoringMaterialByExcelFile(@RequestParam("file") MultipartFile file) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        expertTailoringMaterialService.createExpertTailoringMaterialByExcelFile(file);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.ADD_EXPERT_TAILORING_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 }

@@ -278,6 +278,7 @@ public class APIConstant {
     public class ExpertTailoringMaterialAPI {
         public static final String EXPERT_TAILORING_MATERIAL = APIConstant.API + "/expert-tailoring-material";
         public static final String ADD_NEW_EXPERT_TAILORING_MATERIAL = "/add-new-expert-tailoring-material";
+        public static final String ADD_NEW_EXPERT_TAILORING_MATERIAL_BY_EXCEL_FILE = "/add-new-expert-tailoring-material-by-excel-file";
         public static final String GET_ALL_EXPERT_TAILORING_MATERIAL = "/get-all-expert-tailoring-material";
         public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_ID = "/get-all-expert-tailoring-material-by-expert-tailoring-id";
         public static final String GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_NAME = "/get-all-expert-tailoring-material-by-expert-tailoring-name";

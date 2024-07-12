@@ -3,16 +3,14 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.ExpertTailoringMaterial;
 import com.smart.tailor.entities.ExpertTailoringMaterialKey;
-import com.smart.tailor.exception.DuplicateDataException;
-import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.ExpertTailoringMaterialMapper;
 import com.smart.tailor.repository.ExpertTailoringMaterialRepository;
-import com.smart.tailor.service.ExcelExportService;
-import com.smart.tailor.service.ExpertTailoringMaterialService;
-import com.smart.tailor.service.ExpertTailoringService;
-import com.smart.tailor.service.MaterialService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialRequest;
+import com.smart.tailor.utils.request.MaterialRequest;
+import com.smart.tailor.utils.response.ErrorData;
 import com.smart.tailor.utils.response.ExpertTailoringMaterialResponse;
 import com.smart.tailor.utils.response.MaterialResponse;
 import jakarta.persistence.Tuple;
@@ -23,12 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +36,7 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
     private final MaterialService materialService;
     private final ExpertTailoringMaterialMapper expertTailoringMaterialMapper;
     private final ExcelExportService excelExportService;
+    private final ExcelImportService excelImportService;
     private final Logger logger = LoggerFactory.getLogger(ExpertTailoringMaterialServiceImpl.class);
 
     @Transactional
@@ -155,5 +152,61 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
     public void generateSampleExpertTailoringMaterial(HttpServletResponse response) throws IOException {
         var materialResponse = materialService.findAllActiveMaterials();
         excelExportService.exportSampleExpertTailoringMaterial(response, materialResponse);
+    }
+
+    @Transactional
+    @Override
+    public void createExpertTailoringMaterialByExcelFile(MultipartFile file) {
+//        if (!excelImportService.isValidExcelFile(file)) {
+//            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
+//        }
+//        try {
+//            var excelData = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
+//
+//            if (excelData.isEmpty()) {
+//                throw new BadRequestException("Category and Material Excel File Has Empty Data");
+//            }
+//
+//            Set<MaterialRequest> excelNames = new HashSet<>();
+//            List<MaterialRequest> uniqueExcelData = new ArrayList<>();
+//            List<Object> duplicateExcelData = new ArrayList<>();
+//
+//            for (MaterialRequest request : excelData) {
+//                if (!excelNames.add(request)) {
+//                    duplicateExcelData.add(request);
+//                } else {
+//                    uniqueExcelData.add(request);
+//                }
+//            }
+//
+//            if (!duplicateExcelData.isEmpty()) {
+//                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
+//            }
+//
+//            List<Object> invalidData = new ArrayList<>();
+//            for (MaterialRequest materialRequest : uniqueExcelData) {
+//                try {
+//                    createExpertTailoringMaterial(materialRequest);
+//                } catch (ItemNotFoundException ex) {
+//                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_CATEGORY;
+//                    logger.error("Error creating Material: Item not found - {}", errorMessage, ex);
+//                    invalidData.add(new ErrorData(materialRequest, errorMessage));
+//                } catch (ItemAlreadyExistException ex) {
+//                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.MATERIAL_IS_EXISTED;
+//                    logger.error("Error creating Material: Already exists - {}", errorMessage, ex);
+//                    invalidData.add(new ErrorData(materialRequest, errorMessage));
+//                } catch (Exception ex) {
+//                    logger.error("Error creating Material - {}", ex.getMessage());
+//                    invalidData.add(new ErrorData(materialRequest, ex.getMessage()));
+//                }
+//            }
+//
+//            if (!invalidData.isEmpty()) {
+//                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
+//            }
+//        } catch (IOException ex) {
+//            logger.error("Error processing excel file", ex);
+//            throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
+//        }
     }
 }

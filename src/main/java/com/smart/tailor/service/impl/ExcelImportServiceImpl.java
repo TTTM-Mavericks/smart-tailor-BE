@@ -5,10 +5,7 @@ import com.smart.tailor.exception.ExcelFileErrorReadingException;
 import com.smart.tailor.exception.ExcelFileNotSupportException;
 import com.smart.tailor.exception.ExcelFileInvalidDataTypeException;
 import com.smart.tailor.service.ExcelImportService;
-import com.smart.tailor.utils.request.BrandMaterialRequest;
-import com.smart.tailor.utils.request.ExpertTailoringRequest;
-import com.smart.tailor.utils.request.MaterialRequest;
-import com.smart.tailor.utils.request.SizeExpertTailoringRequest;
+import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.CellErrorResponse;
 import lombok.RequiredArgsConstructor;
@@ -868,5 +865,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             case 4: return "Unit";
             default: return "Unknown";
         }
+    }
+
+    @Override
+    public List<ExpertTailoringMaterialListRequest> getExpertTailoringMaterialDataFromExcel(InputStream inputStream) {
+        return null;
     }
 }
