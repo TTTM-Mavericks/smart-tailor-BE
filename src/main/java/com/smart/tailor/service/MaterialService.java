@@ -3,6 +3,7 @@ package com.smart.tailor.service;
 import com.smart.tailor.entities.Material;
 import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.MaterialResponse;
+import com.smart.tailor.utils.response.MaterialWithPriceResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,5 +43,5 @@ public interface MaterialService {
 
     List<MaterialResponse> findListMaterialByCategoryName(String categoryName);
 
-    List<MaterialResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
+    List<MaterialWithPriceResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
 }

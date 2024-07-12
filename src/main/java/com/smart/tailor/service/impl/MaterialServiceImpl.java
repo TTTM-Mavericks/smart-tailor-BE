@@ -11,6 +11,7 @@ import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.CategoryResponse;
 import com.smart.tailor.utils.response.ErrorData;
 import com.smart.tailor.utils.response.MaterialResponse;
+import com.smart.tailor.utils.response.MaterialWithPriceResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -130,7 +131,7 @@ public class MaterialServiceImpl implements MaterialService {
         return materialRepository
                 .findAll()
                 .stream()
-                .map(materialMapper::mapperToMaterialResponse)
+                .map(materialMapper::mapperToMaterialResponseWithoutPrices)
                 .collect(Collectors.toList());
     }
 
@@ -140,7 +141,7 @@ public class MaterialServiceImpl implements MaterialService {
                 .findAll()
                 .stream()
                 .filter(material -> material.getStatus())
-                .map(materialMapper::mapperToMaterialResponse)
+                .map(materialMapper::mapperToMaterialResponseWithoutPrices)
                 .collect(Collectors.toList());
     }
 
@@ -148,7 +149,7 @@ public class MaterialServiceImpl implements MaterialService {
     public MaterialResponse findByMaterialNameAndCategoryName(String materialName, String categoryName) {
         var materialOptional = findByMaterialNameAndCategory_CategoryName(materialName, categoryName);
         if (materialOptional.isPresent()) {
-            return materialMapper.mapperToMaterialResponse(materialOptional.get());
+            return materialMapper.mapperToMaterialResponseWithoutPrices(materialOptional.get());
         }
 
         return null;
@@ -166,7 +167,7 @@ public class MaterialServiceImpl implements MaterialService {
         if (Utilities.isStringNotNullOrEmpty(materialID.toString())) {
             var material = materialRepository.findByMaterialID(materialID);
             if (material.isPresent()) {
-                return materialMapper.mapperToMaterialResponse(material.get());
+                return materialMapper.mapperToMaterialResponseWithoutPrices(material.get());
             }
         }
         return null;
@@ -232,7 +233,7 @@ public class MaterialServiceImpl implements MaterialService {
         return materialRepository
                 .findListMaterialByCategoryID(categoryID)
                 .stream()
-                .map(materialMapper::mapperToMaterialResponse)
+                .map(materialMapper::mapperToMaterialResponseWithoutPrices)
                 .collect(Collectors.toList());
     }
 
@@ -244,16 +245,20 @@ public class MaterialServiceImpl implements MaterialService {
         return materialRepository
                 .findListMaterialByCategoryName("%" + categoryName + "%")
                 .stream()
-                .map(materialMapper::mapperToMaterialResponse)
+                .map(materialMapper::mapperToMaterialResponseWithoutPrices)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<MaterialResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID) {
+    public List<MaterialWithPriceResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID) {
         return materialRepository
                 .findAllMaterialByExpertTailoringIDAndCategoryID(expertTailoringID, categoryID)
                 .stream()
-                .map(materialMapper::mapperToMaterialResponse)
+                .map(material -> {
+                    var minPrice = materialRepository.getMinPriceByMaterialID(material.getMaterialID());
+                    var maxPrice = materialRepository.getMaxPriceByMaterialID(material.getMaterialID());
+                    return materialMapper.mapperToMaterialResponseWithPrices(material, minPrice, maxPrice);
+                })
                 .toList();
     }
 }

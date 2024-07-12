@@ -29,4 +29,10 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
             "join expert_tailoring et on et.expert_tailoring_id = etm.expert_tailoring_id " +
             "where et.expert_tailoring_id = ?1 && c.category_id = ?2 && etm.status = true", nativeQuery = true)
     List<Material>findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
+
+    @Query(value = "SELECT MIN(bm.brand_price) FROM brand_material bm join material m on m.material_id = bm.material_id where m.material_id = ?1", nativeQuery = true)
+    Double getMinPriceByMaterialID(UUID materialID);
+
+    @Query(value = "SELECT MAX(bm.brand_price) FROM brand_material bm join material m on m.material_id = bm.material_id where m.material_id = ?1", nativeQuery = true)
+    Double getMaxPriceByMaterialID(UUID materialID);
 }
