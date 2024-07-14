@@ -85,9 +85,9 @@ public class DesignServiceImpl implements DesignService {
 //                .findFirst()
 //                .orElse(null);
 
-        String imageUrl = designRequest.getImageUrl();
+        byte[] imageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
         // Set ImageUrl From Front PartOfDesign to Design
-        design.setImageUrl(imageUrl.getBytes());
+        design.setImageUrl(imageUrl);
 
         // Update List PartOfDesign belong to Design
         design.setPartOfDesignList(partOfDesignList);
