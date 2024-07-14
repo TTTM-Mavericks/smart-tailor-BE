@@ -77,16 +77,17 @@ public class DesignServiceImpl implements DesignService {
             throw new ItemNotFoundException(ex.getMessage());
         }
 
-        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
-                .map(partOfDesign -> partOfDesign.getSuccessImageUrl())
-                .findFirst()
-                .orElse(null);
+//        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
+//                .orElseGet(Collections::emptyList)
+//                .stream()
+//                .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
+//                .map(partOfDesign -> partOfDesign.getSuccessImageUrl())
+//                .findFirst()
+//                .orElse(null);
 
+        String imageUrl = designRequest.getImageUrl();
         // Set ImageUrl From Front PartOfDesign to Design
-        design.setImageUrl(imageUrl);
+        design.setImageUrl(imageUrl.getBytes());
 
         // Update List PartOfDesign belong to Design
         design.setPartOfDesignList(partOfDesignList);
