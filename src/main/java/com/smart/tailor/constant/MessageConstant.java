@@ -316,6 +316,7 @@ public class MessageConstant {
      */
     public static final String CREATE_ORDER_SUCCESSFULLY = "Create Order Successfully";
     public static final String GET_ORDER_SUCCESSFULLY = "Get Order Successfully";
+    public static final String CHANGE_ORDER_STATUS_SUCCESSFULLY = "Change Order Status Successfully";
 
     /**
      * System Image

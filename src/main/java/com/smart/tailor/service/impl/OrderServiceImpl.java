@@ -12,6 +12,7 @@ import com.smart.tailor.service.DesignService;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.OrderRequest;
+import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -97,7 +98,11 @@ public class OrderServiceImpl implements OrderService {
                     .orderType(orderType)
                     .phone(phone)
                     .buyerName(buyerName)
-                    .orderStatus(OrderStatus.PENDING)
+                    /**
+                     * TODO
+                     * .employee()
+                     */
+                    .orderStatus(OrderStatus.NOT_VERIFY)
                     .build();
             var orderResponse = orderRepository.save(order);
             return orderMapper.mapToOrderResponse(orderResponse);
@@ -157,6 +162,25 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderResponse> getAllOrder() {
         return orderRepository.findAll().stream().map(orderMapper::mapToOrderResponse).toList();
+    }
+
+    @Override
+    public OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) {
+        if (orderRequest.getOrderID() == null) {
+            throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " orderID");
+        }
+        var order = getOrderById(orderRequest.getOrderID());
+        if (order.isEmpty()) {
+            throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND + " with orderID: " + orderRequest.getOrderID());
+        }
+
+        var existedOrder = order.get();
+        existedOrder.setOrderStatus(
+                OrderStatus.valueOf(String.valueOf(orderRequest.getStatus()))
+        );
+        var updatedOrder = orderRepository.save(existedOrder);
+
+        return orderMapper.mapToOrderResponse(updatedOrder);
     }
 
     @Override

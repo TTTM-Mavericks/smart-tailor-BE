@@ -256,6 +256,7 @@ public class APIConstant {
         public static final String CREATE_ORDER = "/create-order";
         public static final String GET_ORDER_BY_ID = "/get-order-by-id";
         public static final String GET_ALL_ORDER = "/get-all-order";
+        public static final String CHANGE_STATUS_ORDER = "/change-order-status";
         public static final String GET_PARENT_ORDER_BY_DESIGN_ID = "/get-parent-order-by-design-id";
 
     }

@@ -1,7 +1,10 @@
 package com.smart.tailor.enums;
 
 public enum OrderStatus {
+    NOT_VERIFY,
     PENDING,
-    CANCEL,
     PROCESSING,
+    CANCEL,
+    COMPLETE,
+    STAGE
 }
