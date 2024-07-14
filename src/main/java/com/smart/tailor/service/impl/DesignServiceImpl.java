@@ -139,6 +139,7 @@ public class DesignServiceImpl implements DesignService {
                 DesignMaterialDetail designMaterialDetail = DesignMaterialDetail
                         .builder()
                         .materialResponse(materialResponse)
+                        .quantity(1)
                         .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
                         .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
                         .build();
@@ -151,6 +152,7 @@ public class DesignServiceImpl implements DesignService {
                         designMaterialDetail.setMinPrice(
                                 designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
                         );
+                        designMaterialDetail.setQuantity(1 + materialDetailList.get(index).getQuantity());
                         materialDetailList.set(index, designMaterialDetail);
                         constain = true;
                     }
@@ -165,6 +167,7 @@ public class DesignServiceImpl implements DesignService {
                     designMaterialDetail = DesignMaterialDetail
                             .builder()
                             .materialResponse(materialResponse)
+                            .quantity(1)
                             .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
                             .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
                             .build();
@@ -177,6 +180,7 @@ public class DesignServiceImpl implements DesignService {
                             designMaterialDetail.setMinPrice(
                                     designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
                             );
+                            designMaterialDetail.setQuantity(1 + materialDetailList.get(index).getQuantity());
                             materialDetailList.set(index, designMaterialDetail);
                             constain = true;
                         }
