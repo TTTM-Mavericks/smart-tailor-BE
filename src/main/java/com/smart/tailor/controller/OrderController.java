@@ -6,6 +6,7 @@ import com.smart.tailor.constant.APIConstant.OrderAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.request.OrderRequest;
+import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.OrderResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +79,21 @@ public class OrderController {
             response.put("status", 200);
             response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
             var orderResponse = orderService.getParentOrderByDesignID(designID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    @PutMapping(OrderAPI.CHANGE_STATUS_ORDER)
+    public ResponseEntity<ObjectNode> chageOrderStatus(@Valid @RequestBody OrderStatusUpdateRequest orderRequest) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.CHANGE_ORDER_STATUS_SUCCESSFULLY);
+            var orderResponse = orderService.changeOrderStatus(orderRequest);
             response.set("data", objectMapper.valueToTree(orderResponse));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {

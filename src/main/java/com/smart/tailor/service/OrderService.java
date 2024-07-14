@@ -2,6 +2,7 @@ package com.smart.tailor.service;
 
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.utils.request.OrderRequest;
+import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 
@@ -27,6 +28,8 @@ public interface OrderService {
     List<OrderResponse> getSubOrderByParentID(UUID parentOrderID);
 
     List<OrderResponse> getAllOrder();
+
+    OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest);
 
     void updateOrder(Order order);
 }
