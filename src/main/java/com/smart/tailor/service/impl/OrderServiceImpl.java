@@ -168,20 +168,44 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderCustomResponse getOrderByOrderID(UUID orderID) {
-        List<DesignDetail> designDetailList = detailRepository.findAllByOrderID(orderID);
-        List<DesignDetail> detailList = null;
-        if (!designDetailList.isEmpty()) {
-            for (DesignDetail detail : designDetailList) {
-                if (detailList == null) {
-                    detailList = new ArrayList<>();
-                }
-                detailList.add(detail);
+        try {
+
+            var order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
+            if (order == null) {
+                throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND + " with orderID: " + orderID);
             }
+            if (order.getOrderType().equals("PARENT_ORDER")) {
+                List<DesignDetail> designDetailList = detailRepository.findAllByOrderID(orderID);
+                List<DesignDetail> detailList = null;
+                if (!designDetailList.isEmpty()) {
+                    for (DesignDetail detail : designDetailList) {
+                        if (detailList == null) {
+                            detailList = new ArrayList<>();
+                        }
+                        detailList.add(detail);
+                    }
+                }
+                order.setDetailList(detailList);
+                var response = orderMapper.mapToOrderCustomeResponse(order);
+                return response;
+            } else {
+                List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
+                List<DesignDetail> detailList = null;
+                if (!designDetailList.isEmpty()) {
+                    for (DesignDetail detail : designDetailList) {
+                        if (detailList == null) {
+                            detailList = new ArrayList<>();
+                        }
+                        detailList.add(detail);
+                    }
+                }
+                order.setDetailList(detailList);
+                var response = orderMapper.mapToOrderCustomeResponse(order);
+                return response;
+            }
+        } catch (Exception ex) {
+            throw ex;
         }
-        var order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
-        order.setDetailList(detailList);
-        var response = orderMapper.mapToOrderCustomeResponse(order);
-        return response;
     }
 
     @Override
