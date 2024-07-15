@@ -9,20 +9,20 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
 import com.smart.tailor.enums.BrandStatus;
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.enums.TypeOfVerification;
+import com.smart.tailor.enums.UserStatus;
+import com.smart.tailor.event.RegistrationCompleteEvent;
 import com.smart.tailor.mapper.BrandMapper;
-import com.smart.tailor.service.BrandExpertTailoringService;
-import com.smart.tailor.service.BrandService;
-import com.smart.tailor.service.NotificationService;
-import com.smart.tailor.service.UserService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandExpertTailoringRequest;
 import com.smart.tailor.utils.request.BrandRequest;
 import com.smart.tailor.utils.request.NotificationRequest;
 import com.smart.tailor.utils.request.UserRequest;
-import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +39,8 @@ public class BrandController {
     private final UserService userService;
     private final BrandMapper brandMapper;
     private final BrandExpertTailoringService brandExpertTailoringService;
+    private final AuthenticationService authenticationService;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final NotificationService notificationService;
 
     @GetMapping(BrandAPI.GET_BRAND + "/{id}")
@@ -92,13 +94,7 @@ public class BrandController {
                 respon.put("status", 200);
                 respon.put("message", MessageConstant.REGISTER_NEW_BRAND_SUCCESSFULLY);
                 respon.set("data", objectMapper.valueToTree(brandMapper.mapperToBrandResponse(brand)));
-                NotificationRequest request = NotificationRequest
-                        .builder()
-                        .sender(brand.getUser().getEmail())
-                        .type("BRAND REGISTRATION")
-                        .message(MessageConstant.NEW_BRAND_REGISTERED)
-                        .recipient("smarttailor.ma@gmail.com")
-                        .build();
+                NotificationRequest request = NotificationRequest.builder().sender(brand.getUser().getEmail()).type("BRAND REGISTRATION").message(MessageConstant.NEW_BRAND_REGISTERED).recipient("smarttailor.ma@gmail.com").build();
                 notificationService.sendPrivateNotification(request);
                 return ResponseEntity.ok(respon);
             } else {
@@ -165,6 +161,15 @@ public class BrandController {
                 return ResponseEntity.ok(respon);
             }
 
+            // Check email is not verify?
+            if (userService.getUserByEmail(userRequest.getEmail()) != null) {
+                if (userService.getUserByEmail(userRequest.getEmail()).getUserStatus().equals(UserStatus.INACTIVE)) {
+                    respon.put("status", ErrorConstant.ACCOUNT_NOT_VERIFIED.getStatusCode());
+                    respon.put("message", ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
+                    return ResponseEntity.ok(respon);
+                }
+            }
+
             // Check password is valid? Only check when it's not google registration
             if (userRequest.getProvider() != Provider.GOOGLE) {
                 if (!Utilities.isValidPassword(password)) {
@@ -181,70 +186,91 @@ public class BrandController {
                 return ResponseEntity.ok(respon);
             }
 
-            UserResponse userResponse = brandService.register(userRequest);
-            if (userResponse == null) {
-                respon.put("status", 400);
-                respon.put("message", MessageConstant.REGISTER_NEW_USER_FAILED);
+            var authenResponse = authenticationService.register(userRequest);
+            var registeredUser = userService.getUserByEmail(authenResponse.getUser().getEmail());
+
+            if (registeredUser == null) {
+                respon.put("status", ErrorConstant.REGISTER_NEW_USER_FAILED.getStatusCode());
+                respon.put("message", ErrorConstant.REGISTER_NEW_USER_FAILED.getMessage());
                 return ResponseEntity.ok(respon);
+            }
+
+            if (registeredUser.getProvider().equals(Provider.LOCAL)) {
+                applicationEventPublisher.publishEvent(new RegistrationCompleteEvent(registeredUser, TypeOfVerification.VERIFY_ACCOUNT));
+                logger.info("Publish Event When Register By Local Successfully");
+                respon.put("message", MessageConstant.SEND_MAIL_FOR_VERIFY_ACCOUNT_SUCCESSFULLY);
+            } else {
+                respon.put("message", MessageConstant.REGISTER_NEW_BRAND_SUCCESSFULLY);
             }
             respon.put("status", 200);
-            respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
-            respon.set("data", objectMapper.valueToTree(userResponse));
+            respon.set("data", objectMapper.valueToTree(authenResponse));
             return ResponseEntity.ok(respon);
 
+
+//            UserResponse userResponse = brandService.register(userRequest);
+//            if (userResponse == null) {
+//                respon.put("status", 400);
+//                respon.put("message", MessageConstant.REGISTER_NEW_USER_FAILED);
+//                return ResponseEntity.ok(respon);
+//            }
+//            respon.put("status", 200);
+//            respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
+//            respon.set("data", objectMapper.valueToTree(userResponse));
+//            return ResponseEntity.ok(respon);
+
         } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN ADD NEW BRAND. ERROR MESSAGE: {}", ex.getMessage());
+            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
+            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
+            logger.error("ERROR IN REGISTER BRAND. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
     }
 
-    @GetMapping(BrandAPI.VERIFY)
-    public ResponseEntity<ObjectNode> verifyAccount(@RequestParam("email") String email, @RequestParam("token") String token) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode respon = objectMapper.createObjectNode();
-        try {
-            boolean isVerified = brandService.verifyUser(email, token);
-            if (isVerified) {
-                respon.put("status", 200);
-                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
-                return ResponseEntity.ok(respon);
-            } else {
-                respon.put("status", 401);
-                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
-                return ResponseEntity.ok(respon);
-            }
-        } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(respon);
-        }
-    }
+//    @GetMapping(BrandAPI.VERIFY)
+//    public ResponseEntity<ObjectNode> verifyAccount(@RequestParam("email") String email, @RequestParam("token") String token) {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        ObjectNode respon = objectMapper.createObjectNode();
+//        try {
+//            boolean isVerified = brandService.verifyUser(email, token);
+//            if (isVerified) {
+//                respon.put("status", 200);
+//                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
+//                return ResponseEntity.ok(respon);
+//            } else {
+//                respon.put("status", 401);
+//                respon.put("message", MessageConstant.INVALID_VERIFICATION_TOKEN);
+//                return ResponseEntity.ok(respon);
+//            }
+//        } catch (Exception ex) {
+//            respon.put("status", -1);
+//            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+//            logger.error("ERROR IN VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
+//            return ResponseEntity.ok(respon);
+//        }
+//    }
 
-    @GetMapping(BrandAPI.CHECK_VERIFY + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerify(@PathVariable("email") String email) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode respon = objectMapper.createObjectNode();
-        try {
-            boolean isVerified = brandService.checkVerify(email);
-            if (isVerified) {
-                respon.put("status", 200);
-                respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
-                return ResponseEntity.ok(respon);
-            } else {
-                respon.put("status", 401);
-                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
-                return ResponseEntity.ok(respon);
-            }
-        } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(respon);
-        }
-    }
+//    @GetMapping(BrandAPI.CHECK_VERIFY + "/{email}")
+//    public ResponseEntity<ObjectNode> checkVerify(@PathVariable("email") String email) {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        ObjectNode respon = objectMapper.createObjectNode();
+//        try {
+//            boolean isVerified = brandService.checkVerify(email);
+//            if (isVerified) {
+//                respon.put("status", 200);
+//                respon.put("message", MessageConstant.ACCOUNT_IS_VERIFIED);
+//                return ResponseEntity.ok(respon);
+//            } else {
+//                respon.put("status", 401);
+//                respon.put("message", MessageConstant.ACCOUNT_NOT_VERIFIED);
+//                return ResponseEntity.ok(respon);
+//            }
+//        } catch (Exception ex) {
+//            respon.put("status", -1);
+//            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+//            logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
+//            return ResponseEntity.ok(respon);
+//        }
+//    }
 
     @PostMapping(BrandAPI.ADD_EXPERT_TAILORING_FOR_BRAND)
     public ResponseEntity<ObjectNode> addExpertTailoringForBrand(@RequestBody BrandExpertTailoringRequest brandExpertTailoringRequest) {
@@ -295,7 +321,7 @@ public class BrandController {
         }
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
+//    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
     @GetMapping(BrandAPI.ACCEPT_BRAND + "/{brand}")
     public ResponseEntity<ObjectNode> acceptBrand(@PathVariable("brand") String brand) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -330,7 +356,7 @@ public class BrandController {
         }
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
+//    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
     @GetMapping(BrandAPI.REJECT_BRAND + "/{brand}")
     public ResponseEntity<ObjectNode> rejectBrand(@PathVariable("brand") String brand) {
         ObjectMapper objectMapper = new ObjectMapper();
