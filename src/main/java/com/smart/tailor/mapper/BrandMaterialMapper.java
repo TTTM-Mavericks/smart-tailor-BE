@@ -7,12 +7,12 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface BrandMaterialMapper {
-    @Mapping(source = "brandMaterial.brandMaterialKey.material.materialName", target = "materialName")
-    @Mapping(source = "brandMaterial.brandMaterialKey.material.category.categoryName", target = "categoryName")
-    @Mapping(source = "brandMaterial.brandMaterialKey.brand.brandName", target = "brandName")
-    @Mapping(source = "brandMaterial.brandMaterialKey.material.hsCode", target = "hsCode")
-    @Mapping(source = "brandMaterial.brandMaterialKey.material.unit", target = "unit")
-    @Mapping(source = "brandMaterial.brandMaterialKey.material.basePrice", target = "basePrice")
+    @Mapping(source = "brandMaterial.material.materialName", target = "materialName")
+    @Mapping(source = "brandMaterial.material.category.categoryName", target = "categoryName")
+    @Mapping(source = "brandMaterial.brand.brandName", target = "brandName")
+    @Mapping(source = "brandMaterial.material.hsCode", target = "hsCode")
+    @Mapping(source = "brandMaterial.material.unit", target = "unit")
+    @Mapping(source = "brandMaterial.material.basePrice", target = "basePrice")
     @Mapping(source = "brandMaterial.brandPrice", target = "brandPrice")
     @Mapping(source = "brandMaterial.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "brandMaterial.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")

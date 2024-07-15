@@ -19,6 +19,14 @@ public class BrandMaterial extends AuditEntity implements Serializable {
     @EmbeddedId
     private BrandMaterialKey brandMaterialKey;
 
+    @ManyToOne
+    @JoinColumn(name = "material_id", referencedColumnName = "material_id", nullable = false, insertable = false, updatable = false)
+    private Material material;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
+    private Brand brand;
+
     @Column(name = "brand_price", nullable = false, unique = false)
     private Double brandPrice;
 }
