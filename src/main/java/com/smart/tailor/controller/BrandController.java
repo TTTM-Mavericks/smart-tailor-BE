@@ -71,8 +71,8 @@ public class BrandController {
         }
     }
 
-    @PostMapping(BrandAPI.UPLOAD_BRAND_INFOR)
-    public ResponseEntity<ObjectNode> uploadBrandInfor(@RequestBody BrandRequest brandRequest) {
+    @PostMapping(BrandAPI.UPLOAD_BRAND_INFOR + "/{brandID}")
+    public ResponseEntity<ObjectNode> uploadBrandInfor(@PathVariable("brandID") UUID brandID, @RequestBody BrandRequest brandRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -88,7 +88,7 @@ public class BrandController {
                 return ResponseEntity.ok(respon);
             }
 
-            var brand = brandService.saveBrand(brandRequest);
+            var brand = brandService.saveBrand(brandID, brandRequest);
 
             if (brand != null) {
                 respon.put("status", 200);
