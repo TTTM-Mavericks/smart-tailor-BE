@@ -18,6 +18,5 @@ import java.util.UUID;
 public class OrderDetailResponse {
     List<DesignDetailSize> sizeList;
     UUID orderID;
-
 }
 
