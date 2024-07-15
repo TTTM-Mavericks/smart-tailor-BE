@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -14,5 +15,5 @@ import java.util.UUID;
 public class OrderPickingRequest {
     private UUID brandID;
     private UUID orderID;
-    private UUID detailID;
+    private List<UUID> detailList;
 }

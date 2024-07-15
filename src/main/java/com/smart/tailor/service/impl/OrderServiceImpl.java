@@ -1,13 +1,17 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Design;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.repository.OrderRepository;
-import com.smart.tailor.service.*;
+import com.smart.tailor.service.BrandService;
+import com.smart.tailor.service.CustomerService;
+import com.smart.tailor.service.DesignService;
+import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
@@ -197,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
 
             UUID brandID = orderPickingRequest.getBrandID();
             UUID basedOrderID = orderPickingRequest.getOrderID();
-            UUID detailID = orderPickingRequest.getDetailID();
+            List<UUID> detailList = orderPickingRequest.getDetailList();
 
             var checkExistBrand = brandService.getBrandById(brandID);
             if (checkExistBrand == null) {
@@ -205,21 +209,43 @@ public class OrderServiceImpl implements OrderService {
             }
             var existedBrand = checkExistBrand.get();
 
-            var checkDetail = detailRepository.getDesignDetailByDesignDetailID(detailID);
-            if (checkDetail.isEmpty()) {
-                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_DETAIL + " with detailID: " + detailID);
-            }
-            var detail = checkDetail.get();
-
-            var design = detail.getDesign();
-
             var checkBasedOrder = getOrderById(basedOrderID);
             if (checkBasedOrder.isEmpty()) {
                 throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND + "with orderID: " + basedOrderID);
             }
             var basedOrder = checkBasedOrder.get();
-            Order existedOrder = getOrderByDetailID(detailID);
-            if (existedOrder == null || existedOrder.getOrderID().equals(basedOrderID)) {
+
+            Design baseDesign = null;
+            for (UUID detailID : detailList) {
+                var checkDetail = detailRepository.getDesignDetailByDesignDetailID(detailID);
+                if (checkDetail.isEmpty()) {
+                    throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_DETAIL + " with detailID: " + detailID);
+                }
+                if (orderRepository.getOrderByDetailID(detailID).getOrderID() != basedOrderID) {
+                    throw new BadRequestException("This detail " + detailID + " is inside another order!");
+                }
+                var detail = detailRepository.getDesignDetailByDesignDetailID(detailID).get();
+                if (baseDesign == null) {
+                    baseDesign = detail.getDesign();
+                } else {
+                    if (baseDesign.getDesignID() != detail.getDesign().getDesignID()) {
+                        throw new BadRequestException("This detail " + detailID + " is not in the same design!");
+                    }
+                }
+            }
+            var existedBrandOrder = detailRepository.getDetailOfOrderBaseOnBrandID(basedOrderID, brandID);
+            if (existedBrandOrder != null) {
+                for (UUID detailID : detailList) {
+                    var detail = detailRepository.getDesignDetailByDesignDetailID(detailID).get();
+                    var orderResponse = getOrderById(existedBrandOrder.getOrder().getOrderID()).get();
+                    detail.setOrder(orderResponse);
+                    detail.setBrand(existedBrand);
+                    detailRepository.save(detail);
+                }
+                return orderMapper.mapToOrderResponse(existedBrandOrder.getOrder());
+            } else {
+                var detail = detailRepository.getDesignDetailByDesignDetailID(detailList.get(0)).get();
+                var design = detail.getDesign();
                 OrderResponse createdOrder = createOrder(
                         OrderRequest
                                 .builder()
@@ -235,15 +261,11 @@ public class OrderServiceImpl implements OrderService {
                                 .build()
                 );
                 var orderResponse = getOrderById(createdOrder.getOrderID()).get();
-                detail.setOrder(orderResponse);
-                detail.setBrand(existedBrand);
-                detailRepository.save(detail);
-                return orderMapper.mapToOrderResponse(orderResponse);
-            } else {
-                var orderResponse = getOrderById(existedOrder.getOrderID()).get();
-                detail.setOrder(orderResponse);
-                detail.setBrand(existedBrand);
-                detailRepository.save(detail);
+                for (UUID detailID : detailList) {
+                    detail.setOrder(orderResponse);
+                    detail.setBrand(existedBrand);
+                    detailRepository.save(detail);
+                }
                 return orderMapper.mapToOrderResponse(orderResponse);
             }
         } catch (Exception ex) {
