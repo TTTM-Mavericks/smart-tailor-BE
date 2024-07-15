@@ -57,32 +57,31 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Brand saveBrand(BrandRequest brandRequest) throws Exception {
+    public Brand saveBrand(UUID brandID, BrandRequest brandRequest) throws Exception {
         Brand savedBrand = null;
         try {
-            if (brandRequest.getEmail() != null && !brandRequest.getEmail().isEmpty()) {
-                var user = userService.getUserByEmail(brandRequest.getEmail().trim());
-                if (user == null) {
-                    throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
-                }
-                if (user.getUserStatus().equals(UserStatus.INACTIVE)) {
-                    throw new BadRequestException(ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
-                } else {
-                    savedBrand = brandRepository.save(
-                            Brand.builder()
-                                    .user(user)
-                                    .brandName(brandRequest.getBrandName())
-                                    .bankName(brandRequest.getBankName() != null && !brandRequest.getBrandName().trim().isEmpty() ? brandRequest.getAccountName() : null)
-                                    .accountNumber(brandRequest.getAccountNumber() != null && !brandRequest.getAccountNumber().trim().isEmpty() ? brandRequest.getAccountNumber() : null)
-                                    .accountName(brandRequest.getAccountName() != null ? brandRequest.getAccountName() : null)
-                                    .brandStatus(BrandStatus.PENDING)
-                                    .address(brandRequest.getAddress() != null && !brandRequest.getAddress().trim().isEmpty() ? brandRequest.getAddress() : null)
-                                    .QR_Payment(brandRequest.getQR_Payment() != null && !brandRequest.getQR_Payment().trim().isEmpty() ? brandRequest.getQR_Payment() : null)
-                                    .rating(0.0f)
-                                    .numberOfViolations(0)
-                                    .build()
-                    );
-                }
+            var checkUser = userService.getUserByUserID(brandID);
+            if (checkUser.isEmpty()) {
+                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
+            }
+            var user = checkUser.get();
+            if (user.getUserStatus().equals(UserStatus.INACTIVE)) {
+                throw new BadRequestException(ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
+            } else {
+                savedBrand = brandRepository.save(
+                        Brand.builder()
+                                .user(user)
+                                .brandName(brandRequest.getBrandName())
+                                .bankName(brandRequest.getBankName() != null && !brandRequest.getBrandName().trim().isEmpty() ? brandRequest.getAccountName() : null)
+                                .accountNumber(brandRequest.getAccountNumber() != null && !brandRequest.getAccountNumber().trim().isEmpty() ? brandRequest.getAccountNumber() : null)
+                                .accountName(brandRequest.getAccountName() != null ? brandRequest.getAccountName() : null)
+                                .brandStatus(BrandStatus.PENDING)
+                                .address(brandRequest.getAddress() != null && !brandRequest.getAddress().trim().isEmpty() ? brandRequest.getAddress() : null)
+                                .QR_Payment(brandRequest.getQR_Payment() != null && !brandRequest.getQR_Payment().trim().isEmpty() ? brandRequest.getQR_Payment() : null)
+                                .rating(0.0f)
+                                .numberOfViolations(0)
+                                .build()
+                );
             }
             return savedBrand;
         } catch (Exception ex) {

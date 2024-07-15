@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface BrandService {
     Optional<Brand> getBrandById(UUID brandId) throws Exception;
 
-    Brand saveBrand(BrandRequest brandRequest) throws Exception;
+    Brand saveBrand(UUID brandID, BrandRequest brandRequest) throws Exception;
 
     Boolean verifyUser(String email, String token) throws Exception;
 
