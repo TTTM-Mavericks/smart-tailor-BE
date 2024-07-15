@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant.OrderAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.OrderService;
+import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.OrderResponse;
@@ -99,6 +100,30 @@ public class OrderController {
         } catch (Exception ex) {
             logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
             return null;
+        }
+    }
+
+    @PostMapping(OrderAPI.BRAND_PICK_ORDER)
+    public ResponseEntity<ObjectNode> pickOrder(@RequestBody OrderPickingRequest orderPicking) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            if (orderPicking == null) {
+                response.put("status", 400);
+                response.put("message", MessageConstant.MISSING_ARGUMENT);
+                return ResponseEntity.ok(response);
+            }
+
+            var brandPicked = orderService.brandPickOrder(orderPicking);
+            response.put("status", 200);
+            response.put("message", MessageConstant.BRAND_PICK_ORDER_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(brandPicked));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", -1);
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN BRAND PICKING ORDER. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
         }
     }
 }

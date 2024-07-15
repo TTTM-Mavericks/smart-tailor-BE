@@ -1,6 +1,7 @@
 package com.smart.tailor.service;
 
 import com.smart.tailor.entities.Order;
+import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.OrderCustomResponse;
@@ -32,4 +33,8 @@ public interface OrderService {
     OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest);
 
     void updateOrder(Order order);
+
+    OrderResponse brandPickOrder(OrderPickingRequest orderPickingRequest) throws Exception;
+
+    Order getOrderByDetailID(UUID detailID);
 }
