@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -110,22 +109,16 @@ public class BrandController {
         }
     }
 
-    @GetMapping(BrandAPI.GET_BRAND_REGISTRATION_PAYMENT + "/{brandEmail}")
-    public ResponseEntity<ObjectNode> getBrandRegistrationPayment(@PathVariable("brandEmail") String brandEmail) {
+    @GetMapping(BrandAPI.GET_BRAND_REGISTRATION_PAYMENT + "/{brandID}")
+    public ResponseEntity<ObjectNode> getBrandRegistrationPayment(@PathVariable("brandID") UUID brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            if (!Utilities.isNonNullOrEmpty(brandEmail)) {
-                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
-                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-
-            var brand = brandService.findBrandByBrandName(brandEmail);
+            var brand = brandService.findBrandById(brandID);
 
             if (brand == null) {
-                respon.put("status", ErrorConstant.INVALID_EMAIL.getStatusCode());
-                respon.put("message", ErrorConstant.INVALID_EMAIL.getMessage());
+                respon.put("status", ErrorConstant.INVALID_ID.getStatusCode());
+                respon.put("message", ErrorConstant.INVALID_ID.getMessage());
                 return ResponseEntity.ok(respon);
             }
 
@@ -321,23 +314,17 @@ public class BrandController {
         }
     }
 
-//    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
-    @GetMapping(BrandAPI.ACCEPT_BRAND + "/{brand}")
-    public ResponseEntity<ObjectNode> acceptBrand(@PathVariable("brand") String brand) {
+    //    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
+    @GetMapping(BrandAPI.ACCEPT_BRAND + "/{brandID}")
+    public ResponseEntity<ObjectNode> acceptBrand(@PathVariable("brandID") UUID brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
-            if (brand == null) {
-                response.put("status", 400);
-                response.put("message", MessageConstant.MISSING_ARGUMENT);
-                return ResponseEntity.ok(response);
-            }
-
-            Optional<Brand> findedBrand = Optional.ofNullable(brandService.getBrandByEmail(brand));
+            Optional<Brand> findedBrand = brandService.getBrandById(brandID);
 
             if (findedBrand.isEmpty()) {
                 response.put("status", 200);
-                response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with infor: " + brand);
+                response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with infor: " + brandID);
                 return ResponseEntity.ok(response);
             }
 
@@ -356,23 +343,17 @@ public class BrandController {
         }
     }
 
-//    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
-    @GetMapping(BrandAPI.REJECT_BRAND + "/{brand}")
-    public ResponseEntity<ObjectNode> rejectBrand(@PathVariable("brand") String brand) {
+    //    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
+    @GetMapping(BrandAPI.REJECT_BRAND + "/{brandID}")
+    public ResponseEntity<ObjectNode> rejectBrand(@PathVariable("brandID") UUID brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
-            if (brand == null) {
-                response.put("status", 400);
-                response.put("message", MessageConstant.MISSING_ARGUMENT);
-                return ResponseEntity.ok(response);
-            }
-
-            Optional<Brand> findedBrand = Optional.ofNullable(brandService.getBrandByEmail(brand));
+            Optional<Brand> findedBrand = brandService.getBrandById(brandID);
 
             if (findedBrand.isEmpty()) {
                 response.put("status", 200);
-                response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with infor: " + brand);
+                response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with infor: " + brandID);
                 return ResponseEntity.ok(response);
             }
 
