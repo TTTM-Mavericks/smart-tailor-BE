@@ -10,6 +10,7 @@ public enum ErrorConstant {
     MISSING_ARGUMENT(400, "Missing Argument!"),
     BAD_REQUEST(400, "Bad Request!"),
     INVALID_EMAIL(400, "Email is Invalid!"),
+    INVALID_ID(400, "ID is Invalid!"),
     INVALID_PASSWORD(400, "Password is Invalid!"),
     ACCOUNT_NOT_VERIFIED(400, "Account Is Not Verified!"),
     REGISTER_NEW_USER_FAILED(400, "Failed To Register New User!"),
