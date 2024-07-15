@@ -7,6 +7,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,9 +30,18 @@ public class SystemProperties extends AuditEntity implements Serializable {
     @Column(name = "property_unit", nullable = true, unique = false)
     private String propertyUnit;
 
-    @Column(name = "property_detail", nullable = false, unique = false)
+    @Column(name = "property_detail", nullable = true, unique = false)
     private String propertyDetail;
+
+    @Column(name = "property_type", nullable = false, unique = false)
+    private String propertyType;
+
+    @Column(name = "property_value", nullable = true, unique = false)
+    private String propertyValue;
 
     @Column(name = "property_status")
     private Boolean propertyStatus;
+
+    @OneToMany(mappedBy = "systemProperties")
+    private List<BrandProperties> brandProperties;
 }

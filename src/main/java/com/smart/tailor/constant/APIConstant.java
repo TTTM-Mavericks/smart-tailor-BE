@@ -267,7 +267,7 @@ public class APIConstant {
     /**
      * System Image
      */
-    public class SystemImageAPI{
+    public class SystemImageAPI {
         public static final String SYSTEM_IMAGE = APIConstant.API + "/system-image";
         public static final String ADD_NEW_SYSTEM_IMAGE = "/add-new-system-image";
         public static final String GET_ALL_SYSTEM_IMAGE = "/get-all-system-image";
@@ -290,4 +290,25 @@ public class APIConstant {
         public static final String GENERATE_SAMPLE_CATEGORY_MATERIAL_EXPERT_TAILORING_BY_EXCEL_FILE = "/generate-sample-category-material-expert-tailoring-by-excel-file";
     }
 
+    /**
+     * SystemProperty
+     */
+    public class SystemPropertyAPI {
+        public static final String SYSTEM_PROPERTY = APIConstant.API + "/system-property";
+        public static final String ADD_NEW_SYSTEM_PROPERTY = "/add-new-system-property";
+        public static final String GET_ALL_SYSTEM_PROPERTY = "/get-all-system-properties";
+        public static final String GET_ALL_SYSTEM_PROPERTY_BY_TYPE = "/get-all-system-properties-by-type";
+        public static final String GET_SYSTEM_PROPERTY = "/get-system-property";
+    }
+
+    /**
+     * BrandProperty
+     */
+    public class BrandPropertyAPI {
+        public static final String BRAND_PROPERTY = APIConstant.API + "/brand-property";
+        public static final String ADD_NEW_BRAND_PROPERTY = "/add-new-brand-property";
+        public static final String GET_ALL_BRAND_PROPERTY = "/get-all-brand-properties";
+        public static final String GET_ALL_BRAND_PROPERTY_BY_BRAND_ID = "/get-all-brand-properties-by-brand-id";
+        public static final String GET_BRAND_PROPERTY = "/get-brand-property";
+    }
 }
