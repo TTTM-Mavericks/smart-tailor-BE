@@ -5,6 +5,7 @@ import com.smart.tailor.entities.Brand;
 import com.smart.tailor.entities.Design;
 import com.smart.tailor.entities.DesignDetail;
 import com.smart.tailor.entities.Order;
+import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -137,6 +139,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             .ward(ward)
                             .phone(phone)
                             .buyerName(buyerName)
+                            .orderStatus(OrderStatus.NOT_VERIFY)
                             .build()
             );
             existedOrder = orderService.getOrderById(createdOrder.getOrderID()).get();
@@ -206,34 +209,49 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         return null;
     }
 
-    @Override
-    public DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID sizeID) {
-        try {
-            if (designID == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
-            }
-
-            if (sizeID == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": size");
-            }
-            if (!Utilities.isStringNotNullOrEmpty(sizeID.toString())) {
-                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": size");
-            }
-
-            return designDetailMapper.mapperToDesignDetailResponse(
-                    designDetailRepository.findDesignDetailByDesignDesignIDAndSizeSizeID(
-                            designID,
-                            sizeID
-                    )
-            );
-        } catch (Exception ex) {
-            logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());
-            return null;
-        }
-    }
+//    @Override
+//    public DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID sizeID) {
+//        try {
+//            if (designID == null) {
+//                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
+//            }
+//
+//            if (sizeID == null) {
+//                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": size");
+//            }
+//            if (!Utilities.isStringNotNullOrEmpty(sizeID.toString())) {
+//                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": size");
+//            }
+//
+//            return designDetailMapper.mapperToDesignDetailResponse(
+//                    designDetailRepository.findDesignDetailByDesignDesignIDAndSizeSizeID(
+//                            designID,
+//                            sizeID
+//                    )
+//            );
+//        } catch (Exception ex) {
+//            logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());
+//            return null;
+//        }
+//    }
 
     @Override
     public DesignDetailResponse updateDesignDetail(DesignDetail designDetail) {
         return designDetailMapper.mapperToDesignDetailResponse(designDetailRepository.save(designDetail));
+    }
+
+    @Override
+    public DesignDetail updateDetailByID(DesignDetail designDetail) {
+        return designDetailRepository.save(designDetail);
+    }
+
+    @Override
+    public Optional<DesignDetail> getDesignDetailObjectByID(UUID detailID) {
+        return designDetailRepository.findById(detailID);
+    }
+
+    @Override
+    public DesignDetail getDetailOfOrderBaseOnBrandID(UUID orderID, UUID brandID) {
+        return designDetailRepository.getDetailOfOrderBaseOnBrandID(orderID, brandID);
     }
 }

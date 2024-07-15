@@ -5,12 +5,11 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.mapper.OrderMapper;
+import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.repository.OrderRepository;
-import com.smart.tailor.service.BrandService;
-import com.smart.tailor.service.CustomerService;
-import com.smart.tailor.service.DesignService;
-import com.smart.tailor.service.OrderService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.*;
@@ -30,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final DesignService designService;
     private final CustomerService customerService;
     private final OrderMapper orderMapper;
+    private final DesignDetailRepository detailRepository;
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
@@ -98,11 +98,11 @@ public class OrderServiceImpl implements OrderService {
                     .orderType(orderType)
                     .phone(phone)
                     .buyerName(buyerName)
+                    .orderStatus(orderRequest.getOrderStatus())
                     /**
                      * TODO
                      * .employee()
                      */
-                    .orderStatus(OrderStatus.NOT_VERIFY)
                     .build();
             var orderResponse = orderRepository.save(order);
             return orderMapper.mapToOrderResponse(orderResponse);
@@ -186,5 +186,73 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateOrder(Order order) {
         orderRepository.save(order);
+    }
+
+    @Override
+    public OrderResponse brandPickOrder(OrderPickingRequest orderPickingRequest) throws Exception {
+        try {
+            if (orderPickingRequest == null) {
+                return null;
+            }
+
+            UUID brandID = orderPickingRequest.getBrandID();
+            UUID basedOrderID = orderPickingRequest.getOrderID();
+            UUID detailID = orderPickingRequest.getDetailID();
+
+            var checkExistBrand = brandService.getBrandById(brandID);
+            if (checkExistBrand == null) {
+                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND + "with brandID: " + brandID);
+            }
+            var existedBrand = checkExistBrand.get();
+
+            var checkDetail = detailRepository.getDesignDetailByDesignDetailID(detailID);
+            if (checkDetail.isEmpty()) {
+                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_DETAIL + " with detailID: " + detailID);
+            }
+            var detail = checkDetail.get();
+
+            var design = detail.getDesign();
+
+            var checkBasedOrder = getOrderById(basedOrderID);
+            if (checkBasedOrder.isEmpty()) {
+                throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND + "with orderID: " + basedOrderID);
+            }
+            var basedOrder = checkBasedOrder.get();
+            Order existedOrder = getOrderByDetailID(detailID);
+            if (existedOrder == null || existedOrder.getOrderID().equals(basedOrderID)) {
+                OrderResponse createdOrder = createOrder(
+                        OrderRequest
+                                .builder()
+                                .designID(design.getDesignID())
+                                .orderType("SUB_ORDER")
+                                .orderStatus(OrderStatus.PENDING)
+                                .address(basedOrder.getAddress())
+                                .province(basedOrder.getProvince())
+                                .district(basedOrder.getDistrict())
+                                .ward(basedOrder.getWard())
+                                .phone(basedOrder.getPhone())
+                                .buyerName(basedOrder.getBuyerName())
+                                .build()
+                );
+                var orderResponse = getOrderById(createdOrder.getOrderID()).get();
+                detail.setOrder(orderResponse);
+                detail.setBrand(existedBrand);
+                detailRepository.save(detail);
+                return orderMapper.mapToOrderResponse(orderResponse);
+            } else {
+                var orderResponse = getOrderById(existedOrder.getOrderID()).get();
+                detail.setOrder(orderResponse);
+                detail.setBrand(existedBrand);
+                detailRepository.save(detail);
+                return orderMapper.mapToOrderResponse(orderResponse);
+            }
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public Order getOrderByDetailID(UUID detailID) {
+        return orderRepository.getOrderByDetailID(detailID);
     }
 }

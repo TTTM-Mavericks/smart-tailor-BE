@@ -1,5 +1,6 @@
 package com.smart.tailor.utils.request;
 
+import com.smart.tailor.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ public class OrderRequest {
     private UUID designID;
     private Integer quantity;
     private String orderType;
+    private OrderStatus orderStatus;
     private String address;
     private String province;
     private String district;
