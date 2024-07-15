@@ -2,9 +2,11 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Design;
+import com.smart.tailor.entities.DesignDetail;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.repository.OrderRepository;
@@ -18,6 +20,8 @@ import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,7 +37,9 @@ public class OrderServiceImpl implements OrderService {
     private final DesignService designService;
     private final CustomerService customerService;
     private final OrderMapper orderMapper;
+    private final DesignDetailMapper detailMapper;
     private final DesignDetailRepository detailRepository;
+    private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
@@ -85,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             String buyerName;
-            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getBuyerName())) {
+            if (Utilities.isNonNullOrEmpty(orderRequest.getBuyerName())) {
                 buyerName = orderRequest.getBuyerName();
             } else {
                 buyerName = customerResponse.getFullName();
@@ -93,6 +99,33 @@ public class OrderServiceImpl implements OrderService {
 
             String orderType = orderRequest.getOrderType();
 
+            if (orderRequest.getParentOrderID() != null) {
+                var parentOrderID = orderRequest.getParentOrderID();
+                Optional<Order> parentOrder = orderRepository.findById(parentOrderID);
+                if (parentOrder.isPresent()) {
+                    Order order = Order.builder()
+                            .quantity(quantity)
+                            .address(address)
+                            .province(province)
+                            .district(district)
+                            .ward(ward)
+                            .orderType(orderType)
+                            .phone(phone)
+                            .buyerName(buyerName)
+                            .orderStatus(orderRequest.getOrderStatus())
+                            .orderType("SUB_ORDER")
+                            .parentOrder(parentOrder.get())
+                            /**
+                             * TODO
+                             * .employee()
+                             */
+                            .build();
+                    var orderResponse = orderRepository.save(order);
+                    return orderMapper.mapToOrderResponse(orderResponse);
+                } else {
+                    throw new RuntimeException("Parent order not found");
+                }
+            }
             Order order = Order.builder()
                     .quantity(quantity)
                     .address(address)
@@ -107,6 +140,7 @@ public class OrderServiceImpl implements OrderService {
                      * TODO
                      * .employee()
                      */
+                    .orderType("PARENT_ORDER")
                     .build();
             var orderResponse = orderRepository.save(order);
             return orderMapper.mapToOrderResponse(orderResponse);
@@ -121,13 +155,9 @@ public class OrderServiceImpl implements OrderService {
         List<OrderResponse> orderResponse = new ArrayList<>();
         for (Order order : orderList) {
             var response = orderMapper.mapToOrderResponse(order);
-//            response.setDesignResponse(
-//                    designService.getDesignResponseByID(designID)
-//            );
             orderResponse.add(response);
         }
         ;
-
         return orderResponse;
     }
 
@@ -138,7 +168,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderCustomResponse getOrderByOrderID(UUID orderID) {
+        List<DesignDetail> designDetailList = detailRepository.findAllByOrderID(orderID);
+        List<DesignDetail> detailList = null;
+        if (!designDetailList.isEmpty()) {
+            for (DesignDetail detail : designDetailList) {
+                if (detailList == null) {
+                    detailList = new ArrayList<>();
+                }
+                detailList.add(detail);
+            }
+        }
         var order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
+        order.setDetailList(detailList);
         var response = orderMapper.mapToOrderCustomeResponse(order);
         return response;
     }
@@ -160,7 +201,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getSubOrderByParentID(UUID parentOrderID) {
-        return null;
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID))
+                .map(orderMapper::mapToOrderResponse)
+                .toList();
     }
 
     @Override
@@ -233,24 +278,34 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
             }
+
             var existedBrandOrder = detailRepository.getDetailOfOrderBaseOnBrandID(basedOrderID, brandID);
             if (existedBrandOrder != null) {
+                logger.info("Existed Order is updating...");
+                var orderResponse = existedBrandOrder.getOrder();
+                List<DesignDetail> detailResponse = new ArrayList<>();
                 for (UUID detailID : detailList) {
                     var detail = detailRepository.getDesignDetailByDesignDetailID(detailID).get();
-                    var orderResponse = getOrderById(existedBrandOrder.getOrder().getOrderID()).get();
                     detail.setOrder(orderResponse);
                     detail.setBrand(existedBrand);
+                    detail.setDetailStatus(true);
                     detailRepository.save(detail);
+                    detailResponse.add(detail);
                 }
-                return orderMapper.mapToOrderResponse(existedBrandOrder.getOrder());
+                orderResponse = existedBrandOrder.getOrder();
+                orderResponse.setDetailList(detailResponse);
+                return orderMapper.mapToOrderResponse(orderResponse);
             } else {
+                logger.info("New Order is created...");
                 var detail = detailRepository.getDesignDetailByDesignDetailID(detailList.get(0)).get();
                 var design = detail.getDesign();
                 OrderResponse createdOrder = createOrder(
                         OrderRequest
                                 .builder()
+                                .parentOrderID(basedOrderID)
                                 .designID(design.getDesignID())
                                 .orderType("SUB_ORDER")
+                                .quantity(detail.getQuantity())
                                 .orderStatus(OrderStatus.PENDING)
                                 .address(basedOrder.getAddress())
                                 .province(basedOrder.getProvince())
@@ -261,11 +316,17 @@ public class OrderServiceImpl implements OrderService {
                                 .build()
                 );
                 var orderResponse = getOrderById(createdOrder.getOrderID()).get();
+                List<DesignDetail> detailResponse = new ArrayList<>();
                 for (UUID detailID : detailList) {
+                    detail = detailRepository.getDesignDetailByDesignDetailID(detailID).get();
                     detail.setOrder(orderResponse);
                     detail.setBrand(existedBrand);
+                    detail.setDetailStatus(true);
                     detailRepository.save(detail);
+                    detailResponse.add(detail);
                 }
+                orderResponse = getOrderById(createdOrder.getOrderID()).get();
+                orderResponse.setDetailList(detailResponse);
                 return orderMapper.mapToOrderResponse(orderResponse);
             }
         } catch (Exception ex) {

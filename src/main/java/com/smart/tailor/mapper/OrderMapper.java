@@ -17,6 +17,7 @@ public interface OrderMapper {
 @RequiredArgsConstructor
 class OrderMapperImpl implements OrderMapper {
     private final DesignService designService;
+    private final DesignDetailMapper detailMapper;
 
     @Override
     public OrderResponse mapToOrderResponse(Order order) {
@@ -25,6 +26,7 @@ class OrderMapperImpl implements OrderMapper {
         }
 
         OrderResponse.OrderResponseBuilder orderResponse = OrderResponse.builder();
+        orderResponse.parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null);
         orderResponse.orderType(order.getOrderType());
         orderResponse.orderID(order.getOrderID());
         orderResponse.quantity(order.getQuantity());
@@ -41,7 +43,9 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.estimatedDeliveryDate(order.getEstimatedDeliveryDate());
         orderResponse.productionStartDate(order.getProductionStartDate());
         orderResponse.productionCompletionDate(order.getProductionCompletionDate());
-
+        orderResponse.detailList(
+                order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
+        );
         return orderResponse.build();
     }
 
@@ -53,6 +57,7 @@ class OrderMapperImpl implements OrderMapper {
 
         OrderCustomResponse.OrderCustomResponseBuilder orderResponse = OrderCustomResponse.builder();
         orderResponse.designResponse(designService.getDesignByOrderID(order.getOrderID()));
+        orderResponse.parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null);
         orderResponse.orderType(order.getOrderType());
         orderResponse.orderID(order.getOrderID());
         orderResponse.quantity(order.getQuantity());
@@ -69,7 +74,9 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.estimatedDeliveryDate(order.getEstimatedDeliveryDate());
         orderResponse.productionStartDate(order.getProductionStartDate());
         orderResponse.productionCompletionDate(order.getProductionCompletionDate());
-
+        orderResponse.detailList(
+                order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
+        );
         return orderResponse.build();
     }
 }

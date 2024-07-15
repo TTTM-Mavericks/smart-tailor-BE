@@ -51,27 +51,36 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             if (orderID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
             }
-            List<DesignDetail> designDetailList = designDetailRepository.findAllByOrderOrderID(orderID);
+
             DesignDetailCustomResponse responseList = new DesignDetailCustomResponse();
-            List<DesignDetailResponse> detailList = null;
-            if (!designDetailList.isEmpty()) {
-                for (DesignDetail detail : designDetailList) {
-                    if (detailList == null) {
-                        detailList = new ArrayList<>();
-                    }
-                    detailList.add(designDetailMapper.mapperToDesignDetailResponse(detail));
-                }
-            }
+//            List<DesignDetailResponse> detailList = null;
+//            if (!designDetailList.isEmpty()) {
+//                for (DesignDetail detail : designDetailList) {
+//                    if (detailList == null) {
+//                        detailList = new ArrayList<>();
+//                    }
+//                    detailList.add(designDetailMapper.mapperToDesignDetailResponse(detail));
+//                }
+//            }
             responseList.setDesign(designMapper.mapperToDesignResponse(
                     designService.getDesignObjectByOrderID(orderID)
             ));
-            responseList.setOrder(orderMapper.mapToOrderResponse(orderService.getOrderById(orderID).get()));
-            responseList.setDesignDetail(detailList);
+            var order = orderService.getOrderById(orderID).get();
+            responseList.setOrder(orderMapper.mapToOrderResponse(order));
+            List<DesignDetail> detailList = order.getDetailList();
+            responseList.setDesignDetail(detailList.stream().map(designDetailMapper::mapperToDesignDetailResponse).toList());
             return responseList;
         } catch (Exception ex) {
             logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public DesignDetailResponse findByID(UUID orderID) {
+        return designDetailMapper.mapperToDesignDetailResponse(
+                designDetailRepository.getDesignDetailByDesignDetailID(orderID).get()
+        );
     }
 
     @Transactional
@@ -90,7 +99,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             if (design == null) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
             }
-            Order existedOrder = null;
+            Order parentOrder = null;
             DesignResponse designResponse = designService.getDesignResponseByID(designId);
             UserResponse userResponse = designResponse.getUser();
             CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
@@ -114,7 +123,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             }
 
             String phone = "";
-            if (!Utilities.isStringNotNullOrEmpty(designDetailRequest.getPhone())) {
+            if (!Utilities.isNonNullOrEmpty(designDetailRequest.getPhone())) {
                 phone = customerResponse.getPhoneNumber();
             } else if (!Utilities.isValidVietnamesePhoneNumber(designDetailRequest.getPhone())) {
                 phone = customerResponse.getPhoneNumber();
@@ -123,15 +132,20 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             }
 
             String buyerName;
-            if (!Utilities.isStringNotNullOrEmpty(designDetailRequest.getBuyerName())) {
+            if (Utilities.isNonNullOrEmpty(designDetailRequest.getBuyerName())) {
                 buyerName = designDetailRequest.getBuyerName();
             } else {
                 buyerName = customerResponse.getFullName();
             }
-            OrderResponse createdOrder = orderService.createOrder(
+            /**
+             * Create Parent Order
+             */
+            OrderResponse parentOrderResponse = orderService.createOrder(
                     OrderRequest
                             .builder()
                             .designID(designId)
+                            .quantity(0)
+                            .parentOrderID(null)
                             .orderType("PARENT_ORDER")
                             .address(address)
                             .province(province)
@@ -142,7 +156,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             .orderStatus(OrderStatus.NOT_VERIFY)
                             .build()
             );
-            existedOrder = orderService.getOrderById(createdOrder.getOrderID()).get();
+            parentOrder = orderService.getOrderById(parentOrderResponse.getOrderID()).get();
 
             List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
             int index = -1;
@@ -164,30 +178,22 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 }
 
                 Brand existedBrand = null;
-                if (sizeRequest.getBrandId() != null) {
-                    var brand = brandService.getBrandById(sizeRequest.getBrandId());
-                    if (brand.isEmpty()) {
-                        existedBrand = null;
-                    } else {
-                        existedBrand = brand.get();
-                    }
-                }
-                existedOrder.setQuantity(existedOrder.getQuantity() + quantity);
-                orderService.updateOrder(existedOrder);
+
+                parentOrder.setQuantity(parentOrder.getQuantity() + quantity);
+                orderService.updateOrder(parentOrder);
+
                 designDetailList.add(
                         DesignDetail
                                 .builder()
                                 .design(design)
-                                .brand(existedBrand)
-                                .order(existedOrder)
+                                .brand(null)
+                                .order(parentOrder)
                                 .size(size)
                                 .quantity(quantity)
-                                .detailStatus(true)
+                                .detailStatus(false)
                                 .build()
                 );
-
             }
-
             designDetailRepository.saveAll(designDetailList);
 
             return APIResponse
@@ -197,7 +203,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     .data(
                             OrderDetailResponse.builder()
                                     .sizeList(sizeList)
-                                    .orderID(existedOrder.getOrderID())
+                                    .orderID(parentOrder.getOrderID())
                                     .build()
                     )
                     .build();
