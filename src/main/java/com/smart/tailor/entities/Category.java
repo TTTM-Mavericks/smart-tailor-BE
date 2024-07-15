@@ -25,4 +25,6 @@ public class Category extends AuditEntity implements Serializable {
 
     @Column(name = "category_name")
     private String categoryName;
+
+    private Boolean status;
 }

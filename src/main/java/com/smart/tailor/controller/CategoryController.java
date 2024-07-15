@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.CategoryService;
+import com.smart.tailor.utils.request.CategoryListRequest;
 import com.smart.tailor.utils.request.CategoryRequest;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
@@ -61,10 +62,10 @@ public class CategoryController {
     }
 
     @PostMapping(APIConstant.CategoryAPI.ADD_NEW_CATEGORY)
-    public ResponseEntity<ObjectNode> addNewCategory(@RequestParam(value = "categoryName") String categoryName) {
+    public ResponseEntity<ObjectNode> addNewCategory(@Valid @RequestBody CategoryListRequest categoryListRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        categoryService.createCategory(categoryName);
+        categoryService.createCategory(categoryListRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message",MessageConstant.ADD_NEW_CATEGORY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
@@ -75,6 +76,16 @@ public class CategoryController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         categoryService.updateCategory(categoryRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message",MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(APIConstant.CategoryAPI.CHANGE_STATUS_CATEGORY + "/{categoryID}")
+    public ResponseEntity<ObjectNode> changeStatusCategory(@ValidUUID @PathVariable("categoryID") UUID categoryID ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        categoryService.changeStatusCategory(categoryID);
         response.put("status", HttpStatus.OK.value());
         response.put("message",MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY);
         return ResponseEntity.ok(response);

@@ -35,4 +35,12 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
 
     @Query(value = "SELECT MAX(bm.brand_price) FROM brand_material bm join material m on m.material_id = bm.material_id where m.material_id = ?1", nativeQuery = true)
     Double getMaxPriceByMaterialID(UUID materialID);
+
+    boolean existsByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCaseAndHsCodeAndUnitIgnoreCaseAndBasePrice(
+            String materialName,
+            String categoryName,
+            Long hsCode,
+            String unit,
+            Double basePrice
+    );
 }

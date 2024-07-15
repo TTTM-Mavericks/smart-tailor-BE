@@ -9,8 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ErrorData {
-    private Object data;
+public class ErrorDetail {
+    private Object errorData;
 
-    private String message;
+    private Object errorMessage;
+
+    public ErrorDetail(Object errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 }

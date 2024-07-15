@@ -93,4 +93,13 @@ public class GlobalExceptionHandler {
         response.set("errors", objectMapper.valueToTree(ex.getErrors()));
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
+
+    @ExceptionHandler(MultipleErrorException.class)
+    public ResponseEntity<ObjectNode> handleMultipleErrorException(MultipleErrorException ex) {
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", ex.getStatusCode().value());
+        response.put("message", ex.getReason());
+        response.set("errors", objectMapper.valueToTree(ex.getErrorDetails()));
+        return ResponseEntity.status(ex.getStatusCode().value()).body(response);
+    }
 }

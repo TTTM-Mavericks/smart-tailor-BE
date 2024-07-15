@@ -1,6 +1,7 @@
 package com.smart.tailor.service;
 
 import com.smart.tailor.entities.Category;
+import com.smart.tailor.utils.request.CategoryListRequest;
 import com.smart.tailor.utils.request.CategoryRequest;
 import com.smart.tailor.utils.response.CategoryResponse;
 
@@ -11,7 +12,9 @@ import java.util.UUID;
 public interface CategoryService {
     Optional<Category> findByCategoryName(String categoryName);
 
-    void createCategory(String categoryName);
+    Optional<Category> findByCategoryNameAndStatus(String categoryName, Boolean status);
+
+    void createCategory(CategoryListRequest categoryListRequest);
 
     List<CategoryResponse> findAllCatgories();
 
@@ -20,4 +23,6 @@ public interface CategoryService {
     void updateCategory(CategoryRequest categoryRequest);
 
     Optional<Category> findCategoryOptionalByID(UUID categoryID);
+
+    void changeStatusCategory(UUID categoryID);
 }

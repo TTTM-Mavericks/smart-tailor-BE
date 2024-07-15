@@ -16,6 +16,8 @@ public class CategoryResponse {
 
     private String categoryName;
 
+    private Boolean status;
+
     private String createDate;
 
     private String lastModifiedDate;

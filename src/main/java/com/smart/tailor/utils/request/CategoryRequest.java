@@ -16,6 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CategoryRequest {
+    @NotBlank(message = "categoryID is not blank")
+    @NotEmpty(message = "categoryID is not empty")
     @ValidStringUUID(message = "categoryID is invalid type of UUID")
     private String categoryID;
 

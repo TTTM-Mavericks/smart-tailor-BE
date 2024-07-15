@@ -9,7 +9,7 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
-import com.smart.tailor.utils.response.ErrorData;
+import com.smart.tailor.utils.response.ErrorDetail;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -131,18 +131,18 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 } catch (ItemNotFoundException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_BRAND;
                     logger.error("Error creating BrandMaterial: Item not found - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(brandMaterialRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(brandMaterialRequest, errorMessage));
                 } catch (ItemAlreadyExistException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.BRAND_MATERIAL_IS_EXISTED;
                     logger.error("Error creating BrandMaterial: Already exists - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(brandMaterialRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(brandMaterialRequest, errorMessage));
                 } catch (BadRequestException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION;
                     logger.error("Error creating BrandMaterial: Bad request - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(brandMaterialRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(brandMaterialRequest, errorMessage));
                 } catch (Exception ex) {
                     logger.error("Error creating BrandMaterial - {}", ex.getMessage());
-                    invalidData.add(new ErrorData(brandMaterialRequest, ex.getMessage()));
+                    invalidData.add(new ErrorDetail(brandMaterialRequest, ex.getMessage()));
                 }
             }
 
