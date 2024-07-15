@@ -9,7 +9,7 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.CategoryResponse;
-import com.smart.tailor.utils.response.ErrorData;
+import com.smart.tailor.utils.response.ErrorDetail;
 import com.smart.tailor.utils.response.MaterialResponse;
 import com.smart.tailor.utils.response.MaterialWithPriceResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,13 +48,13 @@ public class MaterialServiceImpl implements MaterialService {
     @Transactional
     public void createMaterial(MaterialRequest materialRequest) {
         var category = categoryService.findByCategoryName(materialRequest.getCategoryName())
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+                .orElseThrow(() -> new ItemNotFoundException("Can Not Find Category with Category Name: " + materialRequest.getCategoryName()));
 
         Optional<Material> categoryMaterialOptional = findByMaterialNameAndCategory_CategoryName(materialRequest.getMaterialName(), materialRequest.getCategoryName());
         Optional<Material> materialOptional = findByMaterialName(materialRequest.getMaterialName());
 
         if (materialOptional.isPresent() || categoryMaterialOptional.isPresent()) {
-            throw new ItemAlreadyExistException(MessageConstant.MATERIAL_IS_EXISTED);
+            throw new ItemAlreadyExistException("Material Information with Material Name " + materialRequest.getMaterialName() + " is existed!");
         }
 
         materialRepository.save(
@@ -70,8 +70,19 @@ public class MaterialServiceImpl implements MaterialService {
         );
     }
 
+    private Boolean materialDuplicate(MaterialRequest materialRequest)
+    {
+        return materialRepository.existsByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCaseAndHsCodeAndUnitIgnoreCaseAndBasePrice(
+                materialRequest.getMaterialName(),
+                materialRequest.getCategoryName(),
+                materialRequest.getHsCode(),
+                materialRequest.getUnit(),
+                materialRequest.getBasePrice()
+        );
+    }
+
+
     @Override
-    @Transactional
     public void createMaterialByExcelFile(MultipartFile file) {
         if (!excelImportService.isValidExcelFile(file)) {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
@@ -99,32 +110,48 @@ public class MaterialServiceImpl implements MaterialService {
                 throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
             }
 
-            List<Object> invalidData = new ArrayList<>();
+            List<ErrorDetail> errorFields = new ArrayList<>();
             for (MaterialRequest materialRequest : uniqueExcelData) {
-                try {
-                    createMaterial(materialRequest);
-                } catch (ItemNotFoundException ex) {
-                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_CATEGORY;
-                    logger.error("Error creating Material: Item not found - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(materialRequest, errorMessage));
-                } catch (ItemAlreadyExistException ex) {
-                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.MATERIAL_IS_EXISTED;
-                    logger.error("Error creating Material: Already exists - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(materialRequest, errorMessage));
-                } catch (Exception ex) {
-                    logger.error("Error creating Material - {}", ex.getMessage());
-                    invalidData.add(new ErrorData(materialRequest, ex.getMessage()));
+                List<String> errors = new ArrayList<>();
+
+                var category = categoryService.findByCategoryName(materialRequest.getCategoryName());
+                if(category.isEmpty()){
+                    errors.add("Can Not Find Category with Category Name: " + materialRequest.getCategoryName());
+                }
+
+                var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
+                if(materialDuplicate(materialRequest)){
+                   errors.add("Material Information with Material Name: " + materialRequest.getMaterialName() + " is existed!");
+                }
+
+                if(errors.size() > 0){
+                    errorFields.add(new ErrorDetail(materialRequest, errors));
+                } else {
+                    var materialID = material.isPresent() ? material.get().getMaterialID() : UUID.randomUUID();
+                    materialRepository.save(
+                            Material
+                                    .builder()
+                                    .materialID(materialID)
+                                    .materialName(materialRequest.getMaterialName())
+                                    .category(category.get())
+                                    .hsCode(materialRequest.getHsCode())
+                                    .unit(materialRequest.getUnit())
+                                    .basePrice(materialRequest.getBasePrice())
+                                    .status(true)
+                                    .build()
+                    );
                 }
             }
 
-            if (!invalidData.isEmpty()) {
-                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
+            if (!errorFields.isEmpty()) {
+                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", errorFields);
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
     }
+
 
     @Override
     public List<MaterialResponse> findAllMaterials() {
@@ -176,10 +203,10 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public void updateMaterial(UUID materialID, MaterialRequest materialRequest) {
         var material = materialRepository.findById(materialID)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + materialID));
 
         var categoryOptional = categoryService.findByCategoryName(materialRequest.getCategoryName())
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Category with CategoryName: " + materialRequest.getCategoryName()));
 
         materialRepository.save(
                 Material
@@ -198,7 +225,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public void updateStatusMaterial(UUID materialID) {
         var material = materialRepository.findByMaterialID(materialID)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + materialID));
 
         material.setStatus(!material.getStatus());
         materialRepository.save(material);
@@ -239,7 +266,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public List<MaterialResponse> findListMaterialByCategoryName(String categoryName) {
-        var category = categoryService.findByCategoryName(categoryName)
+        var category = categoryService.findByCategoryName("Can not find Category with CategoryName: " + categoryName)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
 
         return materialRepository

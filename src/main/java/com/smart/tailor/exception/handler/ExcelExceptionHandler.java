@@ -44,7 +44,7 @@ public class ExcelExceptionHandler {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("message", ex.getMessage());
-        response.set("errors", objectMapper.valueToTree(ex.getErrors()));
+        response.set("errors", objectMapper.valueToTree(ex.getErrorFields()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 

@@ -5,19 +5,24 @@ import com.smart.tailor.entities.Category;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemAlreadyExistException;
 import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.MultipleErrorException;
 import com.smart.tailor.mapper.CategoryMapper;
 import com.smart.tailor.repository.CategoryRepository;
 import com.smart.tailor.service.CategoryService;
 import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.CategoryListRequest;
 import com.smart.tailor.utils.request.CategoryRequest;
 import com.smart.tailor.utils.response.CategoryResponse;
+import com.smart.tailor.utils.response.ErrorDetail;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,23 +42,40 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Transactional
-    public void createCategory(String categoryName) {
-        if(!Utilities.isStringNotNullOrEmpty(categoryName)){
-            throw new BadRequestException(MessageConstant.DATA_IS_EMPTY + " : categoryName");
+    public Optional<Category> findByCategoryNameAndStatus(String categoryName, Boolean status) {
+        return categoryRepository.findByCategoryNameAndStatus(categoryName, status);
+    }
+
+    @Override
+    public void createCategory(CategoryListRequest categoryListRequest) {
+        var categoryNames = categoryListRequest.getCategoryNames();
+        List<ErrorDetail> errorDetails = new ArrayList<>();
+        for(int i = 0; i < categoryNames.size(); i++){
+            String categoryName = categoryNames.get(i);
+
+            if(!Utilities.isStringNotNullOrEmpty(categoryName)){
+                errorDetails.add(new ErrorDetail("Category Name is null or empty"));
+                continue;
+            }
+
+            Optional<Category> categoryOptional = findByCategoryName(categoryName);
+            if(categoryOptional.isPresent()) {
+                errorDetails.add(new ErrorDetail(categoryName, "Category Name is existed: " + categoryName));
+                continue;
+            }
+
+            categoryRepository.save(
+                    Category
+                            .builder()
+                            .categoryName(categoryName)
+                            .status(true)
+                            .build()
+            );
         }
 
-        Optional<Category> categoryOptional = findByCategoryName(categoryName);
-        if(categoryOptional.isPresent()) {
-            throw new ItemAlreadyExistException(MessageConstant.CATEGORY_IS_EXISTED);
+        if(!errorDetails.isEmpty()){
+            throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Category", errorDetails);
         }
-
-        categoryRepository.save(
-                Category
-                        .builder()
-                        .categoryName(categoryName)
-                        .build()
-        );
     }
 
     @Override
@@ -79,14 +101,14 @@ public class CategoryServiceImpl implements CategoryService {
     public void updateCategory(CategoryRequest categoryRequest) {
         // Check Category ID is Existed or not
         var categoryResponse = categoryRepository.findByCategoryID(UUID.fromString(categoryRequest.getCategoryID()))
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+                .orElseThrow(() -> new ItemNotFoundException("Can Not Find Category with CategoryID: " + categoryRequest.getCategoryID()));
 
         // Check Category Name is Existed or not
         var categoryNameExisted = findByCategoryName(categoryRequest.getCategoryName());
 
         if(categoryNameExisted.isPresent()){
             if(!categoryNameExisted.get().getCategoryID().toString().equals((categoryResponse.getCategoryID().toString()))){
-                throw new ItemAlreadyExistException(MessageConstant.CATEGORY_IS_EXISTED);
+                throw new ItemAlreadyExistException("Category Name is existed: " + categoryRequest.getCategoryName());
             }
         }
 
@@ -96,6 +118,7 @@ public class CategoryServiceImpl implements CategoryService {
                     .builder()
                     .categoryID(categoryResponse.getCategoryID())
                     .categoryName(categoryRequest.getCategoryName())
+                    .status(categoryResponse.getStatus())
                     .build()
         );
     }
@@ -103,5 +126,16 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Optional<Category> findCategoryOptionalByID(UUID categoryID) {
         return categoryRepository.findById(categoryID);
+    }
+
+    @Transactional
+    @Override
+    public void changeStatusCategory(UUID categoryID) {
+        // Check Category ID is Existed or not
+        var categoryResponse = categoryRepository.findByCategoryID(categoryID)
+                .orElseThrow(() -> new ItemNotFoundException("Can Not Find Category with CategoryID: " + categoryID));
+
+        categoryResponse.setStatus(!categoryResponse.getStatus());
+        categoryRepository.save(categoryResponse);
     }
 }

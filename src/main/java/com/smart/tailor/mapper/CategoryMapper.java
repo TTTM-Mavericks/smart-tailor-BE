@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 public interface CategoryMapper {
     @Mapping(source = "category.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "category.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "category.status", target = "status")
     CategoryResponse mapperToCategoryResponse(Category category);
 
     Category mapperToCategory(CategoryResponse categoryResponse);

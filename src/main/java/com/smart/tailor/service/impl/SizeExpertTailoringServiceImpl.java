@@ -8,7 +8,7 @@ import com.smart.tailor.mapper.SizeExpertTailoringMapper;
 import com.smart.tailor.repository.SizeExpertTailoringRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.SizeExpertTailoringRequest;
-import com.smart.tailor.utils.response.ErrorData;
+import com.smart.tailor.utils.response.ErrorDetail;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import com.smart.tailor.utils.response.SizeExpertTailoringResponse;
 import com.smart.tailor.utils.response.SizeResponse;
@@ -171,18 +171,18 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 } catch (ItemNotFoundException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_SIZE;
                     logger.error("Error creating SizeExpertTailoring: Item not found - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(expertTailoringRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(expertTailoringRequest, errorMessage));
                 } catch (ItemAlreadyExistException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.SIZE_EXPERT_TAILORING_IS_EXISTED;
                     logger.error("Error creating SizeExpertTailoring: Already exists - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(expertTailoringRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(expertTailoringRequest, errorMessage));
                 } catch (BadRequestException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : "Min Fabric can not greater than Max Fabric";
                     logger.error("Error creating SizeExpertTailoring: Bad request - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(expertTailoringRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(expertTailoringRequest, errorMessage));
                 } catch (Exception ex) {
                     logger.error("Error creating SizeExpertTailoring - {}", ex.getMessage());
-                    invalidData.add(new ErrorData(expertTailoringRequest, ex.getMessage()));
+                    invalidData.add(new ErrorDetail(expertTailoringRequest, ex.getMessage()));
                 }
             }
 

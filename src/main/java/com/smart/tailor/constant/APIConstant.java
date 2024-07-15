@@ -65,6 +65,7 @@ public class APIConstant {
         public static final String GET_ALL_CATEGORY = "/get-all-category";
         public static final String GET_CATEGORY_BY_ID = "/get-category-by-id";
         public static final String UPDATE_CATEGORY = "/update-category";
+        public static final String CHANGE_STATUS_CATEGORY = "/change-status-category";
     }
 
     /**

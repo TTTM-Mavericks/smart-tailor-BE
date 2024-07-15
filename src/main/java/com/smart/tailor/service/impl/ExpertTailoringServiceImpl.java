@@ -11,7 +11,7 @@ import com.smart.tailor.service.ExcelExportService;
 import com.smart.tailor.service.ExcelImportService;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
-import com.smart.tailor.utils.response.ErrorData;
+import com.smart.tailor.utils.response.ErrorDetail;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -138,10 +138,10 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
                 } catch (ItemAlreadyExistException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.EXPERT_TAILORING_IS_EXISTED;
                     logger.error("Error creating ExpertTailoring: Already exists - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(expertTailoringRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(expertTailoringRequest, errorMessage));
                 } catch (Exception ex) {
                     logger.error("Error creating Material - {}", ex.getMessage());
-                    invalidData.add(new ErrorData(expertTailoringRequest, ex.getMessage()));
+                    invalidData.add(new ErrorDetail(expertTailoringRequest, ex.getMessage()));
                 }
             }
 

@@ -9,11 +9,8 @@ import com.smart.tailor.repository.ExpertTailoringMaterialRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialRequest;
-import com.smart.tailor.utils.request.MaterialRequest;
-import com.smart.tailor.utils.response.ErrorData;
+import com.smart.tailor.utils.response.ErrorDetail;
 import com.smart.tailor.utils.response.ExpertTailoringMaterialResponse;
-import com.smart.tailor.utils.response.MaterialResponse;
-import jakarta.persistence.Tuple;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -190,14 +187,14 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
                 } catch (ItemNotFoundException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_ANY_MATERIAL;
                     logger.error("Error creating Expert Tailoring Material: Item not found - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(materialRequest, errorMessage));
+                    invalidData.add(new ErrorDetail(materialRequest, errorMessage));
                 } catch (DuplicateDataException ex) {
                     String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.EXPERT_TAILORING_MATERIAL_IS_EXISTED;
                     logger.error("Error creating Expert Tailoring Material: Already exists - {}", errorMessage, ex);
-                    invalidData.add(new ErrorData(ex.getErrors(), errorMessage));
+                    invalidData.add(new ErrorDetail(ex.getErrors(), errorMessage));
                 } catch (Exception ex) {
                     logger.error("Error creating Expert Tailoring Material - {}", ex.getMessage());
-                    invalidData.add(new ErrorData(materialRequest, ex.getMessage()));
+                    invalidData.add(new ErrorDetail(materialRequest, ex.getMessage()));
                 }
             }
 
