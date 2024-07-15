@@ -1,0 +1,112 @@
+package com.smart.tailor.service.impl;
+
+import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.SystemProperties;
+import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.mapper.SystemPropertiesMapper;
+import com.smart.tailor.repository.SystemPropertiesRepository;
+import com.smart.tailor.service.SystemPropertiesService;
+import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.SystemPropertiesRequest;
+import com.smart.tailor.utils.response.SystemPropertiesResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class SystemPropertiesServiceImpl implements SystemPropertiesService {
+    private final SystemPropertiesRepository systemRepository;
+    private final SystemPropertiesMapper systemMapper;
+
+    @Override
+    public SystemPropertiesResponse addNewSystemProperty(SystemPropertiesRequest systemProperties) {
+        try {
+            if (systemProperties == null) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
+            }
+            if (systemProperties.getPropertyName() == null) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": propertyName");
+            }
+            if (systemProperties.getPropertyUnit() == null) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": propertyUnit");
+            }
+            if (systemProperties.getPropertyType() == null) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": propertyType");
+            }
+            String propertyName = systemProperties.getPropertyName();
+            String propertyUnit = systemProperties.getPropertyUnit();
+            String propertyDetail = systemProperties.getPropertyDetail() != null ? systemProperties.getPropertyDetail() : "";
+            String propertyType = systemProperties.getPropertyType().trim().toUpperCase();
+            String propertyValue = systemProperties.getPropertyValue() != null ? systemProperties.getPropertyValue() : "";
+            Boolean propertyStatus = systemProperties.getPropertyStatus() != null ? systemProperties.getPropertyStatus() : true;
+
+            var newProperty = systemRepository.save(
+                    SystemProperties
+                            .builder()
+                            .propertyName(propertyName)
+                            .propertyUnit(propertyUnit)
+                            .propertyDetail(propertyDetail)
+                            .propertyType(propertyType)
+                            .propertyValue(propertyValue)
+                            .propertyStatus(propertyStatus)
+                            .build()
+            );
+            if (newProperty != null) {
+                return systemMapper.mapperToSystemPropertiesResponse(newProperty);
+            }
+            return null;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public List<SystemPropertiesResponse> getAllByPropertyType(String propertyType) {
+        try {
+            propertyType = propertyType.trim().toUpperCase();
+            if (!Utilities.isNonNullOrEmpty(propertyType)) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
+            }
+            return systemRepository.getAllByPropertyType(propertyType)
+                    .stream()
+                    .map(systemMapper::mapperToSystemPropertiesResponse)
+                    .toList();
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public SystemPropertiesResponse getByID(UUID propertyID) {
+        try {
+            var property = systemRepository.findById(propertyID);
+            if (property == null) {
+                return null;
+            }
+            return systemMapper.mapperToSystemPropertiesResponse(property.get());
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public Optional<SystemProperties> getObjectByID(UUID propertyID) {
+        return systemRepository.findById(propertyID);
+    }
+
+    @Override
+    public List<SystemPropertiesResponse> getAll() {
+        try {
+            return systemRepository.findAll()
+                    .stream()
+                    .map(systemMapper::mapperToSystemPropertiesResponse)
+                    .toList();
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+}

@@ -24,20 +24,15 @@ public class BrandProperties extends AuditEntity implements Serializable {
     private UUID brandPropertyID;
 
     @ManyToOne
-    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, unique = false)
     private Brand brand;
 
-    @Column(name = "brand_property_name", nullable = false, unique = true)
-    private String brandPropertyName;
+    @ManyToOne
+    @JoinColumn(name = "property_id", referencedColumnName = "property_id", nullable = false, unique = false)
+    private SystemProperties systemProperties;
 
-    @Column(name = "brand_property_detail", nullable = false, unique = false)
-    private String brandPropertyDetail;
-
-    @Column(name = "brand_property_unit", nullable = true, unique = false)
-    private String brandPropertyUnit;
-
-    @Column(name = "brand_property_type", nullable = false, unique = false)
-    private String brandPropertyType;
+    @Column(name = "brand_property_value")
+    private String brandPropertyValue;
 
     @Column(name = "brand_property_status")
     private Boolean brandPropertyStatus;

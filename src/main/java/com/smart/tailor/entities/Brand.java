@@ -8,6 +8,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -60,4 +61,7 @@ public class Brand extends AuditEntity implements Serializable {
 
     @Column(name = "number_of_violations")
     private Integer numberOfViolations = 0;
+
+    @OneToMany(mappedBy = "brand")
+    private List<BrandProperties> brandProperties;
 }

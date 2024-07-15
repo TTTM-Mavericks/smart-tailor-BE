@@ -347,4 +347,19 @@ public class MessageConstant {
     public static final String WRONG_TYPE_OF_EXPERT_TAILORING_MATERIAL_EXCEL_FILE = "Wrong Type Of Expert Tailoring Material Excel File!";
     public static final String DUPLICATE_EXPERT_TAILORING_MATERIAL_IN_EXCEL_FILE = "Duplicate Expert Tailoring Material in Excel File!";
 
+    /**
+     * System Property
+     */
+    public static final String GET_ALL_SYSTEM_PROPERTY_SUCCESSFULLY = "Get All System Properties Successfully!";
+    public static final String GET_SYSTEM_PROPERTY_SUCCESSFULLY = "Get System Properties Successfully!";
+    public static final String ADD_NEW_SYSTEM_PROPERTY_SUCCESSFULLY = "Add New System Property Successfully!";
+    public static final String CAN_NOT_FIND_SYSTEM_PROPERTY = "Can Not Find System Property";
+
+    /**
+     * Brand Property
+     */
+    public static final String GET_ALL_BRAND_PROPERTY_SUCCESSFULLY = "Get All Brand Properties Successfully!";
+    public static final String GET_BRAND_PROPERTY_SUCCESSFULLY = "Get Brand Properties Successfully!";
+    public static final String ADD_NEW_BRAND_PROPERTY_SUCCESSFULLY = "Add New Brand Property Successfully!";
+    public static final String CAN_NOT_FIND_BRAND_PROPERTY = "Can Not Find Brand Property";
 }
