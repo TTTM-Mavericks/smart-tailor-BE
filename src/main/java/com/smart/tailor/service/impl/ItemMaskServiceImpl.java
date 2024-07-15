@@ -2,6 +2,7 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.ItemMask;
+import com.smart.tailor.entities.Material;
 import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.enums.PrintType;
 import com.smart.tailor.exception.BadRequestException;
@@ -76,29 +77,36 @@ public class ItemMaskServiceImpl implements ItemMaskService {
             String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
             String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
 
-            var material = materialService.findMaterialByID(UUID.fromString(itemMaskRequest.getMaterialID()))
-                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED));
+            var itemMask =   ItemMask
+                    .builder()
+                    .partOfDesign(partOfDesign)
+                    .itemMaskName(itemMaskName)
+                    .typeOfItem(typeOfItem)
+                    .isSystemItem(itemMaskRequest.getIsSystemItem())
+                    .positionX(itemMaskRequest.getPositionX())
+                    .positionY(itemMaskRequest.getPositionY())
+                    .scaleX(itemMaskRequest.getScaleX())
+                    .scaleY(itemMaskRequest.getScaleY())
+                    .indexZ(itemMaskRequest.getIndexZ())
+                    .imageUrl(base64ImageUrl)
+                    .printType(PrintType.valueOf(itemMaskRequest.getPrintType()))
+                    .build();
 
-            var itemMask = itemMaskRepository.save(
-                    ItemMask
-                            .builder()
-                            .partOfDesign(partOfDesign)
-                            .itemMaskName(itemMaskName)
-                            .material(material)
-                            .typeOfItem(typeOfItem)
-                            .isSystemItem(itemMaskRequest.getIsSystemItem())
-                            .positionX(itemMaskRequest.getPositionX())
-                            .positionY(itemMaskRequest.getPositionY())
-                            .scaleX(itemMaskRequest.getScaleX())
-                            .scaleY(itemMaskRequest.getScaleY())
-                            .indexZ(itemMaskRequest.getIndexZ())
-                            .imageUrl(base64ImageUrl)
-                            .printType(PrintType.valueOf(itemMaskRequest.getPrintType()))
-                            .build()
-            );
-            itemMaskList.add(itemMask);
+            Material material = null;
+            if(Utilities.isStringNotNullOrEmpty(itemMaskRequest.getMaterialID())){
+                if(!Utilities.isValidUUIDType(itemMaskRequest.getMaterialID())){
+                    throw new BadRequestException("Invalid Type UUID of MaterialID: " + itemMaskRequest.getMaterialID());
+                }
+
+                material = materialService.findMaterialByID(UUID.fromString(itemMaskRequest.getMaterialID()))
+                        .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + itemMaskRequest.getMaterialID()));
+
+                itemMask.setMaterial(material);
+            }
+
+            var savedItemMask = itemMaskRepository.save(itemMask);
+            itemMaskList.add(savedItemMask);
         }
-
         return itemMaskList;
     }
 

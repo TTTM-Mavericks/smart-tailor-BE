@@ -92,8 +92,14 @@ public class Utilities {
         return false;
     }
 
-    public static boolean isValidUUIDType(UUID uuid) {
-        return uuid != null;
+    public static boolean isValidUUIDType(String uuid) {
+        if(uuid == null) return false;
+        try{
+            UUID.fromString(uuid);
+            return true;
+        }catch (IllegalArgumentException e){
+            return false;
+        }
     }
 
     public static boolean isValidateDate(String dateStr, String dateFormat) {
@@ -147,7 +153,4 @@ public class Utilities {
         return Base64.getEncoder().encode(bytesToEncode);
     }
 
-    public static String decodeByteArrayToString(byte[] bytes){
-        return new String(bytes, StandardCharsets.UTF_8);
-    }
 }

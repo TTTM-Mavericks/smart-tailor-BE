@@ -54,19 +54,28 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                 base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
             }
 
-            var material = materialService.findMaterialByID(UUID.fromString(partOfDesignRequest.getMaterialID()))
-                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
+            var partOfDesign =  PartOfDesign
+                    .builder()
+                    .design(design)
+                    .partOfDesignName(partOfDesignRequest.getPartOfDesignName())
+                    .imageUrl(base64ImageUrl)
+                    .successImageUrl(base64SuccessImageUrl)
+                    .build();
 
-            var partOfDesign = partOfDesignRepository.save(
-                    PartOfDesign
-                            .builder()
-                            .design(design)
-                            .partOfDesignName(partOfDesignRequest.getPartOfDesignName())
-                            .imageUrl(base64ImageUrl)
-                            .successImageUrl(base64SuccessImageUrl)
-                            .material(material)
-                            .build()
-            );
+
+            Material material = null;
+            if(Utilities.isStringNotNullOrEmpty(partOfDesignRequest.getMaterialID())){
+                if(!Utilities.isValidUUIDType(partOfDesignRequest.getMaterialID())){
+                    throw new BadRequestException("Invalid Type UUID of MaterialID: " + partOfDesignRequest.getMaterialID());
+                }
+
+                 material = materialService.findMaterialByID(UUID.fromString(partOfDesignRequest.getMaterialID())).
+                     orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + partOfDesignRequest.getMaterialID()));
+
+                partOfDesign.setMaterial(material);
+            }
+
+            var savedPartOfDesign = partOfDesignRepository.save(partOfDesign);
 
             if(Optional.ofNullable(partOfDesignRequest.getItemMask()).isEmpty()){
                 continue;
@@ -74,7 +83,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
             List<ItemMask> itemMaskList = null;
             try{
-                itemMaskList = itemMaskService.createItemMask(partOfDesign, partOfDesignRequest.getItemMask());
+                itemMaskList = itemMaskService.createItemMask(savedPartOfDesign, partOfDesignRequest.getItemMask());
             } catch (BadRequestException ex) {
                 logger.error("Bad Request Exception in create Item Mask {}",ex.getMessage());
                 throw new BadRequestException(ex.getMessage());
@@ -84,10 +93,10 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
             }
 
             // Set List Of ItemMask belong to PartOfDesign
-            partOfDesign.setItemMaskList(itemMaskList);
+            savedPartOfDesign.setItemMaskList(itemMaskList);
 
             // Add Correct PartOfDesign to ListPartOfDesign
-            partOfDesignList.add(partOfDesign);
+            partOfDesignList.add(savedPartOfDesign);
         }
         return partOfDesignList;
 

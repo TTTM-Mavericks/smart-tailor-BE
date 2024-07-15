@@ -2,6 +2,8 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
+import com.smart.tailor.entities.BrandMaterial;
+import com.smart.tailor.entities.BrandMaterialKey;
 import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.BrandMaterialMapper;
 import com.smart.tailor.repository.BrandMaterialRepository;
@@ -40,13 +42,11 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     public void createBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
         // Check If Brand Name is Existed
         var brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName())
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_BRAND));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandName: " + brandMaterialRequest.getBrandName()));
 
         // Check if Category and Material is Existed or not
-        var materialResponse = materialService.findByMaterialNameAndCategoryName(brandMaterialRequest.getMaterialName().toLowerCase(), brandMaterialRequest.getCategoryName().toLowerCase());
-        if (materialResponse == null) {
-            throw new ItemNotFoundException(MessageConstant.CATEGORY_AND_MATERIAL_IS_NOT_EXISTED);
-        }
+        var material = materialService.findByMaterialNameAndCategory_CategoryName(brandMaterialRequest.getMaterialName(), brandMaterialRequest.getCategoryName())
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialName: " + brandMaterialRequest.getMaterialName()));
 
         // Check Whether BrandMaterial is Existed or not
         // If Existed ==> Fail to Store Brand Material because Each Brand only enter one MaterialName belong to one CategoryName
@@ -67,11 +67,26 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
 
         if (brandPrice < lowerBound || brandPrice > upperBound) {
-            throw new BadRequestException(MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION);
+            throw new BadRequestException("Brand Price must be between " + lowerBound + " and " + upperBound);
         }
 
         // When All condition pass, store data to BrandMaterial
-        brandMaterialRepository.createBrandMaterial(brand.getBrandID(), materialResponse.getMaterialID(), brandMaterialRequest.getBrandPrice());
+        BrandMaterialKey brandMaterialKey = BrandMaterialKey
+                .builder()
+                .brandID(brand.getBrandID())
+                .materialID(material.getMaterialID())
+                .build();
+
+
+        brandMaterialRepository.save(
+                BrandMaterial
+                        .builder()
+                        .brandMaterialKey(brandMaterialKey)
+                        .material(material)
+                        .brand(brand)
+                        .brandPrice(brandPrice)
+                        .build()
+        );
     }
 
     @Override
@@ -90,7 +105,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         return brandMaterialRepository
                 .findAll()
                 .stream()
-                .filter(brandMaterial -> (brandMaterial.getBrandMaterialKey().getBrand().getBrandName().equalsIgnoreCase(brandName)))
+                .filter(brandMaterial -> (brandMaterial.getBrand().getBrandName().equalsIgnoreCase(brandName)))
                 .map(brandMaterialMapper::mapperToBrandMaterialResponse)
                 .toList();
     }

@@ -39,7 +39,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public Optional<Material> findByMaterialNameAndCategory_CategoryName(String materialName, String categoryName) {
         var category = categoryService.findByCategoryName(categoryName)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Category with CategoryName: " + categoryName));
 
         return materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialName, categoryName);
     }
@@ -236,8 +236,10 @@ public class MaterialServiceImpl implements MaterialService {
         String[] categoryNames = categoryService
                 .findAllCatgories()
                 .stream()
+                .filter(categoryResponse -> categoryResponse.getStatus())
                 .map(CategoryResponse::getCategoryName)
-                .toList().toArray(String[]::new);
+                .toList()
+                .toArray(String[]::new);
 
         excelExportService.exportSampleCategoryMaterial(response, categoryNames);
     }
@@ -255,7 +257,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public List<MaterialResponse> findListMaterialByCategoryID(UUID categoryID) {
         var category = categoryService.findCategoryOptionalByID(categoryID)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_CATEGORY));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Category with CategoryID: " + categoryID));
 
         return materialRepository
                 .findListMaterialByCategoryID(categoryID)

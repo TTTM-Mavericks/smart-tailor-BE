@@ -20,9 +20,6 @@ public class ItemMaskRequest {
 
     private String typeOfItem;
 
-    @NotEmpty(message = "materialID is not empty")
-    @NotBlank(message = "materialID is not blank")
-    @ValidStringUUID(message = "materialID is invalid of type UUID")
     private String materialID;
 
     @NotNull(message = "isSystemItem is required")

@@ -24,9 +24,6 @@ public class PartOfDesignRequest {
     @NotBlank(message = "PartOfDesign imageUrl is not blank")
     private String imageUrl;
 
-    @NotNull(message = "materialID is not null")
-    @NotBlank(message = "materialID is not blank")
-    @ValidStringUUID(message = "materialID is invalid of type UUID")
     private String materialID;
 
     private String successImageUrl;
