@@ -88,6 +88,21 @@ public class OrderController {
         }
     }
 
+    @GetMapping(OrderAPI.GET_ALL_ORDER + "/{parentID}")
+    public ResponseEntity<ObjectNode> getAllSubOrderByParentOrderID(@Valid @PathVariable("parentID") UUID parentID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+            var orderResponse = orderService.getSubOrderByParentID(parentID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
     @PutMapping(OrderAPI.CHANGE_STATUS_ORDER)
     public ResponseEntity<ObjectNode> chageOrderStatus(@Valid @RequestBody OrderStatusUpdateRequest orderRequest) {
         try {

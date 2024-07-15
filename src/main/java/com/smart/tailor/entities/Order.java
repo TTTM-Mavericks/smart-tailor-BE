@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +30,13 @@ public class Order extends AuditEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_order_id")
+    private Order parentOrder;
+
+    @OneToMany(mappedBy = "parentOrder", cascade = CascadeType.ALL)
+    private Set<Order> subOrders;
 
     private Integer quantity;
 
@@ -68,4 +77,7 @@ public class Order extends AuditEntity implements Serializable {
 
     @Column(name = "product_completion_date")
     private LocalDateTime productionCompletionDate;
+
+    @OneToMany(mappedBy = "order")
+    private List<DesignDetail> detailList;
 }

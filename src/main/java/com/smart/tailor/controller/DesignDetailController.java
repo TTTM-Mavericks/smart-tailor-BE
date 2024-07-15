@@ -37,11 +37,21 @@ public class DesignDetailController {
     }
 
     @GetMapping(DesignDetailAPI.GET_ALL_DESIGN_DETAIL_BY_ORDER_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getAllDesignDetailByDesignID(@ValidUUID @PathVariable("orderID") UUID designID) {
-        var designDetailResponseList = designDetailService.findAllByOrderID(designID);
+    public ResponseEntity<ObjectNode> getAllDesignDetailByDesignID(@ValidUUID @PathVariable("orderID") UUID orderID) {
+        var designDetailResponseList = designDetailService.findAllByOrderID(orderID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.GET_ALL_DESIGN_DETAIL_BY_ORDER_ID_SUCCESSFULLY);
+        response.set("data", objectMapper.valueToTree(designDetailResponseList));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(DesignDetailAPI.GET_DESIGN_DETAIL_BY_ID + "/{detailID}")
+    public ResponseEntity<ObjectNode> getDesignDetailByDesignID(@ValidUUID @PathVariable("detailID") UUID detailID) {
+        var designDetailResponseList = designDetailService.findByID(detailID);
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.GET_DESIGN_DETAIL_BY_ID_SUCCESSFULLY);
         response.set("data", objectMapper.valueToTree(designDetailResponseList));
         return ResponseEntity.ok(response);
     }

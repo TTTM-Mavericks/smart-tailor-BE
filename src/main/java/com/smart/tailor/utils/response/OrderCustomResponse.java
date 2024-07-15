@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -32,4 +33,5 @@ public class OrderCustomResponse {
     private LocalDateTime estimatedDeliveryDate;
     private LocalDateTime productionStartDate;
     private LocalDateTime productionCompletionDate;
+    private List<DesignDetailResponse> detailList;
 }

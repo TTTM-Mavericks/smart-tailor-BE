@@ -13,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderRequest {
+    private UUID parentOrderID;
     private UUID designID;
     private Integer quantity;
     private String orderType;

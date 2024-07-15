@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface DesignDetailService {
     DesignDetailCustomResponse findAllByOrderID(UUID orderID);
 
+    DesignDetailResponse findByID(UUID orderID);
+
     APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
 
 //    DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID size);
