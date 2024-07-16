@@ -14,11 +14,6 @@ import java.util.UUID;
 public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, BrandMaterialKey> {
     @Modifying
     @Transactional
-    @Query(value = "insert into brand_material (brand_id, material_id, brand_price, create_date, last_modified_date) values (?1, ?2, ?3, current_timestamp, null)", nativeQuery = true)
-    void createBrandMaterial(UUID brandID, UUID materialID, Double brandPrice);
-
-    @Modifying
-    @Transactional
     @Query(value = "update brand_material set brand_price = ?1, last_modified_date = current_timestamp where brand_id = ?2 and material_id = ?3", nativeQuery = true)
     void updateBrandMaterial(Double brandPrice, UUID brandID, UUID materialID);
 
@@ -26,7 +21,7 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
             value = "select bm.* from brand_material bm join brand b on bm.brand_id = b.brand_id " +
                     "join material m on m.material_id = bm.material_id " +
                     "join category c on c.category_id = m.category_id " +
-                    "where c.category_name = ?1 and m.material_name = ?2 and b.brand_name = ?3", nativeQuery = true
+                    "where c.category_name = ?1 && m.material_name = ?2 && b.brand_name = ?3", nativeQuery = true
     )
     BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandName(String categoryName, String materialName, String brandName);
 
@@ -35,4 +30,15 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
 
     @Query(value = "SELECT MAX(brand_price) FROM brand_material where material_id =?1", nativeQuery = true)
     Double getMaxPriceByMaterialID(UUID materialID);
+
+    @Query(
+            value = "select bm.* from brand_material bm join brand b on bm.brand_id = b.brand_id " +
+                    "join material m on m.material_id = bm.material_id " +
+                    "join category c on c.category_id = m.category_id " +
+                    "where c.category_name = ?1 && m.material_name = ?2 && b.brand_name = ?3 and m.hs_code = ?4 && " +
+                    "m.unit = ?5 && m.base_price = ?6 && bm.brand_price = ?7", nativeQuery = true
+    )
+    BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandNameAndHsCodeAndPrice(
+            String categoryName, String materialName, String brandName, Long hsCode,
+            String unit, Double basePrice, Double brandPrice);
 }

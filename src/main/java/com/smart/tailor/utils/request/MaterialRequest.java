@@ -32,4 +32,13 @@ public class MaterialRequest {
     @NotNull(message = "basePrice is required")
     @Min(value = 0, message = "basePrice can not less than 0")
     private Double basePrice;
+
+    @Override
+    public String toString() {
+        return  "categoryName='" + categoryName + '\'' +
+                ", materialName='" + materialName + '\'' +
+                ", hsCode=" + hsCode +
+                ", unit='" + unit + '\'' +
+                ", basePrice=" + basePrice ;
+    }
 }
