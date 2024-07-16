@@ -1,7 +1,5 @@
 package com.smart.tailor;
 
-import com.smart.tailor.entities.ExpertTailoring;
-import com.smart.tailor.entities.Roles;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.BrandStatus;
 import com.smart.tailor.enums.Provider;
@@ -32,31 +30,31 @@ public class SmartTailorBeApplication {
 
     }
 
+//    @Order(value = 1)
+//    @Bean
+//    public CommandLineRunner createRoles(RoleService roleService) {
+//        return args -> {
+//            if (roleService.findAllRole().size() == 0) {
+//
+//                Roles customerRole = Roles.builder().roleName("CUSTOMER").build();
+//                Roles adminRole = Roles.builder().roleName("ADMIN").build();
+//                Roles managerRole = Roles.builder().roleName("MANAGER").build();
+//                Roles employeeRole = Roles.builder().roleName("EMPLOYEE").build();
+//                Roles accountantRole = Roles.builder().roleName("ACCOUNTANT").build();
+//                Roles brandRole = Roles.builder().roleName("BRAND").build();
+//
+//                roleService.createRole(customerRole);
+//                roleService.createRole(adminRole);
+//                roleService.createRole(managerRole);
+//                roleService.createRole(employeeRole);
+//                roleService.createRole(accountantRole);
+//                roleService.createRole(brandRole);
+//
+//            }
+//        };
+//    }
+
     @Order(value = 1)
-    @Bean
-    public CommandLineRunner createRoles(RoleService roleService) {
-        return args -> {
-            if (roleService.findAllRole().size() == 0) {
-
-                Roles customerRole = Roles.builder().roleName("CUSTOMER").build();
-                Roles adminRole = Roles.builder().roleName("ADMIN").build();
-                Roles managerRole = Roles.builder().roleName("MANAGER").build();
-                Roles employeeRole = Roles.builder().roleName("EMPLOYEE").build();
-                Roles accountantRole = Roles.builder().roleName("ACCOUNTANT").build();
-                Roles brandRole = Roles.builder().roleName("BRAND").build();
-
-                roleService.createRole(customerRole);
-                roleService.createRole(adminRole);
-                roleService.createRole(managerRole);
-                roleService.createRole(employeeRole);
-                roleService.createRole(accountantRole);
-                roleService.createRole(brandRole);
-
-            }
-        };
-    }
-
-    @Order(value = 2)
     @Bean
     public CommandLineRunner createBasicAccount(RoleService roleService,
                                                 UserRepository userRepository,
@@ -86,147 +84,129 @@ public class SmartTailorBeApplication {
         };
     }
 
-    @Order(value = 3)
-    @Bean
-    public CommandLineRunner createExpertTailoring(ExpertTailoringRepository expertTailoringRepository) {
-        return args -> {
-            if (expertTailoringRepository.findAll().size() == 0) {
+//    @Order(value = 2)
+//    @Bean
+//    public CommandLineRunner createExpertTailoring(ExpertTailoringRepository expertTailoringRepository) {
+//        return args -> {
+//            if (expertTailoringRepository.findAll().size() == 0) {
 //                expertTailoringRepository.save(ExpertTailoring
 //                        .builder()
-//                        .expertTailoringName("EMBROIDER")
-//                        .sizeImageUrl("EMBROIDER IMAGE URL")
-//                        .modelImageUrl("EMBROIDER MODEL URL")
+//                        .expertTailoringName("shirtModel")
+//                        .sizeImageUrl("IMAGE URL")
+//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/mplmusqeleocefrsqrzf.png")
 //                        .status(true)
 //                        .build()
 //                );
 //
 //                expertTailoringRepository.save(ExpertTailoring
 //                        .builder()
-//                        .expertTailoringName("SEW")
-//                        .sizeImageUrl("SEW IMAGE URL")
-//                        .modelImageUrl("SEW MODEL URL")
+//                        .expertTailoringName("hoodieModel")
+//                        .sizeImageUrl("IMAGE URL")
+//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/kn5egywxx2qj4wwzwxts.png")
 //                        .status(true)
 //                        .build()
 //                );
+//
+//                expertTailoringRepository.save(ExpertTailoring
+//                        .builder()
+//                        .expertTailoringName("longSkirtModel")
+//                        .sizeImageUrl("IMAGE URL")
+//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/qf9prnqsfwofv9khp3cr.png")
+//                        .status(true)
+//                        .build()
+//                );
+//
+//                expertTailoringRepository.save(ExpertTailoring
+//                        .builder()
+//                        .expertTailoringName("skirtFullModel")
+//                        .sizeImageUrl("IMAGE URL")
+//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/wibukocpklimkobvv5sa.png")
+//                        .status(true)
+//                        .build()
+//                );
+//
+//                expertTailoringRepository.save(ExpertTailoring
+//                        .builder()
+//                        .expertTailoringName("womenSkirtTopModel")
+//                        .sizeImageUrl("IMAGE URL")
+//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/bwzhszbvmtqckax4oomk.png")
+//                        .status(true)
+//                        .build()
+//                );
+//
+//                expertTailoringRepository.save(ExpertTailoring
+//                        .builder()
+//                        .expertTailoringName("womenSkirtBottomModel")
+//                        .sizeImageUrl("IMAGE URL")
+//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/jfsmttronovmyw9xz2cg.png")
+//                        .status(true)
+//                        .build()
+//                );
+//            }
+//        };
+//    }
 
-                expertTailoringRepository.save(ExpertTailoring
-                        .builder()
-                        .expertTailoringName("shirtModel")
-                        .sizeImageUrl("IMAGE URL")
-                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/mplmusqeleocefrsqrzf.png")
-                        .status(true)
-                        .build()
-                );
-
-                expertTailoringRepository.save(ExpertTailoring
-                        .builder()
-                        .expertTailoringName("hoodieModel")
-                        .sizeImageUrl("IMAGE URL")
-                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/kn5egywxx2qj4wwzwxts.png")
-                        .status(true)
-                        .build()
-                );
-
-                expertTailoringRepository.save(ExpertTailoring
-                        .builder()
-                        .expertTailoringName("longSkirtModel")
-                        .sizeImageUrl("IMAGE URL")
-                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/qf9prnqsfwofv9khp3cr.png")
-                        .status(true)
-                        .build()
-                );
-
-                expertTailoringRepository.save(ExpertTailoring
-                        .builder()
-                        .expertTailoringName("skirtFullModel")
-                        .sizeImageUrl("IMAGE URL")
-                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/wibukocpklimkobvv5sa.png")
-                        .status(true)
-                        .build()
-                );
-
-                expertTailoringRepository.save(ExpertTailoring
-                        .builder()
-                        .expertTailoringName("womenSkirtTopModel")
-                        .sizeImageUrl("IMAGE URL")
-                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/bwzhszbvmtqckax4oomk.png")
-                        .status(true)
-                        .build()
-                );
-
-                expertTailoringRepository.save(ExpertTailoring
-                        .builder()
-                        .expertTailoringName("womenSkirtBottomModel")
-                        .sizeImageUrl("IMAGE URL")
-                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/jfsmttronovmyw9xz2cg.png")
-                        .status(true)
-                        .build()
-                );
-            }
-        };
-    }
-
-    @Order(value = 4)
-    @Bean
-    public CommandLineRunner createSampleBrand(UserRepository userRepository,
-                                               BrandRepository brandRepository,
-                                               PasswordEncoder passwordEncoder,
-                                               RoleRepository roleRepository,
-                                               ExpertTailoringRepository expertTailoringRepository,
-                                               BrandExpertTailoringRepository brandExpertTailoringRepository) {
-        return args -> {
-            if (brandRepository.findAll().size() == 0) {
-                User brandSample1 = userRepository.save(User.builder()
-                        .email("lalisa@example.com")
-                        .password(passwordEncoder.encode("HASH_PASSWORD"))
-                        .phoneNumber(Utilities.generateRandomNumber())
-                        .userStatus(UserStatus.ACTIVE)
-                        .provider(Provider.LOCAL)
-                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
-                        .build()
-                );
-
-                User brandSample2 = userRepository.save(User.builder()
-                        .email("goyounjung@example.com")
-                        .password(passwordEncoder.encode("HASH_PASSWORD"))
-                        .phoneNumber(Utilities.generateRandomNumber())
-                        .userStatus(UserStatus.ACTIVE)
-                        .provider(Provider.LOCAL)
-                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
-                        .build()
-                );
-
-//                User customerSample1 = userRepository.save(User.builder()
-//                        .email("customersample1@example.com")
+//    @Order(value = 2)
+//    @Bean
+//    public CommandLineRunner createSampleBrand(UserRepository userRepository,
+//                                               BrandRepository brandRepository,
+//                                               PasswordEncoder passwordEncoder,
+//                                               RoleRepository roleRepository,
+//                                               ExpertTailoringRepository expertTailoringRepository,
+//                                               BrandExpertTailoringRepository brandExpertTailoringRepository) {
+//        return args -> {
+//            if (brandRepository.findAll().size() == 0) {
+//                User brandSample1 = userRepository.save(User.builder()
+//                        .email("lalisa@example.com")
 //                        .password(passwordEncoder.encode("HASH_PASSWORD"))
 //                        .phoneNumber(Utilities.generateRandomNumber())
 //                        .userStatus(UserStatus.ACTIVE)
 //                        .provider(Provider.LOCAL)
-//                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
+//                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
 //                        .build()
 //                );
+//
+//                User brandSample2 = userRepository.save(User.builder()
+//                        .email("goyounjung@example.com")
+//                        .password(passwordEncoder.encode("HASH_PASSWORD"))
+//                        .phoneNumber(Utilities.generateRandomNumber())
+//                        .userStatus(UserStatus.ACTIVE)
+//                        .provider(Provider.LOCAL)
+//                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
+//                        .build()
+//                );
+//
+////                User customerSample1 = userRepository.save(User.builder()
+////                        .email("customersample1@example.com")
+////                        .password(passwordEncoder.encode("HASH_PASSWORD"))
+////                        .phoneNumber(Utilities.generateRandomNumber())
+////                        .userStatus(UserStatus.ACTIVE)
+////                        .provider(Provider.LOCAL)
+////                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
+////                        .build()
+////                );
+//
+//                brandRepository.createShortBrand(brandSample1.getUserID(), "LA LA LISA BRAND", BrandStatus.ACCEPT.name());
+//                brandRepository.createShortBrand(brandSample2.getUserID(), "GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
+//
+//                var brandLALALISA = brandRepository.findBrandByBrandName("LA LA LISA BRAND");
+//                var brandGOYOUNJUNG = brandRepository.findBrandByBrandName("GO YOUN JUNG BRAND");
+//                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("shirtModel").get();
+//                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("hoodieModel").get();
+//                brandExpertTailoringRepository.createShortBrandExpertTailoring(
+//                        brandLALALISA.get().getBrandID(),
+//                        sewExpertTailoring.getExpertTailoringID()
+//                );
+//
+//                brandExpertTailoringRepository.createShortBrandExpertTailoring(
+//                        brandGOYOUNJUNG.get().getBrandID(),
+//                        embroiderExpertTailoring.getExpertTailoringID()
+//                );
+//            }
+//        };
+//    }
 
-                brandRepository.createShortBrand(brandSample1.getUserID(), "LA LA LISA BRAND", BrandStatus.ACCEPT.name());
-                brandRepository.createShortBrand(brandSample2.getUserID(), "GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
-
-                var brandLALALISA = brandRepository.findBrandByBrandName("LA LA LISA BRAND");
-                var brandGOYOUNJUNG = brandRepository.findBrandByBrandName("GO YOUN JUNG BRAND");
-                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("shirtModel").get();
-                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("hoodieModel").get();
-                brandExpertTailoringRepository.createShortBrandExpertTailoring(
-                        brandLALALISA.get().getBrandID(),
-                        sewExpertTailoring.getExpertTailoringID()
-                );
-
-                brandExpertTailoringRepository.createShortBrandExpertTailoring(
-                        brandGOYOUNJUNG.get().getBrandID(),
-                        embroiderExpertTailoring.getExpertTailoringID()
-                );
-            }
-        };
-    }
-
-    @Order(value = 5)
+    @Order(value = 2)
     @Bean
     public CommandLineRunner createSystemImage(SystemImageService systemImageService) {
         return args -> {
