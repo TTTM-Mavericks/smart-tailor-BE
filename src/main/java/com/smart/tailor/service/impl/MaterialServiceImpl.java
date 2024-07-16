@@ -122,18 +122,7 @@ public class MaterialServiceImpl implements MaterialService {
                     if (cell == null || cell.getCellType() == CellType.BLANK) {
                         inValidData = true;
                         rowDataValid = false;
-
                         errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty!");
-//                        cellErrorResponses.add(
-//                                CellErrorResponse
-//                                        .builder()
-//                                        .rowIndex(rowIndex + 1)
-//                                        .cellIndex(cellIndex + 1)
-//                                        .cellName(getCellNameForCategoryMaterial(cellIndex))
-//                                        .data("")
-//                                        .message(MessageConstant.DATA_IS_EMPTY)
-//                                        .build()
-//                        );
                     } else {
                         switch (cellIndex) {
                             case 0:
@@ -143,16 +132,6 @@ public class MaterialServiceImpl implements MaterialService {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
-//                                    cellErrorResponses.add(
-//                                            CellErrorResponse
-//                                                    .builder()
-//                                                    .rowIndex(rowIndex + 1)
-//                                                    .cellIndex(cellIndex + 1)
-//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
-//                                                    .data(cell.toString())
-//                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
-//                                                    .build()
-//                                    );
                                 }
                                 break;
                             case 1:
@@ -162,16 +141,6 @@ public class MaterialServiceImpl implements MaterialService {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
-//                                    cellErrorResponses.add(
-//                                            CellErrorResponse
-//                                                    .builder()
-//                                                    .rowIndex(rowIndex + 1)
-//                                                    .cellIndex(cellIndex + 1)
-//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
-//                                                    .data(cell.toString())
-//                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
-//                                                    .build()
-//                                    );
                                 }
                                 break;
                             case 2:
@@ -202,16 +171,6 @@ public class MaterialServiceImpl implements MaterialService {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
-//                                    cellErrorResponses.add(
-//                                            CellErrorResponse
-//                                                    .builder()
-//                                                    .rowIndex(rowIndex + 1)
-//                                                    .cellIndex(cellIndex + 1)
-//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
-//                                                    .message(message)
-//                                                    .data(cell.toString())
-//                                                    .build()
-//                                    );
                                 }
                                 break;
                             case 3:
@@ -221,16 +180,6 @@ public class MaterialServiceImpl implements MaterialService {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
-//                                    cellErrorResponses.add(
-//                                            CellErrorResponse
-//                                                    .builder()
-//                                                    .rowIndex(rowIndex + 1)
-//                                                    .cellIndex(cellIndex + 1)
-//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
-//                                                    .data(cell.toString())
-//                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
-//                                                    .build()
-//                                    );
                                 }
                                 break;
                             case 4:
@@ -261,16 +210,6 @@ public class MaterialServiceImpl implements MaterialService {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
-//                                    cellErrorResponses.add(
-//                                            CellErrorResponse
-//                                                    .builder()
-//                                                    .rowIndex(rowIndex + 1)
-//                                                    .cellIndex(cellIndex + 1)
-//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
-//                                                    .message(message)
-//                                                    .data(cell.toString())
-//                                                    .build()
-//                                    );
                                 }
                                 break;
                             default:
@@ -286,8 +225,6 @@ public class MaterialServiceImpl implements MaterialService {
                 }
                 rowIndex++;
             }
-
-//            var excelData = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
 
             if (materialRequests.isEmpty()) {
                 throw new BadRequestException("Category and Material Excel File Has Empty Data");
