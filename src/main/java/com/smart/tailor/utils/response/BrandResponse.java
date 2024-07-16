@@ -23,5 +23,8 @@ public class BrandResponse {
     private String accountName;
     private String QR_Payment;
     private String address;
+    private String province;
+    private String district;
+    private String ward;
     private Integer numberOfViolations;
 }
