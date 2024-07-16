@@ -2,26 +2,22 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.LaborQuantity;
-import com.smart.tailor.exception.BadRequestException;
-import com.smart.tailor.exception.DuplicateDataException;
-import com.smart.tailor.exception.ItemAlreadyExistException;
-import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.LaborQuantityMapper;
 import com.smart.tailor.repository.LaborQuantityRepository;
 import com.smart.tailor.service.LaborQuantityService;
 import com.smart.tailor.utils.request.LaborQuantityRequest;
 import com.smart.tailor.utils.request.LaborQuantityRequestList;
+import com.smart.tailor.utils.response.ErrorDetail;
 import com.smart.tailor.utils.response.LaborQuantityResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,48 +27,65 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
     private final LaborQuantityMapper laborQuantityMapper;
     private final Logger logger = LoggerFactory.getLogger(LaborQuantityServiceImpl.class);
 
-    @Transactional
     @Override
     public void createLaborQuantity(LaborQuantityRequestList laborQuantityRequestList) {
-        List<Object> duplicateData = new ArrayList<>();
-        if(!checkValidLaborQuantityRange(laborQuantityRequestList.getLaborQuantityRequests())){
-            throw new BadRequestException("Labor Quantity Can not intersect with Another Range Labor Quantity");
+        List<ErrorDetail> errorDetails = new ArrayList<>();
+        var laborQuantityRequests = laborQuantityRequestList.getLaborQuantityRequests();
+        Collections.sort(laborQuantityRequests, new Comparator<LaborQuantityRequest>() {
+            @Override
+            public int compare(LaborQuantityRequest o1, LaborQuantityRequest o2) {
+                int compareMinQuantity = o1.getLaborQuantityMinQuantity().compareTo(o2.getLaborQuantityMinQuantity());
+                if(compareMinQuantity != 0){
+                    return compareMinQuantity;
+                } else {
+                    return o1.getLaborQuantityMaxQuantity().compareTo(o2.getLaborQuantityMaxQuantity());
+                }
+            }
+        });
+
+        if(!checkValidLaborQuantityRange(laborQuantityRequests)){
+            errorDetails.add(new ErrorDetail("Labor Quantity Can not intersect with Another Range Labor Quantity"));
         }
-        for(LaborQuantityRequest laborQuantityRequest : laborQuantityRequestList.getLaborQuantityRequests()){
+
+        for(LaborQuantityRequest laborQuantityRequest : laborQuantityRequests){
+            List<String> errors = new ArrayList<>();
             Integer laborQuantityMinQuantity = laborQuantityRequest.getLaborQuantityMinQuantity();
             Integer laborQuantityMaxQuantity = laborQuantityRequest.getLaborQuantityMaxQuantity();
             Double laborQuantityMinPrice = laborQuantityRequest.getLaborQuantityMinPrice();
             Double laborQuantityMaxPrice = laborQuantityRequest.getLaborQuantityMaxPrice();
 
             if(laborQuantityMinQuantity >= laborQuantityMaxQuantity){
-                throw new BadRequestException("Min Quantity Can Not Greater Than Max Quantity");
+                errors.add("Min Quantity Can Not Greater Than Max Quantity");
             }
 
             if(laborQuantityMinPrice > laborQuantityMaxPrice){
-                throw new BadRequestException("Min Price Can Not Greater Than Max Price");
+                errors.add("Min Price Can Not Greater Than Max Price");
             }
 
             var laborQuantity = laborQuantityRepository.findByLaborQuantityMinQuantityAndLaborQuantityMaxQuantity(laborQuantityMinQuantity, laborQuantityMaxQuantity);
             if (laborQuantity.isPresent()){
-                duplicateData.add(laborQuantityRequest);
-                continue;
+                errors.add("Labor Quantity is existed with MinQuantity: " + laborQuantityMinQuantity + " and MaxQuantity:" + laborQuantityMaxQuantity);
             }
-            if (!duplicateData.isEmpty()) continue;
 
-            laborQuantityRepository.save(
-                    LaborQuantity
-                            .builder()
-                            .laborQuantityMinQuantity(laborQuantityMinQuantity)
-                            .laborQuantityMaxQuantity(laborQuantityMaxQuantity)
-                            .laborQuantityMinPrice(laborQuantityMinPrice)
-                            .laborQuantityMaxPrice(laborQuantityMaxPrice)
-                            .status(true)
-                            .build()
-            );
+            if(!errors.isEmpty()){
+                errorDetails.add(new ErrorDetail(laborQuantityRequest, errors));
+            }
+            else{
+                laborQuantityRepository.save(
+                        LaborQuantity
+                                .builder()
+                                .laborQuantityMinQuantity(laborQuantityMinQuantity)
+                                .laborQuantityMaxQuantity(laborQuantityMaxQuantity)
+                                .laborQuantityMinPrice(laborQuantityMinPrice)
+                                .laborQuantityMaxPrice(laborQuantityMaxPrice)
+                                .status(true)
+                                .build()
+                );
+            }
         }
 
-        if (!duplicateData.isEmpty()){
-            throw new DuplicateDataException(MessageConstant.LABOR_QUANTITY_IS_EXISTED, duplicateData);
+        if (!errorDetails.isEmpty()){
+            throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Labor Quantity", errorDetails);
         }
     }
 
@@ -138,12 +151,16 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
 
     private boolean checkValidLaborQuantityRange(List<LaborQuantityRequest> laborQuantityRequests){
         boolean check = true;
+        List<Integer> errorIndex = new ArrayList<>();
         for(int i = 1; i < laborQuantityRequests.size(); ++i){
             Integer prev_l = laborQuantityRequests.get(i - 1).getLaborQuantityMinQuantity();
             Integer prev_r = laborQuantityRequests.get(i - 1).getLaborQuantityMaxQuantity();
             Integer curr_l = laborQuantityRequests.get(i).getLaborQuantityMinQuantity();
             Integer curr_r = laborQuantityRequests.get(i).getLaborQuantityMaxQuantity();
-            if(prev_r < curr_l || prev_l > curr_r) continue;
+            if(prev_r < curr_l || prev_l > curr_r) {
+                errorIndex.add(i);
+                errorIndex.add(i - 1);
+            }
             else check = false;
         }
         return check;

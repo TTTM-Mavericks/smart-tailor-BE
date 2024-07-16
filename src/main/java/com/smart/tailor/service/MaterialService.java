@@ -46,4 +46,6 @@ public interface MaterialService {
     List<MaterialWithPriceResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
 
     Boolean isExistedMaterial(MaterialRequest materialRequest);
+
+    List<Material> findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName);
 }

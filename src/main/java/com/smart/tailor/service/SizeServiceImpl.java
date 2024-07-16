@@ -9,6 +9,7 @@ import com.smart.tailor.mapper.SizeMapper;
 import com.smart.tailor.repository.SizeRepository;
 import com.smart.tailor.utils.request.ListSizeRequest;
 import com.smart.tailor.utils.request.SizeRequest;
+import com.smart.tailor.utils.response.ErrorDetail;
 import com.smart.tailor.utils.response.SizeResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,27 +32,30 @@ public class SizeServiceImpl implements SizeService{
     private final SizeMapper sizeMapper;
     private final Logger logger = LoggerFactory.getLogger(SizeServiceImpl.class);
 
-    @Transactional
     @Override
     public void createSize(ListSizeRequest listSizeRequest) {
-        List<Object> duplicateData = new ArrayList<>();
+        List<Object> errorDetails = new ArrayList<>();
         for(SizeRequest sizeRequest : listSizeRequest.getSizeRequestList()){
+            String errorMessage = null;
             var sizeExisted = sizeRepository.findBySizeName(sizeRequest.getSizeName().toUpperCase());
             if(sizeExisted.isPresent()){
-                duplicateData.add(sizeRequest);
-                continue;
+                errorMessage = "Size is existed with Size Name: " + sizeRequest.getSizeName();
             }
-            if(!duplicateData.isEmpty()) continue;
-            sizeRepository.save(
-                    Size
-                        .builder()
-                        .sizeName(sizeRequest.getSizeName().toUpperCase())
-                        .status(true)
-                        .build()
-            );
+
+            if(errorMessage != null){
+                errorDetails.add(new ErrorDetail(sizeRequest, errorMessage));
+            } else {
+                sizeRepository.save(
+                        Size
+                                .builder()
+                                .sizeName(sizeRequest.getSizeName().toUpperCase())
+                                .status(true)
+                                .build()
+                );
+            }
         }
-        if(!duplicateData.isEmpty()){
-            throw new DuplicateDataException(MessageConstant.SIZE_IS_EXISTED, duplicateData);
+        if(!errorDetails.isEmpty()){
+            throw new DuplicateDataException(MessageConstant.SIZE_IS_EXISTED, errorDetails);
         }
     }
 
@@ -68,12 +72,12 @@ public class SizeServiceImpl implements SizeService{
     @Override
     public void updateSize(UUID sizeID, SizeRequest sizeRequest) {
         var currentSize = sizeRepository.findById(sizeID)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find any Size with SizeID: " + sizeID));
 
         var sizeExisted = sizeRepository.findBySizeName(sizeRequest.getSizeName().toUpperCase());
         if(sizeExisted.isPresent()){
             if(!sizeExisted.get().getSizeID().toString().equals(currentSize.getSizeID().toString())){
-                throw new ItemAlreadyExistException(MessageConstant.SIZE_IS_EXISTED);
+                throw new ItemAlreadyExistException("Size is existed with SizeName: " + sizeRequest.getSizeName());
             }
         }
         sizeRepository.save(
