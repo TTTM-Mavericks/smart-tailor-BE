@@ -4,12 +4,14 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
 import com.smart.tailor.entities.BrandMaterial;
 import com.smart.tailor.entities.BrandMaterialKey;
+import com.smart.tailor.entities.Material;
 import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.BrandMaterialMapper;
 import com.smart.tailor.repository.BrandMaterialRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
+import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
 import jakarta.transaction.Transactional;
@@ -138,31 +140,87 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
             }
 
-            List<Object> invalidData = new ArrayList<>();
-
+            List<ErrorDetail> errorFields = new ArrayList<>();
             for (BrandMaterialRequest brandMaterialRequest : uniqueExcelData) {
-                try {
-                    createBrandMaterial(brandMaterialRequest);
+                List<String> errors = new ArrayList<>();
+                var brand = brandService.findBrandByBrandName(brandMaterialRequest.getBrandName()).orElse(null);
+                if(brand == null){
+                    errors.add("Can not find Brand with BrandName: " + brandMaterialRequest.getBrandName());
+                }
+                try{
+                     var material = materialService.findByMaterialNameAndCategory_CategoryName(brandMaterialRequest.getMaterialName(),
+                             brandMaterialRequest.getCategoryName());
+
+                    if(material.isEmpty()){
+                        errors.add("Can not find Material with MaterialName: " + brandMaterialRequest.getMaterialName());
+                    }
+
+                    var existedFullMaterial =  materialService.isExistedMaterial(
+                            MaterialRequest
+                                    .builder()
+                                    .materialName(brandMaterialRequest.getMaterialName())
+                                    .categoryName(brandMaterialRequest.getCategoryName())
+                                    .hsCode(brandMaterialRequest.getHsCode())
+                                    .unit(brandMaterialRequest.getUnit())
+                                    .basePrice(brandMaterialRequest.getBasePrice())
+                                    .build()
+                    );
+
+                    if(!existedFullMaterial){{
+                        errors.add("Can not find Material Information with Material Information");
+                    }}
+
+                    var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandName(brandMaterialRequest.getCategoryName(),
+                            brandMaterialRequest.getMaterialName(), brandMaterialRequest.getBrandName());
+
+                    if (brandMaterialExisted != null && brandMaterialExisted.getBrandPrice().equals(brandMaterialRequest.getBrandPrice())) {
+                        errors.add(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
+                    }
+
+                    double basePrice = brandMaterialRequest.getBasePrice();
+                    double brandPrice = brandMaterialRequest.getBrandPrice();
+                    double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
+
+                    double lowerBound = basePrice * (1 - percentageFluctuation);
+                    double upperBound = basePrice * (1 + percentageFluctuation);
+
+                    brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
+                    lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
+                    upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
+
+                    if (brandPrice < lowerBound || brandPrice > upperBound) {
+                        errors.add("Brand Price must be between " + lowerBound + " and " + upperBound);
+                    }
+
+                    if(errors.size() > 0){
+                        errorFields.add(new ErrorDetail(brandMaterialRequest, errors));
+                    }
+                    else{
+                        BrandMaterialKey brandMaterialKey = BrandMaterialKey
+                                .builder()
+                                .brandID(brand.getBrandID())
+                                .materialID(material.get().getMaterialID())
+                                .build();
+
+
+                        brandMaterialRepository.save(
+                                BrandMaterial
+                                        .builder()
+                                        .brandMaterialKey(brandMaterialKey)
+                                        .material(material.get())
+                                        .brand(brand)
+                                        .brandPrice(brandPrice)
+                                        .build()
+                        );
+                    }
+
                 } catch (ItemNotFoundException ex) {
-                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.CAN_NOT_FIND_BRAND;
-                    logger.error("Error creating BrandMaterial: Item not found - {}", errorMessage, ex);
-                    invalidData.add(new ErrorDetail(brandMaterialRequest, errorMessage));
-                } catch (ItemAlreadyExistException ex) {
-                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.BRAND_MATERIAL_IS_EXISTED;
-                    logger.error("Error creating BrandMaterial: Already exists - {}", errorMessage, ex);
-                    invalidData.add(new ErrorDetail(brandMaterialRequest, errorMessage));
-                } catch (BadRequestException ex) {
-                    String errorMessage = ex.getMessage() != null ? ex.getMessage() : MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION;
-                    logger.error("Error creating BrandMaterial: Bad request - {}", errorMessage, ex);
-                    invalidData.add(new ErrorDetail(brandMaterialRequest, errorMessage));
-                } catch (Exception ex) {
-                    logger.error("Error creating BrandMaterial - {}", ex.getMessage());
-                    invalidData.add(new ErrorDetail(brandMaterialRequest, ex.getMessage()));
+                    errors.add(ex.getMessage());
                 }
             }
 
-            if (!invalidData.isEmpty()) {
-                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", invalidData);
+            if (!errorFields.isEmpty()) {
+                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", errorFields);
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);

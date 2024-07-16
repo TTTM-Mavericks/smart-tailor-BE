@@ -8,14 +8,16 @@ import com.smart.tailor.repository.MaterialRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.MaterialRequest;
-import com.smart.tailor.utils.response.CategoryResponse;
-import com.smart.tailor.utils.response.ErrorDetail;
-import com.smart.tailor.utils.response.MaterialResponse;
-import com.smart.tailor.utils.response.MaterialWithPriceResponse;
+import com.smart.tailor.utils.response.*;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -70,7 +72,8 @@ public class MaterialServiceImpl implements MaterialService {
         );
     }
 
-    private Boolean materialDuplicate(MaterialRequest materialRequest)
+    @Override
+    public Boolean isExistedMaterial(MaterialRequest materialRequest)
     {
         return materialRepository.existsByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCaseAndHsCodeAndUnitIgnoreCaseAndBasePrice(
                 materialRequest.getMaterialName(),
@@ -88,30 +91,212 @@ public class MaterialServiceImpl implements MaterialService {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
-            var excelData = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
+            List<MaterialRequest> materialRequests = new ArrayList<>();
+            XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+            XSSFSheet sheet = workbook.getSheet("Category and Material");
 
-            if (excelData.isEmpty()) {
+            if (sheet == null) {
+                throw new ExcelFileNotSupportException(MessageConstant.WRONG_TYPE_OF_CATEGORY_AND_MATERIAL_EXCEL_FILE);
+            }
+            logger.info("Inside getCategoryMaterialDataFromExcel Method");
+
+            boolean inValidData = false;
+            List<ErrorDetail> errorFields = new ArrayList<>();
+
+            int rowIndex = 2;
+            while (rowIndex <= sheet.getLastRowNum()) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || isRowCompletelyEmptyForCategoryMaterial(row)) {
+                    rowIndex++;
+                    continue;
+                }
+
+                List<String> errors = new ArrayList<>();
+                MaterialRequest materialRequest = new MaterialRequest();
+                boolean rowDataValid = true;
+                boolean isValid = false;
+                String message = "";
+                double numericValue = -1;
+                for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+                    Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        inValidData = true;
+                        rowDataValid = false;
+
+                        errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty!");
+//                        cellErrorResponses.add(
+//                                CellErrorResponse
+//                                        .builder()
+//                                        .rowIndex(rowIndex + 1)
+//                                        .cellIndex(cellIndex + 1)
+//                                        .cellName(getCellNameForCategoryMaterial(cellIndex))
+//                                        .data("")
+//                                        .message(MessageConstant.DATA_IS_EMPTY)
+//                                        .build()
+//                        );
+                    } else {
+                        switch (cellIndex) {
+                            case 0:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    materialRequest.setCategoryName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+//                                    cellErrorResponses.add(
+//                                            CellErrorResponse
+//                                                    .builder()
+//                                                    .rowIndex(rowIndex + 1)
+//                                                    .cellIndex(cellIndex + 1)
+//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+//                                                    .data(cell.toString())
+//                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+//                                                    .build()
+//                                    );
+                                }
+                                break;
+                            case 1:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    materialRequest.setMaterialName(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+//                                    cellErrorResponses.add(
+//                                            CellErrorResponse
+//                                                    .builder()
+//                                                    .rowIndex(rowIndex + 1)
+//                                                    .cellIndex(cellIndex + 1)
+//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+//                                                    .data(cell.toString())
+//                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+//                                                    .build()
+//                                    );
+                                }
+                                break;
+                            case 2:
+                                isValid = false;
+                                long longValue = -1;
+                                message = " Require Data Type Numeric!";
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        longValue = (long) cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            longValue = Long.parseLong(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && longValue >= 0){
+                                    materialRequest.setHsCode(longValue);
+                                }else{
+                                    if(isValid && longValue < 0){
+                                        message = " Require Positive Numeric!";
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
+//                                    cellErrorResponses.add(
+//                                            CellErrorResponse
+//                                                    .builder()
+//                                                    .rowIndex(rowIndex + 1)
+//                                                    .cellIndex(cellIndex + 1)
+//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+//                                                    .message(message)
+//                                                    .data(cell.toString())
+//                                                    .build()
+//                                    );
+                                }
+                                break;
+                            case 3:
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
+                                    materialRequest.setUnit(cell.getStringCellValue());
+                                } else {
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+//                                    cellErrorResponses.add(
+//                                            CellErrorResponse
+//                                                    .builder()
+//                                                    .rowIndex(rowIndex + 1)
+//                                                    .cellIndex(cellIndex + 1)
+//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+//                                                    .data(cell.toString())
+//                                                    .message(MessageConstant.INVALID_DATA_TYPE_COLUMN_NEED_TYPE_STRING)
+//                                                    .build()
+//                                    );
+                                }
+                                break;
+                            case 4:
+                                isValid = false;
+                                numericValue = -1;
+                                message = " Require Data Type Numeric!";
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    materialRequest.setBasePrice(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
+                                        message = " Require Positive Numeric!";
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
+//                                    cellErrorResponses.add(
+//                                            CellErrorResponse
+//                                                    .builder()
+//                                                    .rowIndex(rowIndex + 1)
+//                                                    .cellIndex(cellIndex + 1)
+//                                                    .cellName(getCellNameForCategoryMaterial(cellIndex))
+//                                                    .message(message)
+//                                                    .data(cell.toString())
+//                                                    .build()
+//                                    );
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                if (rowDataValid) {
+                    materialRequests.add(materialRequest);
+                } else {
+                    errorFields.add(new ErrorDetail(errors));
+                }
+                rowIndex++;
+            }
+
+//            var excelData = excelImportService.getCategoryMaterialDataFromExcel(file.getInputStream());
+
+            if (materialRequests.isEmpty()) {
                 throw new BadRequestException("Category and Material Excel File Has Empty Data");
             }
 
-            Set<MaterialRequest> excelNames = new HashSet<>();
-            List<MaterialRequest> uniqueExcelData = new ArrayList<>();
-            List<Object> duplicateExcelData = new ArrayList<>();
+            Set<MaterialRequest> duplicateExcelData = new HashSet<>();
 
-            for (MaterialRequest request : excelData) {
-                if (!excelNames.add(request)) {
-                    duplicateExcelData.add(request);
-                } else {
-                    uniqueExcelData.add(request);
-                }
-            }
 
-            if (!duplicateExcelData.isEmpty()) {
-                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_CATEGORY_AND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
-            }
-
-            List<ErrorDetail> errorFields = new ArrayList<>();
-            for (MaterialRequest materialRequest : uniqueExcelData) {
+            for (MaterialRequest materialRequest : materialRequests) {
                 List<String> errors = new ArrayList<>();
 
                 var category = categoryService.findByCategoryName(materialRequest.getCategoryName());
@@ -120,8 +305,12 @@ public class MaterialServiceImpl implements MaterialService {
                 }
 
                 var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
-                if(materialDuplicate(materialRequest)){
+                if(isExistedMaterial(materialRequest)){
                    errors.add("Material Information with Material Name: " + materialRequest.getMaterialName() + " is existed!");
+                }
+
+                if(!duplicateExcelData.add(materialRequest)){
+                    errors.add("Duplicate Material Request Data in Excel File");
                 }
 
                 if(errors.size() > 0){
@@ -152,6 +341,26 @@ public class MaterialServiceImpl implements MaterialService {
         }
     }
 
+    private boolean isRowCompletelyEmptyForCategoryMaterial(Row row) {
+        for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellNameForCategoryMaterial(int cellIndex) {
+        switch (cellIndex) {
+            case 0: return "Category_Name";
+            case 1: return "Material_Name";
+            case 2: return "HS_Code";
+            case 3: return "Unit";
+            case 4: return "Base_Price";
+            default: return "Unknown";
+        }
+    }
 
     @Override
     public List<MaterialResponse> findAllMaterials() {
