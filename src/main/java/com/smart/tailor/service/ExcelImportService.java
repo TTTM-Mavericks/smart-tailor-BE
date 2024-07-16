@@ -12,8 +12,6 @@ public interface ExcelImportService {
 
     List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, String brandName);
 
-    List<MaterialRequest> getCategoryMaterialDataFromExcel(InputStream inputStream);
-
     List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream);
 
     List<SizeExpertTailoringRequest> getSizeExpertTailoringRequestFromExcel(InputStream inputStream);

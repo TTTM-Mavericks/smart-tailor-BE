@@ -43,4 +43,11 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
             String unit,
             Double basePrice
     );
+
+    @Query(value = "select m.* from material m join category c on m.category_id = c.category_id " +
+            "join expert_tailoring_material etm on m.material_id = etm.material_id " +
+            "join expert_tailoring et on et.expert_tailoring_id = etm.expert_tailoring_id " +
+            "where et.expert_tailoring_id = ?1 && c.category_name = ?2 && etm.status = true", nativeQuery = true)
+    List<Material>findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName);
+
 }

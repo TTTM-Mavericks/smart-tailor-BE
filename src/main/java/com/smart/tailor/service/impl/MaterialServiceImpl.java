@@ -238,12 +238,12 @@ public class MaterialServiceImpl implements MaterialService {
 
                 var category = categoryService.findByCategoryName(materialRequest.getCategoryName());
                 if(category.isEmpty()){
-                    errors.add("Can Not Find Category with Category Name: " + materialRequest.getCategoryName());
+                    errors.add("Can Not Find Category with CategoryName: " + materialRequest.getCategoryName());
                 }
 
                 var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
                 if(isExistedMaterial(materialRequest)){
-                   errors.add("Material Information with Material Name: " + materialRequest.getMaterialName() + " is existed!");
+                   errors.add("Material Information with MaterialName: " + materialRequest.getMaterialName() + " is existed!");
                 }
 
                 if(!duplicateExcelData.add(materialRequest)){
@@ -434,6 +434,14 @@ public class MaterialServiceImpl implements MaterialService {
                     var maxPrice = materialRepository.getMaxPriceByMaterialID(material.getMaterialID());
                     return materialMapper.mapperToMaterialResponseWithPrices(material, minPrice, maxPrice);
                 })
+                .toList();
+    }
+
+    @Override
+    public List<Material> findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName) {
+        return materialRepository
+                .findMaterialsByExpertTailoringIDAndCategoryName(expertTailoringID, categoryName)
+                .stream()
                 .toList();
     }
 }

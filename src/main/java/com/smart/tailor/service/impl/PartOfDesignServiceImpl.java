@@ -73,6 +73,10 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                      orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + partOfDesignRequest.getMaterialID()));
 
                 partOfDesign.setMaterial(material);
+            } else {
+                var expertTailoring = design.getExpertTailoring();
+                var materials = materialService.findMaterialsByExpertTailoringIDAndCategoryName(expertTailoring.getExpertTailoringID(), "Fabric");
+                partOfDesign.setMaterial(materials.get(0));
             }
 
             var savedPartOfDesign = partOfDesignRepository.save(partOfDesign);
