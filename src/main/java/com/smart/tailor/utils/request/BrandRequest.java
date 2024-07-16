@@ -17,6 +17,9 @@ public class BrandRequest {
     private String accountName;
     private String QR_Payment;
     private String address;
+    private String province;
+    private String district;
+    private String ward;
     private Float rating;
     private Integer numberOfViolations;
     private BrandStatus brandStatus;
