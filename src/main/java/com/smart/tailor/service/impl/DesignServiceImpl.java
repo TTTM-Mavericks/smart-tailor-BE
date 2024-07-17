@@ -21,7 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,7 +55,7 @@ public class DesignServiceImpl implements DesignService {
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
 
         byte[] base64ImageUrl = null;
-        if(Optional.ofNullable(designRequest.getImageUrl()).isPresent()){
+        if (Optional.ofNullable(designRequest.getImageUrl()).isPresent()) {
             base64ImageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
         }
 
@@ -163,30 +166,32 @@ public class DesignServiceImpl implements DesignService {
 
                 List<ItemMaskResponse> itemMaskResponseList = partOfDesign.getItemMasks();
                 for (ItemMaskResponse itemMaskResponse : itemMaskResponseList) {
-                    materialResponse = itemMaskResponse.getMaterial();
-                    designMaterialDetail = DesignMaterialDetail
-                            .builder()
-                            .materialResponse(materialResponse)
-                            .quantity(1)
-                            .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
-                            .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
-                            .build();
-                    constain = false;
-                    for (int index = 0; index < materialDetailList.size(); index++) {
-                        if (materialDetailList.get(index).getMaterialResponse().getMaterialID().equals(materialResponse.getMaterialID())) {
-                            designMaterialDetail.setMaxPrice(
-                                    designMaterialDetail.getMaxPrice() + materialDetailList.get(index).getMaxPrice()
-                            );
-                            designMaterialDetail.setMinPrice(
-                                    designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
-                            );
-                            designMaterialDetail.setQuantity(1 + materialDetailList.get(index).getQuantity());
-                            materialDetailList.set(index, designMaterialDetail);
-                            constain = true;
+                    if (itemMaskResponse.getMaterial() != null) {
+                        materialResponse = itemMaskResponse.getMaterial();
+                        designMaterialDetail = DesignMaterialDetail
+                                .builder()
+                                .materialResponse(materialResponse)
+                                .quantity(1)
+                                .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
+                                .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
+                                .build();
+                        constain = false;
+                        for (int index = 0; index < materialDetailList.size(); index++) {
+                            if (materialDetailList.get(index).getMaterialResponse().getMaterialID().equals(materialResponse.getMaterialID())) {
+                                designMaterialDetail.setMaxPrice(
+                                        designMaterialDetail.getMaxPrice() + materialDetailList.get(index).getMaxPrice()
+                                );
+                                designMaterialDetail.setMinPrice(
+                                        designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
+                                );
+                                designMaterialDetail.setQuantity(1 + materialDetailList.get(index).getQuantity());
+                                materialDetailList.set(index, designMaterialDetail);
+                                constain = true;
+                            }
                         }
-                    }
-                    if (!constain) {
-                        materialDetailList.add(designMaterialDetail);
+                        if (!constain) {
+                            materialDetailList.add(designMaterialDetail);
+                        }
                     }
                 }
             }
