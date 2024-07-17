@@ -23,10 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +39,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     @Override
-    public List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, String brandName) {
+    public List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, UUID brandID) {
         List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
@@ -266,7 +263,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                     }
                 }
                 if(rowDataValid && !brandPriceIsEmpty){
-                    brandMaterialRequest.setBrandName(brandName);
+                    brandMaterialRequest.setBrandID(brandID.toString());
                     brandMaterialRequests.add(brandMaterialRequest);
                 }
                 rowIndex++;

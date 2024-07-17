@@ -12,9 +12,9 @@ public interface BrandMaterialService {
 
     List<BrandMaterialResponse> getAllBrandMaterial();
 
-    List<BrandMaterialResponse> getAllBrandMaterialByBrandName(String brandName);
+    List<BrandMaterialResponse> getAllBrandMaterialByBrandID(UUID brandID);
 
-    void createBrandMaterialByImportExcelData(MultipartFile file, String brandName);
+    void createBrandMaterialByImportExcelData(MultipartFile file, UUID brandID);
 
     void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest);
 

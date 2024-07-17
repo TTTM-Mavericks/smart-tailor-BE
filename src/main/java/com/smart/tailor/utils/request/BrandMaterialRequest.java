@@ -1,5 +1,7 @@
 package com.smart.tailor.utils.request;
 
+import com.smart.tailor.validate.ValidStringUUID;
+import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,14 +10,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class BrandMaterialRequest {
-    @NotNull(message = "brandName is not null")
-    @NotBlank(message = "brandName is not blank")
-    private String brandName;
+    @NotNull(message = "brandID is not null")
+    @NotBlank(message = "brandID is not blank")
+    @ValidStringUUID(message = "brandID is not type of UUID")
+    private String brandID;
 
     @NotNull(message = "categoryName is not null")
     @NotBlank(message = "categoryName is not blank")
@@ -44,7 +49,7 @@ public class BrandMaterialRequest {
     @Override
     public String toString() {
         return
-                "brandName='" + brandName + '\'' +
+                "brandID='" + brandID + '\'' +
                 ", materialName='" + materialName + '\'' +
                 ", categoryName='" + categoryName + '\'' +
                 ", hsCode='" + hsCode + '\'' +
