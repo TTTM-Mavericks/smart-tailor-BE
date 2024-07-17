@@ -13,10 +13,16 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
+import com.smart.tailor.utils.response.CellErrorResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -118,104 +124,251 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
-            var excelData = excelImportService.getBrandMaterialDataFromExcel(file.getInputStream(), brandID);
+            List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
+            XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+            XSSFSheet sheet = workbook.getSheet("Brand Material");
 
-            if (excelData.isEmpty()) {
+            if (sheet == null) {
+                throw new ExcelFileNotSupportException(MessageConstant.WRONG_TYPE_OF_BRAND_MATERIAL_EXCEL_FILE);
+            }
+
+            logger.info("Inside createBrandMaterialByImportExcelData Method");
+            boolean inValidData = false;
+
+            List<ErrorDetail> errorFields = new ArrayList<>();
+            int rowIndex = 2;
+            while(rowIndex <= sheet.getLastRowNum()){
+                Row row = sheet.getRow(rowIndex);
+                if(row == null || isRowCompletelyEmptyForBrandMaterial(row)){
+                    rowIndex++;
+                    continue;
+                }
+
+                List<String> errors = new ArrayList<>();
+                BrandMaterialRequest brandMaterialRequest = new BrandMaterialRequest();
+                boolean rowDataValid = true;
+                boolean brandPriceIsEmpty = false;
+                boolean isValid = false;
+                double numericValue = -1;
+                String message = "";
+                for(int cellIndex = 0; cellIndex < 6; cellIndex++){
+                    Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    if(cell == null || cell.getCellType() == CellType.BLANK){
+                        if(cellIndex != 5) {
+                            inValidData = true;
+                            rowDataValid = false;
+                            errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty!");
+                        } else{
+                            brandPriceIsEmpty = true;
+                        }
+                    }
+                    else{
+                        switch (cellIndex){
+                            case 0:
+                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                    brandMaterialRequest.setCategoryName(cell.getStringCellValue());
+                                } else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                }
+                                break;
+                            case 1:
+                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                    brandMaterialRequest.setMaterialName(cell.getStringCellValue());
+                                } else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                }
+                                break;
+                            case 2:
+                                isValid = false;
+                                long longValue = -1;
+                                message = " Require Data Type Numeric!";
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        longValue = (long) cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            longValue = Long.parseLong(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && longValue >= 0){
+                                    brandMaterialRequest.setHsCode(longValue);
+                                }else{
+                                    if(isValid && longValue < 0){
+                                        message = " Require Positive Numeric!";
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
+                                }
+                                break;
+                            case 3:
+                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                    brandMaterialRequest.setUnit(cell.getStringCellValue());
+                                }else{
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                }
+                                break;
+                            case 4:
+                                isValid = false;
+                                numericValue = -1;
+                                message = " Require Data Type Numeric!";
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    brandMaterialRequest.setBasePrice(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
+                                        message = " Require Positive Numeric!";
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
+                                }
+                                break;
+                            case 5:
+                                isValid = false;
+                                numericValue = -1;
+                                message = " Require Data Type Numeric!";
+                                switch (cell.getCellType()) {
+                                    case NUMERIC:
+                                        numericValue = cell.getNumericCellValue();
+                                        isValid = true;
+                                        break;
+                                    case STRING:
+                                        try {
+                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                            System.out.println(e.getMessage());
+                                        }
+                                        break;
+                                }
+                                if(isValid && numericValue >= 0){
+                                    brandMaterialRequest.setBrandPrice(numericValue);
+                                }else{
+                                    if(isValid && numericValue < 0){
+                                        message = " Require Positive Numeric!";
+                                    }
+                                    inValidData = true;
+                                    rowDataValid = false;
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
+                                }
+                                break;
+                        }
+                    }
+                }
+                if(rowDataValid && !brandPriceIsEmpty){
+                    brandMaterialRequest.setBrandID(brandID.toString());
+                    brandMaterialRequests.add(brandMaterialRequest);
+                } else {
+                    errorFields.add(new ErrorDetail(errors));
+                }
+                rowIndex++;
+            }
+
+            if (brandMaterialRequests.isEmpty()) {
                 throw new BadRequestException("Brand Material Excel File Has Empty Data");
             }
 
-            Set<BrandMaterialRequest> excelNames = new HashSet<>();
-            List<BrandMaterialRequest> uniqueExcelData = new ArrayList<>();
-            List<Object> duplicateExcelData = new ArrayList<>();
+            Set<BrandMaterialRequest> duplicateExcelData = new HashSet<>();
 
-            for (BrandMaterialRequest request : excelData) {
-                if (!excelNames.add(request)) {
-                    duplicateExcelData.add(request);
-                } else {
-                    uniqueExcelData.add(request);
-                }
-            }
-
-            if (!duplicateExcelData.isEmpty()) {
-                throw new ExcelFileDuplicateDataException(MessageConstant.DUPLICATE_BRAND_MATERIAL_IN_EXCEL_FILE, duplicateExcelData);
-            }
-
-            List<ErrorDetail> errorFields = new ArrayList<>();
-            for (BrandMaterialRequest brandMaterialRequest : uniqueExcelData) {
+            for (BrandMaterialRequest brandMaterialRequest : brandMaterialRequests) {
                 List<String> errors = new ArrayList<>();
                 var brand = brandService.findBrandById(UUID.fromString(brandMaterialRequest.getBrandID())).orElse(null);
                 if(brand == null){
                     errors.add("Can not find Brand with BrandID: " + brandMaterialRequest.getBrandID());
                 }
-                try{
-                     var material = materialService.findByMaterialNameAndCategory_CategoryName(brandMaterialRequest.getMaterialName(),
-                             brandMaterialRequest.getCategoryName());
+                var material = materialService.findByMaterialNameAndCategory_CategoryName(brandMaterialRequest.getMaterialName(),
+                         brandMaterialRequest.getCategoryName());
 
-                    if(material.isEmpty()){
-                        errors.add("Can not find Material with MaterialName: " + brandMaterialRequest.getMaterialName());
-                    }
+                var existedFullMaterial =  materialService.isExistedMaterial(
+                        MaterialRequest
+                                .builder()
+                                .materialName(brandMaterialRequest.getMaterialName())
+                                .categoryName(brandMaterialRequest.getCategoryName())
+                                .hsCode(brandMaterialRequest.getHsCode())
+                                .unit(brandMaterialRequest.getUnit())
+                                .basePrice(brandMaterialRequest.getBasePrice())
+                                .build()
+                );
 
-                    var existedFullMaterial =  materialService.isExistedMaterial(
-                            MaterialRequest
+                if(!existedFullMaterial || material.isEmpty()){
+                    errors.add("Can not find Material Information with Material Name: " + brandMaterialRequest.getMaterialName());
+                }
+
+                if(!duplicateExcelData.add(brandMaterialRequest)){
+                    errors.add("Duplicate Brand Material Request Data in Excel File");
+                }
+
+                var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
+                        brandMaterialRequest.getMaterialName(), UUID.fromString(brandMaterialRequest.getBrandID()));
+
+                if (brandMaterialExisted != null && brandMaterialExisted.getBrandPrice().equals(brandMaterialRequest.getBrandPrice())) {
+                    errors.add(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
+                }
+
+                double basePrice = brandMaterialRequest.getBasePrice();
+                double brandPrice = brandMaterialRequest.getBrandPrice();
+                double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
+
+                double lowerBound = basePrice * (1 - percentageFluctuation);
+                double upperBound = basePrice * (1 + percentageFluctuation);
+
+                brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
+                lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
+                upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
+
+                if (brandPrice < lowerBound || brandPrice > upperBound) {
+                    errors.add("Brand Price must be between " + lowerBound + " and " + upperBound);
+                }
+
+                if(errors.size() > 0){
+                    errorFields.add(new ErrorDetail(brandMaterialRequest, errors));
+                }
+                else{
+                    BrandMaterialKey brandMaterialKey = BrandMaterialKey
+                            .builder()
+                            .brandID(brand.getBrandID())
+                            .materialID(material.get().getMaterialID())
+                            .build();
+
+
+                    brandMaterialRepository.save(
+                            BrandMaterial
                                     .builder()
-                                    .materialName(brandMaterialRequest.getMaterialName())
-                                    .categoryName(brandMaterialRequest.getCategoryName())
-                                    .hsCode(brandMaterialRequest.getHsCode())
-                                    .unit(brandMaterialRequest.getUnit())
-                                    .basePrice(brandMaterialRequest.getBasePrice())
+                                    .brandMaterialKey(brandMaterialKey)
+                                    .material(material.get())
+                                    .brand(brand)
+                                    .brandPrice(brandPrice)
                                     .build()
                     );
-
-                    if(!existedFullMaterial){{
-                        errors.add("Can not find Material Information with Material Information");
-                    }}
-
-                    var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
-                            brandMaterialRequest.getMaterialName(), UUID.fromString(brandMaterialRequest.getBrandID()));
-
-                    if (brandMaterialExisted != null && brandMaterialExisted.getBrandPrice().equals(brandMaterialRequest.getBrandPrice())) {
-                        errors.add(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
-                    }
-
-                    double basePrice = brandMaterialRequest.getBasePrice();
-                    double brandPrice = brandMaterialRequest.getBrandPrice();
-                    double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
-
-                    double lowerBound = basePrice * (1 - percentageFluctuation);
-                    double upperBound = basePrice * (1 + percentageFluctuation);
-
-                    brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
-                    lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
-                    upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
-
-                    if (brandPrice < lowerBound || brandPrice > upperBound) {
-                        errors.add("Brand Price must be between " + lowerBound + " and " + upperBound);
-                    }
-
-                    if(errors.size() > 0){
-                        errorFields.add(new ErrorDetail(brandMaterialRequest, errors));
-                    }
-                    else{
-                        BrandMaterialKey brandMaterialKey = BrandMaterialKey
-                                .builder()
-                                .brandID(brand.getBrandID())
-                                .materialID(material.get().getMaterialID())
-                                .build();
-
-
-                        brandMaterialRepository.save(
-                                BrandMaterial
-                                        .builder()
-                                        .brandMaterialKey(brandMaterialKey)
-                                        .material(material.get())
-                                        .brand(brand)
-                                        .brandPrice(brandPrice)
-                                        .build()
-                        );
-                    }
-
-                } catch (ItemNotFoundException ex) {
-                    errors.add(ex.getMessage());
                 }
             }
 
@@ -227,6 +380,28 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
     }
+
+    private boolean isRowCompletelyEmptyForBrandMaterial(Row row){
+        for(int cellIndex = 0; cellIndex < 6; cellIndex++){
+            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if(cell != null && cell.getCellType() != CellType.BLANK){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellNameForBrandMaterial(int cellIndex){
+        switch (cellIndex){
+            case 0: return "Category_Name";
+            case 1: return "Material_Name";
+            case 2: return "HS_Code";
+            case 3: return "Unit";
+            case 4: return "Base_Price";
+            case 5: return "Brand_Price";
+            default: return "Unknown_Data";
+            }
+        }
 
     @Override
     public void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
