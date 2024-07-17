@@ -53,7 +53,7 @@ public class BrandController {
                 return ResponseEntity.ok(response);
             }
             Optional<Brand> brand = brandService.getBrandById(id);
-            if (!brand.isPresent() || brand.isEmpty()) {
+            if (brand.isEmpty()) {
                 response.put("status", 200);
                 response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with id: " + id);
                 return ResponseEntity.ok(response);
