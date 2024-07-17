@@ -6,11 +6,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
 public interface ExcelImportService {
     boolean isValidExcelFile(MultipartFile file);
 
-    List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, String brandName);
+    List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, UUID brandID);
 
     List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream);
 

@@ -6,6 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.BrandMaterialService;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
+import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(APIConstant.BrandMaterialAPI.BRAND_MATERIAL)
@@ -42,10 +45,10 @@ public class BrandMaterialController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(APIConstant.BrandMaterialAPI.GET_ALL_BRAND_MATERIAL_BY_BRAND_NAME)
-    public ResponseEntity<ObjectNode> getAllBrandMaterialsByBrandName(@RequestParam String brandName) {
+    @GetMapping(APIConstant.BrandMaterialAPI.GET_ALL_BRAND_MATERIAL_BY_BRAND_ID + "/{brandID}")
+    public ResponseEntity<ObjectNode> getAllBrandMaterialsByBrandID(@ValidUUID @PathVariable("brandID") UUID brandID) {
         ObjectNode response = objectMapper.createObjectNode();
-        var materials = brandMaterialService.getAllBrandMaterialByBrandName(brandName);
+        var materials = brandMaterialService.getAllBrandMaterialByBrandID(brandID);
         if (materials != null) {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_BRAND_MATERIAL_SUCCESSFULLY);
@@ -78,9 +81,9 @@ public class BrandMaterialController {
 
     @PostMapping(APIConstant.BrandMaterialAPI.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE)
     public ResponseEntity<ObjectNode> addNewBrandMaterialByExcelFile(@RequestParam("file") MultipartFile file,
-                                                                     @RequestParam("brandName") String brandName) {
+                                                                     @ValidUUID @RequestParam("brandID") UUID brandID) {
         ObjectNode response = objectMapper.createObjectNode();
-        brandMaterialService.createBrandMaterialByImportExcelData(file, brandName);
+        brandMaterialService.createBrandMaterialByImportExcelData(file, brandID);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE_SUCCESSFULLY);
         return ResponseEntity.ok(response);

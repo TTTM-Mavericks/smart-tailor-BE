@@ -21,9 +21,9 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
             value = "select bm.* from brand_material bm join brand b on bm.brand_id = b.brand_id " +
                     "join material m on m.material_id = bm.material_id " +
                     "join category c on c.category_id = m.category_id " +
-                    "where c.category_name = ?1 && m.material_name = ?2 && b.brand_name = ?3", nativeQuery = true
+                    "where c.category_name = ?1 && m.material_name = ?2 && b.brand_id = ?3", nativeQuery = true
     )
-    BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandName(String categoryName, String materialName, String brandName);
+    BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(String categoryName, String materialName, UUID brandID);
 
     @Query(value = "SELECT MIN(brand_price) FROM brand_material where material_id = ?1", nativeQuery = true)
     Double getMinPriceByMaterialID(UUID materialID);
