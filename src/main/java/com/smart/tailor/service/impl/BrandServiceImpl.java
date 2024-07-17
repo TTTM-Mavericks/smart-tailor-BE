@@ -80,7 +80,7 @@ public class BrandServiceImpl implements BrandService {
                                 .province(brandRequest.getProvince() != null && !brandRequest.getProvince().trim().isEmpty() ? brandRequest.getProvince() : null)
                                 .ward(brandRequest.getWard() != null && !brandRequest.getWard().trim().isEmpty() ? brandRequest.getWard() : null)
                                 .district(brandRequest.getDistrict() != null && !brandRequest.getDistrict().trim().isEmpty() ? brandRequest.getDistrict() : null)
-                                .QR_Payment(brandRequest.getQR_Payment() != null && !brandRequest.getQR_Payment().trim().isEmpty() ? brandRequest.getQR_Payment() : null)
+                                .QR_Payment(brandRequest.getQrPayment() != null && !brandRequest.getQrPayment().trim().isEmpty() ? brandRequest.getQrPayment() : null)
                                 .rating(0.0f)
                                 .numberOfViolations(0)
                                 .build()

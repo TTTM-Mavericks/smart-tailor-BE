@@ -15,7 +15,7 @@ public class BrandRequest {
     private String bankName;
     private String accountNumber;
     private String accountName;
-    private String QR_Payment;
+    private String qrPayment;
     private String address;
     private String province;
     private String district;
