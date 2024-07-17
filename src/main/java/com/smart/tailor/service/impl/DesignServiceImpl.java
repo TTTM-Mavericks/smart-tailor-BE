@@ -51,6 +51,11 @@ public class DesignServiceImpl implements DesignService {
 
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
 
+        byte[] base64ImageUrl = null;
+        if(Optional.ofNullable(designRequest.getImageUrl()).isPresent()){
+            base64ImageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
+        }
+
         Design design = designRepository.save(
                 Design
                         .builder()
@@ -59,6 +64,7 @@ public class DesignServiceImpl implements DesignService {
                         .titleDesign(designRequest.getTitleDesign())
                         .publicStatus(designRequest.getPublicStatus())
                         .color(color)
+                        .imageUrl(base64ImageUrl)
                         .build()
         );
 
@@ -77,13 +83,6 @@ public class DesignServiceImpl implements DesignService {
             throw new ItemNotFoundException(ex.getMessage());
         }
 
-//        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
-//                .orElseGet(Collections::emptyList)
-//                .stream()
-//                .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
-//                .map(partOfDesign -> partOfDesign.getSuccessImageUrl())
-//                .findFirst()
-//                .orElse(null);
 
         byte[] imageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
         // Set ImageUrl From Front PartOfDesign to Design
@@ -264,6 +263,7 @@ public class DesignServiceImpl implements DesignService {
         var brandDesign = designRepository.findById(UUID.fromString(cloneDesignRequest.getDesignID()))
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_BY_BRAND_ID));
 
+
         Design cloneDesign = designRepository.save(
                 Design
                         .builder()
@@ -272,6 +272,7 @@ public class DesignServiceImpl implements DesignService {
                         .titleDesign(brandDesign.getTitleDesign())
                         .publicStatus(brandDesign.getPublicStatus())
                         .color(brandDesign.getColor())
+                        .imageUrl(brandDesign.getImageUrl())
                         .build()
         );
         logger.info("Create Clone Design {}", cloneDesign);
@@ -290,17 +291,6 @@ public class DesignServiceImpl implements DesignService {
             logger.error("Item Not Found Exception in Part Of Design {}", ex.getMessage());
             throw new ItemNotFoundException(ex.getMessage());
         }
-
-        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
-                .map(partOfDesign -> partOfDesign.getImageUrl())
-                .findFirst()
-                .orElse(null);
-
-        // Set ImageUrl From Front PartOfDesign to Design
-        cloneDesign.setImageUrl(imageUrl);
 
         // Update List PartOfDesign belong to Design
         cloneDesign.setPartOfDesignList(partOfDesignList);
@@ -339,13 +329,10 @@ public class DesignServiceImpl implements DesignService {
             throw new ItemNotFoundException(ex.getMessage());
         }
 
-        byte[] imageUrl = Optional.ofNullable(partOfDesignList)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .filter(part -> part.getPartOfDesignName().toLowerCase().contains("front"))
-                .map(partOfDesign -> partOfDesign.getImageUrl())
-                .findFirst()
-                .orElse(null);
+        byte[] base64ImageUrl = null;
+        if(Optional.ofNullable(designRequest.getImageUrl()).isPresent()){
+            base64ImageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
+        }
 
         var updateDesign = designRepository.save(
                 Design
@@ -356,7 +343,7 @@ public class DesignServiceImpl implements DesignService {
                         .titleDesign(designRequest.getTitleDesign())
                         .publicStatus(designRequest.getPublicStatus())
                         .color(color)
-                        .imageUrl(imageUrl)
+                        .imageUrl(base64ImageUrl)
                         .partOfDesignList(partOfDesignList)
                         .build()
         );
