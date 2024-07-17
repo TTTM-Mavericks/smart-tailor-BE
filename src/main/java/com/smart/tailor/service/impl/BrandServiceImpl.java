@@ -50,7 +50,22 @@ public class BrandServiceImpl implements BrandService {
             if (brandId == null || brandId.toString().isEmpty() || brandId.toString().isBlank()) {
                 throw new Exception(MessageConstant.MISSING_ARGUMENT);
             }
-            return brandRepository.getBrandByBrandID(brandId);
+            var brand = brandRepository.getBrandByBrandID(brandId);
+            if (brand.isEmpty()) {
+                var user = userService.getUserByUserID(brandId);
+                if (user.isPresent()) {
+                    return Optional.ofNullable(
+                            Brand.builder()
+                                    .brandID(brandId)
+                                    .brandStatus(BrandStatus.PENDING)
+                                    .build()
+                    );
+                } else {
+                    return Optional.empty();
+                }
+            } else {
+                return brand;
+            }
         } catch (Exception ex) {
             throw ex;
         }
