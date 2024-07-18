@@ -43,10 +43,8 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     public void createBrandLaborQuantity(BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
         List<ErrorDetail> errorDetails = new ArrayList<>();
         UUID brandID = UUID.fromString(brandLaborQuantityListRequest.getBrandID());
-        var brandExisted = brandService.findBrandById(brandID).orElse(null);
-        if(brandExisted == null){
-            errorDetails.add(new ErrorDetail("Can not find Brand with brandID: " + brandID));
-        }
+        var brandExisted = brandService.findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with brandID: " + brandID));
 
         var brandLaborQuantityRequests = brandLaborQuantityListRequest.getBrandLaborQuantity();
 
@@ -95,7 +93,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
         }
 
         if (!errorDetails.isEmpty()){
-            throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Labor Quantity", errorDetails);
+            throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Brand Labor Quantity", errorDetails);
         }
     }
 
