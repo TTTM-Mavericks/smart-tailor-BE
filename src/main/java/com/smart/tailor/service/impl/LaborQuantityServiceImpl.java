@@ -34,27 +34,31 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
         Collections.sort(laborQuantityRequests, new Comparator<LaborQuantityRequest>() {
             @Override
             public int compare(LaborQuantityRequest o1, LaborQuantityRequest o2) {
-                int compareMinQuantity = o1.getLaborQuantityMinQuantity().compareTo(o2.getLaborQuantityMinQuantity());
-                if(compareMinQuantity != 0){
-                    return compareMinQuantity;
-                } else {
                     return o1.getLaborQuantityMaxQuantity().compareTo(o2.getLaborQuantityMaxQuantity());
-                }
             }
         });
 
-        if(!checkValidLaborQuantityRange(laborQuantityRequests)){
-            errorDetails.add(new ErrorDetail("Labor Quantity Can not intersect with Another Range Labor Quantity"));
+        List<LaborQuantityRequest> selectedLaborQuantityRequest = new ArrayList<>();
+        int prev_r = Integer.MIN_VALUE;
+        for(var request : laborQuantityRequests){
+            var curr_l = request.getLaborQuantityMinQuantity();
+            var curr_r = request.getLaborQuantityMaxQuantity();
+            if(curr_l > prev_r){
+                selectedLaborQuantityRequest.add(request);
+                prev_r = curr_r;
+            } else {
+                errorDetails.add(new ErrorDetail(request, "Labor Quantity is intersect with another Labor Quantity"));
+            }
         }
 
-        for(LaborQuantityRequest laborQuantityRequest : laborQuantityRequests){
+        for(LaborQuantityRequest laborQuantityRequest : selectedLaborQuantityRequest){
             List<String> errors = new ArrayList<>();
             Integer laborQuantityMinQuantity = laborQuantityRequest.getLaborQuantityMinQuantity();
             Integer laborQuantityMaxQuantity = laborQuantityRequest.getLaborQuantityMaxQuantity();
             Double laborQuantityMinPrice = laborQuantityRequest.getLaborQuantityMinPrice();
             Double laborQuantityMaxPrice = laborQuantityRequest.getLaborQuantityMaxPrice();
 
-            if(laborQuantityMinQuantity >= laborQuantityMaxQuantity){
+            if(laborQuantityMinQuantity > laborQuantityMaxQuantity){
                 errors.add("Min Quantity Can Not Greater Than Max Quantity");
             }
 
@@ -64,7 +68,7 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
 
             var laborQuantity = laborQuantityRepository.findByLaborQuantityMinQuantityAndLaborQuantityMaxQuantity(laborQuantityMinQuantity, laborQuantityMaxQuantity);
             if (laborQuantity.isPresent()){
-                errors.add("Labor Quantity is existed with MinQuantity: " + laborQuantityMinQuantity + " and MaxQuantity:" + laborQuantityMaxQuantity);
+                errors.add("Labor Quantity is existed with MinQuantity: " + laborQuantityMinQuantity + " and MaxQuantity: " + laborQuantityMaxQuantity);
             }
 
             if(!errors.isEmpty()){
@@ -107,7 +111,7 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
         Double laborQuantityMaxPrice = laborQuantityRequest.getLaborQuantityMaxPrice();
 
         var currentLaborQuantity = laborQuantityRepository.findById(laborQuantityID)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_LABOR_QUANTITY));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Labor Quantity by LaborQuantityID: " + laborQuantityID));
 
         if(laborQuantityMinQuantity > laborQuantityMaxQuantity){
             throw new BadRequestException("Min Quantity Can Not Greater Than Max Quantity");
@@ -123,7 +127,7 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
 
         if (laborQuantityExisted.isPresent()){
             if(!laborQuantityExisted.get().getLaborQuantityID().toString().equals(currentLaborQuantity.getLaborQuantityID().toString())) {
-                throw new ItemAlreadyExistException(MessageConstant.LABOR_QUANTITY_IS_EXISTED);
+                throw new ItemAlreadyExistException("Labor Quantity is existed with MinQuantity: " + laborQuantityMinQuantity + " and MaxQuantity: " + laborQuantityMaxQuantity);
             }
         } else {
             if(!checkValidMaxRangeQuantity.isEmpty() || !checkValidMinRangeQuantity.isEmpty()){
@@ -147,22 +151,5 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
     @Override
     public Optional<LaborQuantity> findByID(UUID laborQuantityID) {
         return laborQuantityRepository.findById(laborQuantityID);
-    }
-
-    private boolean checkValidLaborQuantityRange(List<LaborQuantityRequest> laborQuantityRequests){
-        boolean check = true;
-        List<Integer> errorIndex = new ArrayList<>();
-        for(int i = 1; i < laborQuantityRequests.size(); ++i){
-            Integer prev_l = laborQuantityRequests.get(i - 1).getLaborQuantityMinQuantity();
-            Integer prev_r = laborQuantityRequests.get(i - 1).getLaborQuantityMaxQuantity();
-            Integer curr_l = laborQuantityRequests.get(i).getLaborQuantityMinQuantity();
-            Integer curr_r = laborQuantityRequests.get(i).getLaborQuantityMaxQuantity();
-            if(prev_r < curr_l || prev_l > curr_r) {
-                errorIndex.add(i);
-                errorIndex.add(i - 1);
-            }
-            else check = false;
-        }
-        return check;
     }
 }

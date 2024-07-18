@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BrandLaborQuantityService {
-    void createBrandLaborQuantity(UUID brandID, BrandLaborQuantityListRequest brandLaborQuantityListRequest);
+    void createBrandLaborQuantity(BrandLaborQuantityListRequest brandLaborQuantityListRequest);
 
     List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(UUID brandID);
 
