@@ -56,7 +56,10 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Fabric'),
        (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Bag'),
        (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Accessory'),
        (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Hang Tag'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Zipper');
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Zipper'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Manual Printing'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Heat Printing'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Embroider');
 
 INSERT INTO material (material_id, create_date, last_modified_date, base_price, hs_code, material_name, status, unit,
                       category_id)
@@ -145,7 +148,48 @@ VALUES
 (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 1.2, 9607110001, 'Plastic Zipper', 1, 'meter',
  (SELECT category_id FROM category WHERE category_name = 'Zipper')),
 (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 1.8, 9607110002, 'Invisible Zipper', 1, 'meter',
- (SELECT category_id FROM category WHERE category_name = 'Zipper'));
+ (SELECT category_id FROM category WHERE category_name = 'Zipper')),
+
+-- Manual Printing Category
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000.0, 3215, 'Screen Printing Ink', 1, 'liter',
+(SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000.0, 48169040, 'Heat Transfer Paper', 1, 'sheet',
+(SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 45000.0, 55111010, 'Embroidery Thread', 1, 'spool',
+(SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+
+-- Heat Printing Category
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000.0, 84629950, 'Heat Press Machine', 1, 'unit',
+(SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 25000.0, 48169040, 'Transfer Vinyl', 1, 'roll',
+(SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 40000.0, 39199010, 'Thermal Tape', 1, 'roll',
+(SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 55000.0, 39199020, 'Heat Transfer Film', 1, 'roll',
+(SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+
+-- Embroider Category
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 70000.0, 44140000, 'Embroidery Hoops', 1, 'piece',
+(SELECT category_id FROM category WHERE category_name = 'Embroider')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000.0, 73199010, 'Embroidery Needles', 1, 'pack',
+(SELECT category_id FROM category WHERE category_name = 'Embroider')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000.0, 62043300, 'Embroidery Floss', 1, 'skein',
+(SELECT category_id FROM category WHERE category_name = 'Embroider')),
+(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 65000.0, 73199020, 'Embroidery Scissors', 1, 'pair',
+(SELECT category_id FROM category WHERE category_name = 'Embroider'));
+
+
+-- Sample Data Expert Tailoring Material
+INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
+-- ExpertTailoring : shirtModel and Category : Fabric
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),true,NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),true,NOW(),NULL),
+
+-- ExpertTailoring : shirtModel and Category : Thread
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),true,NOW(),NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),true,NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),true,NOW(),NULL);
 
 -- size
 INSERT INTO size (size_id, size_name, status, create_date, last_modified_date)
@@ -157,45 +201,53 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), 'S', true, current_timestamp, null),
        (UNHEX(REPLACE(UUID(), '-', '')), 'XXXL', true, current_timestamp, null);
 
 -- labor_quantity
-INSERT INTO labor_quantity (labor_quantity_id, labor_quantity_min_quantity, labor_quantity_max_quantity,
-                            labor_quantity_min_price, labor_quantity_max_price, status, create_date, last_modified_date)
-VALUES (UNHEX(REPLACE(UUID(), '-', '')), 7, 10, 50.0, 200.0, true, current_timestamp, null),
-       (UNHEX(REPLACE(UUID(), '-', '')), 16, 23, 50.0, 200.0, true, current_timestamp, null),
-       (UNHEX(REPLACE(UUID(), '-', '')), 11, 20, 100.0, 500.0, true, current_timestamp, null),
-       (UNHEX(REPLACE(UUID(), '-', '')), 5, 25, 50.0, 200.0, true, current_timestamp, null);
-
--- Expert Tailoring Material
-INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date)
+INSERT INTO labor_quantity (labor_quantity_id, labor_quantity_min_quantity, labor_quantity_max_quantity, labor_quantity_min_price, labor_quantity_max_price, status, create_date, last_modified_date)
 VALUES
--- ExpertTailoring : shirtModel and Category : Fabric
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'),
- true,
- current_timestamp,
- NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),
- true,
- current_timestamp,
- NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),
- true,
- current_timestamp,
- NULL),
--- ExpertTailoring : shirtModel and Category : Thread
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),
- true,
- current_timestamp,
- NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),
- true,
- current_timestamp,
- NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),
- true,
- current_timestamp,
- NULL);
+    (UNHEX(REPLACE(UUID(), '-', '')), 1, 10, 150000, 170000, true, NOW(), NULL),
+    (UNHEX(REPLACE(UUID(), '-', '')), 11, 20, 140000, 160000, true, NOW(), NULL),
+    (UNHEX(REPLACE(UUID(), '-', '')), 21, 50, 130000, 150000, true, NOW(), NULL),
+    (UNHEX(REPLACE(UUID(), '-', '')), 51, 100, 120000, 140000, true, NOW(), NULL),
+    (UNHEX(REPLACE(UUID(), '-', '')), 101, 200, 110000, 130000, true, NOW(), NULL),
+    (UNHEX(REPLACE(UUID(), '-', '')), 201, 100000, 100000, 120000, true, NOW(), NULL);
+
+
+-- user with password Aa@123456
+INSERT INTO users (user_id, email, password, full_name, language, phone_number, role_id, provider, user_status, image_url, create_date, last_modified_date)
+VALUES
+     (UNHEX(REPLACE(UUID(), '-', '')), 'nguyenvanquan@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Nguyen Van Quan', 'vietnam', '0902818618',
+     (SELECT role_id FROM roles WHERE role_name = 'CUSTOMER'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'hoanganhduy1122@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Ha Anh Duy', 'vietnam', '0961782569',
+      (SELECT role_id FROM roles WHERE role_name = 'CUSTOMER'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'chuongquocviet123@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Chuong Quoc Viet', 'vietnam', '0904357264',
+      (SELECT role_id FROM roles WHERE role_name = 'CUSTOMER'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'doanthuan97@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Doan Thu An', 'vietnam', '0903826475',
+      (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'ngohongquang999@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Ngo Hong Quang', 'vietnam', '0904659543',
+      (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'phamthanhgiang458@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Pham Thanh Giang', 'vietnam', '0905638465',
+      (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg', current_timestamp, null);
+
+
+-- Insert into customer table
+INSERT INTO customer (customer_id, gender, date_of_birth, address, ward, district, province, number_of_violations, create_date, last_modified_date)
+VALUES
+    ((SELECT user_id FROM users WHERE email = 'nguyenvanquan@gmail.com'), true, '1990-01-01', '240 Phạm Văn Đồng', 'Hiệp Bình Chánh', 'Thủ Đức',  'Thành phố Hồ Chí Minh' ,0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'hoanganhduy1122@gmail.com'), true, '1990-01-02', '50 Lê Văn Việt', 'Hiệp Phú', 'Quận 9',  'Thành phố Hồ Chí Minh' ,0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'chuongquocviet123@gmail.com'), true, '1990-01-03', '81 Nguyễn Xiển', 'Long Thạnh Mỹ', 'Quận 9',  'Thành phố Hồ Chí Minh' ,0, current_timestamp, null);
+
+
+-- Insert into Brand table
+INSERT INTO brand (brand_id, brand_name, rating, bank_name, account_number, account_name, qr_payment, address, ward,district, province, brand_status, number_of_violations, create_date, last_modified_date)
+VALUES
+    ((SELECT user_id FROM users WHERE email = 'doanthuan97@gmail.com'), 'Nike Brand', 4.5, 'Brand Bank', '1234567890', 'Nike', 'http://example.com/qr_nike.jpg', '740 Nguyễn Xiển', ' Long Thạnh Mỹ', 'Quận 9', 'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'ngohongquang999@gmail.com'), 'Adidas Brand', 4.2, 'Brand Bank', '0987654321', 'Adidas', 'http://example.com/qr_adidas.jpg', '269 Đ. Liên Phường', 'Phước Long B', 'Quận 9', 'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Puma Brand', 4.0, 'Brand Bank', '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '441 Lê Văn Việt', 'Tăng Nhơn Phú A', ' Quận 9', 'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null);

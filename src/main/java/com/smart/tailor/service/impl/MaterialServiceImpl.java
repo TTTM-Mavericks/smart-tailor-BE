@@ -20,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,9 +41,6 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public Optional<Material> findByMaterialNameAndCategory_CategoryName(String materialName, String categoryName) {
-        var category = categoryService.findByCategoryName(categoryName)
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Category with CategoryName: " + categoryName));
-
         return materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialName, categoryName);
     }
 
@@ -91,7 +89,8 @@ public class MaterialServiceImpl implements MaterialService {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
-            List<MaterialRequest> materialRequests = new ArrayList<>();
+            List<Pair<Integer, MaterialRequest>> materialRequests = new ArrayList<>();
+//            List<MaterialRequest> materialRequests = new ArrayList<>();
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
             XSSFSheet sheet = workbook.getSheet("Category and Material");
 
@@ -219,7 +218,7 @@ public class MaterialServiceImpl implements MaterialService {
                 }
 
                 if (rowDataValid) {
-                    materialRequests.add(materialRequest);
+                    materialRequests.add(Pair.of(rowIndex + 1, materialRequest));
                 } else {
                     errorFields.add(new ErrorDetail(errors));
                 }
@@ -233,21 +232,23 @@ public class MaterialServiceImpl implements MaterialService {
             Set<MaterialRequest> duplicateExcelData = new HashSet<>();
 
 
-            for (MaterialRequest materialRequest : materialRequests) {
+            for (var pairMaterialRequest : materialRequests) {
+                var indexMaterialRequest = pairMaterialRequest.getFirst();
+                var materialRequest = pairMaterialRequest.getSecond();
                 List<String> errors = new ArrayList<>();
 
                 var category = categoryService.findByCategoryName(materialRequest.getCategoryName());
                 if(category.isEmpty()){
-                    errors.add("Can Not Find Category with CategoryName: " + materialRequest.getCategoryName());
+                    errors.add("Category_Name at row Index: " + indexMaterialRequest + " Not Found!");
                 }
 
                 var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
                 if(isExistedMaterial(materialRequest)){
-                   errors.add("Material Information with MaterialName: " + materialRequest.getMaterialName() + " is existed!");
+                    errors.add("Material_Name at row Index: " + indexMaterialRequest +  " is Existed!");
                 }
 
                 if(!duplicateExcelData.add(materialRequest)){
-                    errors.add("Duplicate Material Request Data in Excel File");
+                    errors.add("Duplicate Material Request Data at row Index: " + indexMaterialRequest + " in Excel File");
                 }
 
                 if(errors.size() > 0){

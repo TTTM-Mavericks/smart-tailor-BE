@@ -33,7 +33,6 @@ public class SmartTailorBeApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SmartTailorBeApplication.class, args);
-
     }
 
     //    @Order(value = 1)
@@ -118,68 +117,6 @@ public class SmartTailorBeApplication {
             }
         };
     }
-
-//    @Order(value = 2)
-//    @Bean
-//    public CommandLineRunner createExpertTailoring(ExpertTailoringRepository expertTailoringRepository) {
-//        return args -> {
-//            if (expertTailoringRepository.findAll().size() == 0) {
-//                expertTailoringRepository.save(ExpertTailoring
-//                        .builder()
-//                        .expertTailoringName("shirtModel")
-//                        .sizeImageUrl("IMAGE URL")
-//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/mplmusqeleocefrsqrzf.png")
-//                        .status(true)
-//                        .build()
-//                );
-//
-//                expertTailoringRepository.save(ExpertTailoring
-//                        .builder()
-//                        .expertTailoringName("hoodieModel")
-//                        .sizeImageUrl("IMAGE URL")
-//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/kn5egywxx2qj4wwzwxts.png")
-//                        .status(true)
-//                        .build()
-//                );
-//
-//                expertTailoringRepository.save(ExpertTailoring
-//                        .builder()
-//                        .expertTailoringName("longSkirtModel")
-//                        .sizeImageUrl("IMAGE URL")
-//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536717/clothes/qf9prnqsfwofv9khp3cr.png")
-//                        .status(true)
-//                        .build()
-//                );
-//
-//                expertTailoringRepository.save(ExpertTailoring
-//                        .builder()
-//                        .expertTailoringName("skirtFullModel")
-//                        .sizeImageUrl("IMAGE URL")
-//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/wibukocpklimkobvv5sa.png")
-//                        .status(true)
-//                        .build()
-//                );
-//
-//                expertTailoringRepository.save(ExpertTailoring
-//                        .builder()
-//                        .expertTailoringName("womenSkirtTopModel")
-//                        .sizeImageUrl("IMAGE URL")
-//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/bwzhszbvmtqckax4oomk.png")
-//                        .status(true)
-//                        .build()
-//                );
-//
-//                expertTailoringRepository.save(ExpertTailoring
-//                        .builder()
-//                        .expertTailoringName("womenSkirtBottomModel")
-//                        .sizeImageUrl("IMAGE URL")
-//                        .modelImageUrl("https://res.cloudinary.com/dby2saqmn/image/upload/v1720536716/clothes/jfsmttronovmyw9xz2cg.png")
-//                        .status(true)
-//                        .build()
-//                );
-//            }
-//        };
-//    }
 
 //    @Order(value = 2)
 //    @Bean
