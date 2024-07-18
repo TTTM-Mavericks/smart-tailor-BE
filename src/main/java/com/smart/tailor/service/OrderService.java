@@ -39,4 +39,8 @@ public interface OrderService {
     Order getOrderByDetailID(UUID detailID);
 
     Boolean isOrderCompletelyPicked(UUID orderID);
+
+    Boolean isOrderExpireTime(UUID orderID);
+
+    List<OrderResponse> getAllParentOrderWithUnVerifyStatus();
 }
