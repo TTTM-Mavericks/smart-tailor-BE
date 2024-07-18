@@ -163,3 +163,39 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), 7, 10, 50.0, 200.0, true, current_times
        (UNHEX(REPLACE(UUID(), '-', '')), 16, 23, 50.0, 200.0, true, current_timestamp, null),
        (UNHEX(REPLACE(UUID(), '-', '')), 11, 20, 100.0, 500.0, true, current_timestamp, null),
        (UNHEX(REPLACE(UUID(), '-', '')), 5, 25, 50.0, 200.0, true, current_timestamp, null);
+
+-- Expert Tailoring Material
+INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date)
+VALUES
+-- ExpertTailoring : shirtModel and Category : Fabric
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'),
+ true,
+ current_timestamp,
+ NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),
+ true,
+ current_timestamp,
+ NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),
+ true,
+ current_timestamp,
+ NULL),
+-- ExpertTailoring : shirtModel and Category : Thread
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),
+ true,
+ current_timestamp,
+ NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),
+ true,
+ current_timestamp,
+ NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),
+ true,
+ current_timestamp,
+ NULL);

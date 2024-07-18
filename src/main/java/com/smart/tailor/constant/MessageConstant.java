@@ -362,4 +362,9 @@ public class MessageConstant {
     public static final String GET_BRAND_PROPERTY_SUCCESSFULLY = "Get Brand Properties Successfully!";
     public static final String ADD_NEW_BRAND_PROPERTY_SUCCESSFULLY = "Add New Brand Property Successfully!";
     public static final String CAN_NOT_FIND_BRAND_PROPERTY = "Can Not Find Brand Property";
+
+    /**
+     * Payment
+     */
+    public static final String GET_PAYMENT_SUCCESSFULLY = "Get Payment Info Successfully!";
 }

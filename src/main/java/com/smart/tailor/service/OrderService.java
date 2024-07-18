@@ -37,4 +37,6 @@ public interface OrderService {
     OrderResponse brandPickOrder(OrderPickingRequest orderPickingRequest) throws Exception;
 
     Order getOrderByDetailID(UUID detailID);
+
+    Boolean isOrderCompletelyPicked(UUID orderID);
 }
