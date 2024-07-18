@@ -211,3 +211,45 @@ VALUES
     (UNHEX(REPLACE(UUID(), '-', '')), 51, 100, 120000, 140000, true, NOW(), NULL),
     (UNHEX(REPLACE(UUID(), '-', '')), 101, 200, 110000, 130000, true, NOW(), NULL),
     (UNHEX(REPLACE(UUID(), '-', '')), 201, 100000, 100000, 120000, true, NOW(), NULL);
+
+
+-- user with password Aa@123456
+INSERT INTO users (user_id, email, password, full_name, language, phone_number, role_id, provider, user_status, image_url, create_date, last_modified_date)
+VALUES
+     (UNHEX(REPLACE(UUID(), '-', '')), 'nguyenvanquan@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Nguyen Van Quan', 'vietnam', '0902818618',
+     (SELECT role_id FROM roles WHERE role_name = 'CUSTOMER'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'hoanganhduy1122@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Ha Anh Duy', 'vietnam', '0961782569',
+      (SELECT role_id FROM roles WHERE role_name = 'CUSTOMER'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'chuongquocviet123@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Chuong Quoc Viet', 'vietnam', '0904357264',
+      (SELECT role_id FROM roles WHERE role_name = 'CUSTOMER'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'doanthuan97@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Doan Thu An', 'vietnam', '0903826475',
+      (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'ngohongquang999@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Ngo Hong Quang', 'vietnam', '0904659543',
+      (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg', current_timestamp, null),
+
+     (UNHEX(REPLACE(UUID(), '-', '')), 'phamthanhgiang458@gmail.com', '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Pham Thanh Giang', 'vietnam', '0905638465',
+      (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg', current_timestamp, null);
+
+
+-- Insert into customer table
+INSERT INTO customer (customer_id, gender, date_of_birth, address, ward, district, province, number_of_violations, create_date, last_modified_date)
+VALUES
+    ((SELECT user_id FROM users WHERE email = 'nguyenvanquan@gmail.com'), true, '1990-01-01', '240 Phạm Văn Đồng', 'Hiệp Bình Chánh', 'Thủ Đức',  'Thành phố Hồ Chí Minh' ,0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'hoanganhduy1122@gmail.com'), true, '1990-01-02', '50 Lê Văn Việt', 'Hiệp Phú', 'Quận 9',  'Thành phố Hồ Chí Minh' ,0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'chuongquocviet123@gmail.com'), true, '1990-01-03', '81 Nguyễn Xiển', 'Long Thạnh Mỹ', 'Quận 9',  'Thành phố Hồ Chí Minh' ,0, current_timestamp, null);
+
+
+-- Insert into Brand table
+INSERT INTO brand (brand_id, brand_name, rating, bank_name, account_number, account_name, qr_payment, address, ward,district, province, brand_status, number_of_violations, create_date, last_modified_date)
+VALUES
+    ((SELECT user_id FROM users WHERE email = 'doanthuan97@gmail.com'), 'Nike Brand', 4.5, 'Brand Bank', '1234567890', 'Nike', 'http://example.com/qr_nike.jpg', '740 Nguyễn Xiển', ' Long Thạnh Mỹ', 'Quận 9', 'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'ngohongquang999@gmail.com'), 'Adidas Brand', 4.2, 'Brand Bank', '0987654321', 'Adidas', 'http://example.com/qr_adidas.jpg', '269 Đ. Liên Phường', 'Phước Long B', 'Quận 9', 'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
+
+    ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Puma Brand', 4.0, 'Brand Bank', '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '441 Lê Văn Việt', 'Tăng Nhơn Phú A', ' Quận 9', 'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null);
