@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
@@ -16,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-public class SystemImage {
+public class SystemImage extends AuditEntity implements Serializable {
     @Id
     @UuidGenerator
     @Column(name = "image_id")

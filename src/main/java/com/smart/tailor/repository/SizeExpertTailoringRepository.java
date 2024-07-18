@@ -14,4 +14,12 @@ public interface SizeExpertTailoringRepository extends JpaRepository<SizeExpertT
             "\t\t\t\t\t join expert_tailoring e on e.expert_tailoring_id = se.expert_tailoring_id\n" +
             "where s.size_id = ?1 && e.expert_tailoring_id = ?2", nativeQuery = true)
     SizeExpertTailoring findSizeExpertTailoringBySizeIDAndExpertTailoringID(UUID sizeID, UUID expertTailoringID);
+
+    boolean existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndMinFabricAndMaxFabricAndUnit(
+            String expertTailoringName,
+            String sizeName,
+            Double minFabric,
+            Double maxFabric,
+            String unit
+    );
 }
