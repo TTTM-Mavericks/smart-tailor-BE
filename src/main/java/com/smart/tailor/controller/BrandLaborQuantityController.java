@@ -47,12 +47,11 @@ public class BrandLaborQuantityController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(APIConstant.BrandLaborQuantityAPI.ADD_NEW_BRAND_LABOR_QUANTITY + "/{brandID}")
-    public ResponseEntity<ObjectNode> addNewBrandLaborQuantity(@ValidUUID @PathVariable("brandID") UUID brandID,
-                                                               @Valid @RequestBody BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
+    @PostMapping(APIConstant.BrandLaborQuantityAPI.ADD_NEW_BRAND_LABOR_QUANTITY)
+    public ResponseEntity<ObjectNode> addNewBrandLaborQuantity(@Valid @RequestBody BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        brandLaborQuantityService.createBrandLaborQuantity(brandID, brandLaborQuantityListRequest);
+        brandLaborQuantityService.createBrandLaborQuantity(brandLaborQuantityListRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.ADD_BRAND_LABOR_QUANTITY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
