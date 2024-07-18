@@ -311,4 +311,13 @@ public class APIConstant {
         public static final String GET_ALL_BRAND_PROPERTY_BY_BRAND_ID = "/get-all-brand-properties-by-brand-id";
         public static final String GET_BRAND_PROPERTY = "/get-brand-property";
     }
+
+    /**
+     * Payment
+     */
+    public class PaymentAPI {
+        public static final String PAYMENT = API + "/payment";
+        public static final String CREATE_PAYMENT = "/payment-info";
+        public static final String PAYMENT_INFO = "/payment-info";
+    }
 }

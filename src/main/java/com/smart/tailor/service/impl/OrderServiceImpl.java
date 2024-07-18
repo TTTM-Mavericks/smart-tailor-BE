@@ -362,4 +362,20 @@ public class OrderServiceImpl implements OrderService {
     public Order getOrderByDetailID(UUID detailID) {
         return orderRepository.getOrderByDetailID(detailID);
     }
+
+    @Override
+    public Boolean isOrderCompletelyPicked(UUID orderID) {
+        try {
+            var order = getOrderByOrderID(orderID);
+            var detailList = order.getDetailList();
+            for (DesignDetailResponse detail : detailList) {
+                if (!detail.getDetailStatus()) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
 }

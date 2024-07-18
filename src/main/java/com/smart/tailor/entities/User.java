@@ -62,6 +62,12 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
+    @OneToOne(mappedBy = "user")
+    private Brand brand;
+
+    @OneToOne(mappedBy = "user")
+    private Customer customer;
+
     @Override
     public Map<String, Object> getAttributes() {
         return null;

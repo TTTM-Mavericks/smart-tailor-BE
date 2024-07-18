@@ -25,8 +25,8 @@ public class Payment extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID paymentID;
 
-    @Column(name = "payment_sender_id", insertable = false, updatable = false)
-    private UUID paymentSenderID;
+//    @Column(name = "payment_sender_id", insertable = false, updatable = false)
+//    private UUID paymentSenderID;
 
     @ManyToOne
     @JoinColumn(name = "payment_sender_id", referencedColumnName = "user_id", nullable = false, unique = false)
@@ -40,9 +40,9 @@ public class Payment extends AuditEntity implements Serializable {
 
     @Column(name = "payment_sender_bank_number")
     private String paymentSenderBankNumber;
-
-    @Column(name = "payment_recipient_id", insertable = false, updatable = false)
-    private UUID paymentRecipientID;
+//
+//    @Column(name = "payment_recipient_id", insertable = false, updatable = false)
+//    private UUID paymentRecipientID;
 
     @ManyToOne
     @JoinColumn(name = "payment_recipient_id", referencedColumnName = "user_id", nullable = false, unique = false)
@@ -58,7 +58,7 @@ public class Payment extends AuditEntity implements Serializable {
     private String paymentRecipientBankNumber;
 
     @Column(name = "payment_amount")
-    private Double paymentAmount;
+    private Integer paymentAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
@@ -67,8 +67,8 @@ public class Payment extends AuditEntity implements Serializable {
     @Column(name = "payment_status")
     private Boolean paymentStatus;
 
-    @Column(name = "order_id", insertable = false, updatable = false)
-    private UUID orderID;
+//    @Column(name = "order_id", insertable = false, updatable = false)
+//    private UUID orderID;
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
