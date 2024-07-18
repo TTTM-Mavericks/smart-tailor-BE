@@ -157,8 +157,6 @@ VALUES
 (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
 (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 45000.0, 55111010, 'Embroidery Thread', 1, 'spool',
 (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 55000.0, 39199020, 'Heat Transfer Film', 1, 'roll',
-(SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
 
 -- Heat Printing Category
 (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000.0, 84629950, 'Heat Press Machine', 1, 'unit',

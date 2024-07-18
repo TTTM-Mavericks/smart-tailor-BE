@@ -25,6 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -124,7 +125,8 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
         try {
-            List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
+            List<Pair<Integer, BrandMaterialRequest>> brandMaterialRequests = new ArrayList<>();
+//            List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
             XSSFSheet sheet = workbook.getSheet("Brand Material");
 
@@ -286,7 +288,8 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 }
                 if(rowDataValid && !brandPriceIsEmpty){
                     brandMaterialRequest.setBrandID(brandID.toString());
-                    brandMaterialRequests.add(brandMaterialRequest);
+                    brandMaterialRequests.add(Pair.of(rowIndex + 1, brandMaterialRequest));
+//                    brandMaterialRequests.add(brandMaterialRequest);
                 } else {
                     errorFields.add(new ErrorDetail(errors));
                 }
@@ -299,7 +302,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
             Set<BrandMaterialRequest> duplicateExcelData = new HashSet<>();
 
-            for (BrandMaterialRequest brandMaterialRequest : brandMaterialRequests) {
+            for (var pairBrandMaterialRequest : brandMaterialRequests) {
+                var indexBrandMaterialRequest = pairBrandMaterialRequest.getFirst();
+                var brandMaterialRequest = pairBrandMaterialRequest.getSecond();
+
                 List<String> errors = new ArrayList<>();
                 var brand = brandService.findBrandById(UUID.fromString(brandMaterialRequest.getBrandID())).orElse(null);
                 if(brand == null){
@@ -320,11 +326,11 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 );
 
                 if(!existedFullMaterial || material.isEmpty()){
-                    errors.add("Can not find Material Information with Material Name: " + brandMaterialRequest.getMaterialName());
+                    errors.add("Material_Name at row Index: " + indexBrandMaterialRequest +  " Not Found!");
                 }
 
                 if(!duplicateExcelData.add(brandMaterialRequest)){
-                    errors.add("Duplicate Brand Material Request Data in Excel File");
+                    errors.add("Duplicate Brand Material Request Data at row Index: " + indexBrandMaterialRequest + " in Excel File");
                 }
 
                 var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
@@ -346,7 +352,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
 
                 if (brandPrice < lowerBound || brandPrice > upperBound) {
-                    errors.add("Brand Price must be between " + lowerBound + " and " + upperBound);
+                    errors.add("Brand Price at row Index: " + indexBrandMaterialRequest + " must be between " + lowerBound + " and " + upperBound);
                 }
 
                 if(errors.size() > 0){
