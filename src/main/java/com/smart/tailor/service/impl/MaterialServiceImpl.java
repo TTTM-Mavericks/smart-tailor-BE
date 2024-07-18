@@ -40,9 +40,6 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public Optional<Material> findByMaterialNameAndCategory_CategoryName(String materialName, String categoryName) {
-        var category = categoryService.findByCategoryName(categoryName)
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Category with CategoryName: " + categoryName));
-
         return materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialName, categoryName);
     }
 
