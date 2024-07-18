@@ -35,29 +35,6 @@ public class SmartTailorBeApplication {
         SpringApplication.run(SmartTailorBeApplication.class, args);
     }
 
-    //    @Order(value = 1)
-//    @Bean
-//    public CommandLineRunner createRoles(RoleService roleService) {
-//        return args -> {
-//            if (roleService.findAllRole().size() == 0) {
-//
-//                Roles customerRole = Roles.builder().roleName("CUSTOMER").build();
-//                Roles adminRole = Roles.builder().roleName("ADMIN").build();
-//                Roles managerRole = Roles.builder().roleName("MANAGER").build();
-//                Roles employeeRole = Roles.builder().roleName("EMPLOYEE").build();
-//                Roles accountantRole = Roles.builder().roleName("ACCOUNTANT").build();
-//                Roles brandRole = Roles.builder().roleName("BRAND").build();
-//
-//                roleService.createRole(customerRole);
-//                roleService.createRole(adminRole);
-//                roleService.createRole(managerRole);
-//                roleService.createRole(employeeRole);
-//                roleService.createRole(accountantRole);
-//                roleService.createRole(brandRole);
-//
-//            }
-//        };
-//    }
     @Order(value = 1)
     @Bean
     public CommandLineRunner runScript(DataSource dataSource) throws Exception {
@@ -177,43 +154,4 @@ public class SmartTailorBeApplication {
 //            }
 //        };
 //    }
-
-    @Order(value = 2)
-    @Bean
-    public CommandLineRunner createSystemImage(SystemImageService systemImageService) {
-        return args -> {
-            if (systemImageService.getAllSystemImage().size() == 0) {
-                systemImageService.addNewSystemImage(
-                        SystemImageRequest
-                                .builder()
-                                .imageName("Ảnh con rồng con")
-                                .imageURL("https://th.bing.com/th/id/OIP.28898F789NfJAXbpwl1pwwHaEK?w=318&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7")
-                                .imageType("STAMP")
-                                .isPremium(false)
-                                .build()
-                );
-
-                systemImageService.addNewSystemImage(
-                        SystemImageRequest
-                                .builder()
-                                .imageName("Ảnh rồng mẹ")
-                                .imageURL("https://khoinguonsangtao.vn/wp-content/uploads/2022/08/avatar-nu-de-thuong.jpg")
-                                .imageType("STAMP")
-                                .isPremium(true)
-                                .build()
-                );
-
-                systemImageService.addNewSystemImage(
-                        SystemImageRequest
-                                .builder()
-                                .imageName("Ảnh rồng ba")
-                                .imageURL("https://animeanime.global/wp-content/uploads/2020/04/329423.png")
-                                .imageType("STAMP")
-                                .isPremium(true)
-                                .build()
-                );
-
-            }
-        };
-    }
 }
