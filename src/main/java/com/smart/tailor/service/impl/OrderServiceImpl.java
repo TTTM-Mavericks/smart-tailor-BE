@@ -10,10 +10,7 @@ import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.repository.OrderRepository;
-import com.smart.tailor.service.BrandService;
-import com.smart.tailor.service.CustomerService;
-import com.smart.tailor.service.DesignService;
-import com.smart.tailor.service.OrderService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
@@ -23,7 +20,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final DesignDetailMapper detailMapper;
     private final DesignDetailRepository detailRepository;
+    private final SystemPropertiesService systemPropertiesService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Override
@@ -364,6 +364,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Boolean isOrderCompletelyPicked(UUID orderID) {
         try {
             var order = getOrderByOrderID(orderID);
@@ -377,5 +378,37 @@ public class OrderServiceImpl implements OrderService {
         } catch (Exception ex) {
             throw ex;
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Boolean isOrderExpireTime(UUID orderID) {
+        var systemPropertiesExpirationTime = systemPropertiesService.getAllByPropertyType("MATCHING_TIME");
+        var order = orderRepository.findById(orderID).get();
+        logger.info("Inside Method isOrderExpireTime with orderID {}", orderID);
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime orderExpiredDateTime = order.getCreateDate()
+//                .plusMinutes(Integer.parseInt(systemPropertiesExpirationTime.get(0).getPropertyValue()));
+                .plusMinutes(1);
+
+        logger.info("Inside method isOrderExpireTime");
+        logger.info("CurrentDateTime {}", currentDateTime);
+        logger.info("OrderExpiredDateTime {}", orderExpiredDateTime);
+        if(currentDateTime.isAfter(orderExpiredDateTime)){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getAllParentOrderWithUnVerifyStatus() {
+        return orderRepository
+                .findAll()
+                .stream()
+                .filter(orderResponse -> orderResponse.getOrderType().equals("PARENT_ORDER") &&
+                        orderResponse.getOrderStatus().name().equals(OrderStatus.NOT_VERIFY.name()))
+                .map(orderMapper::mapToOrderResponse)
+                .toList();
     }
 }
