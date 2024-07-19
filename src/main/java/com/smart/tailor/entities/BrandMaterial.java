@@ -28,5 +28,5 @@ public class BrandMaterial extends AuditEntity implements Serializable {
     private Brand brand;
 
     @Column(name = "brand_price", nullable = false, unique = false)
-    private Double brandPrice;
+    private Integer brandPrice;
 }

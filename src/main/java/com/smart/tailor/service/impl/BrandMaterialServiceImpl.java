@@ -64,19 +64,18 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
 
-        double basePrice = brandMaterialRequest.getBasePrice();
-        double brandPrice = brandMaterialRequest.getBrandPrice();
+        int basePrice = brandMaterialRequest.getBasePrice();
+        int brandPrice = brandMaterialRequest.getBrandPrice();
         double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
 
         double lowerBound = basePrice * (1 - percentageFluctuation);
         double upperBound = basePrice * (1 + percentageFluctuation);
 
-        brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
-        lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
-        upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
+        int roundedLowerBound = (int) Math.ceil(lowerBound);
+        int roundedUpperBound = (int) Math.ceil(upperBound);
 
-        if (brandPrice < lowerBound || brandPrice > upperBound) {
-            throw new BadRequestException("Brand Price must be between " + lowerBound + " and " + upperBound);
+        if (brandPrice < roundedLowerBound || brandPrice > roundedUpperBound) {
+            throw new BadRequestException("Brand Price must be between " + roundedLowerBound + " and " + roundedUpperBound);
         }
 
         // When All condition pass, store data to BrandMaterial
@@ -126,7 +125,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
         try {
             List<Pair<Integer, BrandMaterialRequest>> brandMaterialRequests = new ArrayList<>();
-//            List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
+            Set<BrandMaterialRequest> duplicateExcelData = new HashSet<>();
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
             XSSFSheet sheet = workbook.getSheet("Brand Material");
 
@@ -151,7 +150,6 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 boolean rowDataValid = true;
                 boolean brandPriceIsEmpty = false;
                 boolean isValid = false;
-                double numericValue = -1;
                 String message = "";
                 for(int cellIndex = 0; cellIndex < 6; cellIndex++){
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
@@ -225,16 +223,16 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                 break;
                             case 4:
                                 isValid = false;
-                                numericValue = -1;
+                                Integer basePrice = -1;
                                 message = " Require Data Type Numeric!";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
+                                        basePrice = (int) cell.getNumericCellValue();
                                         isValid = true;
                                         break;
                                     case STRING:
                                         try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            basePrice = Integer.parseInt(cell.getStringCellValue());
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
@@ -242,10 +240,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                         }
                                         break;
                                 }
-                                if(isValid && numericValue >= 0){
-                                    brandMaterialRequest.setBasePrice(numericValue);
-                                }else{
-                                    if(isValid && numericValue < 0){
+                                if (isValid && basePrice >= 0) {
+                                    brandMaterialRequest.setBasePrice(basePrice);
+                                } else {
+                                    if (isValid && basePrice < 0) {
                                         message = " Require Positive Numeric!";
                                     }
                                     inValidData = true;
@@ -255,16 +253,22 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                 break;
                             case 5:
                                 isValid = false;
-                                numericValue = -1;
+                                Integer brandPrice = -1;
+                                boolean isEmpty = false;
                                 message = " Require Data Type Numeric!";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
+                                        brandPrice = (int) cell.getNumericCellValue();
                                         isValid = true;
                                         break;
                                     case STRING:
+                                        String cellValue = cell.getStringCellValue().trim();
+                                        if (cellValue.isEmpty()) {
+                                            isEmpty = true;
+                                            break;
+                                        }
                                         try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            brandPrice = Integer.parseInt(cellValue);
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
@@ -272,10 +276,11 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                         }
                                         break;
                                 }
-                                if(isValid && numericValue >= 0){
-                                    brandMaterialRequest.setBrandPrice(numericValue);
-                                }else{
-                                    if(isValid && numericValue < 0){
+                                if(isEmpty) break;
+                                if (isValid && brandPrice >= 0) {
+                                    brandMaterialRequest.setBrandPrice(brandPrice);
+                                } else {
+                                    if (isValid && brandPrice < 0) {
                                         message = " Require Positive Numeric!";
                                     }
                                     inValidData = true;
@@ -283,36 +288,21 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                     errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
                                 }
                                 break;
+
                         }
                     }
                 }
-                if(rowDataValid && !brandPriceIsEmpty){
-                    brandMaterialRequest.setBrandID(brandID.toString());
-                    brandMaterialRequests.add(Pair.of(rowIndex + 1, brandMaterialRequest));
-//                    brandMaterialRequests.add(brandMaterialRequest);
-                } else {
-                    errorFields.add(new ErrorDetail(errors));
+                if(!duplicateExcelData.add(brandMaterialRequest)){
+                    errors.add("Duplicate Brand Material Request Data at row Index " + (rowIndex + 1) + " in Excel File");
                 }
-                rowIndex++;
-            }
 
-            if (brandMaterialRequests.isEmpty()) {
-                throw new BadRequestException("Brand Material Excel File Has Empty Data");
-            }
-
-            Set<BrandMaterialRequest> duplicateExcelData = new HashSet<>();
-
-            for (var pairBrandMaterialRequest : brandMaterialRequests) {
-                var indexBrandMaterialRequest = pairBrandMaterialRequest.getFirst();
-                var brandMaterialRequest = pairBrandMaterialRequest.getSecond();
-
-                List<String> errors = new ArrayList<>();
-                var brand = brandService.findBrandById(UUID.fromString(brandMaterialRequest.getBrandID())).orElse(null);
+                var brand = brandService.findBrandById(brandID).orElse(null);
                 if(brand == null){
-                    errors.add("Can not find Brand with BrandID: " + brandMaterialRequest.getBrandID());
+                    errors.add("Can not find Brand with BrandID " + brandID);
                 }
+
                 var material = materialService.findByMaterialNameAndCategory_CategoryName(brandMaterialRequest.getMaterialName(),
-                         brandMaterialRequest.getCategoryName());
+                        brandMaterialRequest.getCategoryName());
 
                 var existedFullMaterial =  materialService.isExistedMaterial(
                         MaterialRequest
@@ -326,61 +316,66 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 );
 
                 if(!existedFullMaterial || material.isEmpty()){
-                    errors.add("Material_Name at row Index: " + indexBrandMaterialRequest +  " Not Found!");
+                    errors.add("Material_Name at row Index " + (rowIndex + 1) +  " Not Found!");
                 }
 
-                if(!duplicateExcelData.add(brandMaterialRequest)){
-                    errors.add("Duplicate Brand Material Request Data at row Index: " + indexBrandMaterialRequest + " in Excel File");
+                if(rowDataValid && !brandPriceIsEmpty){
+                    var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
+                            brandMaterialRequest.getMaterialName(), brandID);
+
+                    if (brandMaterialExisted != null && brandMaterialExisted.getBrandPrice().equals(brandMaterialRequest.getBrandPrice())) {
+                        errors.add("Brand Material is existed at row Index " + (rowIndex + 1));
+                    }
+
+                    int basePrice = brandMaterialRequest.getBasePrice();
+                    int brandPrice = brandMaterialRequest.getBrandPrice();
+                    double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
+
+                    double lowerBound = basePrice * (1 - percentageFluctuation);
+                    double upperBound = basePrice * (1 + percentageFluctuation);
+
+                    int roundedLowerBound = (int) Math.ceil(lowerBound);
+                    int roundedUpperBound = (int) Math.ceil(upperBound);
+
+                    if (brandPrice < roundedLowerBound || brandPrice > roundedUpperBound) {
+                        throw new BadRequestException("Brand Price must be between " + roundedLowerBound + " and " + roundedUpperBound);
+                    }
+
+                    if (errors.isEmpty()){
+                        BrandMaterialKey brandMaterialKey = BrandMaterialKey
+                                .builder()
+                                .brandID(brand.getBrandID())
+                                .materialID(material.get().getMaterialID())
+                                .build();
+
+
+                        brandMaterialRepository.save(
+                                BrandMaterial
+                                        .builder()
+                                        .brandMaterialKey(brandMaterialKey)
+                                        .material(material.get())
+                                        .brand(brand)
+                                        .brandPrice(brandPrice)
+                                        .build()
+                        );
+                        brandMaterialRequests.add(Pair.of(rowIndex + 1, brandMaterialRequest));
+                    }
                 }
 
-                var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
-                        brandMaterialRequest.getMaterialName(), UUID.fromString(brandMaterialRequest.getBrandID()));
-
-                if (brandMaterialExisted != null && brandMaterialExisted.getBrandPrice().equals(brandMaterialRequest.getBrandPrice())) {
-                    errors.add(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
+                if(!errors.isEmpty()){
+                    errorFields.add(new ErrorDetail(errors));
                 }
+                rowIndex++;
+            }
 
-                double basePrice = brandMaterialRequest.getBasePrice();
-                double brandPrice = brandMaterialRequest.getBrandPrice();
-                double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
-
-                double lowerBound = basePrice * (1 - percentageFluctuation);
-                double upperBound = basePrice * (1 + percentageFluctuation);
-
-                brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
-                lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
-                upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
-
-                if (brandPrice < lowerBound || brandPrice > upperBound) {
-                    errors.add("Brand Price at row Index: " + indexBrandMaterialRequest + " must be between " + lowerBound + " and " + upperBound);
-                }
-
-                if(errors.size() > 0){
-                    errorFields.add(new ErrorDetail(brandMaterialRequest, errors));
-                }
-                else{
-                    BrandMaterialKey brandMaterialKey = BrandMaterialKey
-                            .builder()
-                            .brandID(brand.getBrandID())
-                            .materialID(material.get().getMaterialID())
-                            .build();
-
-
-                    brandMaterialRepository.save(
-                            BrandMaterial
-                                    .builder()
-                                    .brandMaterialKey(brandMaterialKey)
-                                    .material(material.get())
-                                    .brand(brand)
-                                    .brandPrice(brandPrice)
-                                    .build()
-                    );
-                }
+            if(brandMaterialRequests.isEmpty() && errorFields.isEmpty()){
+                throw new BadRequestException("Brand Material Request Excel File Has Empty Data");
             }
 
             if (!errorFields.isEmpty()) {
                 throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", errorFields);
             }
+
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
@@ -428,19 +423,18 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
 
-        double basePrice = brandMaterialExisted.getBrandPrice();
-        double brandPrice = brandMaterialRequest.getBrandPrice();
+        int basePrice = brandMaterialRequest.getBasePrice();
+        int brandPrice = brandMaterialRequest.getBrandPrice();
         double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
 
         double lowerBound = basePrice * (1 - percentageFluctuation);
         double upperBound = basePrice * (1 + percentageFluctuation);
 
-        brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
-        lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
-        upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
+        int roundedLowerBound = (int) Math.ceil(lowerBound);
+        int roundedUpperBound = (int) Math.ceil(upperBound);
 
-        if (brandPrice < lowerBound || brandPrice > upperBound) {
-            throw new BadRequestException(MessageConstant.BRAND_PRICE_MUST_BE_BETWEEN_BASE_PRICE_MULTIPLE_WITH_PERCENTAGE_FLUCTUATION);
+        if (brandPrice < roundedLowerBound || brandPrice > roundedUpperBound) {
+            throw new BadRequestException("Brand Price must be between " + roundedLowerBound + " and " + roundedUpperBound);
         }
 
         brandMaterialRepository.updateBrandMaterial(brandPrice, brandMaterialExisted.getBrandMaterialKey().getBrandID(), brandMaterialExisted.getBrandMaterialKey().getMaterialID());

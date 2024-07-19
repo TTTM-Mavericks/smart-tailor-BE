@@ -25,7 +25,7 @@ public class MaterialResponse {
 
     private String unit;
 
-    private Double basePrice;
+    private Integer basePrice;
 
     private Boolean status;
 

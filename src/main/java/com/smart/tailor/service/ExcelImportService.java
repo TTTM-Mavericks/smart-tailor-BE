@@ -11,8 +11,6 @@ import java.util.UUID;
 public interface ExcelImportService {
     boolean isValidExcelFile(MultipartFile file);
 
-    List<BrandMaterialRequest> getBrandMaterialDataFromExcel(InputStream inputStream, UUID brandID);
-
     List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream);
 
     List<SizeExpertTailoringRequest> getSizeExpertTailoringRequestFromExcel(InputStream inputStream);

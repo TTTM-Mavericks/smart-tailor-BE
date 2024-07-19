@@ -92,6 +92,7 @@ public class MaterialServiceImpl implements MaterialService {
             List<Pair<Integer, MaterialRequest>> materialRequests = new ArrayList<>();
 //            List<MaterialRequest> materialRequests = new ArrayList<>();
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+            Set<MaterialRequest> duplicateExcelData = new HashSet<>();
             XSSFSheet sheet = workbook.getSheet("Category and Material");
 
             if (sheet == null) {
@@ -115,7 +116,6 @@ public class MaterialServiceImpl implements MaterialService {
                 boolean rowDataValid = true;
                 boolean isValid = false;
                 String message = "";
-                double numericValue = -1;
                 for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     if (cell == null || cell.getCellType() == CellType.BLANK) {
@@ -161,10 +161,10 @@ public class MaterialServiceImpl implements MaterialService {
                                         }
                                         break;
                                 }
-                                if(isValid && longValue >= 0){
+                                if (isValid && longValue >= 0) {
                                     materialRequest.setHsCode(longValue);
-                                }else{
-                                    if(isValid && longValue < 0){
+                                } else {
+                                    if (isValid && longValue < 0) {
                                         message = " Require Positive Numeric!";
                                     }
                                     inValidData = true;
@@ -183,16 +183,16 @@ public class MaterialServiceImpl implements MaterialService {
                                 break;
                             case 4:
                                 isValid = false;
-                                numericValue = -1;
+                                Integer basePrice = -1;
                                 message = " Require Data Type Numeric!";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
+                                        basePrice = (int) cell.getNumericCellValue();
                                         isValid = true;
                                         break;
                                     case STRING:
                                         try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            basePrice = Integer.parseInt(cell.getStringCellValue());
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
@@ -200,10 +200,10 @@ public class MaterialServiceImpl implements MaterialService {
                                         }
                                         break;
                                 }
-                                if(isValid && numericValue >= 0){
-                                    materialRequest.setBasePrice(numericValue);
-                                }else{
-                                    if(isValid && numericValue < 0){
+                                if (isValid && basePrice >= 0) {
+                                    materialRequest.setBasePrice(basePrice);
+                                } else {
+                                    if (isValid && basePrice < 0) {
                                         message = " Require Positive Numeric!";
                                     }
                                     inValidData = true;
@@ -217,57 +217,45 @@ public class MaterialServiceImpl implements MaterialService {
                     }
                 }
 
-                if (rowDataValid) {
-                    materialRequests.add(Pair.of(rowIndex + 1, materialRequest));
-                } else {
-                    errorFields.add(new ErrorDetail(errors));
+                if (!duplicateExcelData.add(materialRequest)) {
+                    errors.add("Duplicate Material Request Data at row Index " + (rowIndex + 1) + " in Excel File");
                 }
-                rowIndex++;
-            }
-
-            if (materialRequests.isEmpty()) {
-                throw new BadRequestException("Category and Material Excel File Has Empty Data");
-            }
-
-            Set<MaterialRequest> duplicateExcelData = new HashSet<>();
-
-
-            for (var pairMaterialRequest : materialRequests) {
-                var indexMaterialRequest = pairMaterialRequest.getFirst();
-                var materialRequest = pairMaterialRequest.getSecond();
-                List<String> errors = new ArrayList<>();
 
                 var category = categoryService.findByCategoryName(materialRequest.getCategoryName());
                 if(category.isEmpty()){
-                    errors.add("Category_Name at row Index: " + indexMaterialRequest + " Not Found!");
+                    errors.add("Category_Name at row Index " + (rowIndex + 1) + " Not Found!");
                 }
 
-                var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
-                if(isExistedMaterial(materialRequest)){
-                    errors.add("Material_Name at row Index: " + indexMaterialRequest +  " is Existed!");
-                }
+                if (rowDataValid) {
+                    if (isExistedMaterial(materialRequest)) {
+                        errors.add("Material_Name at row Index " + (rowIndex + 1) + " is Existed!");
+                    }
 
-                if(!duplicateExcelData.add(materialRequest)){
-                    errors.add("Duplicate Material Request Data at row Index: " + indexMaterialRequest + " in Excel File");
+                    if(errors.isEmpty()) {
+                        var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
+                        var materialID = material.isPresent() ? material.get().getMaterialID() : UUID.randomUUID();
+                        materialRepository.save(
+                                Material
+                                        .builder()
+                                        .materialID(materialID)
+                                        .materialName(materialRequest.getMaterialName())
+                                        .category(category.get())
+                                        .hsCode(materialRequest.getHsCode())
+                                        .unit(materialRequest.getUnit())
+                                        .basePrice(materialRequest.getBasePrice())
+                                        .status(true)
+                                        .build()
+                        );
+                        materialRequests.add(Pair.of(rowIndex + 1, materialRequest));
+                    }
                 }
+                if (!errors.isEmpty())
+                    errorFields.add(new ErrorDetail(errors));
+                rowIndex++;
+            }
 
-                if(errors.size() > 0){
-                    errorFields.add(new ErrorDetail(materialRequest, errors));
-                } else {
-                    var materialID = material.isPresent() ? material.get().getMaterialID() : UUID.randomUUID();
-                    materialRepository.save(
-                            Material
-                                    .builder()
-                                    .materialID(materialID)
-                                    .materialName(materialRequest.getMaterialName())
-                                    .category(category.get())
-                                    .hsCode(materialRequest.getHsCode())
-                                    .unit(materialRequest.getUnit())
-                                    .basePrice(materialRequest.getBasePrice())
-                                    .status(true)
-                                    .build()
-                    );
-                }
+            if(materialRequests.isEmpty() && errorFields.isEmpty()){
+                throw new BadRequestException("Material Request Excel File Has Empty Data");
             }
 
             if (!errorFields.isEmpty()) {
