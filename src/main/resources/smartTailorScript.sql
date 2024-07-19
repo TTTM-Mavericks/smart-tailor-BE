@@ -94,21 +94,22 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), 'shirtModel', 'IMAGE URL',
         current_timestamp, null);
 
 -- category
-INSERT INTO category (category_id, create_date, last_modified_date, category_name)
-VALUES (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Fabric'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Thread'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Cotton'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Ink'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Tape'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Label'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Button'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Bag'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Accessory'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Hang Tag'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Zipper'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Manual Printing'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Heat Printing'),
-       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 'Embroider');
+INSERT INTO category (category_id, create_date, status, last_modified_date, category_name)
+VALUES (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Fabric'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Thread'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Cotton'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Ink'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Tape'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Label'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Button'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Bag'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Accessory'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Hang Tag'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Zipper'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Manual Printing'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Heat Printing'),
+       (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Embroider');
+
 
 INSERT INTO material (material_id, create_date, last_modified_date, base_price, hs_code, material_name, status, unit,
                       category_id)
@@ -228,17 +229,17 @@ VALUES
 (SELECT category_id FROM category WHERE category_name = 'Embroider'));
 
 
--- Sample Data Expert Tailoring Material
-INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
--- ExpertTailoring : shirtModel and Category : Fabric
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),true,NOW(), NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),true,NOW(),NULL),
-
--- ExpertTailoring : shirtModel and Category : Thread
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),true,NOW(),NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),true,NOW(), NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),true,NOW(),NULL);
+-- -- Sample Data Expert Tailoring Material
+-- INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
+-- -- ExpertTailoring : shirtModel and Category : Fabric
+-- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
+-- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),true,NOW(), NULL),
+-- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),true,NOW(),NULL),
+--
+-- -- ExpertTailoring : shirtModel and Category : Thread
+-- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),true,NOW(),NULL),
+-- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),true,NOW(), NULL),
+-- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),true,NOW(),NULL);
 
 -- size
 INSERT INTO size (size_id, size_name, status, create_date, last_modified_date)

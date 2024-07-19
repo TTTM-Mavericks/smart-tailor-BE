@@ -126,7 +126,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
         try {
             List<Pair<Integer, BrandMaterialRequest>> brandMaterialRequests = new ArrayList<>();
-//            List<BrandMaterialRequest> brandMaterialRequests = new ArrayList<>();
+            Set<BrandMaterialRequest> duplicateExcelData = new HashSet<>();
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
             XSSFSheet sheet = workbook.getSheet("Brand Material");
 
@@ -278,6 +278,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                     if(isValid && numericValue < 0){
                                         message = " Require Positive Numeric!";
                                     }
+                                    if(cell.getCellType() == CellType.BLANK && cell.getStringCellValue().isEmpty()) break;
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + message);
@@ -286,33 +287,17 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                         }
                     }
                 }
-                if(rowDataValid && !brandPriceIsEmpty){
-                    brandMaterialRequest.setBrandID(brandID.toString());
-                    brandMaterialRequests.add(Pair.of(rowIndex + 1, brandMaterialRequest));
-//                    brandMaterialRequests.add(brandMaterialRequest);
-                } else {
-                    errorFields.add(new ErrorDetail(errors));
+                if(!duplicateExcelData.add(brandMaterialRequest)){
+                    errors.add("Duplicate Brand Material Request Data at row Index " + (rowIndex + 1) + " in Excel File");
                 }
-                rowIndex++;
-            }
 
-            if (brandMaterialRequests.isEmpty()) {
-                throw new BadRequestException("Brand Material Excel File Has Empty Data");
-            }
-
-            Set<BrandMaterialRequest> duplicateExcelData = new HashSet<>();
-
-            for (var pairBrandMaterialRequest : brandMaterialRequests) {
-                var indexBrandMaterialRequest = pairBrandMaterialRequest.getFirst();
-                var brandMaterialRequest = pairBrandMaterialRequest.getSecond();
-
-                List<String> errors = new ArrayList<>();
-                var brand = brandService.findBrandById(UUID.fromString(brandMaterialRequest.getBrandID())).orElse(null);
+                var brand = brandService.findBrandById(brandID).orElse(null);
                 if(brand == null){
-                    errors.add("Can not find Brand with BrandID: " + brandMaterialRequest.getBrandID());
+                    errors.add("Can not find Brand with BrandID " + brandID);
                 }
+
                 var material = materialService.findByMaterialNameAndCategory_CategoryName(brandMaterialRequest.getMaterialName(),
-                         brandMaterialRequest.getCategoryName());
+                        brandMaterialRequest.getCategoryName());
 
                 var existedFullMaterial =  materialService.isExistedMaterial(
                         MaterialRequest
@@ -326,61 +311,68 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 );
 
                 if(!existedFullMaterial || material.isEmpty()){
-                    errors.add("Material_Name at row Index: " + indexBrandMaterialRequest +  " Not Found!");
+                    errors.add("Material_Name at row Index " + (rowIndex + 1) +  " Not Found!");
                 }
 
-                if(!duplicateExcelData.add(brandMaterialRequest)){
-                    errors.add("Duplicate Brand Material Request Data at row Index: " + indexBrandMaterialRequest + " in Excel File");
+                if(rowDataValid && !brandPriceIsEmpty){
+                    var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
+                            brandMaterialRequest.getMaterialName(), brandID);
+
+                    if (brandMaterialExisted != null && brandMaterialExisted.getBrandPrice().equals(brandMaterialRequest.getBrandPrice())) {
+                        errors.add("Brand Material is existed at row Index " + (rowIndex + 1));
+                    }
+
+
+                    double basePrice = brandMaterialRequest.getBasePrice();
+                    double brandPrice = brandMaterialRequest.getBrandPrice();
+                    double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
+
+                    double lowerBound = basePrice * (1 - percentageFluctuation);
+                    double upperBound = basePrice * (1 + percentageFluctuation);
+
+                    brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
+                    lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
+                    upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
+
+                    if (brandPrice < lowerBound || brandPrice > upperBound) {
+                        errors.add("Brand Price at row Index: " + (rowIndex + 1) + " must be between " + lowerBound + " and " + upperBound);
+                    }
+
+                    if (errors.isEmpty()){
+                        BrandMaterialKey brandMaterialKey = BrandMaterialKey
+                                .builder()
+                                .brandID(brand.getBrandID())
+                                .materialID(material.get().getMaterialID())
+                                .build();
+
+
+                        brandMaterialRepository.save(
+                                BrandMaterial
+                                        .builder()
+                                        .brandMaterialKey(brandMaterialKey)
+                                        .material(material.get())
+                                        .brand(brand)
+                                        .brandPrice(brandPrice)
+                                        .build()
+                        );
+                        brandMaterialRequests.add(Pair.of(rowIndex + 1, brandMaterialRequest));
+                    }
                 }
 
-                var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
-                        brandMaterialRequest.getMaterialName(), UUID.fromString(brandMaterialRequest.getBrandID()));
-
-                if (brandMaterialExisted != null && brandMaterialExisted.getBrandPrice().equals(brandMaterialRequest.getBrandPrice())) {
-                    errors.add(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
+                if(!errors.isEmpty()){
+                    errorFields.add(new ErrorDetail(errors));
                 }
+                rowIndex++;
+            }
 
-                double basePrice = brandMaterialRequest.getBasePrice();
-                double brandPrice = brandMaterialRequest.getBrandPrice();
-                double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
-
-                double lowerBound = basePrice * (1 - percentageFluctuation);
-                double upperBound = basePrice * (1 + percentageFluctuation);
-
-                brandPrice = Utilities.roundToTwoDecimalPlaces(brandPrice);
-                lowerBound = Utilities.roundToTwoDecimalPlaces(lowerBound);
-                upperBound = Utilities.roundToTwoDecimalPlaces(upperBound);
-
-                if (brandPrice < lowerBound || brandPrice > upperBound) {
-                    errors.add("Brand Price at row Index: " + indexBrandMaterialRequest + " must be between " + lowerBound + " and " + upperBound);
-                }
-
-                if(errors.size() > 0){
-                    errorFields.add(new ErrorDetail(brandMaterialRequest, errors));
-                }
-                else{
-                    BrandMaterialKey brandMaterialKey = BrandMaterialKey
-                            .builder()
-                            .brandID(brand.getBrandID())
-                            .materialID(material.get().getMaterialID())
-                            .build();
-
-
-                    brandMaterialRepository.save(
-                            BrandMaterial
-                                    .builder()
-                                    .brandMaterialKey(brandMaterialKey)
-                                    .material(material.get())
-                                    .brand(brand)
-                                    .brandPrice(brandPrice)
-                                    .build()
-                    );
-                }
+            if(brandMaterialRequests.isEmpty() && errorFields.isEmpty()){
+                throw new BadRequestException("Brand Material Request Excel File Has Empty Data");
             }
 
             if (!errorFields.isEmpty()) {
                 throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", errorFields);
             }
+
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
