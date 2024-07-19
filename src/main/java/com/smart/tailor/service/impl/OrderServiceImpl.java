@@ -1,15 +1,14 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Design;
-import com.smart.tailor.entities.DesignDetail;
-import com.smart.tailor.entities.Order;
+import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.repository.OrderRepository;
+import com.smart.tailor.repository.PaymentRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.OrderPickingRequest;
@@ -27,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,9 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerService customerService;
     private final OrderMapper orderMapper;
     private final DesignDetailMapper detailMapper;
+    private final BrandMaterialService brandMaterialService;
     private final DesignDetailRepository detailRepository;
+    private final PaymentRepository paymentRepository;
     private final SystemPropertiesService systemPropertiesService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -115,6 +118,7 @@ public class OrderServiceImpl implements OrderService {
                             .orderStatus(orderRequest.getOrderStatus())
                             .orderType("SUB_ORDER")
                             .parentOrder(parentOrder.get())
+                            .totalPrice(0)
                             /**
                              * TODO
                              * .employee()
@@ -140,6 +144,7 @@ public class OrderServiceImpl implements OrderService {
                      * TODO
                      * .employee()
                      */
+                    .totalPrice(0)
                     .orderType("PARENT_ORDER")
                     .build();
             var orderResponse = orderRepository.save(order);
@@ -186,8 +191,11 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
                 order.setDetailList(detailList);
-                var response = orderMapper.mapToOrderCustomeResponse(order);
-                return response;
+
+                List<Payment> paymentList = paymentRepository.findAllByOrderID(orderID);
+                order.setPaymentList(paymentList);
+
+                return orderMapper.mapToOrderCustomResponse(order);
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -200,14 +208,14 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
                 order.setDetailList(detailList);
-                var response = orderMapper.mapToOrderCustomeResponse(order);
-                return response;
+                return orderMapper.mapToOrderCustomResponse(order);
             }
         } catch (Exception ex) {
             throw ex;
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Order> getOrderById(UUID orderID) {
         return orderRepository.findById(orderID);
@@ -237,6 +245,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll().stream().map(orderMapper::mapToOrderResponse).toList();
     }
 
+    @Transactional
     @Override
     public OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) {
         if (orderRequest.getOrderID() == null) {
@@ -272,8 +281,13 @@ public class OrderServiceImpl implements OrderService {
             UUID basedOrderID = orderPickingRequest.getOrderID();
             List<UUID> detailList = orderPickingRequest.getDetailList();
 
+            /**
+             * TODO
+             * check if detail is picked or not
+             */
+
             var checkExistBrand = brandService.getBrandById(brandID);
-            if (checkExistBrand == null) {
+            if (checkExistBrand.isEmpty()) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND + "with brandID: " + brandID);
             }
             var existedBrand = checkExistBrand.get();
@@ -302,6 +316,29 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
             }
+            int price = baseDesign.getPartOfDesignList().stream()
+                    .flatMap(partOfDesign -> Stream.concat(
+                            Stream.of(partOfDesign.getMaterial()),
+                            partOfDesign.getItemMaskList().stream().map(ItemMask::getMaterial)
+                    ))
+                    .collect(Collectors.toMap(
+                            material -> material,
+                            material -> 1,
+                            Integer::sum
+                    ))
+                    .entrySet().stream()
+                    .mapToInt(entry -> {
+                        var checkBrandMaterial = brandMaterialService.getPriceByID(
+                                BrandMaterialKey.builder()
+                                        .brandID(brandID)
+                                        .materialID(entry.getKey().getMaterialID())
+                                        .build()
+                        );
+                        return checkBrandMaterial.map(brandMaterial -> brandMaterial.getBrandPrice() * entry.getValue()).orElse(0);
+                    })
+                    .sum();
+
+            Integer quantity = 0;
 
             var existedBrandOrder = detailRepository.getDetailOfOrderBaseOnBrandID(basedOrderID, brandID);
             if (existedBrandOrder != null) {
@@ -314,9 +351,20 @@ public class OrderServiceImpl implements OrderService {
                     detail.setBrand(existedBrand);
                     detail.setDetailStatus(true);
                     detailRepository.save(detail);
+
+                    quantity += detail.getQuantity();
+                    price *= detail.getQuantity();
+
                     detailResponse.add(detail);
                 }
                 orderResponse = existedBrandOrder.getOrder();
+                orderResponse.setTotalPrice(price);
+                orderResponse.setQuantity(quantity);
+                orderRepository.save(orderResponse);
+
+                basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
+                orderRepository.save(basedOrder);
+
                 orderResponse.setDetailList(detailResponse);
                 return orderMapper.mapToOrderResponse(orderResponse);
             } else {
@@ -328,8 +376,8 @@ public class OrderServiceImpl implements OrderService {
                                 .builder()
                                 .parentOrderID(basedOrderID)
                                 .designID(design.getDesignID())
-                                .orderType("SUB_ORDER")
-                                .quantity(detail.getQuantity())
+                                .orderType(basedOrder.getOrderType())
+                                .quantity(0)
                                 .orderStatus(OrderStatus.PENDING)
                                 .address(basedOrder.getAddress())
                                 .province(basedOrder.getProvince())
@@ -347,9 +395,20 @@ public class OrderServiceImpl implements OrderService {
                     detail.setBrand(existedBrand);
                     detail.setDetailStatus(true);
                     detailRepository.save(detail);
+
+                    quantity += detail.getQuantity();
+                    price *= detail.getQuantity();
+
                     detailResponse.add(detail);
                 }
                 orderResponse = getOrderById(createdOrder.getOrderID()).get();
+                orderResponse.setTotalPrice(price);
+                orderResponse.setQuantity(quantity);
+                orderRepository.save(orderResponse);
+
+                basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
+                orderRepository.save(basedOrder);
+
                 orderResponse.setDetailList(detailResponse);
                 return orderMapper.mapToOrderResponse(orderResponse);
             }
@@ -367,9 +426,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Boolean isOrderCompletelyPicked(UUID orderID) {
         try {
-            var order = getOrderByOrderID(orderID);
+            logger.info("Inside method isOrderCompletelyPicked");
+            var order = orderRepository.findById(orderID).get();
             var detailList = order.getDetailList();
-            for (DesignDetailResponse detail : detailList) {
+            for (DesignDetail detail : detailList) {
                 if (!detail.getDetailStatus()) {
                     return false;
                 }
@@ -389,25 +449,19 @@ public class OrderServiceImpl implements OrderService {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime orderExpiredDateTime = order.getCreateDate()
 //                .plusMinutes(Integer.parseInt(systemPropertiesExpirationTime.get(0).getPropertyValue()));
-                .plusMinutes(1);
-
-        logger.info("Inside method isOrderExpireTime");
+                .plusSeconds(30);
         logger.info("CurrentDateTime {}", currentDateTime);
         logger.info("OrderExpiredDateTime {}", orderExpiredDateTime);
-        if(currentDateTime.isAfter(orderExpiredDateTime)){
-            return true;
-        }
-        return false;
+        return currentDateTime.isAfter(orderExpiredDateTime);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponse> getAllParentOrderWithUnVerifyStatus() {
+    public List<OrderResponse> getAllParentOrder() {
         return orderRepository
                 .findAll()
                 .stream()
-                .filter(orderResponse -> orderResponse.getOrderType().equals("PARENT_ORDER") &&
-                        orderResponse.getOrderStatus().name().equals(OrderStatus.NOT_VERIFY.name()))
+                .filter(orderResponse -> orderResponse.getOrderType().equals("PARENT_ORDER"))
                 .map(orderMapper::mapToOrderResponse)
                 .toList();
     }

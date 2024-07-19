@@ -18,12 +18,12 @@ import com.smart.tailor.utils.request.DesignDetailRequest;
 import com.smart.tailor.utils.request.DesignDetailSize;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.response.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +45,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final SizeService sizeService;
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
+    @Transactional(readOnly = true)
     @Override
     public DesignDetailCustomResponse findAllByOrderID(UUID orderID) {
         try {
@@ -62,9 +63,9 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 //                    detailList.add(designDetailMapper.mapperToDesignDetailResponse(detail));
 //                }
 //            }
-            responseList.setDesign(designMapper.mapperToDesignResponse(
-                    designService.getDesignObjectByOrderID(orderID)
-            ));
+            var designID = designService.getDesignObjectByOrderID(orderID).getDesignID();
+            var designResponse = designService.getDesignResponseByID(designID);
+            responseList.setDesign(designResponse);
             var order = orderService.getOrderById(orderID).get();
             responseList.setOrder(orderMapper.mapToOrderResponse(order));
             List<DesignDetail> detailList = order.getDetailList();

@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class DesignMaterialDetail {
     private MaterialResponse materialResponse;
     private Integer quantity;
-    private Double minPrice;
-    private Double maxPrice;
+    private Integer minPrice;
+    private Integer maxPrice;
 }

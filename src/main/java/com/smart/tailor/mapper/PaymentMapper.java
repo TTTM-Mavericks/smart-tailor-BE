@@ -32,7 +32,6 @@ class PaymentMapperImpl implements PaymentMapper {
         paymentResponse.paymentStatus(payment.getPaymentStatus());
         paymentResponse.paymentType(payment.getPaymentType());
         paymentResponse.orderID(payment.getOrder() != null ? payment.getOrder().getOrderID() : null);
-
         return paymentResponse.build();
     }
 }

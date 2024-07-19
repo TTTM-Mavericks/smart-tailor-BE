@@ -1,10 +1,13 @@
 package com.smart.tailor.service;
 
+import com.smart.tailor.entities.BrandMaterial;
+import com.smart.tailor.entities.BrandMaterialKey;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BrandMaterialService {
@@ -18,7 +21,9 @@ public interface BrandMaterialService {
 
     void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest);
 
-    Double getMinPriceByMaterialID(UUID materialID);
+    Integer getMinPriceByMaterialID(UUID materialID);
 
-    Double getMaxPriceByMaterialID(UUID materialID);
+    Integer getMaxPriceByMaterialID(UUID materialID);
+
+    Optional<BrandMaterial> getPriceByID(BrandMaterialKey key);
 }

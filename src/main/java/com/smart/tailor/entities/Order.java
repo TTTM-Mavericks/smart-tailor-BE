@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.smart.tailor.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -61,7 +62,7 @@ public class Order extends AuditEntity implements Serializable {
     private String buyerName;
 
     @Column(name = "total_price")
-    private Double totalPrice;
+    private Integer totalPrice;
 
     @Column(name = "expected_start_date")
     private LocalDateTime expectedStartDate;
@@ -79,5 +80,10 @@ public class Order extends AuditEntity implements Serializable {
     private LocalDateTime productionCompletionDate;
 
     @OneToMany(mappedBy = "order")
+    @JsonManagedReference
     private List<DesignDetail> detailList;
+
+    @OneToMany(mappedBy = "order")
+    @JsonManagedReference
+    private List<Payment> paymentList;
 }

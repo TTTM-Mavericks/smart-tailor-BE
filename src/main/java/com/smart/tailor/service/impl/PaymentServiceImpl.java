@@ -15,6 +15,8 @@ import com.smart.tailor.utils.request.PaymentRequest;
 import com.smart.tailor.utils.response.PayOSResponse;
 import com.smart.tailor.utils.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PayOSService payOSService;
     private final UserService userService;
     private final PaymentMapper paymentMapper;
+    private final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
     @Override
     public PaymentResponse createPayOSPayment(PaymentRequest paymentRequest) throws Exception {
@@ -84,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
             var order = paymentRequest.getOrder();
 
             if (paymentType.equals(PaymentType.DEPOSIT)) {
-                description = "Deposit For Order " + order.getOrderID();
+                description = "DEPOSIT ORDER";
             }
 
             PayOSResponse payOSResponse = payOSService.createPaymentLink(
@@ -103,6 +106,7 @@ public class PaymentServiceImpl implements PaymentService {
             if (payOSResponse == null) {
                 throw new Exception("Create PayOSPayment Fail!");
             }
+            logger.error("Create PayOSPayment Successfully! {}", payOSResponse);
             var storedPayment = paymentRepository.save(
                     Payment.builder()
                             .paymentSender(sender)
@@ -134,9 +138,10 @@ public class PaymentServiceImpl implements PaymentService {
             if (paymentID == null) {
                 throw new Exception(MessageConstant.MISSING_ARGUMENT);
             }
-            var payment = paymentRepository.findByPaymentID(paymentID);
-            if (payment.isPresent()) {
-                return paymentMapper.mapperToPaymentResponse(payment.get());
+            var checkPayment = paymentRepository.findByPaymentID(paymentID);
+            if (checkPayment.isPresent()) {
+                var payment = checkPayment.get();
+                return paymentMapper.mapperToPaymentResponse(payment);
             }
             return null;
         } catch (Exception ex) {

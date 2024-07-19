@@ -13,13 +13,13 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.PartOfDesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.PartOfDesignResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     private final Logger logger = LoggerFactory.getLogger(PartOfDesignServiceImpl.class);
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PartOfDesign> createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
         List<PartOfDesign> partOfDesignList = new ArrayList<>();
         for(PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList){
@@ -84,7 +84,6 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
             if(Optional.ofNullable(partOfDesignRequest.getItemMask()).isEmpty()){
                 continue;
             }
-
             List<ItemMask> itemMaskList = null;
             try{
                 itemMaskList = itemMaskService.createItemMask(savedPartOfDesign, partOfDesignRequest.getItemMask());
@@ -97,8 +96,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
             }
 
             // Set List Of ItemMask belong to PartOfDesign
-            savedPartOfDesign.setItemMaskList(itemMaskList);
-
+//            savedPartOfDesign.setItemMaskList(itemMaskList);
             // Add Correct PartOfDesign to ListPartOfDesign
             partOfDesignList.add(savedPartOfDesign);
         }

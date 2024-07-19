@@ -42,5 +42,5 @@ public interface OrderService {
 
     Boolean isOrderExpireTime(UUID orderID);
 
-    List<OrderResponse> getAllParentOrderWithUnVerifyStatus();
+    List<OrderResponse> getAllParentOrder();
 }
