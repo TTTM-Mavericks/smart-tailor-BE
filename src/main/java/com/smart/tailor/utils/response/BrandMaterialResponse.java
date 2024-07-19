@@ -24,9 +24,9 @@ public class BrandMaterialResponse {
 
     private String unit;
 
-    private Double basePrice;
+    private Integer basePrice;
 
-    private Double brandPrice;
+    private Integer brandPrice;
 
     private String createDate;
 
