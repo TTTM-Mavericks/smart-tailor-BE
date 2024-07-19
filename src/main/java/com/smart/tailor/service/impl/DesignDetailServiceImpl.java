@@ -157,6 +157,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             .orderStatus(OrderStatus.NOT_VERIFY)
                             .build()
             );
+            logger.info("CREATE NEW ORDER SUCCESSFULLY!");
             parentOrder = orderService.getOrderById(parentOrderResponse.getOrderID()).get();
 
             List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();

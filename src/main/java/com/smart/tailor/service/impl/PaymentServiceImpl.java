@@ -9,6 +9,7 @@ import com.smart.tailor.repository.PaymentRepository;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
@@ -107,6 +108,7 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new Exception("Create PayOSPayment Fail!");
             }
             logger.error("Create PayOSPayment Successfully! {}", payOSResponse);
+            logger.error("INSIDE PAYMENT SERVICE IMPL - ORDER CODE: {}", payOSResponse.getData().getOrderCode());
             var storedPayment = paymentRepository.save(
                     Payment.builder()
                             .paymentSender(sender)
@@ -124,6 +126,8 @@ public class PaymentServiceImpl implements PaymentService {
                             .paymentStatus(paymentStatus)
                             .paymentType(paymentType)
                             .order(paymentRequest.getOrder())
+
+                            .paymentCode(payOSResponse.getData().getOrderCode())
                             .build()
             );
             return paymentMapper.mapperToPaymentResponse(storedPayment);

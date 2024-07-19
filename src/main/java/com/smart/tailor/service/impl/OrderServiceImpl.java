@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Override
-    public OrderResponse createOrder(OrderRequest orderRequest) {
+    public OrderResponse createOrder(OrderRequest orderRequest) throws Exception {
         try {
             if (!Utilities.isStringNotNullOrEmpty(orderRequest.getDesignID().toString())) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
@@ -155,7 +152,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getParentOrderByDesignID(UUID designID) {
+    public List<OrderResponse> getParentOrderByDesignID(UUID designID) throws Exception {
         List<Order> orderList = orderRepository.findParentOrderByDesignID(designID);
         List<OrderResponse> orderResponse = new ArrayList<>();
         for (Order order : orderList) {
@@ -172,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderCustomResponse getOrderByOrderID(UUID orderID) {
+    public OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception {
         try {
 
             var order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
@@ -236,18 +233,29 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll()
                 .stream()
                 .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID))
-                .map(orderMapper::mapToOrderResponse)
+                .map(this::safeMapToOrderResponse)
                 .toList();
+    }
+
+    private OrderResponse safeMapToOrderResponse(Order order) {
+        try {
+            return orderMapper.mapToOrderResponse(order);
+        } catch (Exception e) {
+            // Log the exception
+            logger.error("Error mapping order to response: {}", order, e);
+            // Return a default or error response
+            return null;
+        }
     }
 
     @Override
     public List<OrderResponse> getAllOrder() {
-        return orderRepository.findAll().stream().map(orderMapper::mapToOrderResponse).toList();
+        return orderRepository.findAll().stream().map(this::safeMapToOrderResponse).toList();
     }
 
     @Transactional
     @Override
-    public OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) {
+    public OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) throws Exception {
         if (orderRequest.getOrderID() == null) {
             throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " orderID");
         }
@@ -321,6 +329,7 @@ public class OrderServiceImpl implements OrderService {
                             Stream.of(partOfDesign.getMaterial()),
                             partOfDesign.getItemMaskList().stream().map(ItemMask::getMaterial)
                     ))
+                    .filter(Objects::nonNull) // Lọc bỏ các vật liệu bị null
                     .collect(Collectors.toMap(
                             material -> material,
                             material -> 1,
@@ -462,7 +471,7 @@ public class OrderServiceImpl implements OrderService {
                 .findAll()
                 .stream()
                 .filter(orderResponse -> orderResponse.getOrderType().equals("PARENT_ORDER"))
-                .map(orderMapper::mapToOrderResponse)
+                .map(this::safeMapToOrderResponse)
                 .toList();
     }
 }

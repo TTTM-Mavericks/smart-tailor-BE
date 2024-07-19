@@ -12,13 +12,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface OrderService {
-    OrderResponse createOrder(OrderRequest orderRequest);
+    OrderResponse createOrder(OrderRequest orderRequest) throws Exception;
 
-    List<OrderResponse> getParentOrderByDesignID(UUID designID);
+    List<OrderResponse> getParentOrderByDesignID(UUID designID) throws Exception;
 
     void updateOrderStatus(UUID orderID, String orderStatus);
 
-    OrderCustomResponse getOrderByOrderID(UUID orderID);
+    OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception;
 
     Optional<Order> getOrderById(UUID orderID);
 
@@ -30,7 +30,7 @@ public interface OrderService {
 
     List<OrderResponse> getAllOrder();
 
-    OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest);
+    OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) throws Exception;
 
     void updateOrder(Order order);
 
