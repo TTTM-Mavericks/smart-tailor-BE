@@ -3,5 +3,5 @@ package com.smart.tailor.service;
 public interface ScheduleTaskService {
     void deleteUserWithEmailUnverifiedSchedule();
 
-    void checkValidOrderAfterExpirationTimeOrder();
+    void checkValidOrderAfterExpirationTimeOrder() throws Exception;
 }

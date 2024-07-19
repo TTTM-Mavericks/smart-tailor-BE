@@ -3,13 +3,14 @@ package com.smart.tailor.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.response.PayOSResponse;
 import com.smart.tailor.utils.response.PayOSResponseData;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -41,7 +42,7 @@ public class PayOSServiceImpl implements PayOSService {
     private String apiKey;
     @Value("${PAYOS_CHECKSUM_KEY}")
     private String checksumKey;
-
+    private final Logger logger = LoggerFactory.getLogger(PayOSServiceImpl.class);
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -51,33 +52,36 @@ public class PayOSServiceImpl implements PayOSService {
             String cancelUrl = "";
             String returnUrl = "";
 
-            Integer amount = 0;
+            Integer amount = paymentRequest.getAmount();
 
-            if (items == null || items.size() <= 0) {
-                throw new Exception(MessageConstant.MISSING_ARGUMENT);
-            }
-            for (PayOSItem item : items) {
-                if (item == null) {
-                    throw new Exception(MessageConstant.MISSING_ARGUMENT);
-                }
-                if (item.getName() == null || item.getName().trim().isEmpty() || item.getName().trim().isBlank()) {
-                    throw new Exception(MessageConstant.MISSING_ARGUMENT);
-                }
-                String name = item.getName();
+            logger.error("AMOUNT {}", amount);
+//            if (items == null || items.size() <= 0) {
+//                throw new Exception(MessageConstant.MISSING_ARGUMENT);
+//            }
+//            for (PayOSItem item : items) {
+//                if (item == null) {
+//                    throw new Exception(MessageConstant.MISSING_ARGUMENT);
+//                }
+//                if (item.getName() == null || item.getName().trim().isEmpty() || item.getName().trim().isBlank()) {
+//                    throw new Exception(MessageConstant.MISSING_ARGUMENT);
+//                }
+//                String name = item.getName();
+//
+//                if (item.getQuantity() == null || item.getQuantity() <= 0) {
+//                    item.setQuantity(1);
+//                }
+//                Integer quantity = item.getQuantity();
+//
+//                if (item.getPrice() == null || item.getPrice() < 0) {
+//                    item.setPrice(0);
+//                }
+//                Integer price = item.getPrice();
+//                amount += price * quantity;
+//            }
 
-                if (item.getQuantity() == null || item.getQuantity() <= 0) {
-                    item.setQuantity(1);
-                }
-                Integer quantity = item.getQuantity();
-
-                if (item.getPrice() == null || item.getPrice() < 0) {
-                    item.setPrice(0);
-                }
-                Integer price = item.getPrice();
-                amount += price * quantity;
-            }
             String currentTimeString = String.valueOf(LocalDateTime.now());
             Integer orderCode = Integer.parseInt(currentTimeString.substring(currentTimeString.length() - 6));
+            logger.info("ORDER CODE: {}", orderCode);
 //            cancelUrl = "https://be.mavericks-tttm.studio/payment-cancel";
             cancelUrl = paymentRequest.getCancelUrl();
 //            returnUrl = "https://be.mavericks-tttm.studio/payment-infor?payos=1&item=" + items.get(0).getName().trim().toUpperCase();
@@ -88,6 +92,7 @@ public class PayOSServiceImpl implements PayOSService {
             paymentRequest.setAmount(amount);
             paymentRequest.setReturnUrl(returnUrl);
             paymentRequest.setCancelUrl(cancelUrl);
+            paymentRequest.setDescription("PAYOS DESC");
 
             String bodyToSignature = createSignatureOfPaymentRequest(paymentRequest, checksumKey);
             paymentRequest.setSignature(bodyToSignature);
@@ -98,6 +103,9 @@ public class PayOSServiceImpl implements PayOSService {
             headers.set("x-client-id", clientId);
             headers.set("x-api-key", apiKey);
             // Gửi yêu cầu POST
+
+            logger.error("BEFORE POST TO PAYOS");
+
             WebClient client = WebClient.create();
             Mono<String> response = client.post()
                     .uri(createPaymentLinkUrl)
@@ -107,6 +115,7 @@ public class PayOSServiceImpl implements PayOSService {
                     .bodyToMono(String.class);
             String responseBody = response.block();
             JsonNode res = objectMapper.readTree(responseBody);
+            logger.info("AFTER POST TO PAYOS: {}", res);
             System.out.println(res);
             if (!Objects.equals(res.get("code").asText(), "00")) {
                 throw new Exception("Fail");
@@ -114,7 +123,8 @@ public class PayOSServiceImpl implements PayOSService {
             String bin = res.get("data").get("bin").asText();
             String accountNumber = res.get("data").get("accountNumber").asText();
             String accountName = res.get("data").get("accountName").asText();
-            String description = res.get("data").get("description").asText();
+            String description = "PayOS Description";
+//            String description = res.get("data").get("description").asText();
             String currency = res.get("data").get("currency").asText();
             String paymentLinkId = res.get("data").get("paymentLinkId").asText();
             status = res.get("data").get("status").asText();
@@ -125,6 +135,7 @@ public class PayOSServiceImpl implements PayOSService {
             String paymentLinkResSignature = createSignatureFromObj(res.get("data"), checksumKey);
 //    System.out.println("RES: " + res);
 //    System.out.println(paymentLinkResSignature);
+            logger.info("Line Code 132 {}", paymentLinkResSignature);
             if (!paymentLinkResSignature.equals(res.get("signature").asText())) {
 //      orderRepository.deleteOrderByOrderID(newestOrder.getId());
                 throw new Exception("Signature is not compatible");
@@ -142,6 +153,7 @@ public class PayOSServiceImpl implements PayOSService {
                     .checkoutUrl(checkoutUrl)
                     .qrCode(qrCode)
                     .build();
+            logger.info("Line Code 149 {}", responseData);
             PayOSResponse paymentResponse = PayOSResponse
                     .builder()
                     .code(res.get("code").asText())

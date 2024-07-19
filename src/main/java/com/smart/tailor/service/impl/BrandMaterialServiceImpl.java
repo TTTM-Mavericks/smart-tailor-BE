@@ -4,16 +4,13 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
 import com.smart.tailor.entities.BrandMaterial;
 import com.smart.tailor.entities.BrandMaterialKey;
-import com.smart.tailor.entities.Material;
 import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.BrandMaterialMapper;
 import com.smart.tailor.repository.BrandMaterialRepository;
 import com.smart.tailor.service.*;
-import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
-import com.smart.tailor.utils.response.CellErrorResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -68,8 +65,8 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         int brandPrice = brandMaterialRequest.getBrandPrice();
         double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
 
-        double lowerBound = basePrice * (1 - percentageFluctuation);
-        double upperBound = basePrice * (1 + percentageFluctuation);
+        Integer lowerBound = basePrice;
+        Integer upperBound = basePrice;
 
         int roundedLowerBound = (int) Math.ceil(lowerBound);
         int roundedUpperBound = (int) Math.ceil(upperBound);
@@ -151,32 +148,31 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 boolean brandPriceIsEmpty = false;
                 boolean isValid = false;
                 String message = "";
-                for(int cellIndex = 0; cellIndex < 6; cellIndex++){
+                for (int cellIndex = 0; cellIndex < 6; cellIndex++) {
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                    if(cell == null || cell.getCellType() == CellType.BLANK){
-                        if(cellIndex != 5) {
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        if (cellIndex != 5) {
                             inValidData = true;
                             rowDataValid = false;
                             errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty!");
-                        } else{
+                        } else {
                             brandPriceIsEmpty = true;
                         }
-                    }
-                    else{
-                        switch (cellIndex){
+                    } else {
+                        switch (cellIndex) {
                             case 0:
-                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     brandMaterialRequest.setCategoryName(cell.getStringCellValue());
-                                } else{
+                                } else {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
                                 }
                                 break;
                             case 1:
-                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     brandMaterialRequest.setMaterialName(cell.getStringCellValue());
-                                } else{
+                                } else {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
@@ -201,10 +197,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                         }
                                         break;
                                 }
-                                if(isValid && longValue >= 0){
+                                if (isValid && longValue >= 0) {
                                     brandMaterialRequest.setHsCode(longValue);
-                                }else{
-                                    if(isValid && longValue < 0){
+                                } else {
+                                    if (isValid && longValue < 0) {
                                         message = " Require Positive Numeric!";
                                     }
                                     inValidData = true;
@@ -213,9 +209,9 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                 }
                                 break;
                             case 3:
-                                if(cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()){
+                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     brandMaterialRequest.setUnit(cell.getStringCellValue());
-                                }else{
+                                } else {
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
@@ -382,27 +378,34 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
     }
 
-    private boolean isRowCompletelyEmptyForBrandMaterial(Row row){
-        for(int cellIndex = 0; cellIndex < 6; cellIndex++){
+    private boolean isRowCompletelyEmptyForBrandMaterial(Row row) {
+        for (int cellIndex = 0; cellIndex < 6; cellIndex++) {
             Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-            if(cell != null && cell.getCellType() != CellType.BLANK){
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
                 return false;
             }
         }
         return true;
     }
 
-    private String getCellNameForBrandMaterial(int cellIndex){
-        switch (cellIndex){
-            case 0: return "Category_Name";
-            case 1: return "Material_Name";
-            case 2: return "HS_Code";
-            case 3: return "Unit";
-            case 4: return "Base_Price";
-            case 5: return "Brand_Price";
-            default: return "Unknown_Data";
-            }
+    private String getCellNameForBrandMaterial(int cellIndex) {
+        switch (cellIndex) {
+            case 0:
+                return "Category_Name";
+            case 1:
+                return "Material_Name";
+            case 2:
+                return "HS_Code";
+            case 3:
+                return "Unit";
+            case 4:
+                return "Base_Price";
+            case 5:
+                return "Brand_Price";
+            default:
+                return "Unknown_Data";
         }
+    }
 
     @Override
     public void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
@@ -441,20 +444,25 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public Double getMinPriceByMaterialID(UUID materialID) {
+    public Integer getMinPriceByMaterialID(UUID materialID) {
         var value = brandMaterialRepository.getMinPriceByMaterialID(materialID);
         if (value == null) {
-            return 0.0;
+            return 0;
         }
         return value;
     }
 
     @Override
-    public Double getMaxPriceByMaterialID(UUID materialID) {
+    public Integer getMaxPriceByMaterialID(UUID materialID) {
         var value = brandMaterialRepository.getMaxPriceByMaterialID(materialID);
         if (value == null) {
-            return 0.0;
+            return 0;
         }
         return value;
+    }
+
+    @Override
+    public Optional<BrandMaterial> getPriceByID(BrandMaterialKey key) {
+        return brandMaterialRepository.findById(key);
     }
 }

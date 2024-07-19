@@ -1,6 +1,7 @@
 package com.smart.tailor.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,7 @@ public class DesignDetail extends AuditEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", unique = false, nullable = true)
+    @JsonBackReference
     private Order order;
 
     @ManyToOne

@@ -13,13 +13,13 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
 import com.smart.tailor.utils.response.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,6 @@ public class DesignServiceImpl implements DesignService {
     private final DesignMapper designMapper;
     private final Logger logger = LoggerFactory.getLogger(DesignServiceImpl.class);
 
-    @Transactional
     @Override
     public APIResponse addNewDesign(DesignRequest designRequest) {
         if (!Utilities.isValidBoolean(designRequest.getPublicStatus())) {
@@ -129,6 +128,7 @@ public class DesignServiceImpl implements DesignService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public DesignResponse getDesignResponseByID(UUID designID) {
         var designOptional = designRepository.findById(designID);
@@ -326,6 +326,7 @@ public class DesignServiceImpl implements DesignService {
             design.getPartOfDesignList().clear();
             partOfDesignService.deletePartOfDesignByDesignID(designID);
             partOfDesignList = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
+        logger.error("CURRENT LINE: {}", 329);
         } catch (BadRequestException ex) {
             logger.error("Bad Request Exception in Update Part Of Design {}", ex.getMessage());
             throw new BadRequestException(ex.getMessage());
@@ -335,7 +336,7 @@ public class DesignServiceImpl implements DesignService {
         }
 
         byte[] base64ImageUrl = null;
-        if(Optional.ofNullable(designRequest.getImageUrl()).isPresent()){
+        if (Optional.ofNullable(designRequest.getImageUrl()).isPresent()) {
             base64ImageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
         }
 

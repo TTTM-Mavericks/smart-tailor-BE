@@ -5,12 +5,14 @@ import com.smart.tailor.service.DesignService;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 public interface OrderMapper {
     OrderResponse mapToOrderResponse(Order order);
 
-    OrderCustomResponse mapToOrderCustomeResponse(Order order);
+    OrderCustomResponse mapToOrderCustomResponse(Order order);
 }
 
 @Component
@@ -18,6 +20,8 @@ public interface OrderMapper {
 class OrderMapperImpl implements OrderMapper {
     private final DesignService designService;
     private final DesignDetailMapper detailMapper;
+    private final PaymentMapper paymentMapper;
+    private final Logger logger = LoggerFactory.getLogger(OrderMapperImpl.class);
 
     @Override
     public OrderResponse mapToOrderResponse(Order order) {
@@ -44,13 +48,18 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.productionStartDate(order.getProductionStartDate());
         orderResponse.productionCompletionDate(order.getProductionCompletionDate());
         orderResponse.detailList(
-                order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
+                order.getDetailList() != null ? order.getDetailList().stream().map(
+                        detailMapper::mapperToDesignDetailResponse
+                ).toList() : null
+        );
+        orderResponse.paymentList(
+                order.getPaymentList() != null ? order.getPaymentList().stream().map(paymentMapper::mapperToPaymentResponse).toList() : null
         );
         return orderResponse.build();
     }
 
     @Override
-    public OrderCustomResponse mapToOrderCustomeResponse(Order order) {
+    public OrderCustomResponse mapToOrderCustomResponse(Order order) {
         if (order == null) {
             return null;
         }
@@ -76,6 +85,10 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.productionCompletionDate(order.getProductionCompletionDate());
         orderResponse.detailList(
                 order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
+        );
+        logger.error("PAYMENT LIST {}", order.getPaymentList().size());
+        orderResponse.paymentList(
+                order.getPaymentList() != null ? order.getPaymentList().stream().map(paymentMapper::mapperToPaymentResponse).toList() : null
         );
         return orderResponse.build();
     }

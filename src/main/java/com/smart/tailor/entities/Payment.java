@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import jakarta.persistence.*;
@@ -72,6 +73,7 @@ public class Payment extends AuditEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
+    @JsonBackReference
     private Order order;
 
     @Enumerated(EnumType.STRING)
