@@ -1,18 +1,26 @@
 package com.smart.tailor.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Order;
+import com.smart.tailor.entities.Payment;
 import com.smart.tailor.service.DesignService;
+import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
+import com.smart.tailor.utils.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public interface OrderMapper {
-    OrderResponse mapToOrderResponse(Order order);
+    OrderResponse mapToOrderResponse(Order order) throws Exception;
 
-    OrderCustomResponse mapToOrderCustomResponse(Order order);
+    OrderCustomResponse mapToOrderCustomResponse(Order order) throws Exception;
 }
 
 @Component
@@ -20,11 +28,13 @@ public interface OrderMapper {
 class OrderMapperImpl implements OrderMapper {
     private final DesignService designService;
     private final DesignDetailMapper detailMapper;
+    private final PaymentService paymentService;
     private final PaymentMapper paymentMapper;
     private final Logger logger = LoggerFactory.getLogger(OrderMapperImpl.class);
 
+    @Transactional(readOnly = true)
     @Override
-    public OrderResponse mapToOrderResponse(Order order) {
+    public OrderResponse mapToOrderResponse(Order order) throws JsonProcessingException {
         if (order == null) {
             return null;
         }
@@ -52,14 +62,19 @@ class OrderMapperImpl implements OrderMapper {
                         detailMapper::mapperToDesignDetailResponse
                 ).toList() : null
         );
-        orderResponse.paymentList(
-                order.getPaymentList() != null ? order.getPaymentList().stream().map(paymentMapper::mapperToPaymentResponse).toList() : null
-        );
+        List<PaymentResponse> paymentResponseList = new ArrayList<>();
+        if (order.getPaymentList() != null && !order.getPaymentList().isEmpty()) {
+            for (Payment p : order.getPaymentList()) {
+                paymentResponseList.add(paymentMapper.mapperToPaymentResponse(p));
+            }
+        }
+        orderResponse.paymentList(paymentResponseList);
         return orderResponse.build();
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public OrderCustomResponse mapToOrderCustomResponse(Order order) {
+    public OrderCustomResponse mapToOrderCustomResponse(Order order) throws JsonProcessingException {
         if (order == null) {
             return null;
         }
@@ -86,10 +101,13 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.detailList(
                 order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
         );
-        logger.error("PAYMENT LIST {}", order.getPaymentList().size());
-        orderResponse.paymentList(
-                order.getPaymentList() != null ? order.getPaymentList().stream().map(paymentMapper::mapperToPaymentResponse).toList() : null
-        );
+        List<PaymentResponse> paymentResponseList = new ArrayList<>();
+        if (order.getPaymentList() != null && !order.getPaymentList().isEmpty()) {
+            for (Payment p : order.getPaymentList()) {
+                paymentResponseList.add(paymentMapper.mapperToPaymentResponse(p));
+            }
+        }
+        orderResponse.paymentList(paymentResponseList);
         return orderResponse.build();
     }
 }

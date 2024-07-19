@@ -3,6 +3,7 @@ package com.smart.tailor.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
+import com.smart.tailor.utils.response.PayOSResponse;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -79,4 +80,6 @@ public class Payment extends AuditEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_type")
     private PaymentType paymentType;
+
+    private Integer paymentCode;
 }

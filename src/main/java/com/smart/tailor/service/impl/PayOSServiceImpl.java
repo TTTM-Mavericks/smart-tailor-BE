@@ -1,8 +1,12 @@
 package com.smart.tailor.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.smart.tailor.entities.PayOSData;
+import com.smart.tailor.mapper.PayOSDataMapper;
+import com.smart.tailor.repository.PayOSDataRepository;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
@@ -43,6 +47,8 @@ public class PayOSServiceImpl implements PayOSService {
     @Value("${PAYOS_CHECKSUM_KEY}")
     private String checksumKey;
     private final Logger logger = LoggerFactory.getLogger(PayOSServiceImpl.class);
+    private final PayOSDataRepository payOSRepository;
+    private final PayOSDataMapper payOSDataMapper;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -115,7 +121,7 @@ public class PayOSServiceImpl implements PayOSService {
                     .bodyToMono(String.class);
             String responseBody = response.block();
             JsonNode res = objectMapper.readTree(responseBody);
-            logger.info("AFTER POST TO PAYOS: {}", res);
+//            logger.info("AFTER POST TO PAYOS: {}", res);
             System.out.println(res);
             if (!Objects.equals(res.get("code").asText(), "00")) {
                 throw new Exception("Fail");
@@ -135,7 +141,7 @@ public class PayOSServiceImpl implements PayOSService {
             String paymentLinkResSignature = createSignatureFromObj(res.get("data"), checksumKey);
 //    System.out.println("RES: " + res);
 //    System.out.println(paymentLinkResSignature);
-            logger.info("Line Code 132 {}", paymentLinkResSignature);
+//            logger.info("Line Code 132 {}", paymentLinkResSignature);
             if (!paymentLinkResSignature.equals(res.get("signature").asText())) {
 //      orderRepository.deleteOrderByOrderID(newestOrder.getId());
                 throw new Exception("Signature is not compatible");
@@ -153,7 +159,23 @@ public class PayOSServiceImpl implements PayOSService {
                     .checkoutUrl(checkoutUrl)
                     .qrCode(qrCode)
                     .build();
-            logger.info("Line Code 149 {}", responseData);
+
+            PayOSData payOSData = PayOSData.builder()
+                    .accountNumber(accountNumber)
+                    .bin(bin)
+                    .accountName(accountName)
+                    .amount(amount)
+                    .description(description)
+                    .orderCode(orderCode)
+                    .currency(currency)
+                    .paymentLinkId(paymentLinkId)
+                    .status(status)
+                    .checkoutUrl(checkoutUrl)
+                    .qrCode(qrCode)
+                    .build();
+            payOSRepository.save(payOSData);
+
+//            logger.info("Line Code 149 {}", responseData);
             PayOSResponse paymentResponse = PayOSResponse
                     .builder()
                     .code(res.get("code").asText())
@@ -166,6 +188,95 @@ public class PayOSServiceImpl implements PayOSService {
             throw ex;
         }
     }
+
+    @Override
+    public PayOSResponse getPaymentInfo(Integer paymentID) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-client-id", clientId);
+        headers.set("x-api-key", apiKey);
+        // Gửi yêu cầu POST
+        WebClient client = WebClient.create();
+        Mono<String> response = client.get()
+                .uri(createPaymentLinkUrl + "/" + paymentID)
+                .headers(httpHeaders -> httpHeaders.putAll(headers))
+                .retrieve()
+                .bodyToMono(String.class);
+        String responseBody = response.block();
+        JsonNode res = objectMapper.readTree(responseBody);
+        System.out.println(paymentID);
+        System.out.println(res);
+        if (!Objects.equals(res.get("code").asText(), "00")) {
+            logger.error("GET PAYOS RESPONSE FAIL!");
+            return null;
+        }
+
+        String code = res.get("code").asText();
+        String desc = res.get("desc").asText();
+        String id = res.get("data").get("id").asText();
+        Integer orderCode = Integer.parseInt(res.get("data").get("orderCode").asText());
+        Integer amount = Integer.parseInt(res.get("data").get("amount").asText());
+        Integer amountPaid = Integer.parseInt(res.get("data").get("amountPaid").asText());
+        Integer amountRemaining = Integer.parseInt(res.get("data").get("amountRemaining").asText());
+        String status = res.get("data").get("status").asText();
+        String createdAt = res.get("data").get("createdAt").asText();
+//        List<Transactions> transactions = new ArrayList<>();
+//        JsonNode jsonArrayNode = res.get("data").get("transactions");
+//        for (JsonNode jsonNode : jsonArrayNode) {
+//            Transactions transactionsObject = objectMapper.convertValue(jsonNode, Transactions.class);
+//            transactions.add(transactionsObject);
+//        }
+        String canceledAt = res.get("data").get("canceledAt").asText();
+        String cancellationReason = res.get("data").get("cancellationReason").asText();
+        String signature = res.get("signature").asText();
+//
+//        PayOSResponseData data = PayOSResponseData
+//                .builder()
+//                .bin()
+//                .orderCode(orderCode)
+//                .amount(amount)
+//                .amountPaid(amountPaid)
+//                .amountRemaining(amountRemaining)
+//                .status(status)
+//                .createdAt(createdAt)
+//                .transactions(transactions)
+//                .canceledAt(canceledAt)
+//                .cancellationReason(cancellationReason)
+//                .build();
+//
+//        Payment paymentObject = paymentRepository.getByPaymentID(orderCode);
+//
+//        PaymentInformation paymentInformation = PaymentInformation
+//                .builder()
+//                .code(code)
+//                .desc(desc)
+//                .data(data)
+//                .signature(signature)
+//                .checkoutUrl(paymentObject.getCheckoutUrl())
+//                .qrCode(paymentObject.getQrCode())
+//                .build();
+//        return paymentInformation;
+        System.out.println("CODE IS: " + orderCode);
+        var payOSData = payOSRepository.findById(Integer.valueOf(orderCode));
+        if (payOSData.isEmpty()) {
+            System.out.println("CAN NOT FIND BY CODE: "+ orderCode);
+            return null;
+        }
+        PayOSResponse payOSResponse = PayOSResponse
+                .builder()
+                .code(code)
+                .data(
+                        payOSDataMapper.mapToPayOSResponseData(payOSData.get())
+                )
+                .signature(signature)
+                .desc(desc)
+                .build();
+        System.out.println(payOSResponse);
+        logger.info("PAYOS RESPONSE {}", payOSResponse);
+        return payOSResponse;
+    }
+
 
     private static String convertObjToQueryStr(JsonNode object) {
         StringBuilder stringBuilder = new StringBuilder();

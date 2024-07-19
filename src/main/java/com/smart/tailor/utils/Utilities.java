@@ -1,16 +1,16 @@
 package com.smart.tailor.utils;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,11 +93,11 @@ public class Utilities {
     }
 
     public static boolean isValidUUIDType(String uuid) {
-        if(uuid == null) return false;
-        try{
+        if (uuid == null) return false;
+        try {
             UUID.fromString(uuid);
             return true;
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }
@@ -148,9 +148,36 @@ public class Utilities {
         return bd.doubleValue();
     }
 
-    public static byte[] encodeStringToBase64(String stringToCode){
+    public static byte[] encodeStringToBase64(String stringToCode) {
         byte[] bytesToEncode = stringToCode.getBytes();
         return Base64.getEncoder().encode(bytesToEncode);
     }
 
+    private static final Set<Integer> usedNumbers = new HashSet<>();
+
+    public static int convertUUIDToInt(String uuidStr){
+        if (uuidStr.equals("null")) {
+            return 000000;
+        }
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        byte[] hash = md.digest(uuidStr.getBytes(StandardCharsets.UTF_8));
+        BigInteger number = new BigInteger(1, hash);
+        int intValue = number.mod(BigInteger.valueOf(1000000)).intValue();
+
+        // Kiểm tra xung đột và tạo lại nếu cần
+        while (usedNumbers.contains(intValue)) {
+            uuidStr = UUID.randomUUID().toString();
+            hash = md.digest(uuidStr.getBytes(StandardCharsets.UTF_8));
+            number = new BigInteger(1, hash);
+            intValue = number.mod(BigInteger.valueOf(1000000)).intValue();
+        }
+
+        usedNumbers.add(intValue);
+        return intValue;
+    }
 }
