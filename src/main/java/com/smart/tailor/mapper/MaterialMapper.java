@@ -18,7 +18,7 @@ public interface MaterialMapper {
     @Mapping(source = "material.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     MaterialWithPriceResponse mapperToMaterialResponseWithPrices(Material material);
 
-    default MaterialWithPriceResponse mapperToMaterialResponseWithPrices(Material material, Double minPrice, Double maxPrice) {
+    default MaterialWithPriceResponse mapperToMaterialResponseWithPrices(Material material, Integer minPrice, Integer maxPrice) {
         MaterialWithPriceResponse response = mapperToMaterialResponseWithPrices(material);
         response.setMinPrice(minPrice);
         response.setMaxPrice(maxPrice);

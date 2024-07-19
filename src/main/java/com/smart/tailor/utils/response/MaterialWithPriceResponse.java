@@ -22,11 +22,11 @@ public class MaterialWithPriceResponse {
 
     private String unit;
 
-    private Double basePrice;
+    private Integer basePrice;
 
-    private Double minPrice;
+    private Integer minPrice;
 
-    private Double maxPrice;
+    private Integer maxPrice;
 
     private Boolean status;
 
