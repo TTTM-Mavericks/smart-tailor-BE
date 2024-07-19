@@ -116,7 +116,6 @@ public class MaterialServiceImpl implements MaterialService {
                 boolean rowDataValid = true;
                 boolean isValid = false;
                 String message = "";
-                double numericValue = -1;
                 for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     if (cell == null || cell.getCellType() == CellType.BLANK) {
@@ -184,16 +183,16 @@ public class MaterialServiceImpl implements MaterialService {
                                 break;
                             case 4:
                                 isValid = false;
-                                numericValue = -1;
+                                Integer basePrice = -1;
                                 message = " Require Data Type Numeric!";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        numericValue = cell.getNumericCellValue();
+                                        basePrice = (int) cell.getNumericCellValue();
                                         isValid = true;
                                         break;
                                     case STRING:
                                         try {
-                                            numericValue = Double.parseDouble(cell.getStringCellValue());
+                                            basePrice = Integer.parseInt(cell.getStringCellValue());
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
@@ -201,10 +200,10 @@ public class MaterialServiceImpl implements MaterialService {
                                         }
                                         break;
                                 }
-                                if (isValid && numericValue >= 0) {
-                                    materialRequest.setBasePrice(numericValue);
+                                if (isValid && basePrice >= 0) {
+                                    materialRequest.setBasePrice(basePrice);
                                 } else {
-                                    if (isValid && numericValue < 0) {
+                                    if (isValid && basePrice < 0) {
                                         message = " Require Positive Numeric!";
                                     }
                                     inValidData = true;
@@ -247,6 +246,7 @@ public class MaterialServiceImpl implements MaterialService {
                                         .status(true)
                                         .build()
                         );
+                        materialRequests.add(Pair.of(rowIndex + 1, materialRequest));
                     }
                 }
                 if (!errors.isEmpty())

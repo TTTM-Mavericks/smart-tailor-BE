@@ -40,11 +40,11 @@ public class BrandMaterialRequest {
 
     @NotNull(message = "basePrice is required")
     @Min(value = 0, message = "basePrice can not less than 0")
-    private Double basePrice;
+    private Integer basePrice;
 
     @NotNull(message = "brandPrice is required")
     @Min(value = 0, message = "brandPrice can not less than 0")
-    private Double brandPrice;
+    private Integer brandPrice;
 
     @Override
     public String toString() {

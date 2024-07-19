@@ -15,7 +15,7 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
     @Modifying
     @Transactional
     @Query(value = "update brand_material set brand_price = ?1, last_modified_date = current_timestamp where brand_id = ?2 and material_id = ?3", nativeQuery = true)
-    void updateBrandMaterial(Double brandPrice, UUID brandID, UUID materialID);
+    void updateBrandMaterial(Integer brandPrice, UUID brandID, UUID materialID);
 
     @Query(
             value = "select bm.* from brand_material bm join brand b on bm.brand_id = b.brand_id " +
@@ -40,5 +40,5 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
     )
     BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandNameAndHsCodeAndPrice(
             String categoryName, String materialName, String brandName, Long hsCode,
-            String unit, Double basePrice, Double brandPrice);
+            String unit, Integer basePrice, Integer brandPrice);
 }

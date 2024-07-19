@@ -41,7 +41,7 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
             String categoryName,
             Long hsCode,
             String unit,
-            Double basePrice
+            Integer basePrice
     );
 
     @Query(value = "select m.* from material m join category c on m.category_id = c.category_id " +
