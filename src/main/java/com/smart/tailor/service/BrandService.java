@@ -5,6 +5,7 @@ import com.smart.tailor.utils.request.BrandRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,4 +27,6 @@ public interface BrandService {
     Brand updateBrand(Brand brand) throws Exception;
 
     Optional<Brand> findBrandById(UUID brandID);
+
+    List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID);
 }

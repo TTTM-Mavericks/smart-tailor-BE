@@ -3,7 +3,9 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
+import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
@@ -473,5 +475,54 @@ public class OrderServiceImpl implements OrderService {
                 .filter(orderResponse -> orderResponse.getOrderType().equals("PARENT_ORDER"))
                 .map(this::safeMapToOrderResponse)
                 .toList();
+    }
+
+    @Override
+    public List<String> filterBrandForSpecificOrderBaseOnDesign(UUID designID) {
+        logger.info("DesignID {}", designID);
+        var designResponse = designService.getDesignByID(designID);
+        if(designResponse == null){
+            throw new ItemNotFoundException("Can not find Design By Design ID: " + designID);
+        }
+
+        // Find all brands by Expert Tailoring ID of the Design
+        var expertTailoring = designResponse.getExpertTailoring();
+        var brandExpertTailoringSelected = brandService.findAllBrandByExpertTailoringID(expertTailoring.getExpertTailoringID());
+
+        brandExpertTailoringSelected.forEach(brand -> logger.info("Brand Selected by Expert Tailoring: {}", brand.getUser().getEmail()));
+
+
+        // Get all material IDs of the design
+        Set<UUID> designMaterialIDs = new HashSet<>();
+        designResponse.getPartOfDesignList().forEach(partOfDesign -> {
+            var materialPartOfDesign = partOfDesign.getMaterial();
+            if(materialPartOfDesign != null){
+                designMaterialIDs.add(materialPartOfDesign.getMaterialID());
+            }
+            partOfDesign.getItemMaskList().forEach(itemMask -> {
+                var materialItemMask = itemMask.getMaterial();
+                if (materialItemMask != null) {
+                    designMaterialIDs.add(materialItemMask.getMaterialID());
+                }
+            });
+        });
+
+        designMaterialIDs.forEach(designMaterial -> logger.info("Design Material ID {}", designMaterial));
+
+        // Filter brands that have all materials used in the design
+        List<String> brandResponses = new ArrayList<>();
+        for(var brand : brandExpertTailoringSelected){
+            var brandMaterials = brandMaterialService.getAllBrandMaterialByBrandID(brand.getBrandID());
+            long matchingMaterialCount = designMaterialIDs
+                    .stream()
+                    .filter(designMaterialID ->
+                                 brandMaterials.stream().anyMatch(brandMaterial -> brandMaterial.getMaterialID().toString().equals(designMaterialID.toString())))
+                    .count();
+
+            if(matchingMaterialCount == designMaterialIDs.size()){
+                brandResponses.add("BrandID : " + brand.getBrandID().toString() + " and BrandEmail: " + brand.getUser().getEmail());
+            }
+        }
+        return brandResponses;
     }
 }

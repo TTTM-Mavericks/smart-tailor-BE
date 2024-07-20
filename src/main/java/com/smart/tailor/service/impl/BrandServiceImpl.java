@@ -24,10 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -213,5 +210,10 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public Optional<Brand> findBrandById(UUID brandID) {
         return brandRepository.findById(brandID);
+    }
+
+    @Override
+    public List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID) {
+        return brandRepository.findAllBrandByExpertTailoringID(expertTailoringID);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,4 +24,8 @@ public interface BrandRepository extends JpaRepository<Brand, UUID> {
 
     @Query(value = "select b.* from brand b join users u on b.brand_id = u.user_id where u.email = ?1", nativeQuery = true)
     Brand findBrandByUserEmail(String email);
+
+    @Query(value = "select b.* from brand b join brand_expert_tailoring bet on b.brand_id = bet.brand_id " +
+            "join expert_tailoring et on et.expert_tailoring_id = bet.expert_tailoring_id where et.expert_tailoring_id = ?1 ", nativeQuery = true)
+    List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID);
 }
