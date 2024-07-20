@@ -259,7 +259,7 @@ public class MaterialServiceImpl implements MaterialService {
             }
 
             if (!errorFields.isEmpty()) {
-                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", errorFields);
+                throw new ExcelFileInvalidDataTypeException("The Material Excel File have " + materialRequests.size() + " create Success and " + errorFields.size() + " create Failure", errorFields);
             }
         } catch (IOException ex) {
             logger.error("Error processing excel file", ex);
