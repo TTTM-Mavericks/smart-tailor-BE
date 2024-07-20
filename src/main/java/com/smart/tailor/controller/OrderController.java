@@ -141,4 +141,19 @@ public class OrderController {
             return ResponseEntity.ok(response);
         }
     }
+
+    @GetMapping("/filter-brand-by-design-id/{designID}")
+    public ResponseEntity<ObjectNode> filterBrandForSpecificOrderBaseOnDesign(@Valid @PathVariable("designID") UUID designID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", "Filter Brand For Specific Order Base On Design");
+            var listFilterBrand = orderService.filterBrandForSpecificOrderBaseOnDesign(designID);
+            response.set("data", objectMapper.valueToTree(listFilterBrand));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
 }

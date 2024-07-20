@@ -16,6 +16,8 @@ import java.util.UUID;
 public class BrandMaterialResponse {
     private UUID brandID;
 
+    private UUID materialID;
+
     private String categoryName;
 
     private String materialName;

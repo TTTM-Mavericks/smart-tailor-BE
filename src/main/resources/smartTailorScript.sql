@@ -376,3 +376,38 @@ VALUES ((SELECT user_id FROM users WHERE email = 'doanthuan97@gmail.com'), 'Nike
        ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Puma Brand', 4.0, 'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '441 Lê Văn Việt', 'Tăng Nhơn Phú A', ' Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null);
+
+
+-- INSERT BRAND EXPERT TAILORING
+INSERT INTO brand_expert_tailoring(brand_id, expert_tailoring_id, create_date, last_modified_date)
+VALUES
+
+-- Brand with email ngohongquang999@gmail.com have ExpertTailoringName: shirtModel,
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp, null),
+
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp, null),
+
+-- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null),
+
+-- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), current_timestamp, null),
+
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null);
