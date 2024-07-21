@@ -4,12 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant.DesignDetailAPI;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.event.CreateDesignDetailEvent;
 import com.smart.tailor.service.DesignDetailService;
 import com.smart.tailor.utils.request.DesignDetailRequest;
+import com.smart.tailor.utils.response.DesignDetailResponse;
+import com.smart.tailor.utils.response.OrderDetailResponse;
 import com.smart.tailor.validate.ValidUUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +29,7 @@ public class DesignDetailController {
     private final Logger logger = LoggerFactory.getLogger(DesignDetailController.class);
     private final ObjectMapper objectMapper;
     private final DesignDetailService designDetailService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @PostMapping(DesignDetailAPI.ADD_NEW_DESIGN_DETAIL)
     public ResponseEntity<ObjectNode> addNewDesignDetail(@RequestBody DesignDetailRequest designDetailRequest) {
@@ -33,6 +38,9 @@ public class DesignDetailController {
         response.put("status", apiResponse.getStatus());
         response.put("message", apiResponse.getMessage());
         response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        var orderDetailResponse = (OrderDetailResponse) apiResponse.getData();
+        logger.info("Order Detail Response in addNewDesignDetail {}", orderDetailResponse);
+        applicationEventPublisher.publishEvent(new CreateDesignDetailEvent(orderDetailResponse));
         return ResponseEntity.ok(response);
     }
 

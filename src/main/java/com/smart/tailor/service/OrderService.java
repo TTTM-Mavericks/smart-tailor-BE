@@ -45,5 +45,6 @@ public interface OrderService {
 
     List<OrderResponse> getAllParentOrder();
 
-    List<String> filterBrandForSpecificOrderBaseOnDesign(UUID design);
+    List<String> filterBrandForSpecificOrderBaseOnDesign(UUID designID);
+
 }

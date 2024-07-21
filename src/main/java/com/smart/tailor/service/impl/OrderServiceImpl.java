@@ -520,7 +520,7 @@ public class OrderServiceImpl implements OrderService {
                     .count();
 
             if(matchingMaterialCount == designMaterialIDs.size()){
-                brandResponses.add("BrandID : " + brand.getBrandID().toString() + " and BrandEmail: " + brand.getUser().getEmail());
+                brandResponses.add(brand.getUser().getEmail());
             }
         }
         return brandResponses;

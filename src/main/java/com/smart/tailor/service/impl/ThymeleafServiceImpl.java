@@ -1,6 +1,8 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.service.ThymeleafService;
+import com.smart.tailor.utils.response.OrderCustomResponse;
+import com.smart.tailor.utils.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -23,6 +25,7 @@ public class ThymeleafServiceImpl implements ThymeleafService {
     private static final String TEMPLATE_VERIFY_ACCOUNT = "TemplateVerifyAccount";
     private static final String TEMPLATE_RESET_PASSWORD = "TemplateResetPassword";
     private static final String TEMPLATE_CHANGE_PASSWORD = "TemplateChangePassword";
+    private static final String TEMPLATE_SELECTED_BRAND_FOR_SPECIFIC_ORDER = "TemplateSelectedBrandForSpecificOrder";
     private static final TemplateEngine templateEngine;
 
     static
@@ -75,5 +78,15 @@ public class ThymeleafServiceImpl implements ThymeleafService {
         context.setVariable("email", email);
         context.setVariable("verificationUrl", verificationUrl);
         return templateEngine.process(TEMPLATE_CHANGE_PASSWORD, context);
+    }
+
+    @Override
+    public String createThymeleafForSelectedBrandForSpecificOrder(String email, OrderCustomResponse orderResponse, String sendMailSelectedBrandsForOrderLink) {
+        final Context context = new Context();
+        context.setVariable("email", email);
+        context.setVariable("orderID", orderResponse.getOrderID());
+        context.setVariable("detailList", orderResponse.getDetailList());
+        context.setVariable("sendMailSelectedBrandsForOrderLink", sendMailSelectedBrandsForOrderLink);
+        return templateEngine.process(TEMPLATE_SELECTED_BRAND_FOR_SPECIFIC_ORDER, context);
     }
 }

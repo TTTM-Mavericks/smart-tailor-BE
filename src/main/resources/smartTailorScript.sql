@@ -283,17 +283,17 @@ VALUES
  (SELECT category_id FROM category WHERE category_name = 'Embroider'));
 
 
--- -- Sample Data Expert Tailoring Material
--- INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
--- -- ExpertTailoring : shirtModel and Category : Fabric
--- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
--- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),true,NOW(), NULL),
--- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),true,NOW(),NULL),
---
--- -- ExpertTailoring : shirtModel and Category : Thread
--- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),true,NOW(),NULL),
--- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),true,NOW(), NULL),
--- ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),true,NOW(),NULL);
+-- Sample Data Expert Tailoring Material
+INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
+-- ExpertTailoring : shirtModel and Category : Fabric
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),true,NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),true,NOW(),NULL),
+
+-- ExpertTailoring : shirtModel and Category : Thread
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),true,NOW(),NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),true,NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),true,NOW(),NULL);
 
 -- size
 INSERT INTO size (size_id, size_name, status, create_date, last_modified_date)
@@ -333,17 +333,17 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), 'nguyenvanquan@gmail.com',
         (SELECT role_id FROM roles WHERE role_name = 'CUSTOMER'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg',
         current_timestamp, null),
 
-       (UNHEX(REPLACE(UUID(), '-', '')), 'doanthuan97@gmail.com',
+       (UNHEX(REPLACE(UUID(), '-', '')), 'tammtse161087@fpt.edu.vn',
         '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Doan Thu An', 'vietnam', '0903826475',
         (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null),
 
-       (UNHEX(REPLACE(UUID(), '-', '')), 'ngohongquang999@gmail.com',
+       (UNHEX(REPLACE(UUID(), '-', '')), 'tunmse161130@fpt.edu.vn',
         '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Ngo Hong Quang', 'vietnam', '0904659543',
         (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image1.jpg',
         current_timestamp, null),
 
-       (UNHEX(REPLACE(UUID(), '-', '')), 'phamthanhgiang458@gmail.com',
+       (UNHEX(REPLACE(UUID(), '-', '')), 'truongnhlse160191@fpt.edu.vn',
         '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Pham Thanh Giang', 'vietnam', '0905638465',
         (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null);
@@ -365,15 +365,15 @@ VALUES ((SELECT user_id FROM users WHERE email = 'nguyenvanquan@gmail.com'), tru
 -- Insert into Brand table
 INSERT INTO brand (brand_id, brand_name, rating, bank_name, account_number, account_name, qr_payment, address, ward,
                    district, province, brand_status, number_of_violations, create_date, last_modified_date)
-VALUES ((SELECT user_id FROM users WHERE email = 'doanthuan97@gmail.com'), 'Nike Brand', 4.5, 'Brand Bank',
+VALUES ((SELECT user_id FROM users WHERE email = 'tammtse161087@fpt.edu.vn'), 'Nike Brand', 4.5, 'Brand Bank',
         '1234567890', 'Nike', 'http://example.com/qr_nike.jpg', '740 Nguyễn Xiển', ' Long Thạnh Mỹ', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'ngohongquang999@gmail.com'), 'Adidas Brand', 4.2, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'tunmse161130@fpt.edu.vn'), 'Adidas Brand', 4.2, 'Brand Bank',
         '0987654321', 'Adidas', 'http://example.com/qr_adidas.jpg', '269 Đ. Liên Phường', 'Phước Long B', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Puma Brand', 4.0, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'truongnhlse160191@fpt.edu.vn'), 'Puma Brand', 4.0, 'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '441 Lê Văn Việt', 'Tăng Nhơn Phú A', ' Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null);
 
@@ -382,32 +382,32 @@ VALUES ((SELECT user_id FROM users WHERE email = 'doanthuan97@gmail.com'), 'Nike
 INSERT INTO brand_expert_tailoring(brand_id, expert_tailoring_id, create_date, last_modified_date)
 VALUES
 
--- Brand with email ngohongquang999@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
+-- Brand with email tunmse161130@fpt.edu.vn have ExpertTailoringName: shirtModel,
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp, null),
 
--- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
+-- Brand with email tammtse161087@fpt.edu.vn have ExpertTailoringName: shirtModel,
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null),
 
--- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
+-- Brand with email tammtse161087@fpt.edu.vn have ExpertTailoringName: shirtModel,
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
+((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null);
