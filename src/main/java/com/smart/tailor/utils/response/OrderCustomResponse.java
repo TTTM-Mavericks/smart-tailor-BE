@@ -33,6 +33,7 @@ public class OrderCustomResponse {
     private LocalDateTime estimatedDeliveryDate;
     private LocalDateTime productionStartDate;
     private LocalDateTime productionCompletionDate;
+    private String createDate;
     private List<DesignDetailResponse> detailList;
     private List<PaymentResponse> paymentList;
 }

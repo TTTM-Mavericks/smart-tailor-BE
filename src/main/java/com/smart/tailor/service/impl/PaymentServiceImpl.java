@@ -9,7 +9,6 @@ import com.smart.tailor.repository.PaymentRepository;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.service.UserService;
-import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
@@ -89,6 +88,10 @@ public class PaymentServiceImpl implements PaymentService {
 
             if (paymentType.equals(PaymentType.DEPOSIT)) {
                 description = "DEPOSIT ORDER";
+            } else if (paymentType.equals(PaymentType.STAGE_1)) {
+                description = "STAGE 1";
+            } else {
+                description = "STAGE 2";
             }
 
             PayOSResponse payOSResponse = payOSService.createPaymentLink(
@@ -151,5 +154,10 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (Exception ex) {
             throw ex;
         }
+    }
+
+    @Override
+    public List<Payment> findAllByOrderID(UUID orderID) {
+        return paymentRepository.findAllByOrderID(orderID);
     }
 }

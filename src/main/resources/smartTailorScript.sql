@@ -20,7 +20,13 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         '120'),
        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The cost associated with the brand, specified in a particular currency.', 'BRAND_COST', 'COST', true, 'VND',
-        '');
+        ''),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The percent for deposit.', 'DEPOSIT_PERCENT', 'PERCENT', true, '%',
+        '50'),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The number for divide.', 'DIVIDE_NUMBER', 'NUMBER', true, 'INT',
+        '100');
 
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date,
                           last_modified_date)
@@ -383,31 +389,67 @@ INSERT INTO brand_expert_tailoring(brand_id, expert_tailoring_id, create_date, l
 VALUES
 
 -- Brand with email ngohongquang999@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp,
+ null),
 
 -- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ current_timestamp, null),
 
 -- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null);
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ current_timestamp, null);
