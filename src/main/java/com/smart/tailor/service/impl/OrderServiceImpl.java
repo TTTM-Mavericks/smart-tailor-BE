@@ -464,6 +464,7 @@ public class OrderServiceImpl implements OrderService {
                 orderRepository.save(orderResponse);
 
                 basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
+                basedOrder.setTotalPrice(10000);
                 orderRepository.save(basedOrder);
 
                 orderResponse.setDetailList(detailResponse);
@@ -508,6 +509,8 @@ public class OrderServiceImpl implements OrderService {
                 orderRepository.save(orderResponse);
 
                 basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
+                basedOrder.setTotalPrice(10000);
+
                 orderRepository.save(basedOrder);
 
                 orderResponse.setDetailList(detailResponse);

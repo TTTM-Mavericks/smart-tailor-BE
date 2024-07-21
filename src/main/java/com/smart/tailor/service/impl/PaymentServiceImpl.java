@@ -17,6 +17,7 @@ import com.smart.tailor.utils.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +31,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserService userService;
     private final PaymentMapper paymentMapper;
     private final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
+
+    @Value("${SERVER_URL}")
+    private String serverUrl;
 
     @Override
     public PaymentResponse createPayOSPayment(PaymentRequest paymentRequest) throws Exception {
@@ -104,7 +108,7 @@ public class PaymentServiceImpl implements PaymentService {
                             .buyerAddress(senderAddress)
                             .items(itemList)
                             .cancelUrl(cancelUrl)
-                            .returnUrl(returnUrl)
+                            .returnUrl(serverUrl)
                             .build()
             );
             if (payOSResponse == null) {

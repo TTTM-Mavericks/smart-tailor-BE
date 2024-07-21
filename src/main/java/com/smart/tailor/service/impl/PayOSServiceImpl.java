@@ -91,7 +91,7 @@ public class PayOSServiceImpl implements PayOSService {
 //            cancelUrl = "https://be.mavericks-tttm.studio/payment-cancel";
             cancelUrl = paymentRequest.getCancelUrl();
 //            returnUrl = "https://be.mavericks-tttm.studio/payment-infor?payos=1&item=" + items.get(0).getName().trim().toUpperCase();
-            returnUrl = paymentRequest.getReturnUrl();
+            returnUrl = paymentRequest.getReturnUrl() + "/"+orderCode;
             String status = "PENDING";
 
             paymentRequest.setOrderCode(orderCode);
@@ -263,6 +263,11 @@ public class PayOSServiceImpl implements PayOSService {
             System.out.println("CAN NOT FIND BY CODE: "+ orderCode);
             return null;
         }
+        var updated = payOSData.get();
+        updated.setStatus(status);
+        updated.setAmount(amount);
+        payOSRepository.save(updated);
+        payOSData = payOSRepository.findById(Integer.valueOf(orderCode));
         PayOSResponse payOSResponse = PayOSResponse
                 .builder()
                 .code(code)
@@ -275,6 +280,16 @@ public class PayOSServiceImpl implements PayOSService {
         System.out.println(payOSResponse);
         logger.info("PAYOS RESPONSE {}", payOSResponse);
         return payOSResponse;
+    }
+
+    @Override
+    public void confirmPayment(Integer orderCode) throws JsonProcessingException {
+        var onlinePayOS = getPaymentInfo(orderCode).getData();
+        logger.error("IN CONFIRM: {}", 1);
+        System.out.println("onlinePayOS" + onlinePayOS);
+        var payOSData = payOSRepository.getReferenceById(orderCode);
+        payOSData.setStatus(onlinePayOS.getStatus());
+        payOSRepository.save(payOSData);
     }
 
 

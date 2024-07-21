@@ -8,4 +8,6 @@ public interface PayOSService {
     PayOSResponse createPaymentLink(PayOSRequest paymentRequest) throws Exception;
 
     public PayOSResponse getPaymentInfo(Integer paymentID) throws JsonProcessingException;
+
+    void confirmPayment(Integer orderCode) throws JsonProcessingException;
 }
