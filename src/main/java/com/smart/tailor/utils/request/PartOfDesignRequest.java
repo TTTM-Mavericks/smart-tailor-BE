@@ -1,7 +1,7 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidStringUUID;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -27,6 +27,14 @@ public class PartOfDesignRequest {
     private String materialID;
 
     private String successImageUrl;
+
+    @NotNull(message = "width is required")
+    @Min(value = 1, message = "width have to greater than 0")
+    private Integer width;
+
+    @NotNull(message = "height is required")
+    @Min(value = 1, message = "height have to greater than 0")
+    private Integer height;
 
     @Valid
     private List<@Valid ItemMaskRequest> itemMask;

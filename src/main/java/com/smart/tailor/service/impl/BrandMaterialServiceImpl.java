@@ -465,4 +465,9 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     public Optional<BrandMaterial> getPriceByID(BrandMaterialKey key) {
         return brandMaterialRepository.findById(key);
     }
+
+    @Override
+    public Integer getBrandPriceByBrandIDAndMaterialID(UUID brandID, UUID materialID) {
+        return brandMaterialRepository.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
+    }
 }

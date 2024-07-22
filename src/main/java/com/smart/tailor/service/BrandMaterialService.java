@@ -26,4 +26,6 @@ public interface BrandMaterialService {
     Integer getMaxPriceByMaterialID(UUID materialID);
 
     Optional<BrandMaterial> getPriceByID(BrandMaterialKey key);
+
+    Integer getBrandPriceByBrandIDAndMaterialID(UUID brandID, UUID materialID);
 }

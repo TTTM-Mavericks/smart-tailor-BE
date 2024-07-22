@@ -18,6 +18,7 @@ import com.smart.tailor.utils.request.BrandLaborQuantityRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.BrandLaborQuantityResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
+import com.smart.tailor.utils.response.LaborQuantityResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -145,5 +146,10 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
                 .build();
 
         brandLaborQuantityRepository.save(brandLaborQuantity);
+    }
+
+    @Override
+    public LaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(UUID brandID, Integer brandQuantity) {
+        return null;
     }
 }

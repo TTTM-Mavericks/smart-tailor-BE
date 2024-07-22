@@ -43,6 +43,10 @@ public class PartOfDesign extends AuditEntity implements Serializable {
     @Column(name = "success_image_url", columnDefinition = "LONGTEXT")
     private byte[] successImageUrl;
 
+    private Integer width;
+
+    private Integer height;
+
     @OneToMany(mappedBy = "partOfDesign")
     @JsonManagedReference
     private List<ItemMask> itemMaskList;

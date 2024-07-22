@@ -64,4 +64,14 @@ public class DesignDetailController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(DesignDetailAPI.CALCULATE_TOTAL_PRICE_BY_PARENT_ORDER_ID + "/{parentOrderID}")
+    public ResponseEntity<ObjectNode> calculateTotalPriceForSpecificOrder(@ValidUUID @PathVariable("parentOrderID") UUID parentOrderID) throws Exception {
+        var totalPrice = designDetailService.calculateTotalPriceForSpecificOrder(parentOrderID);
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "calculateTotalPriceForSpecificOrder");
+        response.set("data", objectMapper.valueToTree(totalPrice));
+        return ResponseEntity.ok(response);
+    }
+
 }

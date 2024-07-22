@@ -60,6 +60,8 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                     .partOfDesignName(partOfDesignRequest.getPartOfDesignName())
                     .imageUrl(base64ImageUrl)
                     .successImageUrl(base64SuccessImageUrl)
+                    .width(partOfDesignRequest.getWidth())
+                    .height(partOfDesignRequest.getHeight())
                     .build();
 
 

@@ -23,6 +23,10 @@ public class PartOfDesignResponse {
 
     private String successImageUrl;
 
+    private Integer width;
+
+    private Integer height;
+
     private MaterialResponse material;
 
     private List<ItemMaskResponse> itemMasks;
