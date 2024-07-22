@@ -9,7 +9,6 @@ import com.smart.tailor.repository.PaymentRepository;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.service.UserService;
-import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
@@ -18,6 +17,7 @@ import com.smart.tailor.utils.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +31,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserService userService;
     private final PaymentMapper paymentMapper;
     private final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
+
+    @Value("${SERVER_URL}")
+    private String serverUrl;
 
     @Override
     public PaymentResponse createPayOSPayment(PaymentRequest paymentRequest) throws Exception {
@@ -89,6 +92,10 @@ public class PaymentServiceImpl implements PaymentService {
 
             if (paymentType.equals(PaymentType.DEPOSIT)) {
                 description = "DEPOSIT ORDER";
+            } else if (paymentType.equals(PaymentType.STAGE_1)) {
+                description = "STAGE 1";
+            } else {
+                description = "STAGE 2";
             }
 
             PayOSResponse payOSResponse = payOSService.createPaymentLink(
@@ -101,7 +108,7 @@ public class PaymentServiceImpl implements PaymentService {
                             .buyerAddress(senderAddress)
                             .items(itemList)
                             .cancelUrl(cancelUrl)
-                            .returnUrl(returnUrl)
+                            .returnUrl(serverUrl)
                             .build()
             );
             if (payOSResponse == null) {
@@ -151,5 +158,10 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (Exception ex) {
             throw ex;
         }
+    }
+
+    @Override
+    public List<Payment> findAllByOrderID(UUID orderID) {
+        return paymentRepository.findAllByOrderID(orderID);
     }
 }

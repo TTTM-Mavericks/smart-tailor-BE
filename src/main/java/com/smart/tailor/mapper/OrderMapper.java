@@ -98,6 +98,7 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.estimatedDeliveryDate(order.getEstimatedDeliveryDate());
         orderResponse.productionStartDate(order.getProductionStartDate());
         orderResponse.productionCompletionDate(order.getProductionCompletionDate());
+        orderResponse.createDate(order.getCreateDate().toString());
         orderResponse.detailList(
                 order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
         );

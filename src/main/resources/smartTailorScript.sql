@@ -20,7 +20,13 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         '120'),
        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The cost associated with the brand, specified in a particular currency.', 'BRAND_COST', 'COST', true, 'VND',
-        '');
+        ''),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The percent for deposit.', 'DEPOSIT_PERCENT', 'PERCENT', true, '%',
+        '50'),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The number for divide.', 'DIVIDE_NUMBER', 'NUMBER', true, 'INT',
+        '100');
 
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date,
                           last_modified_date)
@@ -163,125 +169,125 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Fabric'),
        (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Embroider');
 
 
-INSERT INTO material (material_id, create_date, last_modified_date, base_price, hs_code, material_name, status, unit,
-                      category_id)
-VALUES
--- Fabric Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 15000, 5407101000, 'Cotton Fabric', 1, 'meter',
- (SELECT category_id FROM category WHERE category_name = 'Fabric')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 5407101001, 'Silk Fabric', 1, 'meter',
- (SELECT category_id FROM category WHERE category_name = 'Fabric')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 5407101002, 'Linen Fabric', 1, 'meter',
- (SELECT category_id FROM category WHERE category_name = 'Fabric')),
-
--- Thread Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 35000, 5508100000, 'Polyester Thread', 1, 'spool',
- (SELECT category_id FROM category WHERE category_name = 'Thread')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 40000, 5508100001, 'Nylon Thread', 1, 'spool',
- (SELECT category_id FROM category WHERE category_name = 'Thread')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 5508100002, 'Cotton Thread', 1, 'spool',
- (SELECT category_id FROM category WHERE category_name = 'Thread')),
-
--- Cotton Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 12000, 5201000000, 'Organic Cotton', 1, 'kilogram',
- (SELECT category_id FROM category WHERE category_name = 'Cotton')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 5201000001, 'Recycled Cotton', 1, 'kilogram',
- (SELECT category_id FROM category WHERE category_name = 'Cotton')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 80000, 5201000002, 'Combed Cotton', 1, 'kilogram',
- (SELECT category_id FROM category WHERE category_name = 'Cotton')),
-
--- Ink Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 25000, 3215190000, 'Textile Ink', 1, 'liter',
- (SELECT category_id FROM category WHERE category_name = 'Ink')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 3215190001, 'Silk Screen Ink', 1, 'liter',
- (SELECT category_id FROM category WHERE category_name = 'Ink')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 3215190002, 'Dye Sublimation Ink', 1, 'liter',
- (SELECT category_id FROM category WHERE category_name = 'Ink')),
-
--- Tape Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 12000, 4823908500, 'Masking Tape', 1, 'roll',
- (SELECT category_id FROM category WHERE category_name = 'Tape')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 15000, 4823908501, 'Double-Sided Tape', 1, 'roll',
- (SELECT category_id FROM category WHERE category_name = 'Tape')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 4823908502, 'Packing Tape', 1, 'roll',
- (SELECT category_id FROM category WHERE category_name = 'Tape')),
-
--- Label Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 4821102000, 'Woven Label', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Label')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 70000, 4821102001, 'Printed Label', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Label')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 90000, 4821102002, 'Heat Transfer Label', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Label')),
-
--- Button Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 9606210000, 'Plastic Button', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Button')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 9606210001, 'Metal Button', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Button')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 9606210002, 'Wooden Button', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Button')),
-
--- Bag Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 25000, 4202929100, 'Eco-Friendly Bag', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Bag')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 4202929101, 'Reusable Shopping Bag', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Bag')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 40000, 4202929102, 'Canvas Bag', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Bag')),
-
--- Accessory Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 3926909700, 'Sewing Accessory Kit', 1, 'set',
- (SELECT category_id FROM category WHERE category_name = 'Accessory')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000, 3926909701, 'Zipper Pulls', 1, 'set',
- (SELECT category_id FROM category WHERE category_name = 'Accessory')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 70000, 3926909702, 'Sewing Needles', 1, 'set',
- (SELECT category_id FROM category WHERE category_name = 'Accessory')),
-
--- Hang Tag Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 80000, 4911991000, 'Paper Hang Tag', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Hang Tag')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 90000, 4911991001, 'Plastic Hang Tag', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Hang Tag')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 4911991002, 'Metal Hang Tag', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Hang Tag')),
-
--- Zipper Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 15000, 9607110000, 'Metal Zipper', 1, 'meter',
- (SELECT category_id FROM category WHERE category_name = 'Zipper')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 12000, 9607110001, 'Plastic Zipper', 1, 'meter',
- (SELECT category_id FROM category WHERE category_name = 'Zipper')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 9607110002, 'Invisible Zipper', 1, 'meter',
- (SELECT category_id FROM category WHERE category_name = 'Zipper')),
-
--- Manual Printing Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 3215, 'Screen Printing Ink', 1, 'liter',
- (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 48169040, 'Heat Transfer Paper', 1, 'sheet',
- (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 45000, 55111010, 'Embroidery Thread', 1, 'spool',
- (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
-
--- Heat Printing Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000, 84629950, 'Heat Press Machine', 1, 'unit',
- (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 25000, 48169040, 'Transfer Vinyl', 1, 'roll',
- (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 40000, 39199010, 'Thermal Tape', 1, 'roll',
- (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 55000, 39199020, 'Heat Transfer Film', 1, 'roll',
- (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
-
--- Embroider Category
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 70000, 44140000, 'Embroidery Hoops', 1, 'piece',
- (SELECT category_id FROM category WHERE category_name = 'Embroider')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 73199010, 'Embroidery Needles', 1, 'pack',
- (SELECT category_id FROM category WHERE category_name = 'Embroider')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000, 62043300, 'Embroidery Floss', 1, 'skein',
- (SELECT category_id FROM category WHERE category_name = 'Embroider')),
-(UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 65000, 73199020, 'Embroidery Scissors', 1, 'pair',
- (SELECT category_id FROM category WHERE category_name = 'Embroider'));
-
+-- INSERT INTO material (material_id, create_date, last_modified_date, base_price, hs_code, material_name, status, unit,
+--                       category_id)
+-- VALUES
+-- -- Fabric Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 15000, 5407101000, 'Cotton Fabric', 1, 'meter',
+--  (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 5407101001, 'Silk Fabric', 1, 'meter',
+--  (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 5407101002, 'Linen Fabric', 1, 'meter',
+--  (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+--
+-- -- Thread Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 35000, 5508100000, 'Polyester Thread', 1, 'spool',
+--  (SELECT category_id FROM category WHERE category_name = 'Thread')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 40000, 5508100001, 'Nylon Thread', 1, 'spool',
+--  (SELECT category_id FROM category WHERE category_name = 'Thread')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 5508100002, 'Cotton Thread', 1, 'spool',
+--  (SELECT category_id FROM category WHERE category_name = 'Thread')),
+--
+-- -- Cotton Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 12000, 5201000000, 'Organic Cotton', 1, 'kilogram',
+--  (SELECT category_id FROM category WHERE category_name = 'Cotton')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 5201000001, 'Recycled Cotton', 1, 'kilogram',
+--  (SELECT category_id FROM category WHERE category_name = 'Cotton')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 80000, 5201000002, 'Combed Cotton', 1, 'kilogram',
+--  (SELECT category_id FROM category WHERE category_name = 'Cotton')),
+--
+-- -- Ink Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 25000, 3215190000, 'Textile Ink', 1, 'liter',
+--  (SELECT category_id FROM category WHERE category_name = 'Ink')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 3215190001, 'Silk Screen Ink', 1, 'liter',
+--  (SELECT category_id FROM category WHERE category_name = 'Ink')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 3215190002, 'Dye Sublimation Ink', 1, 'liter',
+--  (SELECT category_id FROM category WHERE category_name = 'Ink')),
+--
+-- -- Tape Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 12000, 4823908500, 'Masking Tape', 1, 'roll',
+--  (SELECT category_id FROM category WHERE category_name = 'Tape')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 15000, 4823908501, 'Double-Sided Tape', 1, 'roll',
+--  (SELECT category_id FROM category WHERE category_name = 'Tape')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 4823908502, 'Packing Tape', 1, 'roll',
+--  (SELECT category_id FROM category WHERE category_name = 'Tape')),
+--
+-- -- Label Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 4821102000, 'Woven Label', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Label')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 70000, 4821102001, 'Printed Label', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Label')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 90000, 4821102002, 'Heat Transfer Label', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Label')),
+--
+-- -- Button Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 9606210000, 'Plastic Button', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Button')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 9606210001, 'Metal Button', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Button')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 9606210002, 'Wooden Button', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Button')),
+--
+-- -- Bag Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 25000, 4202929100, 'Eco-Friendly Bag', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Bag')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 4202929101, 'Reusable Shopping Bag', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Bag')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 40000, 4202929102, 'Canvas Bag', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Bag')),
+--
+-- -- Accessory Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 3926909700, 'Sewing Accessory Kit', 1, 'set',
+--  (SELECT category_id FROM category WHERE category_name = 'Accessory')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000, 3926909701, 'Zipper Pulls', 1, 'set',
+--  (SELECT category_id FROM category WHERE category_name = 'Accessory')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 70000, 3926909702, 'Sewing Needles', 1, 'set',
+--  (SELECT category_id FROM category WHERE category_name = 'Accessory')),
+--
+-- -- Hang Tag Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 80000, 4911991000, 'Paper Hang Tag', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Hang Tag')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 90000, 4911991001, 'Plastic Hang Tag', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Hang Tag')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 10000, 4911991002, 'Metal Hang Tag', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Hang Tag')),
+--
+-- -- Zipper Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 15000, 9607110000, 'Metal Zipper', 1, 'meter',
+--  (SELECT category_id FROM category WHERE category_name = 'Zipper')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 12000, 9607110001, 'Plastic Zipper', 1, 'meter',
+--  (SELECT category_id FROM category WHERE category_name = 'Zipper')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 20000, 9607110002, 'Invisible Zipper', 1, 'meter',
+--  (SELECT category_id FROM category WHERE category_name = 'Zipper')),
+--
+-- -- Manual Printing Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 3215, 'Screen Printing Ink', 1, 'liter',
+--  (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 30000, 48169040, 'Heat Transfer Paper', 1, 'sheet',
+--  (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 45000, 55111010, 'Embroidery Thread', 1, 'spool',
+--  (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+--
+-- -- Heat Printing Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000, 84629950, 'Heat Press Machine', 1, 'unit',
+--  (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 25000, 48169040, 'Transfer Vinyl', 1, 'roll',
+--  (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 40000, 39199010, 'Thermal Tape', 1, 'roll',
+--  (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 55000, 39199020, 'Heat Transfer Film', 1, 'roll',
+--  (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+--
+-- -- Embroider Category
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 70000, 44140000, 'Embroidery Hoops', 1, 'piece',
+--  (SELECT category_id FROM category WHERE category_name = 'Embroider')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 50000, 73199010, 'Embroidery Needles', 1, 'pack',
+--  (SELECT category_id FROM category WHERE category_name = 'Embroider')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 60000, 62043300, 'Embroidery Floss', 1, 'skein',
+--  (SELECT category_id FROM category WHERE category_name = 'Embroider')),
+-- (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 65000, 73199020, 'Embroidery Scissors', 1, 'pair',
+--  (SELECT category_id FROM category WHERE category_name = 'Embroider'));
+--
 
 -- Sample Data Expert Tailoring Material
 INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
@@ -411,3 +417,69 @@ VALUES
 
 ((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null);
+
+-- -- Brand with email ngohongquang999@gmail.com have ExpertTailoringName: shirtModel,
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'ngohongquang999@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+--  null),
+--
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'ngohongquang999@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp,
+--  null),
+--
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'ngohongquang999@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp,
+--  null),
+--
+-- -- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'doanthuan97@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+--  null),
+--
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'doanthuan97@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+--  null),
+--
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'doanthuan97@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+--  current_timestamp, null),
+--
+-- -- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'phamthanhgiang458@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+--  current_timestamp, null),
+--
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'phamthanhgiang458@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+--  null),
+--
+-- ((SELECT b.brand_id
+--   FROM users u
+--            JOIN brand b on u.user_id = b.brand_id
+--   WHERE u.email = 'phamthanhgiang458@gmail.com'),
+--  (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+--  current_timestamp, null);

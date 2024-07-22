@@ -42,6 +42,7 @@ class PaymentMapperImpl implements PaymentMapper {
         paymentResponse.orderID(order);
         logger.error("IN PAYMENT MAPPER - ORDER CODE: {}", payment.getPaymentCode());
         paymentResponse.payOSResponse(payOSService.getPaymentInfo(payment.getPaymentCode()));
+        paymentResponse.createDate(payment.getCreateDate().toString());
         return paymentResponse.build();
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant.PaymentAPI;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class PaymentController {
     private final Logger logger = LoggerFactory.getLogger(PaymentController.class);
     private final PaymentService paymentService;
+    private final PayOSService payOSService;
 
     @GetMapping(PaymentAPI.PAYMENT_INFO + "/{paymentID}")
     ResponseEntity<ObjectNode> getPaymentInfo(@PathVariable("paymentID") UUID paymentID) throws Exception {
@@ -32,6 +34,22 @@ public class PaymentController {
             response.put("status", 200);
             response.put("message", MessageConstant.GET_PAYMENT_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(data));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN PAYMENT CONTROLLER: {}", ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @GetMapping(PaymentAPI.CONFIRM_PAYMENT + "/{paymentID}")
+    ResponseEntity<ObjectNode> confirmPayment(@PathVariable("paymentID") Integer paymentID) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            logger.error("IN CONFIRM_PAYMENT ORDERCODE: {}", paymentID);
+            payOSService.confirmPayment(paymentID);
+            response.put("status", 200);
+            response.put("message", MessageConstant.CONFIRM_PAYMENT_SUCCESSFULLY);
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             logger.error("ERROR IN PAYMENT CONTROLLER: {}", ex.getMessage());

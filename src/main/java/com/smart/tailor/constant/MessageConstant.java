@@ -367,4 +367,6 @@ public class MessageConstant {
      * Payment
      */
     public static final String GET_PAYMENT_SUCCESSFULLY = "Get Payment Info Successfully!";
+    public static final String CONFIRM_PAYMENT_SUCCESSFULLY = "Confirm Payment Successfully!";
+
 }
