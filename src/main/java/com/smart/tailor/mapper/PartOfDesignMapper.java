@@ -12,6 +12,8 @@ public interface PartOfDesignMapper {
     @Mapping(source = "partOfDesign.partOfDesignID", target = "partOfDesignID")
     @Mapping(source = "partOfDesign.itemMaskList", target = "itemMasks")
     @Mapping(source = "partOfDesign.material", target = "material")
+    @Mapping(source = "partOfDesign.width", target = "width")
+    @Mapping(source = "partOfDesign.height", target = "height")
     @Mapping(source = "partOfDesign.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "partOfDesign.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getImageUrl()))")

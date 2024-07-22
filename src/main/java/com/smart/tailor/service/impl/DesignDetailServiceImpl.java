@@ -14,9 +14,7 @@ import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
-import com.smart.tailor.utils.request.DesignDetailRequest;
-import com.smart.tailor.utils.request.DesignDetailSize;
-import com.smart.tailor.utils.request.OrderRequest;
+import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -39,10 +37,13 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final DesignMapper designMapper;
     private final OrderMapper orderMapper;
     private final BrandService brandService;
+    private final BrandMaterialService brandMaterialService;
     private final DesignService designService;
     private final CustomerService customerService;
     private final OrderService orderService;
     private final SizeService sizeService;
+    private final BrandLaborQuantityService brandLaborQuantityService;
+    private static final Double PIXEL_TO_CENTIMETER = 0.0264583333;
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
     @Transactional(readOnly = true)
@@ -263,5 +264,93 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     @Override
     public DesignDetail getDetailOfOrderBaseOnBrandID(UUID orderID, UUID brandID) {
         return designDetailRepository.getDetailOfOrderBaseOnBrandID(orderID, brandID);
+    }
+
+    @Override
+    public  List<DesignDetail> getDesignDetailBySubOrderID(UUID subOrderID) {
+        return designDetailRepository.getDesignDetailBySubOrderID(subOrderID);
+    }
+
+    @Override
+    public Double calculateTotalPriceForSpecificOrder(UUID parentOrderID) throws Exception {
+        var orderCustomResponse = orderService.getOrderByOrderID(parentOrderID);
+        var listSubOrders = orderService.getSubOrderByParentID(parentOrderID);
+        var designResponse = orderCustomResponse.getDesignResponse();
+        List<PartOfDesignInformation> partOfDesignInformationList = new ArrayList<>();
+        List<ItemMaskInformation> itemMaskInformationList = new ArrayList<>();
+
+        // Get All Information Include Width, Height and Material of PartOfDesign of Design
+        // Get All Information Include ScaleX, ScaleY and Material of ItemMask of Design
+        designResponse.getPartOfDesign().forEach(partOfDesignResponse -> {
+                    partOfDesignInformationList.add(PartOfDesignInformation
+                            .builder()
+                            .width(partOfDesignResponse.getWidth())
+                            .height(partOfDesignResponse.getHeight())
+                            .materialID(partOfDesignResponse.getMaterial().getMaterialID())
+                            .materialName(partOfDesignResponse.getMaterial().getMaterialName())
+                            .build());
+                    partOfDesignResponse.getItemMasks().forEach(itemMaskResponse -> {
+                        itemMaskInformationList.add(ItemMaskInformation
+                                .builder()
+                                .scaleX(itemMaskResponse.getScaleX())
+                                .scaleY(itemMaskResponse.getScaleY())
+                                .materialID(itemMaskResponse.getMaterial().getMaterialID())
+                                .materialName(itemMaskResponse.getMaterial().getMaterialName())
+                                .build());
+                    });
+                }
+        );
+
+        // Loop each SubOrder of ParentOrder
+        for(var subOrder : listSubOrders){
+            List<DesignDetail> designDetailList = getDesignDetailBySubOrderID(subOrder.getOrderID());
+            for(DesignDetail designDetail : designDetailList){
+                var brand = designDetail.getBrand();
+                var designDetailQuantity = designDetail.getQuantity();
+
+                // Calculate All PartOfDesign Of One Design of Each SubOrder With BrandMaterialPrice
+                var totalPricePartOfDesignOfSubOrder = 0;
+                logger.error("Brand ID {} and Brand Email {}", brand.getBrandID(), brand.getUser().getEmail());
+                for(PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
+                    totalPricePartOfDesignOfSubOrder += calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID());
+                }
+                logger.error("Total PartOfDesign Price of Brand Email {} is {}", brand.getUser().getEmail(), totalPricePartOfDesignOfSubOrder);
+
+                // Calculate All ItemMask Of One Design of Each SubOrder With BrandMaterialPrice
+                var totalPriceItemMaskOfSubOrder = 0;
+                logger.error("Brand ID {} and Brand Email {}", brand.getBrandID(), brand.getUser().getEmail());
+                for(ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
+                    totalPriceItemMaskOfSubOrder += calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID());
+                }
+                logger.error("Total ItemMask Price of Brand Email {} is {}", brand.getUser().getEmail(), totalPriceItemMaskOfSubOrder);
+            }
+        }
+
+        return 0.0;
+    }
+
+    private Integer calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partOfDesignInformation, UUID brandID){
+        var width = partOfDesignInformation.getWidth(); // in Centimeter
+        var height = partOfDesignInformation.getHeight(); // in Centimeter
+        var materialID = partOfDesignInformation.getMaterialID();
+        var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
+        var formular = (int) Math.ceil(width * height / 10000.0 * brandPriceMaterial);
+        logger.info("MaterialName: {} and BrandPrice: {} => Result in M^2 : {}", partOfDesignInformation.getMaterialName(), brandPriceMaterial, formular);
+        // Convert Cm^2 into M^2 by Dividing to 10000
+        return formular;
+    }
+
+    private Integer calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInformation, UUID brandID){
+        var scaleX_Pixel = Math.abs(itemMaskInformation.getScaleX()); // in Pixel
+        var scaleY_Pixel = Math.abs(itemMaskInformation.getScaleY()); // in Pixel
+        var scaleX_Centimeter = scaleX_Pixel * PIXEL_TO_CENTIMETER;
+        var scaleY_Centimeter = scaleY_Pixel * PIXEL_TO_CENTIMETER;
+
+        var materialID = itemMaskInformation.getMaterialID();
+        var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
+        var formular = (int) Math.ceil(scaleX_Centimeter * scaleY_Centimeter / 10000.0 * brandPriceMaterial);
+        logger.info("MaterialName: {} and BrandPrice: {} => Result in M^2 : {}", itemMaskInformation.getMaterialName(), brandPriceMaterial, formular);
+        // Convert Cm^2 into M^2 by Dividing to 10000
+        return formular;
     }
 }

@@ -41,4 +41,7 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
     BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandNameAndHsCodeAndPrice(
             String categoryName, String materialName, String brandName, Long hsCode,
             String unit, Integer basePrice, Integer brandPrice);
+
+    @Query(value = "SELECT brand_price FROM brand_material where brand_id = ?1 && material_id = ?2", nativeQuery = true)
+    Integer getBrandPriceByBrandIDAndMaterialID(UUID brandID, UUID materialID);
 }
