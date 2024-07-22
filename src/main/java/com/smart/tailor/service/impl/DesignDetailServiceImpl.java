@@ -69,7 +69,9 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             var order = orderService.getOrderById(orderID).get();
             responseList.setOrder(orderMapper.mapToOrderResponse(order));
             List<DesignDetail> detailList = order.getDetailList();
-            responseList.setDesignDetail(detailList.stream().map(designDetailMapper::mapperToDesignDetailResponse).toList());
+            if(detailList != null){
+                responseList.setDesignDetail(detailList.stream().map(designDetailMapper::mapperToDesignDetailResponse).toList());
+            }
             return responseList;
         } catch (Exception ex) {
             logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());

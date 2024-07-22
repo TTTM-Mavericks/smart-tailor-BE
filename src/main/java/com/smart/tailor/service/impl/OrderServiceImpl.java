@@ -611,9 +611,8 @@ public class OrderServiceImpl implements OrderService {
                     .filter(designMaterialID ->
                             brandMaterials.stream().anyMatch(brandMaterial -> brandMaterial.getMaterialID().toString().equals(designMaterialID.toString())))
                     .count();
-
-            if (matchingMaterialCount == designMaterialIDs.size()) {
-                brandResponses.add("BrandID : " + brand.getBrandID().toString() + " and BrandEmail: " + brand.getUser().getEmail());
+            if(matchingMaterialCount == designMaterialIDs.size()){
+                brandResponses.add(brand.getUser().getEmail());
             }
         }
         return brandResponses;
