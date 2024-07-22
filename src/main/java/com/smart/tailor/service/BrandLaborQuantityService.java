@@ -15,5 +15,5 @@ public interface BrandLaborQuantityService {
 
     void updateBrandLaborQuantity(UUID brandID, BrandLaborQuantityRequest brandLaborQuantityListRequest);
 
-    LaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(UUID brandID, Integer brandQuantity);
+    BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(UUID brandID, Integer brandQuantity);
 }

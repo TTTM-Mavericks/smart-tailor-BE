@@ -149,7 +149,9 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     }
 
     @Override
-    public LaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(UUID brandID, Integer brandQuantity) {
-        return null;
+    public BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(UUID brandID, Integer brandQuantity) {
+        return brandLaborQuantityMapper.mapToLaborQuantityResponse(
+                brandLaborQuantityRepository.findLaborQuantityByBrandIDAndBrandQuantity(brandID, brandQuantity)
+        );
     }
 }

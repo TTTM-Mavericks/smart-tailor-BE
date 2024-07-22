@@ -302,8 +302,17 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         );
 
         // Loop each SubOrder of ParentOrder
+        double totalPriceOfOrder = 0;
         for(var subOrder : listSubOrders){
             List<DesignDetail> designDetailList = getDesignDetailBySubOrderID(subOrder.getOrderID());
+            // Calculate All Quantity of Each Brand Can Pick
+            int totalQuantityOfSubOrder = designDetailList
+                        .stream()
+                        .mapToInt(DesignDetail::getQuantity)
+                        .sum();
+
+            double totalPriceOfEachSubOrder = 0;
+
             for(DesignDetail designDetail : designDetailList){
                 var brand = designDetail.getBrand();
                 var designDetailQuantity = designDetail.getQuantity();
@@ -318,15 +327,23 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
                 // Calculate All ItemMask Of One Design of Each SubOrder With BrandMaterialPrice
                 var totalPriceItemMaskOfSubOrder = 0;
-                logger.error("Brand ID {} and Brand Email {}", brand.getBrandID(), brand.getUser().getEmail());
                 for(ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
                     totalPriceItemMaskOfSubOrder += calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID());
                 }
                 logger.error("Total ItemMask Price of Brand Email {} is {}", brand.getUser().getEmail(), totalPriceItemMaskOfSubOrder);
+
+                // Calculate All Quantity of Each Brand to Get BrandLaborQuantity of Order
+                var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
+                logger.error("Total Quantity of Order : {} and BrandLaborQuantity: {}", totalQuantityOfSubOrder, brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
+
+                totalPriceOfEachSubOrder = (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder + brandLaborQuantityOfSubOrder.getLaborCostPerQuantity()) * designDetailQuantity;
+                logger.error("Total Price of SubOrder {}", totalPriceOfEachSubOrder);
             }
+
+            totalPriceOfOrder +=  totalPriceOfEachSubOrder;
         }
 
-        return 0.0;
+        return totalPriceOfOrder;
     }
 
     private Integer calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partOfDesignInformation, UUID brandID){
