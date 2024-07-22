@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 public interface PaymentMapper {
-    PaymentResponse mapperToPaymentResponse(Payment payment) throws JsonProcessingException;
+    PaymentResponse mapperToPaymentResponse(Payment payment);
 }
 
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ class PaymentMapperImpl implements PaymentMapper {
     private final Logger logger = LoggerFactory.getLogger(PaymentMapperImpl.class);
 
     @Override
-    public PaymentResponse mapperToPaymentResponse(Payment payment) throws JsonProcessingException {
+    public PaymentResponse mapperToPaymentResponse(Payment payment) {
         if (payment == null) {
             return null;
         }
@@ -38,10 +38,13 @@ class PaymentMapperImpl implements PaymentMapper {
         paymentResponse.paymentMethod(payment.getPaymentMethod());
         paymentResponse.paymentStatus(payment.getPaymentStatus());
         paymentResponse.paymentType(payment.getPaymentType());
-        var order = payment.getOrder() != null ? payment.getOrder().getOrderID() : null;
+        var order = payment.getOrderID() != null ? payment.getOrderID() : null;
         paymentResponse.orderID(order);
-        logger.error("IN PAYMENT MAPPER - ORDER CODE: {}", payment.getPaymentCode());
-        paymentResponse.payOSResponse(payOSService.getPaymentInfo(payment.getPaymentCode()));
+        try {
+            paymentResponse.payOSResponse(payOSService.getPaymentInfo(payment.getPaymentCode()));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         paymentResponse.createDate(payment.getCreateDate().toString());
         return paymentResponse.build();
     }

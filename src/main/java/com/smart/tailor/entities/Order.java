@@ -83,7 +83,7 @@ public class Order extends AuditEntity implements Serializable {
     @JsonManagedReference
     private List<DesignDetail> detailList;
 
-    @OneToMany(mappedBy = "order")
-    @JsonManagedReference
-    private List<Payment> paymentList;
+//    @OneToMany(mappedBy = "order")
+//    @JsonManagedReference
+//    private List<Payment> paymentList;
 }

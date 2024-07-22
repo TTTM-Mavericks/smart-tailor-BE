@@ -3,16 +3,18 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
-import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.OrderMapper;
+import com.smart.tailor.mapper.PaymentMapper;
 import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.repository.OrderRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
-import com.smart.tailor.utils.request.*;
+import com.smart.tailor.utils.request.OrderPickingRequest;
+import com.smart.tailor.utils.request.OrderRequest;
+import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,8 +27,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.Math.max;
-
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -36,6 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserService userService;
     private final CustomerService customerService;
     private final OrderMapper orderMapper;
+    private final PaymentMapper paymentMapper;
     private final DesignDetailMapper detailMapper;
     private final BrandMaterialService brandMaterialService;
     private final DesignDetailRepository detailRepository;
@@ -190,97 +191,6 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
                 order.setDetailList(detailList);
-                var design = detailList.get(0).getDesign();
-                var sender = design.getUser();
-                var recipient = userService.getUserByEmail("hoanganhduy1122@gmail.com");
-
-                List<Payment> paymentList = paymentService.findAllByOrderID(orderID);
-
-                if (paymentList != null) {
-                    int stage = 0;
-                    for (Payment payment : paymentList) {
-                        if (payment.getPaymentType().equals(PaymentType.DEPOSIT)) {
-                            var paymentResponse = paymentService.getPaymentByID(payment.getPaymentID());
-                            var payOSStatus = paymentResponse.getPayOSResponse().getData().getStatus();
-                            if (payOSStatus.equals("PAID")) {
-                                stage = max(stage, 1);
-                            }
-                        }
-                        if (payment.getPaymentType().equals(PaymentType.STAGE_1)) {
-                            var paymentResponse = paymentService.getPaymentByID(payment.getPaymentID());
-                            var payOSStatus = paymentResponse.getPayOSResponse().getData().getStatus();
-                            if (payOSStatus.equals("PAID")) {
-                                stage = max(stage, 2);
-                            }
-                        }
-                        if (payment.getPaymentType().equals(PaymentType.STAGE_2)) {
-                            var paymentResponse = paymentService.getPaymentByID(payment.getPaymentID());
-                            var payOSStatus = paymentResponse.getPayOSResponse().getData().getStatus();
-                            if (payOSStatus.equals("PAID")) {
-                                stage = max(stage, 3);
-                            }
-                        }
-                    }
-
-                    switch (stage) {
-                        case 1:
-                            /**
-                             * TODO
-                             * tính tiền stage 1
-                             */
-                            paymentService.createPayOSPayment(
-                                    PaymentRequest
-                                            .builder()
-                                            .order(order)
-
-                                            .paymentSenderID(sender.getUserID())
-                                            .paymentSenderName(sender.getFullName())
-                                            .paymentSenderBankCode("")
-                                            .paymentSenderBankNumber("")
-
-                                            .paymentRecipientID(recipient.getUserID())
-                                            .paymentRecipientName(recipient.getFullName())
-                                            .paymentRecipientBankCode("")
-                                            .paymentRecipientBankNumber("")
-
-                                            .paymentType(PaymentType.STAGE_1)
-                                            .paymentAmount(order.getTotalPrice())
-                                            .itemList(null)
-                                            .build()
-                            );
-                            break;
-                        case 2:
-                            /**
-                             * TODO
-                             * tính tiền stage 2
-                             */
-                            paymentService.createPayOSPayment(
-                                    PaymentRequest
-                                            .builder()
-                                            .order(order)
-
-                                            .paymentSenderID(sender.getUserID())
-                                            .paymentSenderName(sender.getFullName())
-                                            .paymentSenderBankCode("")
-                                            .paymentSenderBankNumber("")
-
-                                            .paymentRecipientID(recipient.getUserID())
-                                            .paymentRecipientName(recipient.getFullName())
-                                            .paymentRecipientBankCode("")
-                                            .paymentRecipientBankNumber("")
-
-                                            .paymentType(PaymentType.STAGE_2)
-                                            .paymentAmount(order.getTotalPrice())
-                                            .itemList(null)
-                                            .build()
-                            );
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                order.setPaymentList(paymentList);
                 return orderMapper.mapToOrderCustomResponse(order);
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
@@ -304,7 +214,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @Override
     public Optional<Order> getOrderById(UUID orderID) {
-        return orderRepository.findById(orderID);
+        return orderRepository.findAll().stream().filter(o -> o.getOrderID().equals(orderID)).findFirst();
     }
 
     @Override
@@ -608,7 +518,7 @@ public class OrderServiceImpl implements OrderService {
                     .filter(designMaterialID ->
                             brandMaterials.stream().anyMatch(brandMaterial -> brandMaterial.getMaterialID().toString().equals(designMaterialID.toString())))
                     .count();
-            if(matchingMaterialCount == designMaterialIDs.size()){
+            if (matchingMaterialCount == designMaterialIDs.size()) {
                 brandResponses.add(brand.getUser().getEmail());
             }
         }

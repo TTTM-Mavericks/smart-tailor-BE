@@ -5,20 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Data
 public class PayOSResponseData {
-    private String bin; //Mã định danh ngân hàng (thường gọi là BIN)
-    private String accountNumber; //Số tài khoản ngân hàng thụ hưởng
-    private String accountName; //Tên tài khoản ngân hàng
-    private String currency; //Đơn vị tiền tệ
-    private String paymentLinkId; //Mã link thanh toán
-    private Integer amount; //Số tiền thanh toán
-    private String description; //Mô tả thanh toán
+    private String id;
     private Integer orderCode; //Mã đơn hàng từ cửa hàng
+    private Integer amount;
+    private Integer amountPaid;
+    private Integer amountRemaining;
     private String status; //Trạng thái link thanh toán
+    private List<Transactions> transactions;
+    private String createdAt;
+    private String canceledAt;
+    private String cancellationReason;
     private String checkoutUrl; //Link thanh toán
     private String qrCode; //Mã VietQR dạng text
 }
