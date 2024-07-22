@@ -1,5 +1,6 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.entities.Payment;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.enums.PaymentType;
@@ -24,6 +25,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
     private final Logger logger = LoggerFactory.getLogger(ScheduleTaskServiceImpl.class);
     private final OrderService orderService;
     private final PaymentService paymentService;
+    private final PayOSDataService payOSDataService;
     private final DesignDetailService detailService;
 
     @Scheduled(cron = "0 0 * * * *") // second - minute - hour - dayOfMonth - month - dayOfWeek   // Run every hour
@@ -51,7 +53,8 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
         var orders = orderService.getAllParentOrder();
         for (OrderResponse orderResponse : orders) {
             var checkOrderExpireTime = orderService.isOrderExpireTime(orderResponse.getOrderID());
-            if (checkOrderExpireTime && orderResponse.getOrderStatus().equals(OrderStatus.PENDING)) {
+            var orderStatus = orderResponse.getOrderStatus();
+            if (checkOrderExpireTime) {
                 var status = orderService.isOrderCompletelyPicked(orderResponse.getOrderID());
                 var order = orderService.getOrderById(orderResponse.getOrderID()).get();
                 if (status) {
@@ -59,49 +62,135 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     var design = detail.getDesign();
                     var sender = design.getUser();
                     var recipient = userService.getUserByEmail("hoanganhduy1122@gmail.com");
-                    /**
-                     * UPDATE STATUS TO DEPOSIT
-                     */
-                    logger.info("Change Status Start Order");
-                    orderService.changeOrderStatus(
-                            OrderStatusUpdateRequest
-                                    .builder()
-                                    .orderID(order.getOrderID())
-                                    .status(OrderStatus.DEPOSIT)
-                                    .build()
-                    );
-//                    List<Payment> paymentList = order.getPaymentList();\
-//                    var checkDeposit = false;
-//                    if (!paymentList.isEmpty()) {
-//                        for (Payment payment : paymentList) {
-//                            if (payment.getPaymentType().equals(PaymentType.DEPOSIT) && payment.getPaymentStatus()) {
-//                                checkDeposit = true;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                    logger.error("CHECK DEPOSIT {}", checkDeposit);
-//                    if (!checkDeposit) {
-                    var payOSResponse = paymentService.createPayOSPayment(
-                            PaymentRequest
-                                    .builder()
-                                    .order(order)
 
-                                    .paymentSenderID(sender.getUserID())
-                                    .paymentSenderName(sender.getFullName())
-                                    .paymentSenderBankCode("")
-                                    .paymentSenderBankNumber("")
+                    var paymentList = paymentService.findAllByOrderID(orderResponse.getOrderID());
+                    for (Payment p : paymentList) {
+                        var payOSData = payOSDataService.findByOrderCode(p.getPaymentCode());
+                        if (payOSData.isPresent()) {
+                            p.setPaymentStatus(payOSData.get().getStatus().equals("PAID"));
+                            paymentService.updatePayment(p);
+                        }
+                    }
+                    logger.error("PAYMENT LIST: {}", paymentList);
+                    switch (orderStatus) {
+                        case PENDING -> {
+                            logger.error("INCASE PENDING");
+                            /**
+                             * UPDATE STATUS TO DEPOSIT
+                             */
+                            logger.info("Change Status Start Order");
+                            orderService.changeOrderStatus(
+                                    OrderStatusUpdateRequest
+                                            .builder()
+                                            .orderID(order.getOrderID())
+                                            .status(OrderStatus.DEPOSIT)
+                                            .build()
+                            );
+                            var payOSResponse = paymentService.createPayOSPayment(
+                                    PaymentRequest
+                                            .builder()
+                                            .orderID(orderResponse.getOrderID())
 
-                                    .paymentRecipientID(recipient.getUserID())
-                                    .paymentRecipientName(recipient.getFullName())
-                                    .paymentRecipientBankCode("")
-                                    .paymentRecipientBankNumber("")
+                                            .paymentSenderID(sender.getUserID())
+                                            .paymentSenderName(sender.getFullName())
+                                            .paymentSenderBankCode("")
+                                            .paymentSenderBankNumber("")
 
-                                    .paymentType(PaymentType.DEPOSIT)
-                                    .paymentAmount(order.getTotalPrice())
-                                    .itemList(null)
-                                    .build()
-                    );
+                                            .paymentRecipientID(recipient.getUserID())
+                                            .paymentRecipientName(recipient.getFullName())
+                                            .paymentRecipientBankCode("")
+                                            .paymentRecipientBankNumber("")
+
+                                            .paymentType(PaymentType.DEPOSIT)
+                                            .paymentAmount(order.getTotalPrice())
+                                            .itemList(null)
+                                            .build()
+                            );
+                        }
+                        case DEPOSIT -> {
+                            logger.error("INCASE DEPOSIT");
+                            if (!paymentList.isEmpty()) {
+                                var checkDeposited = paymentList.stream().filter(p ->
+                                        p.getPaymentType().equals(PaymentType.DEPOSIT) &&
+                                                p.getPaymentStatus()
+                                ).findFirst();
+
+                                if (checkDeposited.isPresent()) {
+                                    /**
+                                     * UPDATE STATUS TO PROCESSING
+                                     */
+                                    logger.info("Change Status PROCESSING Order");
+                                    orderService.changeOrderStatus(
+                                            OrderStatusUpdateRequest
+                                                    .builder()
+                                                    .orderID(order.getOrderID())
+                                                    .status(OrderStatus.PROCESSING)
+                                                    .build()
+                                    );
+                                    logger.error("CREATE STAGE_1");
+                                    var payOSResponse = paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .orderID(orderResponse.getOrderID())
+
+                                                    .paymentSenderID(sender.getUserID())
+                                                    .paymentSenderName(sender.getFullName())
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
+
+                                                    .paymentRecipientID(recipient.getUserID())
+                                                    .paymentRecipientName(recipient.getFullName())
+                                                    .paymentRecipientBankCode("")
+                                                    .paymentRecipientBankNumber("")
+
+                                                    .paymentType(PaymentType.STAGE_1)
+                                                    .paymentAmount(order.getTotalPrice())
+                                                    .itemList(null)
+                                                    .build()
+                                    );
+                                    logger.error("CREATE STAGE_1 SUCCESSFULLY!");
+                                }
+                            }
+                        }
+                        case PROCESSING -> {
+                            logger.error("INCASE PROCESSING");
+
+                            if (!paymentList.isEmpty()) {
+                                var checkDeposited = paymentList.stream().filter(p ->
+                                        p.getPaymentType().equals(PaymentType.STAGE_2)
+                                ).findFirst();
+
+                                if (checkDeposited.isEmpty()) {
+                                    checkDeposited = paymentList.stream().filter(p ->
+                                            p.getPaymentType().equals(PaymentType.STAGE_1)
+                                    ).findFirst();
+                                    if (checkDeposited.isPresent() && checkDeposited.get().getPaymentStatus()) {
+                                        logger.error("CREATE STAGE_2");
+                                        var payOSResponse = paymentService.createPayOSPayment(
+                                                PaymentRequest
+                                                        .builder()
+                                                        .orderID(orderResponse.getOrderID())
+
+                                                        .paymentSenderID(sender.getUserID())
+                                                        .paymentSenderName(sender.getFullName())
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
+
+                                                        .paymentRecipientID(recipient.getUserID())
+                                                        .paymentRecipientName(recipient.getFullName())
+                                                        .paymentRecipientBankCode("")
+                                                        .paymentRecipientBankNumber("")
+
+                                                        .paymentType(PaymentType.STAGE_2)
+                                                        .paymentAmount(order.getTotalPrice())
+                                                        .itemList(null)
+                                                        .build()
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
                 } else {
                     logger.info("Change Status Delete Order");
                     orderService.changeOrderStatus(

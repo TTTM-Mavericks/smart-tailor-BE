@@ -31,7 +31,7 @@ public class Payment extends AuditEntity implements Serializable {
 //    private UUID paymentSenderID;
 
     @ManyToOne
-    @JoinColumn(name = "payment_sender_id", referencedColumnName = "user_id", nullable = false, unique = false)
+    @JoinColumn(name = "payment_sender_id", referencedColumnName = "user_id", nullable = true, unique = false)
     private User paymentSender;
 
     @Column(name = "payment_sender_name")
@@ -47,7 +47,7 @@ public class Payment extends AuditEntity implements Serializable {
 //    private UUID paymentRecipientID;
 
     @ManyToOne
-    @JoinColumn(name = "payment_recipient_id", referencedColumnName = "user_id", nullable = false, unique = false)
+    @JoinColumn(name = "payment_recipient_id", referencedColumnName = "user_id", nullable = true, unique = false)
     private User paymentRecipient;
 
     @Column(name = "payment_recipient_name")
@@ -69,13 +69,13 @@ public class Payment extends AuditEntity implements Serializable {
     @Column(name = "payment_status")
     private Boolean paymentStatus;
 
-//    @Column(name = "order_id", insertable = false, updatable = false)
-//    private UUID orderID;
+    @Column(name = "order_id", unique = false, nullable = true)
+    private UUID orderID;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
-    @JsonBackReference
-    private Order order;
+//    @ManyToOne
+//    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
+//    @JsonBackReference
+//    private UUID orderID;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_type")

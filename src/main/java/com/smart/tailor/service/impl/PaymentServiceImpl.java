@@ -5,6 +5,7 @@ import com.smart.tailor.entities.Payment;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.mapper.PaymentMapper;
+import com.smart.tailor.repository.OrderRepository;
 import com.smart.tailor.repository.PaymentRepository;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
@@ -12,7 +13,6 @@ import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
-import com.smart.tailor.utils.response.PayOSResponse;
 import com.smart.tailor.utils.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +26,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
+    private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final PayOSService payOSService;
     private final UserService userService;
@@ -57,87 +58,114 @@ public class PaymentServiceImpl implements PaymentService {
             Boolean paymentStatus = false;
             PaymentType paymentType = paymentRequest.getPaymentType();
 
-            var checkSender = userService.getUserByUserID(paymentSenderID);
-            if (checkSender.isEmpty()) {
-                throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentSenderID);
-            }
-            var sender = checkSender.get();
+            if (paymentType.equals(PaymentType.CUSTOMER_UPGRADE) || paymentType.equals(PaymentType.BRAND_REGISTRATION)) {
+                var checkSender = userService.getUserByUserID(paymentSenderID);
+                if (checkSender.isEmpty()) {
+                    throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentSenderID);
+                }
+                var sender = checkSender.get();
 
-            var checkRecipient = userService.getUserByUserID(paymentRecipientID);
-            if (checkRecipient.isEmpty()) {
-                throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentRecipientID);
-            }
-            var recipient = checkRecipient.get();
+                var checkRecipient = userService.getUserByUserID(paymentRecipientID);
+                if (checkRecipient.isEmpty()) {
+                    throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentRecipientID);
+                }
+                var recipient = checkRecipient.get();
 
-            String senderEmail = sender.getEmail();
-            String senderPhone = sender.getPhoneNumber();
-            String senderAddress = "";
-            if (sender.getRoles().getRoleName().equals("BRAND")) {
-                var brand = sender.getBrand();
-                senderAddress = brand.getProvince() + " " + brand.getDistrict() + " " + brand.getWard() + " " + brand.getAddress();
-            } else if (sender.getRoles().getRoleName().equals("CUSTOMER")) {
-                var customer = sender.getCustomer();
-                senderAddress = customer.getProvince() + " " + customer.getDistrict() + " " + customer.getWard() + " " + customer.getAddress();
-            }
+                String senderEmail = sender.getEmail();
+                String senderPhone = sender.getPhoneNumber();
+                String senderAddress = "";
+                if (sender.getRoles().getRoleName().equals("BRAND")) {
+                    var brand = sender.getBrand();
+                    senderAddress = brand.getProvince() + " " + brand.getDistrict() + " " + brand.getWard() + " " + brand.getAddress();
+                } else if (sender.getRoles().getRoleName().equals("CUSTOMER")) {
+                    var customer = sender.getCustomer();
+                    senderAddress = customer.getProvince() + " " + customer.getDistrict() + " " + customer.getWard() + " " + customer.getAddress();
+                }
+                var storedPayment = paymentRepository.save(
+                        Payment.builder()
+                                .paymentSender(null)
+                                .paymentSenderName("")
+                                .paymentSenderBankCode("")
+                                .paymentSenderBankNumber("")
 
-            /**
-             * TODO
-             * Load item from paymentRequest to itemList
-             */
-            List<PayOSItem> itemList = paymentRequest.getItemList();
-            String cancelUrl = "";
-            String returnUrl = "";
-            String description = "";
-            var order = paymentRequest.getOrder();
+                                .paymentRecipient(null)
+                                .paymentRecipientName("")
+                                .paymentRecipientBankCode("")
+                                .paymentRecipientBankNumber("")
 
-            if (paymentType.equals(PaymentType.DEPOSIT)) {
-                description = "DEPOSIT ORDER";
-            } else if (paymentType.equals(PaymentType.STAGE_1)) {
-                description = "STAGE 1";
+                                .paymentMethod(paymentMethod)
+                                .paymentAmount(paymentAmount)
+                                .paymentStatus(paymentStatus)
+                                .paymentType(paymentType)
+//                                .order(paymentRequest.getOrder())
+                                .orderID(null)
+                                .paymentCode(null)
+                                .build()
+                );
+                return paymentMapper.mapperToPaymentResponse(storedPayment);
             } else {
-                description = "STAGE 2";
+
+                /**
+                 * TODO
+                 * Load item from paymentRequest to itemList
+                 */
+                List<PayOSItem> itemList = paymentRequest.getItemList();
+                String cancelUrl = "";
+                String returnUrl = "";
+                String description = "";
+                var orderID = paymentRequest.getOrderID();
+
+                if (paymentType.equals(PaymentType.DEPOSIT)) {
+                    description = "DEPOSIT ORDER";
+                } else if (paymentType.equals(PaymentType.STAGE_1)) {
+                    description = "STAGE 1";
+                } else {
+                    description = "STAGE 2";
+                }
+
+                var creationPayOS = payOSService.createPaymentLink(
+                        PayOSRequest
+                                .builder()
+                                .amount(10000)
+                                .description(description)
+                                .buyerName("")
+                                .buyerEmail("")
+                                .buyerPhone("")
+                                .buyerAddress("")
+                                .build()
+                );
+
+                logger.info("CREATE PayOS SUCCESSFULLY!");
+
+                if (creationPayOS == null) {
+                    throw new Exception("Create PayOS Fail!");
+                }
+                Integer orderCode = creationPayOS.getData().getOrderCode();
+
+                logger.error("order {}", paymentRequest.getOrderID());
+
+                var storedPayment = paymentRepository.save(
+                        Payment.builder()
+                                .paymentSender(null)
+                                .paymentSenderName("")
+                                .paymentSenderBankCode("")
+                                .paymentSenderBankNumber("")
+
+                                .paymentRecipient(null)
+                                .paymentRecipientName("")
+                                .paymentRecipientBankCode("")
+                                .paymentRecipientBankNumber("")
+
+                                .paymentMethod(paymentMethod)
+                                .paymentAmount(paymentAmount)
+                                .paymentStatus(paymentStatus)
+                                .paymentType(paymentType)
+                                .orderID(orderID)
+                                .paymentCode(orderCode)
+                                .build()
+                );
+                return paymentMapper.mapperToPaymentResponse(storedPayment);
             }
-
-            PayOSResponse payOSResponse = payOSService.createPaymentLink(
-                    PayOSRequest.builder()
-                            .amount(paymentAmount)
-                            .description(description)
-                            .buyerName(paymentSenderName)
-                            .buyerEmail(senderEmail)
-                            .buyerPhone(senderPhone)
-                            .buyerAddress(senderAddress)
-                            .items(itemList)
-                            .cancelUrl(cancelUrl)
-                            .returnUrl(serverUrl)
-                            .build()
-            );
-            if (payOSResponse == null) {
-                throw new Exception("Create PayOSPayment Fail!");
-            }
-            logger.error("Create PayOSPayment Successfully! {}", payOSResponse);
-            logger.error("INSIDE PAYMENT SERVICE IMPL - ORDER CODE: {}", payOSResponse.getData().getOrderCode());
-            var storedPayment = paymentRepository.save(
-                    Payment.builder()
-                            .paymentSender(sender)
-                            .paymentSenderName(paymentSenderName)
-                            .paymentSenderBankCode(paymentSenderBankCode)
-                            .paymentSenderBankNumber(paymentSenderBankNumber)
-
-                            .paymentRecipient(recipient)
-                            .paymentRecipientName(paymentRecipientName)
-                            .paymentRecipientBankCode(paymentRecipientBankCode)
-                            .paymentRecipientBankNumber(paymentRecipientBankNumber)
-
-                            .paymentMethod(paymentMethod)
-                            .paymentAmount(paymentAmount)
-                            .paymentStatus(paymentStatus)
-                            .paymentType(paymentType)
-                            .order(paymentRequest.getOrder())
-
-                            .paymentCode(payOSResponse.getData().getOrderCode())
-                            .build()
-            );
-            return paymentMapper.mapperToPaymentResponse(storedPayment);
         } catch (Exception ex) {
             return null;
         }
@@ -163,5 +191,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<Payment> findAllByOrderID(UUID orderID) {
         return paymentRepository.findAllByOrderID(orderID);
+    }
+
+    @Override
+    public Payment updatePayment(Payment payment) {
+        return paymentRepository.save(payment);
     }
 }

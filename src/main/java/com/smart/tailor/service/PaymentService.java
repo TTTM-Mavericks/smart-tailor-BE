@@ -13,4 +13,6 @@ public interface PaymentService {
     PaymentResponse getPaymentByID(UUID paymentID) throws Exception;
 
     List<Payment> findAllByOrderID(UUID orderID);
+
+    Payment updatePayment(Payment payment);
 }

@@ -46,7 +46,6 @@ public class PaymentController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();
-            logger.error("IN CONFIRM_PAYMENT ORDERCODE: {}", paymentID);
             payOSService.confirmPayment(paymentID);
             response.put("status", 200);
             response.put("message", MessageConstant.CONFIRM_PAYMENT_SUCCESSFULLY);

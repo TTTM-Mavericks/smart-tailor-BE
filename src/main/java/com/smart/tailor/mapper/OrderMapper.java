@@ -2,7 +2,6 @@ package com.smart.tailor.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Order;
-import com.smart.tailor.entities.Payment;
 import com.smart.tailor.service.DesignService;
 import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.utils.response.OrderCustomResponse;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface OrderMapper {
@@ -62,13 +60,17 @@ class OrderMapperImpl implements OrderMapper {
                         detailMapper::mapperToDesignDetailResponse
                 ).toList() : null
         );
-        List<PaymentResponse> paymentResponseList = new ArrayList<>();
-        if (order.getPaymentList() != null && !order.getPaymentList().isEmpty()) {
-            for (Payment p : order.getPaymentList()) {
-                paymentResponseList.add(paymentMapper.mapperToPaymentResponse(p));
+        try {
+            List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
+                    .stream()
+                    .map(paymentMapper::mapperToPaymentResponse)
+                    .toList();
+            if (!paymentResponseList.isEmpty()) {
+                orderResponse.paymentList(paymentResponseList);
             }
+        } catch (Exception ex) {
+            throw ex;
         }
-        orderResponse.paymentList(paymentResponseList);
         return orderResponse.build();
     }
 
@@ -102,13 +104,18 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.detailList(
                 order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
         );
-        List<PaymentResponse> paymentResponseList = new ArrayList<>();
-        if (order.getPaymentList() != null && !order.getPaymentList().isEmpty()) {
-            for (Payment p : order.getPaymentList()) {
-                paymentResponseList.add(paymentMapper.mapperToPaymentResponse(p));
+        try {
+            List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
+                    .stream()
+                    .map(paymentMapper::mapperToPaymentResponse)
+                    .toList();
+            if (!paymentResponseList.isEmpty()) {
+                orderResponse.paymentList(paymentResponseList);
             }
+            orderResponse.paymentList(paymentResponseList);
+        } catch (Exception ex) {
+            throw ex;
         }
-        orderResponse.paymentList(paymentResponseList);
         return orderResponse.build();
     }
 }

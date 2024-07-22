@@ -30,6 +30,6 @@ public class PaymentRequest {
     private PaymentMethod paymentMethod;
     private PaymentType paymentType;
 
-    private Order order;
+    private UUID orderID;
     private List<PayOSItem> itemList;
 }

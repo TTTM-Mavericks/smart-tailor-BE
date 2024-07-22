@@ -326,7 +326,6 @@ public class DesignServiceImpl implements DesignService {
             design.getPartOfDesignList().clear();
             partOfDesignService.deletePartOfDesignByDesignID(designID);
             partOfDesignList = partOfDesignService.createPartOfDesign(design, designRequest.getPartOfDesign());
-        logger.error("CURRENT LINE: {}", 329);
         } catch (BadRequestException ex) {
             logger.error("Bad Request Exception in Update Part Of Design {}", ex.getMessage());
             throw new BadRequestException(ex.getMessage());
