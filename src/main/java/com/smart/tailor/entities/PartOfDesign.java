@@ -43,6 +43,10 @@ public class PartOfDesign extends AuditEntity implements Serializable {
     @Column(name = "success_image_url", columnDefinition = "LONGTEXT")
     private byte[] successImageUrl;
 
+    @Lob
+    @Column(name = "real_part_image_url", columnDefinition = "LONGTEXT")
+    private byte[] realPartImageUrl;
+
     private Integer width;
 
     private Integer height;

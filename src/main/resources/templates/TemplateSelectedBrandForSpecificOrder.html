@@ -6,15 +6,86 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>Order Detail Information</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { width: 100%; padding: 20px; }
-        .content { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        .header { font-size: 24px; font-weight: bold; color: #333333; }
-        .message { font-size: 16px; color: #555555; }
-        .button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; text-align: center; text-decoration: none; border-radius: 5px; margin-top: 20px; }
-        .design-detail { margin-top: 20px; }
-        .design-detail-title { font-size: 18px; font-weight: bold; color: #333333; margin-bottom: 10px; }
-        .design-detail-item { margin-bottom: 10px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            font-size: 28px;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        .message {
+            font-size: 16px;
+            color: #6c757d;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 16px;
+            color: #000000;
+            background-color: #28a745;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+        .design-detail {
+            margin-top: 30px;
+        }
+        .design-detail-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+        .design-detail-item {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #495057;
+        }
+        .design-detail-item span {
+            font-weight: bold;
+            color: #212529;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #6c757d;
+            text-align: center;
+        }
+        .footer a {
+            color: #28a745;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -22,8 +93,8 @@
     <div class='content'>
         <div class='header'>Order Detail Information</div>
         <div class='message'>Hi <span th:text="${email}"></span>,</div>
-        <div class='message'>We received a request from customer design. We send mail to you order information.</div>
-        <div class='message'><span th:text="${orderID}"></span></div>
+        <div class='message'>We received a request from customer design. Below are the details of customer order:</div>
+        <div class='message'>Order ID: <span th:text="${orderID}"></span></div>
         <div class='design-detail'>
             <div class='design-detail-title'>Design Details:</div>
             <div th:each="detail : ${detailList}">
@@ -32,7 +103,11 @@
                 <div class='design-detail-item'>Quantity: <span th:text="${detail.quantity}"></span></div>
             </div>
         </div>
-        <a th:href="@{${sendMailSelectedBrandsForOrderLink}}" class='button'>Change Password</a>
+        <a th:href="@{${sendMailSelectedBrandsForOrderLink}}" class='button' style="color: black">Redirect to Brand Pick Order</a>
+    </div>
+    <div class='footer'>
+        If you have any questions, please contact us at <a href="mailto:support@example.com">support@example.com</a>.<br>
+        &copy; 2024 Smart Tailor. All rights reserved.
     </div>
 </div>
 </body>

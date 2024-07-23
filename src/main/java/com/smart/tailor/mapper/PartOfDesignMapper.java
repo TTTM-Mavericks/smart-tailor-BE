@@ -16,6 +16,7 @@ public interface PartOfDesignMapper {
     @Mapping(source = "partOfDesign.height", target = "height")
     @Mapping(source = "partOfDesign.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "partOfDesign.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "realPartImageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getRealPartImageUrl()))")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getImageUrl()))")
     @Mapping(target = "successImageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getSuccessImageUrl()))")
     PartOfDesignResponse mapperToPartOfDesignResponse(PartOfDesign partOfDesign);
