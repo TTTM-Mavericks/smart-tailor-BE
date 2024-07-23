@@ -68,6 +68,22 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
             }
 
+            if(!Utilities.isValidFloat(itemMaskRequest.getTopLeftRadius())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " topLeftRadius");
+            }
+
+            if(!Utilities.isValidFloat(itemMaskRequest.getTopRightRadius())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " topRightRadius");
+            }
+
+            if(!Utilities.isValidFloat(itemMaskRequest.getBottomLeftRadius())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomLeftRadius");
+            }
+
+            if(!Utilities.isValidFloat(itemMaskRequest.getBottomRightRadius())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomRightRadius");
+            }
+
             // Check Whether ImageUrl is existed or not. Then Convert It to Base64
             byte[] base64ImageUrl = null;
             if(Optional.ofNullable(itemMaskRequest.getImageUrl()).isPresent()){
@@ -88,6 +104,10 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                     .scaleX(itemMaskRequest.getScaleX())
                     .scaleY(itemMaskRequest.getScaleY())
                     .indexZ(itemMaskRequest.getIndexZ())
+                    .bottomLeftRadius(itemMaskRequest.getBottomLeftRadius())
+                    .bottomRightRadius(itemMaskRequest.getBottomRightRadius())
+                    .topRightRadius(itemMaskRequest.getTopRightRadius())
+                    .topLeftRadius(itemMaskRequest.getTopLeftRadius())
                     .imageUrl(base64ImageUrl)
                     .printType(PrintType.valueOf(itemMaskRequest.getPrintType()))
                     .build();
