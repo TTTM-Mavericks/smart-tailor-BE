@@ -45,38 +45,43 @@ public class Order extends AuditEntity implements Serializable {
     @Column(name = "order_status")
     private OrderStatus orderStatus;
 
-    @Column(name = "order_type")
+    @Column(name = "order_type", columnDefinition = "varchar(20)")
     private String orderType;
 
+    @Column(columnDefinition = "varchar(255)")
     private String address;
 
+    @Column(columnDefinition = "varchar(100)")
     private String province;
 
+    @Column(columnDefinition = "varchar(100)")
     private String district;
 
+    @Column(columnDefinition = "varchar(100)")
     private String ward;
 
+    @Column(columnDefinition = "varchar(12)")
     private String phone;
 
-    @Column(name = "buyer_name")
+    @Column(name = "buyer_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String buyerName;
 
     @Column(name = "total_price")
     private Integer totalPrice;
 
-    @Column(name = "expected_start_date")
+    @Column(name = "expected_start_date", columnDefinition = "datetime(2)")
     private LocalDateTime expectedStartDate;
 
-    @Column(name = "expected_product_completion_date")
+    @Column(name = "expected_product_completion_date", columnDefinition = "datetime(2)")
     private LocalDateTime expectedProductCompletionDate;
 
-    @Column(name = "estimated_delivery_date")
+    @Column(name = "estimated_delivery_date", columnDefinition = "datetime(2)")
     private LocalDateTime estimatedDeliveryDate;
 
-    @Column(name = "production_start_date")
+    @Column(name = "production_start_date", columnDefinition = "datetime(2)")
     private LocalDateTime productionStartDate;
 
-    @Column(name = "product_completion_date")
+    @Column(name = "product_completion_date", columnDefinition = "datetime(2)")
     private LocalDateTime productionCompletionDate;
 
     @OneToMany(mappedBy = "order")

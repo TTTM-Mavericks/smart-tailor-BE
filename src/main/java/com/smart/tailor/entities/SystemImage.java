@@ -23,7 +23,7 @@ public class SystemImage extends AuditEntity implements Serializable {
     @Column(name = "image_id")
     private UUID imageID;
 
-    @Column(name = "image_name")
+    @Column(name = "image_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String imageName;
 
     @Column(name = "image_url", columnDefinition = "LONGTEXT")
@@ -32,7 +32,7 @@ public class SystemImage extends AuditEntity implements Serializable {
     @Column(name = "image_status")
     private Boolean imageStatus;
 
-    @Column(name = "image_type")
+    @Column(name = "image_type", columnDefinition = "varchar(50)")
     private String imageType;
 
     @Column(name = "is_premium")

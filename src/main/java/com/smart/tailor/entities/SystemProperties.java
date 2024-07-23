@@ -24,19 +24,19 @@ public class SystemProperties extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID propertyID;
 
-    @Column(name = "property_name", nullable = false, unique = true)
+    @Column(name = "property_name", columnDefinition = "varchar(50)", nullable = false, unique = true)
     private String propertyName;
 
-    @Column(name = "property_unit", nullable = true, unique = false)
+    @Column(name = "property_unit", columnDefinition = "varchar(50)", nullable = true, unique = false)
     private String propertyUnit;
 
-    @Column(name = "property_detail", nullable = true, unique = false)
+    @Column(name = "property_detail", columnDefinition = "varchar(255)", nullable = true, unique = false)
     private String propertyDetail;
 
-    @Column(name = "property_type", nullable = false, unique = false)
+    @Column(name = "property_type", columnDefinition = "varchar(50)", nullable = false, unique = false)
     private String propertyType;
 
-    @Column(name = "property_value", nullable = true, unique = false)
+    @Column(name = "property_value", columnDefinition = "varchar(100)", nullable = true, unique = false)
     private String propertyValue;
 
     @Column(name = "property_status")

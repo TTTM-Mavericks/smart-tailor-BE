@@ -39,10 +39,10 @@ public class ItemMask extends AuditEntity implements Serializable {
     @JsonBackReference
     private Material material;
 
-    @Column(name = "item_mask_name")
+    @Column(name = "item_mask_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String itemMaskName;
 
-    @Column(name = "type_of_item")
+    @Column(name = "type_of_item", columnDefinition = "varchar(50)")
     private String typeOfItem;
 
     @Column(name = "is_system_item")

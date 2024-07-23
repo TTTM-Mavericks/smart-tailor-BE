@@ -23,7 +23,7 @@ public class Size extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID sizeID;
 
-    @Column(name = "size_name")
+    @Column(name = "size_name", columnDefinition = "varchar(5)")
     private String sizeName;
 
     private Boolean status;

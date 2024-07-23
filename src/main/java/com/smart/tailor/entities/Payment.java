@@ -34,13 +34,13 @@ public class Payment extends AuditEntity implements Serializable {
     @JoinColumn(name = "payment_sender_id", referencedColumnName = "user_id", nullable = true, unique = false)
     private User paymentSender;
 
-    @Column(name = "payment_sender_name")
+    @Column(name = "payment_sender_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String paymentSenderName;
 
-    @Column(name = "payment_sender_bank_code")
+    @Column(name = "payment_sender_bank_code", columnDefinition = "varchar(50)")
     private String paymentSenderBankCode;
 
-    @Column(name = "payment_sender_bank_number")
+    @Column(name = "payment_sender_bank_number", columnDefinition = "varchar(50)")
     private String paymentSenderBankNumber;
 //
 //    @Column(name = "payment_recipient_id", insertable = false, updatable = false)
@@ -50,13 +50,13 @@ public class Payment extends AuditEntity implements Serializable {
     @JoinColumn(name = "payment_recipient_id", referencedColumnName = "user_id", nullable = true, unique = false)
     private User paymentRecipient;
 
-    @Column(name = "payment_recipient_name")
+    @Column(name = "payment_recipient_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String paymentRecipientName;
 
-    @Column(name = "payment_recipient_bank_code")
+    @Column(name = "payment_recipient_bank_code", columnDefinition = "varchar(50)")
     private String paymentRecipientBankCode;
 
-    @Column(name = "payment_recipient_bank_number")
+    @Column(name = "payment_recipient_bank_number", columnDefinition = "varchar(50)")
     private String paymentRecipientBankNumber;
 
     @Column(name = "payment_amount")

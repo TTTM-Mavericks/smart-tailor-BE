@@ -22,9 +22,9 @@ public class LaborQuantityRequest {
 
     @NotNull(message = "laborQuantityMinPrice is required")
     @Min(value = 0, message = "laborQuantityMinPrice can not less than 0")
-    private Double laborQuantityMinPrice;
+    private Integer laborQuantityMinPrice;
 
     @NotNull(message = "laborQuantityMaxPrice is required")
     @Min(value = 0, message = "laborQuantityMaxPrice can not less than 0")
-    private Double laborQuantityMaxPrice;
+    private Integer laborQuantityMaxPrice;
 }

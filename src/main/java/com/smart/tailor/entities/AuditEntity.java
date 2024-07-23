@@ -22,10 +22,10 @@ import java.time.LocalDateTime;
 @SuperBuilder(toBuilder = true)
 public abstract class AuditEntity implements Serializable {
     @CreatedDate
-    @Column(name = "create_date", nullable = false, updatable = false)
+    @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
     private LocalDateTime createDate;
 
     @LastModifiedDate
-    @Column(name = "last_modified_date", nullable = true, insertable = false)
+    @Column(name = "last_modified_date", columnDefinition = "datetime(2)", nullable = true, insertable = false)
     private LocalDateTime lastModifiedDate;
 }

@@ -34,16 +34,19 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
     @UuidGenerator
     private UUID userID;
 
+    @Column(columnDefinition = "varchar(255)")
     private String email;
 
+    @Column(columnDefinition = "varchar(255)")
     private String password;
 
-    @Column(name = "full_name")
+    @Column(columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String fullName;
 
+    @Column(columnDefinition = "varchar(50)")
     private String language;
 
-    @Column(name = "phone_number")
+    @Column(columnDefinition = "varchar(12)")
     private String phoneNumber;
 
     @ManyToOne

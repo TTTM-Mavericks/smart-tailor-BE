@@ -23,7 +23,7 @@ public class ExpertTailoring extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID expertTailoringID;
 
-    @Column(name = "expert_tailoring_name")
+    @Column(name = "expert_tailoring_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String expertTailoringName;
 
     @Lob

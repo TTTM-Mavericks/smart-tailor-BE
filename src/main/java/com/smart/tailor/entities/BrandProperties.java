@@ -31,9 +31,9 @@ public class BrandProperties extends AuditEntity implements Serializable {
     @JoinColumn(name = "property_id", referencedColumnName = "property_id", nullable = false, unique = false)
     private SystemProperties systemProperties;
 
-    @Column(name = "brand_property_value")
+    @Column(name = "brand_property_value", columnDefinition = "varchar(100)")
     private String brandPropertyValue;
 
-    @Column(name = "brand_property_status")
+    @Column(name = "brand_property_status", columnDefinition = "varchar(100)")
     private Boolean brandPropertyStatus;
 }

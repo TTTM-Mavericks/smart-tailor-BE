@@ -24,5 +24,5 @@ public class BrandLaborQuantityRequest {
 
     @NotNull(message = "brandLaborCostPerQuantity is required")
     @Min(value = 0, message = "brandLaborCostPerQuantity can not less than 0")
-    private Double brandLaborCostPerQuantity;
+    private Integer brandLaborCostPerQuantity;
 }
