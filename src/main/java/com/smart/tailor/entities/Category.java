@@ -23,7 +23,7 @@ public class Category extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID categoryID;
 
-    @Column(name = "category_name")
+    @Column(name = "category_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String categoryName;
 
     private Boolean status;

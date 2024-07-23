@@ -23,13 +23,14 @@ public class Report extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID reportID;
 
-    @Column(name = "type_of_report")
+    @Column(name = "type_of_report", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String typeOfReport;
 
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
     private Order order;
 
+    @Column(columnDefinition = "text")
     private String content;
 
     @Column(name = "report_status")

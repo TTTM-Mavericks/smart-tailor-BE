@@ -55,8 +55,8 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
             List<String> errors = new ArrayList<>();
             Integer laborQuantityMinQuantity = laborQuantityRequest.getLaborQuantityMinQuantity();
             Integer laborQuantityMaxQuantity = laborQuantityRequest.getLaborQuantityMaxQuantity();
-            Double laborQuantityMinPrice = laborQuantityRequest.getLaborQuantityMinPrice();
-            Double laborQuantityMaxPrice = laborQuantityRequest.getLaborQuantityMaxPrice();
+            Integer laborQuantityMinPrice = laborQuantityRequest.getLaborQuantityMinPrice();
+            Integer laborQuantityMaxPrice = laborQuantityRequest.getLaborQuantityMaxPrice();
 
             if(laborQuantityMinQuantity > laborQuantityMaxQuantity){
                 errors.add("Min Quantity Can Not Greater Than Max Quantity");
@@ -107,8 +107,8 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
     public void updateLaborQuantity(UUID laborQuantityID, LaborQuantityRequest laborQuantityRequest) {
         Integer laborQuantityMinQuantity = laborQuantityRequest.getLaborQuantityMinQuantity();
         Integer laborQuantityMaxQuantity = laborQuantityRequest.getLaborQuantityMaxQuantity();
-        Double laborQuantityMinPrice = laborQuantityRequest.getLaborQuantityMinPrice();
-        Double laborQuantityMaxPrice = laborQuantityRequest.getLaborQuantityMaxPrice();
+        Integer laborQuantityMinPrice = laborQuantityRequest.getLaborQuantityMinPrice();
+        Integer laborQuantityMaxPrice = laborQuantityRequest.getLaborQuantityMaxPrice();
 
         var currentLaborQuantity = laborQuantityRepository.findById(laborQuantityID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Labor Quantity by LaborQuantityID: " + laborQuantityID));

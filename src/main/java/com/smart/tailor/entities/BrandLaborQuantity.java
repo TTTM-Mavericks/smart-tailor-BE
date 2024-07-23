@@ -27,7 +27,7 @@ public class BrandLaborQuantity extends AuditEntity implements Serializable {
     @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
     private Brand brand;
 
-    private Double brandLaborCostPerQuantity;
+    private Integer brandLaborCostPerQuantity;
 
     private Boolean status;
 }

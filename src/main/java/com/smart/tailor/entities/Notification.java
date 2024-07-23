@@ -23,6 +23,7 @@ public class Notification extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID notificationID;
 
+    @Column(columnDefinition = "varchar(100)")
     private String action;
 
     @Column(name = "user_id")
@@ -34,5 +35,6 @@ public class Notification extends AuditEntity implements Serializable {
 
     private Boolean status;
 
+    @Column(columnDefinition = "varchar(255)")
     private String detail;
 }

@@ -32,7 +32,7 @@ public class PartOfDesign extends AuditEntity implements Serializable {
     @JoinColumn(name = "design_id", referencedColumnName = "design_id", nullable = false, unique = false)
     private Design design;
 
-    @Column(name = "part_of_design_name")
+    @Column(name = "part_of_design_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String partOfDesignName;
 
     @Lob

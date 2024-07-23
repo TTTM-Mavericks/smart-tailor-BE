@@ -35,12 +35,16 @@ public class Customer extends AuditEntity implements Serializable {
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
+    @Column(columnDefinition = "varchar(255)")
     private String address;
 
+    @Column(columnDefinition = "varchar(100)")
     private String province;
 
+    @Column(columnDefinition = "varchar(100)")
     private String district;
 
+    @Column(columnDefinition = "varchar(100)")
     private String ward;
 
     @Column(name = "number_of_violations")

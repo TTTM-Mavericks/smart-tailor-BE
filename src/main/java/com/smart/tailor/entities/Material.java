@@ -23,6 +23,7 @@ public class Material extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID materialID;
 
+    @Column(columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String materialName;
 
     @ManyToOne
@@ -32,6 +33,7 @@ public class Material extends AuditEntity implements Serializable {
     @Column(name = "hs_code")
     private Long hsCode;
 
+    @Column(columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String unit;
 
     @Column(name = "base_price")

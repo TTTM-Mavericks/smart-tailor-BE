@@ -31,6 +31,7 @@ public class SizeExpertTailoring extends AuditEntity implements Serializable {
 
     private Double maxFabric;
 
+    @Column(columnDefinition = "varchar(50)")
     private String unit;
 
     private Boolean status;

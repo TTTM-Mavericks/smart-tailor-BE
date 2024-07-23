@@ -31,10 +31,12 @@ public class Task extends AuditEntity implements Serializable {
     @JoinColumn(name = "order_id", referencedColumnName = "order_id")
     private Order orderID;
 
+    @Column(columnDefinition = "varchar(255)")
     private String detail;
 
     @Column(name = "task_status")
     private Boolean taskStatus;
 
+    @Column(columnDefinition = "varchar(100)")
     private String title;
 }

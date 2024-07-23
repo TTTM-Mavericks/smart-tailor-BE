@@ -32,7 +32,7 @@ public class Design extends AuditEntity implements Serializable {
     @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id")
     private ExpertTailoring expertTailoring;
 
-    @Column(name = "title_design")
+    @Column(name = "title_design", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String titleDesign;
 
     @Column(name = "public_status")
@@ -42,8 +42,7 @@ public class Design extends AuditEntity implements Serializable {
     @Column(name = "image_url", columnDefinition = "LONGTEXT")
     private byte[] imageUrl;
 
-    @Lob
-    @Column(name = "color")
+    @Column(name = "color", columnDefinition = "varchar(10)")
     private String color;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "design")

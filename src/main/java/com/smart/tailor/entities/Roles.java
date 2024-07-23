@@ -24,6 +24,6 @@ public class Roles extends AuditEntity implements Serializable {
     @UuidGenerator
     private UUID roleID;
 
-    @Column(name = "role_name", nullable = false)
+    @Column(name = "role_name", nullable = false, columnDefinition = "varchar(20)")
     private String roleName;
 }
