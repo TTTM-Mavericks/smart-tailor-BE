@@ -28,6 +28,8 @@ public class PartOfDesignRequest {
 
     private String successImageUrl;
 
+    private String realPartImageUrl;
+
     @NotNull(message = "width is required")
     @Min(value = 1, message = "width have to greater than 0")
     private Integer width;

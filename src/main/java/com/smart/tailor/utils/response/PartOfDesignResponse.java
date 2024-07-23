@@ -23,6 +23,8 @@ public class PartOfDesignResponse {
 
     private String successImageUrl;
 
+    private String realPartImageUrl;
+
     private Integer width;
 
     private Integer height;

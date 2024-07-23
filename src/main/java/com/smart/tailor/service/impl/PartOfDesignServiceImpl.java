@@ -54,12 +54,18 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                 base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
             }
 
+            byte[] base64RealPartImageUrl = null;
+            if(Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl()).isPresent()){
+                base64RealPartImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getRealPartImageUrl());
+            }
+
             var partOfDesign =  PartOfDesign
                     .builder()
                     .design(design)
                     .partOfDesignName(partOfDesignRequest.getPartOfDesignName())
                     .imageUrl(base64ImageUrl)
                     .successImageUrl(base64SuccessImageUrl)
+                    .realPartImageUrl(base64RealPartImageUrl)
                     .width(partOfDesignRequest.getWidth())
                     .height(partOfDesignRequest.getHeight())
                     .build();
