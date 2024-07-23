@@ -3,6 +3,7 @@ package com.smart.tailor.utils.request;
 import com.smart.tailor.enums.PrintType;
 import com.smart.tailor.validate.ValidEnumValue;
 import com.smart.tailor.validate.ValidStringUUID;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,18 @@ public class ItemMaskRequest {
 
     @NotNull(message = "scaleY is required")
     private Float scaleY;
+
+    @NotNull(message = "topLeftRadius is required")
+    private Float topLeftRadius;
+
+    @NotNull(message = "topRightRadius is required")
+    private Float topRightRadius;
+
+    @NotNull(message = "bottomLeftRadius is required")
+    private Float bottomLeftRadius;
+
+    @NotNull(message = "bottomRightRadius is required")
+    private Float bottomRightRadius;
 
     @NotNull(message = "indexZ is required")
     private Integer indexZ;
