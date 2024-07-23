@@ -311,7 +311,7 @@ public class OrderServiceImpl implements OrderService {
                 if (checkDetail.isEmpty()) {
                     throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_DETAIL + " with detailID: " + detailID);
                 }
-                if (orderRepository.getOrderByDetailID(detailID).getOrderID() != basedOrderID) {
+                if (!orderRepository.getOrderByDetailID(detailID).getOrderID().equals(basedOrderID)) {
                     throw new BadRequestException("This detail " + detailID + " is inside another order!");
                 }
                 var detail = detailRepository.getDesignDetailByDesignDetailID(detailID).get();
