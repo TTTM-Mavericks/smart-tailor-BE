@@ -68,6 +68,10 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
             }
 
+            if(!Utilities.isValidFloat(itemMaskRequest.getRotate())){
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " rotate");
+            }
+
             if(!Utilities.isValidFloat(itemMaskRequest.getTopLeftRadius())){
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " topLeftRadius");
             }
@@ -104,6 +108,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                     .scaleX(itemMaskRequest.getScaleX())
                     .scaleY(itemMaskRequest.getScaleY())
                     .indexZ(itemMaskRequest.getIndexZ())
+                    .rotate(itemMaskRequest.getRotate())
                     .bottomLeftRadius(itemMaskRequest.getBottomLeftRadius())
                     .bottomRightRadius(itemMaskRequest.getBottomRightRadius())
                     .topRightRadius(itemMaskRequest.getTopRightRadius())

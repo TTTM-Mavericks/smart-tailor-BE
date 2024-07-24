@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,4 +37,8 @@ public class Report extends AuditEntity implements Serializable {
 
     @Column(name = "report_status")
     private Boolean reportStatus;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "report")
+    @JsonManagedReference
+    private List<ReportImage> reportImageList;
 }

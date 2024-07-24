@@ -369,4 +369,15 @@ public class MessageConstant {
     public static final String GET_PAYMENT_SUCCESSFULLY = "Get Payment Info Successfully!";
     public static final String CONFIRM_PAYMENT_SUCCESSFULLY = "Confirm Payment Successfully!";
 
+    /**
+     * Report
+     */
+    /*    SUCCESS  */
+    public static final String CREATE_REPORT_SUCCESSFULLY = "Create Report Successfully!";
+    public static final String GET_ALL_REPORT_SUCCESSFULLY = "Get All Report Successfully!";
+    public static final String GET_ALL_REPORT_BY_ORDER_ID_SUCCESSFULLY = "Get All Report By Order ID Successfully!";
+
+    /*    FAIL     */
+    public static final String CAN_NOT_FIND_ANY_REPORT = "Can not find Any Report";
+
 }

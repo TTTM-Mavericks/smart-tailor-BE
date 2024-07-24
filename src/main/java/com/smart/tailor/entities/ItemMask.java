@@ -63,6 +63,9 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Column(name = "index_z")
     private Integer indexZ;
 
+    @Column(name = "rotate")
+    private Float rotate;
+
     @Column(name = "top_left_radius")
     private Float topLeftRadius;
 

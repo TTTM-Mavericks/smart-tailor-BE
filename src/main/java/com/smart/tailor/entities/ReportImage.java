@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,10 +28,11 @@ public class ReportImage extends AuditEntity implements Serializable {
     private String reportImageName;
 
     @Lob
-    @Column(name = "report_image_url", columnDefinition = "TEXT")
-    private String reportImageUrl;
+    @Column(name = "report_image_url", columnDefinition = "LONGTEXT")
+    private byte[] reportImageUrl;
 
     @ManyToOne
     @JoinColumn(name = "report_id", referencedColumnName = "report_id")
-    private Report reportID;
+    @JsonBackReference
+    private Report report;
 }
