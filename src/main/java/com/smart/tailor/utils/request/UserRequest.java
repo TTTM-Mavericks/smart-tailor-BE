@@ -2,6 +2,9 @@ package com.smart.tailor.utils.request;
 
 
 import com.smart.tailor.enums.Provider;
+import com.smart.tailor.validate.ValidEmail;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +17,8 @@ import net.minidev.json.annotate.JsonIgnore;
 @NoArgsConstructor
 @Builder
 public class UserRequest {
+    @ValidEmail
+    @NotBlank(message = "Email is required")
     private String email;
 
     private String password;

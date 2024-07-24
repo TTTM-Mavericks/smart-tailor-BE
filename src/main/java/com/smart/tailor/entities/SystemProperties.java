@@ -27,7 +27,7 @@ public class SystemProperties extends AuditEntity implements Serializable {
     @Column(name = "property_name", columnDefinition = "varchar(50)", nullable = false, unique = true)
     private String propertyName;
 
-    @Column(name = "property_unit", columnDefinition = "varchar(50)", nullable = true, unique = false)
+    @Column(name = "property_unit", columnDefinition = "varchar(50)", nullable = false, unique = false)
     private String propertyUnit;
 
     @Column(name = "property_detail", columnDefinition = "varchar(255)", nullable = true, unique = false)

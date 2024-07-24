@@ -13,6 +13,7 @@ import com.smart.tailor.utils.request.BrandPropertiesRequest;
 import com.smart.tailor.utils.response.BrandPropertiesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -62,34 +63,23 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
         }
     }
 
+    @Transactional
     @Override
     public BrandPropertiesResponse addNew(BrandPropertiesRequest brandRequest) throws Exception {
         try {
-            if (brandRequest == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
-            }
-            if (brandRequest.getBrandID() == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": brandID");
-            }
-            UUID brandID = brandRequest.getBrandID();
+            UUID brandID = UUID.fromString(brandRequest.getBrandID());
 
             var brand = brandService.getBrandById(brandID);
             if (brand.isEmpty()) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
             }
 
-            if (brandRequest.getSystemPropertyID() == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": systemPropertyID");
-            }
-            UUID systemPropertyID = brandRequest.getSystemPropertyID();
+            UUID systemPropertyID = UUID.fromString(brandRequest.getSystemPropertyID());
             var systemProperty = systemService.getObjectByID(systemPropertyID);
             if (systemProperty.isEmpty()) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_SYSTEM_PROPERTY);
             }
 
-            if (brandRequest.getBrandPropertyValue() == null || !Utilities.isNonNullOrEmpty(brandRequest.getBrandPropertyValue())) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": brandPropertyValue");
-            }
             String brandPropertyValue = brandRequest.getBrandPropertyValue().trim().toUpperCase();
             Boolean brandPropertyStatus = brandRequest.getBrandPropertyStatus() != null ? brandRequest.getBrandPropertyStatus() : true;
 

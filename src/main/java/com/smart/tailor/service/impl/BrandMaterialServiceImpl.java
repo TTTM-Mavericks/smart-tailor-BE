@@ -12,7 +12,6 @@ import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -24,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -154,7 +154,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                         if (cellIndex != 5) {
                             inValidData = true;
                             rowDataValid = false;
-                            errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty!");
+                            errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty");
                         } else {
                             brandPriceIsEmpty = true;
                         }
@@ -162,26 +162,40 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                         switch (cellIndex) {
                             case 0:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    brandMaterialRequest.setCategoryName(cell.getStringCellValue());
+                                    var categoryName = cell.getStringCellValue();
+                                    if(categoryName.length() > 50){
+                                        errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else {
+                                        brandMaterialRequest.setCategoryName(categoryName);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must be data type string");
                                 }
                                 break;
                             case 1:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    brandMaterialRequest.setMaterialName(cell.getStringCellValue());
+                                    var materialName = cell.getStringCellValue();
+                                    if(materialName.length() > 50){
+                                        errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else{
+                                        brandMaterialRequest.setMaterialName(materialName);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must be data type string");
                                 }
                                 break;
                             case 2:
                                 isValid = false;
                                 long longValue = -1;
-                                message = " Require Data Type Numeric!";
+                                message = " require data type numeric";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
                                         longValue = (long) cell.getNumericCellValue();
@@ -201,7 +215,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                     brandMaterialRequest.setHsCode(longValue);
                                 } else {
                                     if (isValid && longValue < 0) {
-                                        message = " Require Positive Numeric!";
+                                        message = " require positive numeric";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;
@@ -210,17 +224,24 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                 break;
                             case 3:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    brandMaterialRequest.setUnit(cell.getStringCellValue());
+                                    var unit = cell.getStringCellValue();
+                                    if(unit.length() > 50){
+                                        errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else{
+                                        brandMaterialRequest.setUnit(unit);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " require data type string");
                                 }
                                 break;
                             case 4:
                                 isValid = false;
                                 Integer basePrice = -1;
-                                message = " Require Data Type Numeric!";
+                                message = " require data type numeric";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
                                         basePrice = (int) cell.getNumericCellValue();
@@ -240,7 +261,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                     brandMaterialRequest.setBasePrice(basePrice);
                                 } else {
                                     if (isValid && basePrice < 0) {
-                                        message = " Require Positive Numeric!";
+                                        message = " require positive numeric";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;
@@ -251,7 +272,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                 isValid = false;
                                 Integer brandPrice = -1;
                                 boolean isEmpty = false;
-                                message = " Require Data Type Numeric!";
+                                message = " require data type numeric";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
                                         brandPrice = (int) cell.getNumericCellValue();
@@ -277,7 +298,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                     brandMaterialRequest.setBrandPrice(brandPrice);
                                 } else {
                                     if (isValid && brandPrice < 0) {
-                                        message = " Require Positive Numeric!";
+                                        message = " require positive numeric";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;
@@ -289,7 +310,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                     }
                 }
                 if(!duplicateExcelData.add(brandMaterialRequest)){
-                    errors.add("Duplicate Brand Material Request Data at row Index " + (rowIndex + 1) + " in Excel File");
+                    errors.add("Duplicate Brand Material Request Data at row Index " + (rowIndex + 1) + " in excel file");
                 }
 
                 var brand = brandService.findBrandById(brandID).orElse(null);
@@ -312,7 +333,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                 );
 
                 if(!existedFullMaterial || material.isEmpty()){
-                    errors.add("Material_Name at row Index " + (rowIndex + 1) +  " Not Found!");
+                    errors.add("Material_Name at row Index " + (rowIndex + 1) +  " not found");
                 }
 
                 if(rowDataValid && !brandPriceIsEmpty){
@@ -365,7 +386,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
             }
 
             if(brandMaterialRequests.isEmpty() && errorFields.isEmpty()){
-                throw new BadRequestException("Brand Material Request Excel File Has Empty Data");
+                throw new BadRequestException("Brand Material Request excel file has empty data");
             }
 
             if (!errorFields.isEmpty()) {

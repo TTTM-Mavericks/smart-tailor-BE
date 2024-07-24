@@ -1,8 +1,6 @@
 package com.smart.tailor.service.impl;
 
-import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Category;
-import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemAlreadyExistException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.exception.MultipleErrorException;
@@ -14,13 +12,13 @@ import com.smart.tailor.utils.request.CategoryListRequest;
 import com.smart.tailor.utils.request.CategoryRequest;
 import com.smart.tailor.utils.response.CategoryResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,25 +50,34 @@ public class CategoryServiceImpl implements CategoryService {
         List<ErrorDetail> errorDetails = new ArrayList<>();
         for(int i = 0; i < categoryNames.size(); i++){
             String categoryName = categoryNames.get(i);
+            List<String> errors = new ArrayList<>();
 
             if(!Utilities.isStringNotNullOrEmpty(categoryName)){
-                errorDetails.add(new ErrorDetail("Category Name is null or empty"));
-                continue;
+                errors.add("Category Name is null or empty");
             }
 
-            Optional<Category> categoryOptional = findByCategoryName(categoryName);
-            if(categoryOptional.isPresent()) {
-                errorDetails.add(new ErrorDetail(categoryName, "Category Name is existed: " + categoryName));
-                continue;
+            if(categoryName != null){
+                if(categoryName.length() > 50){
+                    errors.add("Category Name must not exceed 50 characters");
+                }
+
+                Optional<Category> categoryOptional = findByCategoryName(categoryName);
+                if(categoryOptional.isPresent()) {
+                    errors.add("Category Name is existed: " + categoryName);
+                }
             }
 
-            categoryRepository.save(
-                    Category
-                            .builder()
-                            .categoryName(categoryName)
-                            .status(true)
-                            .build()
-            );
+            if(!errors.isEmpty()){
+                errorDetails.add(new ErrorDetail(categoryName, errors));
+            } else {
+                categoryRepository.save(
+                        Category
+                                .builder()
+                                .categoryName(categoryName)
+                                .status(true)
+                                .build()
+                );
+            }
         }
 
         if(!errorDetails.isEmpty()){

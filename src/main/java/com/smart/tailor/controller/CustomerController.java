@@ -6,11 +6,13 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.CustomerService;
 import com.smart.tailor.utils.request.CustomerRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,13 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(APIConstant.CustomerAPI.CUSTOMER)
 @RequiredArgsConstructor
+@Validated
 public class CustomerController {
     private final CustomerService customerService;
     private final Logger logger = LoggerFactory.getLogger(CustomerController.class);
     private final ObjectMapper objectMapper;
 
     @PutMapping(APIConstant.CustomerAPI.UPDATE_CUSTOMER_PROFILE)
-    public ResponseEntity<ObjectNode> updateCustomerProfile(@RequestBody CustomerRequest customerRequest) {
+    public ResponseEntity<ObjectNode> updateCustomerProfile(@Valid @RequestBody CustomerRequest customerRequest) {
         ObjectNode response = objectMapper.createObjectNode();
         try {
             var apiResponse = customerService.updateCustomerProfile(customerRequest);

@@ -1,7 +1,7 @@
 package com.smart.tailor.utils.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SizeRequest {
-    @NotBlank(message = "sizeName can not be blank")
-    @NotNull(message = "sizeName can not be null")
+    @NotBlank(message = "Size Name is required")
+    @Size(max = 5, message = "Size Name must not exceed 5 characters")
     private String sizeName;
 }

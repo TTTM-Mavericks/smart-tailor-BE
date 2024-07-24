@@ -5,8 +5,10 @@ import com.smart.tailor.entities.Size;
 import com.smart.tailor.exception.DuplicateDataException;
 import com.smart.tailor.exception.ItemAlreadyExistException;
 import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.MultipleErrorException;
 import com.smart.tailor.mapper.SizeMapper;
 import com.smart.tailor.repository.SizeRepository;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ListSizeRequest;
 import com.smart.tailor.utils.request.SizeRequest;
 import com.smart.tailor.utils.response.ErrorDetail;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,14 +39,25 @@ public class SizeServiceImpl implements SizeService{
     public void createSize(ListSizeRequest listSizeRequest) {
         List<Object> errorDetails = new ArrayList<>();
         for(SizeRequest sizeRequest : listSizeRequest.getSizeRequestList()){
-            String errorMessage = null;
-            var sizeExisted = sizeRepository.findBySizeName(sizeRequest.getSizeName().toUpperCase());
-            if(sizeExisted.isPresent()){
-                errorMessage = "Size is existed with Size Name: " + sizeRequest.getSizeName();
+            List<String> errors = new ArrayList<>();
+            if(!Utilities.isStringNotNullOrEmpty(sizeRequest.getSizeName())){
+                errors.add("Size Name must not be null or blank");
             }
 
-            if(errorMessage != null){
-                errorDetails.add(new ErrorDetail(sizeRequest, errorMessage));
+            if(sizeRequest.getSizeName() == null){
+                if(sizeRequest.getSizeName().length() > 5){
+                    errors.add("Size Name must not exceed 5 characters");
+                }
+
+                var sizeExisted = sizeRepository.findBySizeName(sizeRequest.getSizeName().toUpperCase());
+
+                if(sizeExisted.isPresent()){
+                    errors.add("Size is existed with Size Name: " + sizeRequest.getSizeName());
+                }
+            }
+
+            if(!errors.isEmpty()){
+                errorDetails.add(new ErrorDetail(sizeRequest, errors));
             } else {
                 sizeRepository.save(
                         Size
@@ -55,7 +69,7 @@ public class SizeServiceImpl implements SizeService{
             }
         }
         if(!errorDetails.isEmpty()){
-            throw new DuplicateDataException(MessageConstant.SIZE_IS_EXISTED, errorDetails);
+            throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Size", errorDetails);
         }
     }
 

@@ -1,11 +1,12 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidEmail;
+import com.smart.tailor.validate.ValidColor;
 import com.smart.tailor.validate.ValidStringUUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
@@ -15,28 +16,27 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class DesignRequest {
-    @NotBlank(message = "userID can not be blank")
-    @NotNull(message = "userID can not be null")
-    @ValidStringUUID(message = "userID is invalid of type UUID")
+    @NotBlank(message = "User ID is required")
+    @ValidStringUUID(message = "User ID must be a valid UUID")
     private String userID;
 
-    @NotNull(message = "expertTailoringID is not null")
-    @NotBlank(message = "expertTailoringID is not blank")
-    @ValidStringUUID(message = "expertTailoringID is invalid of type UUID")
+    @NotBlank(message = "Expert Tailoring ID is required")
+    @ValidStringUUID(message = "Expert Tailoring ID must be a valid UUID")
     private String expertTailoringID;
 
-    @NotNull(message = "titleDesign is not null")
-    @NotBlank(message = "titleDesign is not blank")
+    @NotBlank(message = "Title Design is required")
+    @Size(max = 50, message = "Title Design must not exceed 50 characters")
     private String titleDesign;
 
-    @NotNull(message = "publicStatus is required")
+    @NotNull(message = "Public Status is required")
     private Boolean publicStatus;
+
+    @ValidColor
+    private String color;
 
     private String imageUrl;
 
-    private String color;
-
-    @NotEmpty(message = "partOfDesign is not empty")
+    @NotEmpty(message = "Part of Design is required")
     @Valid
     private List<@Valid PartOfDesignRequest> partOfDesign;
 }

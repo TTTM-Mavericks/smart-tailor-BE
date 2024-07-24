@@ -175,6 +175,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         return null;
     }
 
+    @Transactional
     @Override
     public void updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest) {
         var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID)
@@ -198,6 +199,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
         );
     }
 
+    @Transactional
     @Override
     public void updateStatusExpertTailoring(UUID expertTailoringID) {
         var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID)

@@ -3,6 +3,7 @@ package com.smart.tailor.utils.request;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,32 +14,32 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class MaterialRequest {
-    @NotNull(message = "categoryName is not null")
-    @NotBlank(message = "categoryName is not blank")
+    @NotBlank(message = "Category Name is required")
+    @Size(max = 50, message = "Category Name must not exceed 50 characters")
     private String categoryName;
 
-    @NotNull(message = "materialName is not null")
-    @NotBlank(message = "materialName is not blank")
+    @NotBlank(message = "Material Name is required")
+    @Size(max = 50, message = "Material Name must not exceed 50 characters")
     private String materialName;
 
-    @NotNull(message = "hsCode is required")
-    @Min(value = 0, message = "hsCode can not less than 0")
+    @NotNull(message = "HS Code is required")
+    @Min(value = 0, message = "HS Code must not be less than 0")
     private Long hsCode;
 
-    @NotNull(message = "unit is not null")
-    @NotBlank(message = "unit is not blank")
+    @NotBlank(message = "Unit is required")
+    @Size(max = 50, message = "Unit must not exceed 50 characters")
     private String unit;
 
-    @NotNull(message = "basePrice is required")
-    @Min(value = 0, message = "basePrice can not less than 0")
+    @NotNull(message = "Base Price is required")
+    @Min(value = 0, message = "Base Price must not be less than 0")
     private Integer basePrice;
 
     @Override
     public String toString() {
-        return  "categoryName='" + categoryName + '\'' +
+        return "categoryName='" + categoryName + '\'' +
                 ", materialName='" + materialName + '\'' +
                 ", hsCode=" + hsCode +
                 ", unit='" + unit + '\'' +
-                ", basePrice=" + basePrice ;
+                ", basePrice=" + basePrice;
     }
 }

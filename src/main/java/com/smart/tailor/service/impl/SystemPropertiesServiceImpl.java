@@ -11,6 +11,7 @@ import com.smart.tailor.utils.request.SystemPropertiesRequest;
 import com.smart.tailor.utils.response.SystemPropertiesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,21 +23,10 @@ public class SystemPropertiesServiceImpl implements SystemPropertiesService {
     private final SystemPropertiesRepository systemRepository;
     private final SystemPropertiesMapper systemMapper;
 
+    @Transactional
     @Override
     public SystemPropertiesResponse addNewSystemProperty(SystemPropertiesRequest systemProperties) {
         try {
-            if (systemProperties == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
-            }
-            if (systemProperties.getPropertyName() == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": propertyName");
-            }
-            if (systemProperties.getPropertyUnit() == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": propertyUnit");
-            }
-            if (systemProperties.getPropertyType() == null) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": propertyType");
-            }
             String propertyName = systemProperties.getPropertyName();
             String propertyUnit = systemProperties.getPropertyUnit();
             String propertyDetail = systemProperties.getPropertyDetail() != null ? systemProperties.getPropertyDetail() : "";

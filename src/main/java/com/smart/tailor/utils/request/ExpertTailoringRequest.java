@@ -1,7 +1,7 @@
 package com.smart.tailor.utils.request;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,15 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ExpertTailoringRequest {
-    @NotNull(message = "expertTailoringName is not null")
-    @NotEmpty(message = "expertTailoringName is not empty")
+    @NotBlank(message = "Expert Tailoring Name is required")
+    @Size(max = 50, message = "Expert Tailoring Name must not exceed 50 characters")
     private String expertTailoringName;
 
-    @NotNull(message = "sizeImageUrl is not null")
-    @NotEmpty(message = "sizeImageUrl is not empty")
+    @NotBlank(message = "Size Image Url is required")
     private String sizeImageUrl;
 
-    @NotNull(message = "modelImageUrl is not null")
-    @NotEmpty(message = "modelImageUrl is not empty")
+    @NotBlank(message = "Model Image Url is required")
     private String modelImageUrl;
 }
