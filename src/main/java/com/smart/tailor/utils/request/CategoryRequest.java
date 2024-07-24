@@ -1,27 +1,24 @@
 package com.smart.tailor.utils.request;
 
 import com.smart.tailor.validate.ValidStringUUID;
-import com.smart.tailor.validate.ValidUUID;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CategoryRequest {
-    @NotNull(message = "Category ID must not be null")
-    @NotBlank(message = "Category ID must not be blank")
+    @NotBlank(message = "Category ID is required")
     @ValidStringUUID(message = "Category ID must be a valid UUID")
     private String categoryID;
 
-    @NotNull(message = "Category Name must not be null")
-    @NotBlank(message = "Category Name must not be blank")
+    @NotBlank(message = "Category Name is required")
     @Size(max = 50, message = "Category Name must not exceed 50 characters")
     private String categoryName;
 }

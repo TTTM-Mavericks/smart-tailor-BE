@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,12 +17,11 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class PartOfDesignRequest {
-    @NotNull(message = "PartOfDesignName is not null")
-    @NotBlank(message = "PartOfDesignName is not blank")
+    @NotBlank(message = "Part Of Design Name is required")
+    @Size(max = 50, message = "Part Of Design Name must not exceed 50 characters")
     private String partOfDesignName;
 
-    @NotNull(message = "PartOfDesign imageUrl is not null")
-    @NotBlank(message = "PartOfDesign imageUrl is not blank")
+    @NotBlank(message = "Part Of Design Image URL is required")
     private String imageUrl;
 
     private String materialID;
@@ -30,12 +30,12 @@ public class PartOfDesignRequest {
 
     private String realPartImageUrl;
 
-    @NotNull(message = "width is required")
-    @Min(value = 1, message = "width have to greater than 0")
+    @NotNull(message = "Width is required")
+    @Min(value = 1, message = "Width must be greater than 0")
     private Integer width;
 
-    @NotNull(message = "height is required")
-    @Min(value = 1, message = "height have to greater than 0")
+    @NotNull(message = "Height is required")
+    @Min(value = 1, message = "Height must be greater than 0")
     private Integer height;
 
     @Valid
