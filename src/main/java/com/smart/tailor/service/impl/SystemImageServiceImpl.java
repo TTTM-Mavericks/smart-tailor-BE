@@ -8,6 +8,7 @@ import com.smart.tailor.utils.request.SystemImageRequest;
 import com.smart.tailor.utils.response.SystemImageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,7 @@ public class SystemImageServiceImpl implements SystemImageService {
     private final SystemImageRepository systemImageRepository;
     private final SystemImageMapper systemImageMapper;
 
+    @Transactional
     @Override
     public SystemImageResponse addNewSystemImage(SystemImageRequest systemImageRequest) {
         SystemImage systemImage = SystemImage

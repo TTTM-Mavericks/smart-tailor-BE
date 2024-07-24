@@ -6,8 +6,11 @@ import com.smart.tailor.constant.APIConstant.BrandPropertyAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.BrandPropertiesService;
 import com.smart.tailor.utils.request.BrandPropertiesRequest;
+import com.smart.tailor.validate.ValidUUID;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -15,6 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(BrandPropertyAPI.BRAND_PROPERTY)
+@Validated
 public class BrandPropertyController {
     private final BrandPropertiesService brandPropertiesService;
 
@@ -41,7 +45,7 @@ public class BrandPropertyController {
     }
 
     @GetMapping(BrandPropertyAPI.GET_BRAND_PROPERTY + "/{systemID}")
-    public ResponseEntity<ObjectNode> getByID(@PathVariable("systemID") UUID systemID) {
+    public ResponseEntity<ObjectNode> getByID(@ValidUUID @PathVariable("systemID") UUID systemID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var data = brandPropertiesService.getByID(systemID);
@@ -52,7 +56,7 @@ public class BrandPropertyController {
     }
 
     @PostMapping(BrandPropertyAPI.ADD_NEW_BRAND_PROPERTY)
-    public ResponseEntity<ObjectNode> addNew(@RequestBody BrandPropertiesRequest request) throws Exception {
+    public ResponseEntity<ObjectNode> addNew(@Valid @RequestBody BrandPropertiesRequest request) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var data = brandPropertiesService.addNew(request);

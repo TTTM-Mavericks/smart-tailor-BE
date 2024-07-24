@@ -6,8 +6,11 @@ import com.smart.tailor.constant.APIConstant.SystemPropertyAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.SystemPropertiesService;
 import com.smart.tailor.utils.request.SystemPropertiesRequest;
+import com.smart.tailor.validate.ValidUUID;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -15,6 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(SystemPropertyAPI.SYSTEM_PROPERTY)
+@Validated
 public class SystemPropertyController {
     private final SystemPropertiesService systemService;
 
@@ -41,7 +45,7 @@ public class SystemPropertyController {
     }
 
     @GetMapping(SystemPropertyAPI.GET_SYSTEM_PROPERTY + "/{systemID}")
-    public ResponseEntity<ObjectNode> getByID(@PathVariable("systemID") UUID systemID) {
+    public ResponseEntity<ObjectNode> getByID(@ValidUUID @PathVariable("systemID") UUID systemID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var data = systemService.getByID(systemID);
@@ -52,7 +56,7 @@ public class SystemPropertyController {
     }
 
     @PostMapping(SystemPropertyAPI.ADD_NEW_SYSTEM_PROPERTY)
-    public ResponseEntity<ObjectNode> addNew(@RequestBody SystemPropertiesRequest request) {
+    public ResponseEntity<ObjectNode> addNew(@Valid @RequestBody SystemPropertiesRequest request) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var data = systemService.addNewSystemProperty(request);

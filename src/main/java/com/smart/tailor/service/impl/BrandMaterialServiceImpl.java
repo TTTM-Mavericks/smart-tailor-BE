@@ -12,7 +12,6 @@ import com.smart.tailor.utils.request.BrandMaterialRequest;
 import com.smart.tailor.utils.request.MaterialRequest;
 import com.smart.tailor.utils.response.BrandMaterialResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -24,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
