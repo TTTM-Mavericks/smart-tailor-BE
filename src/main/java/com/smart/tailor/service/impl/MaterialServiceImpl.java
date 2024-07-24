@@ -54,7 +54,7 @@ public class MaterialServiceImpl implements MaterialService {
         Optional<Material> materialOptional = findByMaterialName(materialRequest.getMaterialName());
 
         if (materialOptional.isPresent() || categoryMaterialOptional.isPresent()) {
-            throw new ItemAlreadyExistException("Material Information with Material Name " + materialRequest.getMaterialName() + " is existed!");
+            throw new ItemAlreadyExistException("Material Information with Material Name " + materialRequest.getMaterialName() + " is existed");
         }
 
         materialRepository.save(
@@ -90,7 +90,6 @@ public class MaterialServiceImpl implements MaterialService {
         }
         try {
             List<Pair<Integer, MaterialRequest>> materialRequests = new ArrayList<>();
-//            List<MaterialRequest> materialRequests = new ArrayList<>();
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
             Set<MaterialRequest> duplicateExcelData = new HashSet<>();
             XSSFSheet sheet = workbook.getSheet("Category and Material");
@@ -121,31 +120,45 @@ public class MaterialServiceImpl implements MaterialService {
                     if (cell == null || cell.getCellType() == CellType.BLANK) {
                         inValidData = true;
                         rowDataValid = false;
-                        errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty!");
+                        errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " is empty");
                     } else {
                         switch (cellIndex) {
                             case 0:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    materialRequest.setCategoryName(cell.getStringCellValue());
+                                    var categoryName = cell.getStringCellValue();
+                                    if(categoryName.length() > 50){
+                                        errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else {
+                                        materialRequest.setCategoryName(categoryName);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must be data type string");
                                 }
                                 break;
                             case 1:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    materialRequest.setMaterialName(cell.getStringCellValue());
+                                    var materialName = cell.getStringCellValue();
+                                    if(materialName.length() > 50){
+                                        errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else{
+                                        materialRequest.setMaterialName(materialName);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must be data type string");
                                 }
                                 break;
                             case 2:
                                 isValid = false;
                                 long longValue = -1;
-                                message = " Require Data Type Numeric!";
+                                message = " must be data type numeric";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
                                         longValue = (long) cell.getNumericCellValue();
@@ -165,7 +178,7 @@ public class MaterialServiceImpl implements MaterialService {
                                     materialRequest.setHsCode(longValue);
                                 } else {
                                     if (isValid && longValue < 0) {
-                                        message = " Require Positive Numeric!";
+                                        message = " must be positive numeric";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;
@@ -174,17 +187,24 @@ public class MaterialServiceImpl implements MaterialService {
                                 break;
                             case 3:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    materialRequest.setUnit(cell.getStringCellValue());
+                                    var unit = cell.getStringCellValue();
+                                    if(unit.length() > 50){
+                                        errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else{
+                                        materialRequest.setUnit(unit);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must be data type string");
                                 }
                                 break;
                             case 4:
                                 isValid = false;
                                 Integer basePrice = -1;
-                                message = " Require Data Type Numeric!";
+                                message = " must be data type numeric";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
                                         basePrice = (int) cell.getNumericCellValue();
@@ -204,7 +224,7 @@ public class MaterialServiceImpl implements MaterialService {
                                     materialRequest.setBasePrice(basePrice);
                                 } else {
                                     if (isValid && basePrice < 0) {
-                                        message = " Require Positive Numeric!";
+                                        message = " must be positive numeric";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;
@@ -218,17 +238,17 @@ public class MaterialServiceImpl implements MaterialService {
                 }
 
                 if (!duplicateExcelData.add(materialRequest)) {
-                    errors.add("Duplicate Material Request Data at row Index " + (rowIndex + 1) + " in Excel File");
+                    errors.add("Duplicate Material Request Data at row Index " + (rowIndex + 1) + " in excel file");
                 }
 
                 var category = categoryService.findByCategoryName(materialRequest.getCategoryName());
                 if(category.isEmpty()){
-                    errors.add("Category_Name at row Index " + (rowIndex + 1) + " Not Found!");
+                    errors.add("Category_Name at row Index " + (rowIndex + 1) + " not found");
                 }
 
                 if (rowDataValid) {
                     if (isExistedMaterial(materialRequest)) {
-                        errors.add("Material_Name at row Index " + (rowIndex + 1) + " is Existed!");
+                        errors.add("Material_Name at row Index " + (rowIndex + 1) + " is existed");
                     }
 
                     if(errors.isEmpty()) {
@@ -335,6 +355,7 @@ public class MaterialServiceImpl implements MaterialService {
         return null;
     }
 
+    @Transactional
     @Override
     public void updateMaterial(UUID materialID, MaterialRequest materialRequest) {
         var material = materialRepository.findById(materialID)
@@ -357,6 +378,7 @@ public class MaterialServiceImpl implements MaterialService {
         );
     }
 
+    @Transactional
     @Override
     public void updateStatusMaterial(UUID materialID) {
         var material = materialRepository.findByMaterialID(materialID)

@@ -16,5 +16,5 @@ import java.util.List;
 @Builder
 public class CategoryListRequest {
     @NotEmpty(message = "categoryNames can not be empty")
-    List<@Valid String> categoryNames;
+    List<String> categoryNames;
 }
