@@ -36,6 +36,8 @@ public class ItemMaskResponse {
 
     private Integer indexZ;
 
+    private Float rotate;
+
     private Float topLeftRadius;
 
     private Float topRightRadius;

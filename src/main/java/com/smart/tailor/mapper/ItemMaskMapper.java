@@ -15,6 +15,7 @@ import java.util.Base64;
 public interface ItemMaskMapper {
     @Mapping(source = "itemMask.itemMaskID", target = "itemMaskID")
     @Mapping(source = "itemMask.indexZ", target = "indexZ")
+    @Mapping(source = "itemMask.rotate", target = "rotate")
     @Mapping(source = "itemMask.topLeftRadius", target = "topLeftRadius")
     @Mapping(source = "itemMask.topRightRadius", target = "topRightRadius")
     @Mapping(source = "itemMask.bottomLeftRadius", target = "bottomLeftRadius")

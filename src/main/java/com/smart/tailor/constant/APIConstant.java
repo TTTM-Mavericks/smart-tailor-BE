@@ -321,4 +321,14 @@ public class APIConstant {
         public static final String PAYMENT_INFO = "/payment-info";
         public static final String CONFIRM_PAYMENT = "/confirm-payment";
     }
+
+    /**
+     * Report API
+     */
+    public class ReportAPI {
+        public static final String REPORT = APIConstant.API + "/report";
+        public static final String CREATE_REPORT = "/create-report";
+        public static final String GET_ALL_REPORT = "/get-all-report";
+        public static final String GET_ALL_REPORT_BY_ORDER_ID = "/get-all-report-by-order-id";
+    }
 }

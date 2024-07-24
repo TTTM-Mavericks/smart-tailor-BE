@@ -1,0 +1,15 @@
+package com.smart.tailor.mapper;
+
+import com.smart.tailor.entities.Report;
+import com.smart.tailor.utils.response.ReportResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring", uses = {OrderMapper.class, ReportImageMapper.class})
+public interface ReportMapper {
+    @Mapping(source = "report.order", target = "orderResponse")
+    @Mapping(source = "report.reportImageList", target = "reportImageList")
+    @Mapping(source = "report.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "report.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    ReportResponse mapperToReportResponse(Report report);
+}

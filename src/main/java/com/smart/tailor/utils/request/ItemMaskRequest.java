@@ -40,6 +40,9 @@ public class ItemMaskRequest {
     @NotNull(message = "Scale Y is required")
     private Float scaleY;
 
+    @NotNull(message = "Rotate is required")
+    private Float rotate;
+
     @NotNull(message = "Top Left Radius is required")
     private Float topLeftRadius;
 
