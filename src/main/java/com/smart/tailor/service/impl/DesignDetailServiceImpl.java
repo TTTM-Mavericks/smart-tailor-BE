@@ -87,7 +87,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         );
     }
 
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
     @Override
     public APIResponse createDesignDetail(DesignDetailRequest designDetailRequest) {
         try {
@@ -160,7 +160,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             .orderStatus(OrderStatus.NOT_VERIFY)
                             .build()
             );
-            logger.info("CREATE NEW ORDER SUCCESSFULLY!");
+            logger.info("CREATE NEW ORDER SUCCESSFULLY!: {}", parentOrderResponse);
             parentOrder = orderService.getOrderById(parentOrderResponse.getOrderID()).get();
 
             List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
