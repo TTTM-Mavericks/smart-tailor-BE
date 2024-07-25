@@ -3,6 +3,7 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
+import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
@@ -15,6 +16,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
+import com.smart.tailor.utils.request.PaymentRequest;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -191,6 +193,93 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
                 order.setDetailList(detailList);
+                var status = order.getOrderStatus();
+                var paymentList = paymentService.findAllByOrderID(orderID);
+                switch (status) {
+                    case DEPOSIT -> {
+                        logger.error("INCASE DEPOSIT");
+                        if (!paymentList.isEmpty()) {
+                            var checkDeposited = paymentList.stream().filter(p ->
+                                    p.getPaymentType().equals(PaymentType.DEPOSIT) &&
+                                            p.getPaymentStatus()
+                            ).findFirst();
+
+                            if (checkDeposited.isPresent()) {
+                                /**
+                                 * UPDATE STATUS TO PROCESSING
+                                 */
+                                logger.info("Change Status PROCESSING Order");
+                                changeOrderStatus(
+                                        OrderStatusUpdateRequest
+                                                .builder()
+                                                .orderID(orderID)
+                                                .status(OrderStatus.PROCESSING)
+                                                .build()
+                                );
+                                logger.error("CREATE STAGE_1");
+                                var payOSResponse = paymentService.createPayOSPayment(
+                                        PaymentRequest
+                                                .builder()
+                                                .orderID(orderID)
+
+                                                .paymentSenderID(null)
+                                                .paymentSenderName(order.getBuyerName())
+                                                .paymentSenderBankCode("")
+                                                .paymentSenderBankNumber("")
+
+                                                .paymentRecipientID(null)
+                                                .paymentRecipientName("SMART TAILOR")
+                                                .paymentRecipientBankCode("")
+                                                .paymentRecipientBankNumber("")
+
+                                                .paymentType(PaymentType.STAGE_1)
+                                                .paymentAmount(order.getTotalPrice())
+                                                .itemList(null)
+                                                .build()
+                                );
+                                logger.error("CREATE STAGE_1 SUCCESSFULLY!");
+                            }
+                        }
+                    }
+                    case PROCESSING -> {
+                        logger.error("INCASE PROCESSING");
+
+                        if (!paymentList.isEmpty()) {
+                            var checkDeposited = paymentList.stream().filter(p ->
+                                    p.getPaymentType().equals(PaymentType.STAGE_2)
+                            ).findFirst();
+
+                            if (checkDeposited.isEmpty()) {
+                                checkDeposited = paymentList.stream().filter(p ->
+                                        p.getPaymentType().equals(PaymentType.STAGE_1)
+                                ).findFirst();
+                                if (checkDeposited.isPresent() && checkDeposited.get().getPaymentStatus()) {
+                                    logger.error("CREATE STAGE_2");
+                                    var payOSResponse = paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .orderID(orderID)
+
+                                                    .paymentSenderID(null)
+                                                    .paymentSenderName(order.getBuyerName())
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
+
+                                                    .paymentRecipientID(null)
+                                                    .paymentRecipientName("SMART TAILOR")
+                                                    .paymentRecipientBankCode("")
+                                                    .paymentRecipientBankNumber("")
+
+                                                    .paymentType(PaymentType.STAGE_2)
+                                                    .paymentAmount(order.getTotalPrice())
+                                                    .itemList(null)
+                                                    .build()
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
                 return orderMapper.mapToOrderCustomResponse(order);
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
