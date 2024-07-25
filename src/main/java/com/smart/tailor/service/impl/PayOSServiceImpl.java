@@ -19,12 +19,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Map.Entry;
@@ -41,7 +43,7 @@ public class PayOSServiceImpl implements PayOSService {
     @Value("${PAYOS_CHECKSUM_KEY}")
     private String checksumKey;
     @Value("${SERVER_URL}")
-    private String serverUrl;
+    private String clientURL;
     private final PayOSDataService payOSDataService;
 
     private final Logger logger = LoggerFactory.getLogger(PayOSServiceImpl.class);
@@ -59,7 +61,7 @@ public class PayOSServiceImpl implements PayOSService {
             String status = "PENDING";
 
             paymentRequest.setOrderCode(orderCode);
-            String returnUrl = serverUrl + "/" + orderCode;
+            String returnUrl = paymentRequest.getReturnUrl() != null ? paymentRequest.getReturnUrl() : "http://localhost:3000";
             paymentRequest.setAmount(amount);
             paymentRequest.setReturnUrl(returnUrl);
             paymentRequest.setCancelUrl(cancelUrl);
@@ -170,7 +172,12 @@ public class PayOSServiceImpl implements PayOSService {
                 .uri(createPaymentLinkUrl + "/" + paymentID)
                 .headers(httpHeaders -> httpHeaders.putAll(headers))
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1)))  // Thử lại với độ trễ gia tăng
+                .onErrorResume(e -> {
+                    logger.error("Request failed", e);
+                    return Mono.empty();
+                });
         String responseBody = response.block();
         JsonNode res = null;
         try {

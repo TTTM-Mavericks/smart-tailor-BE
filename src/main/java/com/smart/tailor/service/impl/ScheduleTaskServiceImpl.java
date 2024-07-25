@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +27,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
     private final OrderService orderService;
     private final PaymentService paymentService;
     private final PayOSDataService payOSDataService;
+    private final PayOSService payOSService;
     private final DesignDetailService detailService;
 
     @Scheduled(cron = "0 0 * * * *") // second - minute - hour - dayOfMonth - month - dayOfWeek   // Run every hour
@@ -48,6 +50,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
 
     @Scheduled(cron = "0 * * * * *") // Run every minute
     @Override
+    @Transactional
     public void checkValidOrderAfterExpirationTimeOrder() throws Exception {
         logger.info("Inside Method checkValidOrderAfterExpirationTimeOrder");
         var orders = orderService.getAllParentOrder();
@@ -65,9 +68,14 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
 
                     var paymentList = paymentService.findAllByOrderID(orderResponse.getOrderID());
                     for (Payment p : paymentList) {
-                        var payOSData = payOSDataService.findByOrderCode(p.getPaymentCode());
-                        if (payOSData.isPresent()) {
-                            p.setPaymentStatus(payOSData.get().getStatus().equals("PAID"));
+                        var orderCode = p.getPaymentCode();
+                        var onlinePayOS = payOSService.getPaymentInfo(orderCode).getData();
+                        var checkPayOSData = payOSDataService.findByOrderCode(orderCode);
+                        if (checkPayOSData.isPresent()) {
+                            var payOSData = checkPayOSData.get();
+                            payOSData.setStatus(onlinePayOS.getStatus());
+                            payOSDataService.save(payOSData);
+                            p.setPaymentStatus(payOSData.getStatus().equals("PAID"));
                             paymentService.updatePayment(p);
                         }
                     }
@@ -106,89 +114,6 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                             .itemList(null)
                                             .build()
                             );
-                        }
-                        case DEPOSIT -> {
-                            logger.error("INCASE DEPOSIT");
-                            if (!paymentList.isEmpty()) {
-                                var checkDeposited = paymentList.stream().filter(p ->
-                                        p.getPaymentType().equals(PaymentType.DEPOSIT) &&
-                                                p.getPaymentStatus()
-                                ).findFirst();
-
-                                if (checkDeposited.isPresent()) {
-                                    /**
-                                     * UPDATE STATUS TO PROCESSING
-                                     */
-                                    logger.info("Change Status PROCESSING Order");
-                                    orderService.changeOrderStatus(
-                                            OrderStatusUpdateRequest
-                                                    .builder()
-                                                    .orderID(order.getOrderID())
-                                                    .status(OrderStatus.PROCESSING)
-                                                    .build()
-                                    );
-                                    logger.error("CREATE STAGE_1");
-                                    var payOSResponse = paymentService.createPayOSPayment(
-                                            PaymentRequest
-                                                    .builder()
-                                                    .orderID(orderResponse.getOrderID())
-
-                                                    .paymentSenderID(sender.getUserID())
-                                                    .paymentSenderName(sender.getFullName())
-                                                    .paymentSenderBankCode("")
-                                                    .paymentSenderBankNumber("")
-
-                                                    .paymentRecipientID(recipient.getUserID())
-                                                    .paymentRecipientName(recipient.getFullName())
-                                                    .paymentRecipientBankCode("")
-                                                    .paymentRecipientBankNumber("")
-
-                                                    .paymentType(PaymentType.STAGE_1)
-                                                    .paymentAmount(order.getTotalPrice())
-                                                    .itemList(null)
-                                                    .build()
-                                    );
-                                    logger.error("CREATE STAGE_1 SUCCESSFULLY!");
-                                }
-                            }
-                        }
-                        case PROCESSING -> {
-                            logger.error("INCASE PROCESSING");
-
-                            if (!paymentList.isEmpty()) {
-                                var checkDeposited = paymentList.stream().filter(p ->
-                                        p.getPaymentType().equals(PaymentType.STAGE_2)
-                                ).findFirst();
-
-                                if (checkDeposited.isEmpty()) {
-                                    checkDeposited = paymentList.stream().filter(p ->
-                                            p.getPaymentType().equals(PaymentType.STAGE_1)
-                                    ).findFirst();
-                                    if (checkDeposited.isPresent() && checkDeposited.get().getPaymentStatus()) {
-                                        logger.error("CREATE STAGE_2");
-                                        var payOSResponse = paymentService.createPayOSPayment(
-                                                PaymentRequest
-                                                        .builder()
-                                                        .orderID(orderResponse.getOrderID())
-
-                                                        .paymentSenderID(sender.getUserID())
-                                                        .paymentSenderName(sender.getFullName())
-                                                        .paymentSenderBankCode("")
-                                                        .paymentSenderBankNumber("")
-
-                                                        .paymentRecipientID(recipient.getUserID())
-                                                        .paymentRecipientName(recipient.getFullName())
-                                                        .paymentRecipientBankCode("")
-                                                        .paymentRecipientBankNumber("")
-
-                                                        .paymentType(PaymentType.STAGE_2)
-                                                        .paymentAmount(order.getTotalPrice())
-                                                        .itemList(null)
-                                                        .build()
-                                        );
-                                    }
-                                }
-                            }
                         }
                     }
                 } else {

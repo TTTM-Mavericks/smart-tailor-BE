@@ -34,7 +34,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
     @Value("${SERVER_URL}")
-    private String serverUrl;
+    private String clientURL;
 
     @Override
     public PaymentResponse createPayOSPayment(PaymentRequest paymentRequest) throws Exception {
@@ -132,6 +132,7 @@ public class PaymentServiceImpl implements PaymentService {
                                 .buyerEmail("")
                                 .buyerPhone("")
                                 .buyerAddress("")
+                                .returnUrl(clientURL + "/order_detail/" + orderID)
                                 .build()
                 );
 
