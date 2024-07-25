@@ -173,6 +173,7 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception {
         try {
@@ -300,6 +301,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public OrderCustomResponse getOrderDetailByOrderID(UUID orderID) throws Exception {
         try {
@@ -330,7 +332,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @Override
     public Optional<Order> getOrderById(UUID orderID) {
-        return orderRepository.findAll().stream().filter(o -> o.getOrderID().equals(orderID)).findFirst();
+        return orderRepository.findById(orderID);
     }
 
     @Override
