@@ -300,6 +300,33 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    public OrderCustomResponse getOrderDetailByOrderID(UUID orderID) throws Exception {
+        try {
+            var response = getOrderByOrderID(orderID);
+
+            var basePaymentList = response.getPaymentList();
+            var paymentList = basePaymentList;
+            switch (response.getOrderType()) {
+                case ("DEPOSIT"): {
+                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).toList();
+                    break;
+                }
+                case ("PROCESSING"): {
+                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).toList();
+                    if (paymentList.isEmpty()) {
+                        paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst().stream().toList();
+                    }
+                    break;
+                }
+            }
+            response.setPaymentList(paymentList);
+            return response;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Optional<Order> getOrderById(UUID orderID) {

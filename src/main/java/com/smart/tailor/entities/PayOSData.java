@@ -17,7 +17,8 @@ public class PayOSData extends AuditEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer payOSID;
 
-    private Integer orderCode; //Mã đơn hàng từ cửa hàng
+    @Column(name = "order_code")
+    private Integer orderCode; // Mã đơn hàng từ cửa hàng
 
     private Integer amount;
 
@@ -25,8 +26,8 @@ public class PayOSData extends AuditEntity {
     private String status;
 
     @Column(columnDefinition = "varchar(255)")
-    private String checkoutUrl; //Link thanh toán
+    private String checkoutUrl; // Link thanh toán
 
     @Column(columnDefinition = "varchar(255)")
-    private String qrCode; //Mã VietQR dạng text
+    private String qrCode; // Mã VietQR dạng text
 }

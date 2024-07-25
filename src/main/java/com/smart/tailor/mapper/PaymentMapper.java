@@ -25,27 +25,26 @@ class PaymentMapperImpl implements PaymentMapper {
             return null;
         }
 
-        PaymentResponse.PaymentResponseBuilder paymentResponse = PaymentResponse.builder();
-
-        paymentResponse.paymentID(payment.getPaymentID());
-        paymentResponse.paymentSenderName(payment.getPaymentSenderName());
-        paymentResponse.paymentSenderBankCode(payment.getPaymentSenderBankCode());
-        paymentResponse.paymentSenderBankNumber(payment.getPaymentSenderBankNumber());
-        paymentResponse.paymentRecipientName(payment.getPaymentRecipientName());
-        paymentResponse.paymentRecipientBankCode(payment.getPaymentRecipientBankCode());
-        paymentResponse.paymentRecipientBankNumber(payment.getPaymentRecipientBankNumber());
-        paymentResponse.paymentAmount(payment.getPaymentAmount());
-        paymentResponse.paymentMethod(payment.getPaymentMethod());
-        paymentResponse.paymentStatus(payment.getPaymentStatus());
-        paymentResponse.paymentType(payment.getPaymentType());
-        var order = payment.getOrderID() != null ? payment.getOrderID() : null;
-        paymentResponse.orderID(order);
         try {
-            paymentResponse.payOSResponse(payOSService.getPaymentInfo(payment.getPaymentCode()));
+            return PaymentResponse.builder()
+                    .paymentID(payment.getPaymentID())
+                    .paymentSenderName(payment.getPaymentSenderName())
+                    .paymentSenderBankCode(payment.getPaymentSenderBankCode())
+                    .paymentSenderBankNumber(payment.getPaymentSenderBankNumber())
+                    .paymentRecipientName(payment.getPaymentRecipientName())
+                    .paymentRecipientBankCode(payment.getPaymentRecipientBankCode())
+                    .paymentRecipientBankNumber(payment.getPaymentRecipientBankNumber())
+                    .paymentAmount(payment.getPaymentAmount())
+                    .paymentMethod(payment.getPaymentMethod())
+                    .paymentStatus(payment.getPaymentStatus())
+                    .paymentType(payment.getPaymentType())
+                    .orderID(payment.getOrder() != null ? payment.getOrder().getOrderID() : null)
+                    .payOSResponse(payOSService.getPaymentInfo(payment.getPaymentCode()))
+                    .createDate(payment.getCreateDate().toString())
+                    .build();
         } catch (JsonProcessingException e) {
+            logger.error("Error processing payment JSON", e);
             throw new RuntimeException(e);
         }
-        paymentResponse.createDate(payment.getCreateDate().toString());
-        return paymentResponse.build();
     }
 }

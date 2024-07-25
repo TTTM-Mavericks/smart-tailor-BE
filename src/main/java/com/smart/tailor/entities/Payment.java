@@ -3,7 +3,6 @@ package com.smart.tailor.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
-import com.smart.tailor.utils.response.PayOSResponse;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,16 +21,14 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment extends AuditEntity implements Serializable {
+
     @Id
     @Column(name = "payment_id", unique = true, nullable = false)
     @UuidGenerator
     private UUID paymentID;
 
-//    @Column(name = "payment_sender_id", insertable = false, updatable = false)
-//    private UUID paymentSenderID;
-
     @ManyToOne
-    @JoinColumn(name = "payment_sender_id", referencedColumnName = "user_id", nullable = true, unique = false)
+    @JoinColumn(name = "payment_sender_id", referencedColumnName = "user_id", nullable = true)
     private User paymentSender;
 
     @Column(name = "payment_sender_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
@@ -42,12 +39,9 @@ public class Payment extends AuditEntity implements Serializable {
 
     @Column(name = "payment_sender_bank_number", columnDefinition = "varchar(50)")
     private String paymentSenderBankNumber;
-//
-//    @Column(name = "payment_recipient_id", insertable = false, updatable = false)
-//    private UUID paymentRecipientID;
 
     @ManyToOne
-    @JoinColumn(name = "payment_recipient_id", referencedColumnName = "user_id", nullable = true, unique = false)
+    @JoinColumn(name = "payment_recipient_id", referencedColumnName = "user_id", nullable = true)
     private User paymentRecipient;
 
     @Column(name = "payment_recipient_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
@@ -69,13 +63,10 @@ public class Payment extends AuditEntity implements Serializable {
     @Column(name = "payment_status")
     private Boolean paymentStatus;
 
-    @Column(name = "order_id", unique = false, nullable = true)
-    private UUID orderID;
-
-//    @ManyToOne
-//    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
-//    @JsonBackReference
-//    private UUID orderID;
+    @ManyToOne
+    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true)
+    @JsonBackReference
+    private Order order;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_type")

@@ -21,6 +21,8 @@ public interface OrderService {
 
     OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception;
 
+    OrderCustomResponse getOrderDetailByOrderID(UUID orderID) throws Exception;
+
     Optional<Order> getOrderById(UUID orderID);
 
     List<OrderResponse> getOrderByBrandID(UUID brandID);

@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface OrderMapper {
-    OrderResponse mapToOrderResponse(Order order) throws Exception;
+    OrderResponse mapToOrderResponse(Order order) throws JsonProcessingException;
 
-    OrderCustomResponse mapToOrderCustomResponse(Order order) throws Exception;
+    OrderCustomResponse mapToOrderCustomResponse(Order order) throws JsonProcessingException;
 }
 
 @Component
@@ -32,90 +32,101 @@ class OrderMapperImpl implements OrderMapper {
 
     @Transactional(readOnly = true)
     @Override
-    public OrderResponse mapToOrderResponse(Order order) throws JsonProcessingException {
+    public OrderResponse mapToOrderResponse(Order order) {
         if (order == null) {
             return null;
         }
 
-        OrderResponse.OrderResponseBuilder orderResponse = OrderResponse.builder();
-        orderResponse.parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null);
-        orderResponse.orderType(order.getOrderType());
-        orderResponse.orderID(order.getOrderID());
-        orderResponse.quantity(order.getQuantity());
-        orderResponse.orderStatus(order.getOrderStatus());
-        orderResponse.address(order.getAddress());
-        orderResponse.province(order.getProvince());
-        orderResponse.district(order.getDistrict());
-        orderResponse.ward(order.getWard());
-        orderResponse.phone(order.getPhone());
-        orderResponse.buyerName(order.getBuyerName());
-        orderResponse.totalPrice(order.getTotalPrice());
-        orderResponse.expectedStartDate(order.getExpectedStartDate());
-        orderResponse.expectedProductCompletionDate(order.getExpectedProductCompletionDate());
-        orderResponse.estimatedDeliveryDate(order.getEstimatedDeliveryDate());
-        orderResponse.productionStartDate(order.getProductionStartDate());
-        orderResponse.productionCompletionDate(order.getProductionCompletionDate());
-        orderResponse.detailList(
-                order.getDetailList() != null ? order.getDetailList().stream().map(
-                        detailMapper::mapperToDesignDetailResponse
-                ).toList() : null
-        );
+        OrderResponse.OrderResponseBuilder orderResponse = OrderResponse.builder()
+                .parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null)
+                .orderType(order.getOrderType())
+                .orderID(order.getOrderID())
+                .quantity(order.getQuantity())
+                .orderStatus(order.getOrderStatus())
+                .address(order.getAddress())
+                .province(order.getProvince())
+                .district(order.getDistrict())
+                .ward(order.getWard())
+                .phone(order.getPhone())
+                .buyerName(order.getBuyerName())
+                .totalPrice(order.getTotalPrice())
+                .expectedStartDate(order.getExpectedStartDate())
+                .expectedProductCompletionDate(order.getExpectedProductCompletionDate())
+                .estimatedDeliveryDate(order.getEstimatedDeliveryDate())
+                .productionStartDate(order.getProductionStartDate())
+                .productionCompletionDate(order.getProductionCompletionDate())
+                .detailList(order.getDetailList() != null ?
+                        order.getDetailList().stream()
+                                .map(detailMapper::mapperToDesignDetailResponse)
+                                .toList() : null);
+
         try {
-            List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
-                    .stream()
-                    .map(paymentMapper::mapperToPaymentResponse)
-                    .toList();
+            List<PaymentResponse> paymentResponseList = order.getPaymentList() != null ?
+                    order.getPaymentList().stream()
+                            .map(paymentMapper::mapperToPaymentResponse)
+                            .toList() :
+                    paymentService.findAllByOrderID(order.getOrderID())
+                            .stream()
+                            .map(paymentMapper::mapperToPaymentResponse)
+                            .toList();
+
             if (!paymentResponseList.isEmpty()) {
                 orderResponse.paymentList(paymentResponseList);
             }
         } catch (Exception ex) {
+            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
             throw ex;
         }
+
         return orderResponse.build();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public OrderCustomResponse mapToOrderCustomResponse(Order order) throws JsonProcessingException {
+    public OrderCustomResponse mapToOrderCustomResponse(Order order) {
         if (order == null) {
             return null;
         }
 
-        OrderCustomResponse.OrderCustomResponseBuilder orderResponse = OrderCustomResponse.builder();
-        orderResponse.designResponse(designService.getDesignByOrderID(order.getOrderID()));
-        orderResponse.parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null);
-        orderResponse.orderType(order.getOrderType());
-        orderResponse.orderID(order.getOrderID());
-        orderResponse.quantity(order.getQuantity());
-        orderResponse.orderStatus(order.getOrderStatus());
-        orderResponse.address(order.getAddress());
-        orderResponse.province(order.getProvince());
-        orderResponse.district(order.getDistrict());
-        orderResponse.ward(order.getWard());
-        orderResponse.phone(order.getPhone());
-        orderResponse.buyerName(order.getBuyerName());
-        orderResponse.totalPrice(order.getTotalPrice());
-        orderResponse.expectedStartDate(order.getExpectedStartDate());
-        orderResponse.expectedProductCompletionDate(order.getExpectedProductCompletionDate());
-        orderResponse.estimatedDeliveryDate(order.getEstimatedDeliveryDate());
-        orderResponse.productionStartDate(order.getProductionStartDate());
-        orderResponse.productionCompletionDate(order.getProductionCompletionDate());
-        orderResponse.createDate(order.getCreateDate().toString());
-        orderResponse.detailList(
-                order.getDetailList() != null ? order.getDetailList().stream().map(detailMapper::mapperToDesignDetailResponse).toList() : null
-        );
+        OrderCustomResponse.OrderCustomResponseBuilder orderResponse = OrderCustomResponse.builder()
+                .designResponse(designService.getDesignByOrderID(order.getOrderID()))
+                .parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null)
+                .orderType(order.getOrderType())
+                .orderID(order.getOrderID())
+                .quantity(order.getQuantity())
+                .orderStatus(order.getOrderStatus())
+                .address(order.getAddress())
+                .province(order.getProvince())
+                .district(order.getDistrict())
+                .ward(order.getWard())
+                .phone(order.getPhone())
+                .buyerName(order.getBuyerName())
+                .totalPrice(order.getTotalPrice())
+                .expectedStartDate(order.getExpectedStartDate())
+                .expectedProductCompletionDate(order.getExpectedProductCompletionDate())
+                .estimatedDeliveryDate(order.getEstimatedDeliveryDate())
+                .productionStartDate(order.getProductionStartDate())
+                .productionCompletionDate(order.getProductionCompletionDate())
+                .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
+                .detailList(order.getDetailList() != null ?
+                        order.getDetailList().stream()
+                                .map(detailMapper::mapperToDesignDetailResponse)
+                                .toList() : null);
+
         try {
             List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
                     .stream()
                     .map(paymentMapper::mapperToPaymentResponse)
                     .toList();
+
             if (!paymentResponseList.isEmpty()) {
                 orderResponse.paymentList(paymentResponseList);
             }
-            orderResponse.paymentList(paymentResponseList);
         } catch (Exception ex) {
+            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
             throw ex;
         }
+
         return orderResponse.build();
     }
 }

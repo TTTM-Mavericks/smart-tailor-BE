@@ -23,6 +23,7 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Order extends AuditEntity implements Serializable {
+
     @Id
     @Column(name = "order_id", nullable = false, unique = true)
     @UuidGenerator
@@ -84,11 +85,11 @@ public class Order extends AuditEntity implements Serializable {
     @Column(name = "product_completion_date", columnDefinition = "datetime(2)")
     private LocalDateTime productionCompletionDate;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DesignDetail> detailList;
 
-//    @OneToMany(mappedBy = "order")
-//    @JsonManagedReference
-//    private List<Payment> paymentList;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Payment> paymentList;
 }

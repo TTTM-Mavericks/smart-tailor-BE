@@ -14,6 +14,7 @@ import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
 import com.smart.tailor.utils.response.PaymentResponse;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +99,7 @@ public class PaymentServiceImpl implements PaymentService {
                                 .paymentStatus(paymentStatus)
                                 .paymentType(paymentType)
 //                                .order(paymentRequest.getOrder())
-                                .orderID(null)
+                                .order(null)
                                 .paymentCode(null)
                                 .build()
                 );
@@ -143,7 +144,8 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 Integer orderCode = creationPayOS.getData().getOrderCode();
 
-                logger.error("order {}", paymentRequest.getOrderID());
+                var order = orderRepository.findById(orderID)
+                        .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderID));
 
                 var storedPayment = paymentRepository.save(
                         Payment.builder()
@@ -161,10 +163,11 @@ public class PaymentServiceImpl implements PaymentService {
                                 .paymentAmount(paymentAmount)
                                 .paymentStatus(paymentStatus)
                                 .paymentType(paymentType)
-                                .orderID(orderID)
+                                .order(order)  // Use the retrieved order here
                                 .paymentCode(orderCode)
                                 .build()
                 );
+
                 return paymentMapper.mapperToPaymentResponse(storedPayment);
             }
         } catch (Exception ex) {

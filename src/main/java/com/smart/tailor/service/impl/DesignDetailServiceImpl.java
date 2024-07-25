@@ -87,7 +87,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public APIResponse createDesignDetail(DesignDetailRequest designDetailRequest) {
         try {
