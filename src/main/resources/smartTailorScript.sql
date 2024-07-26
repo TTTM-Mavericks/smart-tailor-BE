@@ -234,6 +234,26 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), 'nguyenvanquan@gmail.com',
        (UNHEX(REPLACE(UUID(), '-', '')), 'phamthanhgiang458@gmail.com',
         '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Pham Thanh Giang', 'vietnam', '0905638465',
         (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
+        current_timestamp, null),
+
+        (UNHEX(REPLACE(UUID(), '-', '')), 'adminsmarttailor123@gmail.com',
+        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Admin Smart Tailor', 'vietnam', '0914633465',
+        (SELECT role_id FROM roles WHERE role_name = 'ADMIN'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
+        current_timestamp, null),
+
+       (UNHEX(REPLACE(UUID(), '-', '')), 'managersmarttailor123@gmail.com',
+        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Manager Smart Tailor', 'vietnam', '09146376465',
+        (SELECT role_id FROM roles WHERE role_name = 'MANAGER'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
+        current_timestamp, null),
+
+       (UNHEX(REPLACE(UUID(), '-', '')), 'employeesmarttailor123@gmail.com',
+        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Employee Smart Tailor', 'vietnam', '09146993465',
+        (SELECT role_id FROM roles WHERE role_name = 'EMPLOYEE'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
+        current_timestamp, null),
+
+       (UNHEX(REPLACE(UUID(), '-', '')), 'accountantsmarttailor123@gmail.com',
+        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Accountant Smart Tailor', 'vietnam', '09146993290',
+        (SELECT role_id FROM roles WHERE role_name = 'ACCOUNTANT'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null);
 
 

@@ -257,6 +257,7 @@ public class MessageConstant {
     public static final String GET_ALL_ACCOUNTANT_SUCCESSFULLY = "Get All Accountant Successfully";
     public static final String GET_ALL_EMPLOYEE_SUCCESSFULLY = "Get All Employee Successfully";
     public static final String GET_ALL_MANAGER_SUCCESSFULLY = "Get All Manager Successfully";
+    public static final String GET_ALL_ADMIN_SUCCESSFULLY = "Get All Admin Successfully";
 
     /*    FAIL     */
     public static final String CAN_NOT_FIND_ANY_CUSTOMER = "Can not find any customer";
@@ -264,6 +265,7 @@ public class MessageConstant {
     public static final String CAN_NOT_FIND_ANY_ACCOUNTANT = "Can not find any accountant";
     public static final String CAN_NOT_FIND_ANY_EMPLOYEE = "Can not find any employee";
     public static final String CAN_NOT_FIND_ANY_MANAGER = "Can not find any manager";
+    public static final String CAN_NOT_FIND_ANY_ADMIN = "Can not find any admin";
 
     /**
      * SIZE

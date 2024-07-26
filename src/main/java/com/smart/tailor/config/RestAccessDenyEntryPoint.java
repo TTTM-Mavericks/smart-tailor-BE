@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class RestAccessDenyEntryPoint implements AccessDeniedHandler {
@@ -20,8 +22,14 @@ public class RestAccessDenyEntryPoint implements AccessDeniedHandler {
         response.setContentType("application/json");
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String timestamp = LocalDateTime.now().format(dateTimeFormatter);
+
+        objectNode.put("timestamp", timestamp);
         objectNode.put("status", HttpStatus.FORBIDDEN.value());
-        objectNode.put("message", HttpStatus.FORBIDDEN.getReasonPhrase().toUpperCase());
+        objectNode.put("message", "You do not have permission to access this resource.");
+        objectNode.put("path", request.getRequestURI());
 
         OutputStream outputStream = response.getOutputStream();
         objectMapper.writeValue(outputStream, objectNode);

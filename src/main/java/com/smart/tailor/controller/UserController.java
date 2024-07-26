@@ -106,4 +106,19 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(APIConstant.UserAPI.GET_ALL_ADMIN)
+    public ResponseEntity<ObjectNode> getAllAdmin() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var managerList = userService.findAllUserByRoleName(RoleType.ADMIN);
+        if (!managerList.isEmpty()) {
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GET_ALL_ADMIN_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(managerList));
+        } else {
+            response.put("status", HttpStatus.NOT_FOUND.value());
+            response.put("message", MessageConstant.CAN_NOT_FIND_ANY_ADMIN);
+        }
+        return ResponseEntity.ok(response);
+    }
 }
