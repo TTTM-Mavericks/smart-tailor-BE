@@ -1,5 +1,6 @@
 package com.smart.tailor.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.smart.tailor.enums.OrderStatus;
 import jakarta.persistence.*;
