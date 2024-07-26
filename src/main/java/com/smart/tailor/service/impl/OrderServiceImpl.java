@@ -173,7 +173,42 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    @Transactional(readOnly = true)
+    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails){
+        return OrderCustomResponse
+                .builder()
+                .designResponse(designService.getDesignByOrderID(order.getOrderID()))
+                .parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null)
+                .orderType(order.getOrderType())
+                .orderID(order.getOrderID())
+                .quantity(order.getQuantity())
+                .orderStatus(order.getOrderStatus())
+                .address(order.getAddress())
+                .province(order.getProvince())
+                .district(order.getDistrict())
+                .ward(order.getWard())
+                .phone(order.getPhone())
+                .buyerName(order.getBuyerName())
+                .totalPrice(order.getTotalPrice())
+                .expectedStartDate(order.getExpectedStartDate())
+                .expectedProductCompletionDate(order.getExpectedProductCompletionDate())
+                .estimatedDeliveryDate(order.getEstimatedDeliveryDate())
+                .productionStartDate(order.getProductionStartDate())
+                .productionCompletionDate(order.getProductionCompletionDate())
+                .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
+                .detailList(
+                        designDetails
+                            .stream()
+                            .map(detailMapper::mapperToDesignDetailResponse)
+                            .toList()
+                )
+                .paymentList(
+                        paymentService.findAllByOrderID(order.getOrderID())
+                        .stream()
+                        .map(paymentMapper::mapperToPaymentResponse)
+                        .toList()
+                )
+                .build();
+    }
     @Override
     public OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception {
         try {
@@ -193,7 +228,7 @@ public class OrderServiceImpl implements OrderService {
                         detailList.add(detail);
                     }
                 }
-                order.setDetailList(detailList);
+//                order.setDetailList(detailList);
                 var status = order.getOrderStatus();
                 var paymentList = paymentService.findAllByOrderID(orderID);
                 switch (status) {
@@ -249,11 +284,12 @@ public class OrderServiceImpl implements OrderService {
                             var checkDeposited = paymentList.stream().filter(p ->
                                     p.getPaymentType().equals(PaymentType.STAGE_2)
                             ).findFirst();
-
+                            logger.info("Line Code 287 {}", checkDeposited);
                             if (checkDeposited.isEmpty()) {
                                 checkDeposited = paymentList.stream().filter(p ->
                                         p.getPaymentType().equals(PaymentType.STAGE_1)
                                 ).findFirst();
+                                logger.warn("Line Code 292 {} {}", checkDeposited, checkDeposited.get().getPaymentStatus());
                                 if (checkDeposited.isPresent() && checkDeposited.get().getPaymentStatus()) {
                                     logger.error("CREATE STAGE_2");
                                     var payOSResponse = paymentService.createPayOSPayment(
@@ -281,7 +317,8 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                 }
-                return orderMapper.mapToOrderCustomResponse(order);
+//                return orderMapper.mapToOrderCustomResponse(order);
+                return convertToOrderCustomResponse(order, detailList);
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -307,21 +344,28 @@ public class OrderServiceImpl implements OrderService {
         try {
             var response = getOrderByOrderID(orderID);
 
-            var basePaymentList = response.getPaymentList();
-            var paymentList = basePaymentList;
-            switch (response.getOrderType()) {
-                case ("DEPOSIT"): {
-                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).toList();
-                    break;
-                }
-                case ("PROCESSING"): {
-                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).toList();
-                    if (paymentList.isEmpty()) {
-                        paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst().stream().toList();
-                    }
-                    break;
-                }
-            }
+            var paymentNewest = response
+                    .getPaymentList()
+                    .stream()
+                    .max(Comparator.comparing(PaymentResponse::getCreateDate));
+
+            List<PaymentResponse> paymentList = new ArrayList<>();
+            paymentList.add(paymentNewest.get());
+
+//            var paymentList = basePaymentList;
+//            switch (response.getOrderType()) {
+//                case ("DEPOSIT"): {
+//                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).toList();
+//                    break;
+//                }
+//                case ("PROCESSING"): {
+//                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).toList();
+//                    if (paymentList.isEmpty()) {
+//                        paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst().stream().toList();
+//                    }
+//                    break;
+//                }
+//            }
             response.setPaymentList(paymentList);
             return response;
         } catch (Exception ex) {
