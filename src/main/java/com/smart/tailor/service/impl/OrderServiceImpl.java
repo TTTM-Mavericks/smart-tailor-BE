@@ -398,7 +398,6 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public OrderCustomResponse getOrderDetailByOrderID(UUID orderID) throws Exception {
         try {
@@ -426,11 +425,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrderByBrandID(UUID brandID) {
-        return orderRepository.findOrderByBrandID(brandID)
-                .stream()
-                .map(this::safeMapToOrderResponse)
-                .toList();
+    public List<OrderCustomResponse> getOrderByBrandID(UUID brandID) throws Exception {
+        var listOrder = orderRepository.findOrderByBrandID(brandID);
+        List<OrderCustomResponse> responseList = new ArrayList<>();
+        for (Order o : listOrder) {
+            responseList.add(getOrderByOrderID(o.getOrderID()));
+        }
+        return responseList;
     }
 
     @Override
@@ -439,8 +440,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrderByUserID(UUID userID) {
-        return orderRepository.findParentOrderByUserID(userID).stream().map(this::safeMapToOrderResponse).toList();
+    public List<OrderCustomResponse> getOrderByUserID(UUID userID) throws Exception {
+        var orderList = orderRepository.findParentOrderByUserID(userID);
+        List<OrderCustomResponse> responseList = new ArrayList<>();
+        for (Order o : orderList) {
+            responseList.add(getOrderByOrderID(o.getOrderID()));
+        }
+        return responseList;
     }
 
     @Override

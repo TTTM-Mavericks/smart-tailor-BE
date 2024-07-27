@@ -24,11 +24,11 @@ public interface OrderService {
 
     Optional<Order> getOrderById(UUID orderID);
 
-    List<OrderResponse> getOrderByBrandID(UUID brandID);
+    List<OrderCustomResponse> getOrderByBrandID(UUID brandID) throws Exception;
 
     List<OrderResponse> getOrderByDesignID(UUID designID);
 
-    List<OrderResponse> getOrderByUserID(UUID userID);
+    List<OrderCustomResponse> getOrderByUserID(UUID userID) throws Exception;
 
     List<OrderResponse> getSubOrderByParentID(UUID parentOrderID);
 
