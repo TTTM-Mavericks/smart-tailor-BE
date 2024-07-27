@@ -90,8 +90,8 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                             orderService.changeOrderStatus(
                                     OrderStatusUpdateRequest
                                             .builder()
-                                            .orderID(order.getOrderID())
-                                            .status(OrderStatus.DEPOSIT)
+                                            .orderID(order.getOrderID().toString())
+                                            .status(OrderStatus.DEPOSIT.name())
                                             .build()
                             );
                             var payOSResponse = paymentService.createPayOSPayment(
@@ -121,8 +121,8 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     orderService.changeOrderStatus(
                             OrderStatusUpdateRequest
                                     .builder()
-                                    .orderID(order.getOrderID())
-                                    .status(OrderStatus.CANCEL)
+                                    .orderID(order.getOrderID().toString())
+                                    .status(OrderStatus.CANCEL.name())
                                     .build()
                     );
                 }
