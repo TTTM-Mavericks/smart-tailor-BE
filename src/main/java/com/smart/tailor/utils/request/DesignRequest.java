@@ -2,11 +2,9 @@ package com.smart.tailor.utils.request;
 
 import com.smart.tailor.validate.ValidColor;
 import com.smart.tailor.validate.ValidStringUUID;
+import jakarta.persistence.Column;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.List;
@@ -30,6 +28,14 @@ public class DesignRequest {
 
     @NotNull(message = "Public Status is required")
     private Boolean publicStatus;
+
+    @NotNull(message = "Min Weight is required")
+    @DecimalMin(value = "0.01", message = "Min Weight must be greater than 0")
+    private Float minWeight;
+
+    @NotNull(message = "Max Weight is required")
+    @DecimalMin(value = "0.01", message = "Max Weight must be greater than 0")
+    private Float maxWeight;
 
     @ValidColor
     private String color;
