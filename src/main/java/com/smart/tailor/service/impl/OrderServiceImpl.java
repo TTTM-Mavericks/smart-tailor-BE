@@ -174,10 +174,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void updateOrderStatus(UUID orderID, String orderStatus) {
-
+        var order = getOrderById(orderID).isPresent() ? getOrderById(orderID).get() : null;
+        if (order == null) {
+            throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND);
+        }
+        order.setOrderStatus(OrderStatus.valueOf(orderStatus));
+        updateOrder(order);
     }
 
-    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails){
+    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails) {
         return OrderCustomResponse
                 .builder()
                 .designResponse(designService.getDesignByOrderID(order.getOrderID()))
@@ -201,18 +206,19 @@ public class OrderServiceImpl implements OrderService {
                 .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
                 .detailList(
                         designDetails
-                            .stream()
-                            .map(detailMapper::mapperToDesignDetailResponse)
-                            .toList()
+                                .stream()
+                                .map(detailMapper::mapperToDesignDetailResponse)
+                                .toList()
                 )
                 .paymentList(
                         paymentService.findAllByOrderID(order.getOrderID())
-                        .stream()
-                        .map(paymentMapper::mapperToPaymentResponse)
-                        .toList()
+                                .stream()
+                                .map(paymentMapper::mapperToPaymentResponse)
+                                .toList()
                 )
                 .build();
     }
+
     @Override
     public OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception {
         try {
@@ -244,10 +250,9 @@ public class OrderServiceImpl implements OrderService {
                                             p.getPaymentStatus()
                             ).findFirst();
 
+                            // check if deposited?
                             if (checkDeposited.isPresent()) {
-                                /**
-                                 * UPDATE STATUS TO PROCESSING
-                                 */
+                                // change status of parent order to PROCESSING
                                 logger.info("Change Status PROCESSING Order");
                                 changeOrderStatus(
                                         OrderStatusUpdateRequest
@@ -256,45 +261,82 @@ public class OrderServiceImpl implements OrderService {
                                                 .status(OrderStatus.PROCESSING.name())
                                                 .build()
                                 );
-                                logger.error("CREATE STAGE_1");
-                                var payOSResponse = paymentService.createPayOSPayment(
-                                        PaymentRequest
-                                                .builder()
-                                                .orderID(orderID)
 
-                                                .paymentSenderID(null)
-                                                .paymentSenderName(order.getBuyerName())
-                                                .paymentSenderBankCode("")
-                                                .paymentSenderBankNumber("")
-
-                                                .paymentRecipientID(null)
-                                                .paymentRecipientName("SMART TAILOR")
-                                                .paymentRecipientBankCode("")
-                                                .paymentRecipientBankNumber("")
-
-                                                .paymentType(PaymentType.STAGE_1)
-                                                .paymentAmount(order.getTotalPrice())
-                                                .itemList(null)
-                                                .build()
-                                );
-                                logger.error("CREATE STAGE_1 SUCCESSFULLY!");
+                                // change status of sub order to START_PRODUCING
+                                var subOrderList = getSubOrderByParentID(orderID);
+                                boolean isFinish = true;
+                                for (OrderResponse subOrder : subOrderList) {
+                                    var subOrderObject = getOrderById(subOrder.getOrderID()).get();
+                                    subOrderObject.setOrderStatus(OrderStatus.START_PRODUCING);
+                                    updateOrder(subOrderObject);
+                                }
                             }
                         }
                     }
                     case PROCESSING -> {
                         logger.error("INCASE PROCESSING");
 
+                        // CHECK CURRENT STAGE
+                        var stage = 0;
                         if (!paymentList.isEmpty()) {
                             var checkDeposited = paymentList.stream().filter(p ->
                                     p.getPaymentType().equals(PaymentType.STAGE_2)
                             ).findFirst();
-                            logger.info("Line Code 287 {}", checkDeposited);
                             if (checkDeposited.isEmpty()) {
                                 checkDeposited = paymentList.stream().filter(p ->
                                         p.getPaymentType().equals(PaymentType.STAGE_1)
                                 ).findFirst();
-                                logger.warn("Line Code 292 {} {}", checkDeposited, checkDeposited.get().getPaymentStatus());
                                 if (checkDeposited.isPresent() && checkDeposited.get().getPaymentStatus()) {
+                                    stage = 1;
+                                }
+                            } else {
+                                if (checkDeposited.get().getPaymentStatus())
+                                    stage = 2;
+                            }
+                        }
+
+                        var subOrderList = getSubOrderByParentID(orderID);
+                        boolean isFinish = true;
+                        switch (stage) {
+                            case 0:
+                                isFinish = true;
+                                for (OrderResponse subOrder : subOrderList) {
+                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)) {
+                                        isFinish = false;
+                                    }
+                                }
+                                if (isFinish) {
+                                    logger.error("CREATE STAGE_1");
+                                    var payOSResponse = paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .orderID(orderID)
+
+                                                    .paymentSenderID(null)
+                                                    .paymentSenderName(order.getBuyerName())
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
+
+                                                    .paymentRecipientID(null)
+                                                    .paymentRecipientName("SMART TAILOR")
+                                                    .paymentRecipientBankCode("")
+                                                    .paymentRecipientBankNumber("")
+
+                                                    .paymentType(PaymentType.STAGE_1)
+                                                    .paymentAmount(order.getTotalPrice())
+                                                    .itemList(null)
+                                                    .build()
+                                    );
+                                }
+                                break;
+                            case 1:
+                                isFinish = true;
+                                for (OrderResponse subOrder : subOrderList) {
+                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISG_SECOND_STAGE)) {
+                                        isFinish = false;
+                                    }
+                                }
+                                if (isFinish) {
                                     logger.error("CREATE STAGE_2");
                                     var payOSResponse = paymentService.createPayOSPayment(
                                             PaymentRequest
@@ -317,11 +359,22 @@ public class OrderServiceImpl implements OrderService {
                                                     .build()
                                     );
                                 }
-                            }
+                                break;
+                            case 2:
+                                isFinish = true;
+                                for (OrderResponse subOrder : subOrderList) {
+                                    if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                        isFinish = false;
+                                    }
+                                }
+                                if (isFinish) {
+                                    order.setOrderStatus(OrderStatus.COMPLETED);
+                                    updateOrder(order);
+                                    break;
+                                }
                         }
                     }
                 }
-//                return orderMapper.mapToOrderCustomResponse(order);
                 return convertToOrderCustomResponse(order, detailList);
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
@@ -334,8 +387,8 @@ public class OrderServiceImpl implements OrderService {
                         detailList.add(detail);
                     }
                 }
-                order.setDetailList(detailList);
-                return orderMapper.mapToOrderCustomResponse(order);
+//                order.setDetailList(detailList);
+                return convertToOrderCustomResponse(order, detailList);
             }
         } catch (Exception ex) {
             throw ex;
