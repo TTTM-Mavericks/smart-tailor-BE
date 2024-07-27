@@ -470,23 +470,6 @@ public class OrderServiceImpl implements OrderService {
         existedOrder.setOrderStatus(OrderStatus.valueOf(orderRequest.getStatus()));
 
         var updatedOrder = orderRepository.save(existedOrder);
-        logger.info("Update Order {} {}", updatedOrder.getOrderType(), updatedOrder.getOrderStatus());
-        if(updatedOrder.getOrderType().contains("PARENT_ORDER") &&
-                updatedOrder.getOrderStatus().equals(OrderStatus.PENDING)){
-
-            var orderResponse = getOrderByOrderID(orderID);
-            var listBrandEmailSelected = filterBrandForSpecificOrderBaseOnDesign(orderResponse.getDesignResponse().getDesignID());
-            // send Mail to selected Brand for Specific Order
-            for(var brandEmailSelected : listBrandEmailSelected){
-                mailService.sendMailToSelectedBrandsForSpecificOrder(
-                        brandEmailSelected,
-                        "Order Design For Brand",
-                        clientServerLink + "/" + orderID,
-                        orderResponse
-                );
-            }
-        }
-
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
 

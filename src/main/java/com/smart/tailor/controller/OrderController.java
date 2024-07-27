@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant.OrderAPI;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.enums.OrderStatus;
+import com.smart.tailor.event.CreateOrderEvent;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
@@ -13,6 +15,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +29,7 @@ import java.util.UUID;
 @Validated
 public class OrderController {
     private final OrderService orderService;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private ObjectMapper objectMapper = new ObjectMapper();
     private final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
@@ -111,6 +116,11 @@ public class OrderController {
             response.put("message", MessageConstant.CHANGE_ORDER_STATUS_SUCCESSFULLY);
             var orderResponse = orderService.changeOrderStatus(orderRequest);
             response.set("data", objectMapper.valueToTree(orderResponse));
+            if(orderResponse.getOrderType().contains("PARENT_ORDER") &&
+                    orderResponse.getOrderStatus().equals(OrderStatus.PENDING)){
+                applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
+            }
+
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
