@@ -84,6 +84,19 @@ public class SystemPropertiesServiceImpl implements SystemPropertiesService {
     }
 
     @Override
+    public SystemPropertiesResponse getByName(String propertyName) {
+        try {
+            var property = systemRepository.findByPropertyName(propertyName);
+            if (property == null) {
+                return null;
+            }
+            return systemMapper.mapperToSystemPropertiesResponse(property);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
     public Optional<SystemProperties> getObjectByID(UUID propertyID) {
         return systemRepository.findById(propertyID);
     }

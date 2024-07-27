@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface SystemPropertiesRepository extends JpaRepository<SystemProperties, UUID> {
     List<SystemProperties> getAllByPropertyType(String propertyType);
+
+    SystemProperties findByPropertyName(String name);
 }

@@ -15,6 +15,8 @@ public interface SystemPropertiesService {
 
     SystemPropertiesResponse getByID(UUID propertyID);
 
+    SystemPropertiesResponse getByName(String propertyName);
+
     Optional<SystemProperties> getObjectByID(UUID propertyID);
 
     List<SystemPropertiesResponse> getAll();
