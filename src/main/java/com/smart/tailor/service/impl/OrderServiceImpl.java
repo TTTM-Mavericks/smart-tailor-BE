@@ -264,7 +264,6 @@ public class OrderServiceImpl implements OrderService {
 
                                 // change status of sub order to START_PRODUCING
                                 var subOrderList = getSubOrderByParentID(orderID);
-                                boolean isFinish = true;
                                 for (OrderResponse subOrder : subOrderList) {
                                     var subOrderObject = getOrderById(subOrder.getOrderID()).get();
                                     subOrderObject.setOrderStatus(OrderStatus.START_PRODUCING);
@@ -277,7 +276,7 @@ public class OrderServiceImpl implements OrderService {
                         logger.error("INCASE PROCESSING");
 
                         // CHECK CURRENT STAGE
-                        var stage = 0;
+                        var stage = -1;
                         if (!paymentList.isEmpty()) {
                             var checkDeposited = paymentList.stream().filter(p ->
                                     p.getPaymentType().equals(PaymentType.STAGE_2)
@@ -286,8 +285,12 @@ public class OrderServiceImpl implements OrderService {
                                 checkDeposited = paymentList.stream().filter(p ->
                                         p.getPaymentType().equals(PaymentType.STAGE_1)
                                 ).findFirst();
-                                if (checkDeposited.isPresent() && checkDeposited.get().getPaymentStatus()) {
-                                    stage = 1;
+                                if (checkDeposited.isPresent()) {
+                                    if (checkDeposited.get().getPaymentStatus()) {
+                                        stage = 1;
+                                    }
+                                } else {
+                                    stage = 0;
                                 }
                             } else {
                                 if (checkDeposited.get().getPaymentStatus())
@@ -407,7 +410,7 @@ public class OrderServiceImpl implements OrderService {
                     .max(Comparator.comparing(PaymentResponse::getCreateDate));
 
             List<PaymentResponse> paymentList = new ArrayList<>();
-            if(paymentNewest.isPresent()) paymentList.add(paymentNewest.get());
+            if (paymentNewest.isPresent()) paymentList.add(paymentNewest.get());
 
             response.setPaymentList(paymentList);
             return response;
@@ -655,13 +658,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public Boolean isOrderExpireTime(UUID orderID) {
-        var systemPropertiesExpirationTime = systemPropertiesService.getAllByPropertyType("MATCHING_TIME");
+        var systemPropertiesExpirationTime = systemPropertiesService.getByName("MATCHING_TIME");
         var order = orderRepository.findById(orderID).get();
         logger.info("Inside Method isOrderExpireTime with orderID {}", orderID);
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime orderExpiredDateTime = order.getCreateDate()
-//                .plusMinutes(Integer.parseInt(systemPropertiesExpirationTime.get(0).getPropertyValue()));
-                .plusSeconds(30);
+//                .plusMinutes(Integer.parseInt(systemPropertiesExpirationTime.getPropertyValue()));
+                .plusMinutes(1);
         logger.info("CurrentDateTime {}", currentDateTime);
         logger.info("OrderExpiredDateTime {}", orderExpiredDateTime);
         return currentDateTime.isAfter(orderExpiredDateTime);
