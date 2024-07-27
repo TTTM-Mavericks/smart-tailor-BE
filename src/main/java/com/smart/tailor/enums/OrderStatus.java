@@ -8,4 +8,12 @@ public enum OrderStatus {
     CANCEL,     // huy
     COMPLETED,   // hoan thanh nhung chua giao
     DELIVERED,  // da giao
+
+    /**
+     * SUB ORDER
+     */
+    START_PRODUCING,
+    FINISH_FIRST_STAGE,
+    FINISG_SECOND_STAGE,
+
 }
