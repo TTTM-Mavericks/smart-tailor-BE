@@ -21,6 +21,7 @@ import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final BrandService brandService;
     private final DesignService designService;
-    private final UserService userService;
     private final CustomerService customerService;
     private final OrderMapper orderMapper;
     private final PaymentMapper paymentMapper;
@@ -44,7 +44,11 @@ public class OrderServiceImpl implements OrderService {
     private final DesignDetailRepository detailRepository;
     private final PaymentService paymentService;
     private final SystemPropertiesService systemPropertiesService;
+    private final MailService mailService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+    @Value("${client.server.link}")
+    private String clientServerLink;
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) throws Exception {
@@ -248,8 +252,8 @@ public class OrderServiceImpl implements OrderService {
                                 changeOrderStatus(
                                         OrderStatusUpdateRequest
                                                 .builder()
-                                                .orderID(orderID)
-                                                .status(OrderStatus.PROCESSING)
+                                                .orderID(orderID.toString())
+                                                .status(OrderStatus.PROCESSING.name())
                                                 .build()
                                 );
                                 logger.error("CREATE STAGE_1");
@@ -350,22 +354,8 @@ public class OrderServiceImpl implements OrderService {
                     .max(Comparator.comparing(PaymentResponse::getCreateDate));
 
             List<PaymentResponse> paymentList = new ArrayList<>();
-            paymentList.add(paymentNewest.get());
+            if(paymentNewest.isPresent()) paymentList.add(paymentNewest.get());
 
-//            var paymentList = basePaymentList;
-//            switch (response.getOrderType()) {
-//                case ("DEPOSIT"): {
-//                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).toList();
-//                    break;
-//                }
-//                case ("PROCESSING"): {
-//                    paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).toList();
-//                    if (paymentList.isEmpty()) {
-//                        paymentList = basePaymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst().stream().toList();
-//                    }
-//                    break;
-//                }
-//            }
             response.setPaymentList(paymentList);
             return response;
         } catch (Exception ex) {
@@ -417,19 +407,32 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) throws Exception {
-        if (orderRequest.getOrderID() == null) {
-            throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " orderID");
-        }
-        var order = getOrderById(orderRequest.getOrderID());
+        UUID orderID = UUID.fromString(orderRequest.getOrderID());
+        var order = getOrderById(orderID);
         if (order.isEmpty()) {
-            throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND + " with orderID: " + orderRequest.getOrderID());
+            throw new ItemNotFoundException("Can not find Order with OrderID: " + orderID);
         }
 
         var existedOrder = order.get();
-        existedOrder.setOrderStatus(
-                OrderStatus.valueOf(String.valueOf(orderRequest.getStatus()))
-        );
+        existedOrder.setOrderStatus(OrderStatus.valueOf(orderRequest.getStatus()));
+
         var updatedOrder = orderRepository.save(existedOrder);
+        logger.info("Update Order {} {}", updatedOrder.getOrderType(), updatedOrder.getOrderStatus());
+        if(updatedOrder.getOrderType().contains("PARENT_ORDER") &&
+                updatedOrder.getOrderStatus().equals(OrderStatus.PENDING)){
+
+            var orderResponse = getOrderByOrderID(orderID);
+            var listBrandEmailSelected = filterBrandForSpecificOrderBaseOnDesign(orderResponse.getDesignResponse().getDesignID());
+            // send Mail to selected Brand for Specific Order
+            for(var brandEmailSelected : listBrandEmailSelected){
+                mailService.sendMailToSelectedBrandsForSpecificOrder(
+                        brandEmailSelected,
+                        "Order Design For Brand",
+                        clientServerLink + "/" + orderID,
+                        orderResponse
+                );
+            }
+        }
 
         return orderMapper.mapToOrderResponse(updatedOrder);
     }

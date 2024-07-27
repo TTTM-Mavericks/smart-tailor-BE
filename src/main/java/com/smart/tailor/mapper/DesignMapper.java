@@ -16,6 +16,8 @@ public interface DesignMapper {
     @Mapping(source = "expertTailoring", target = "expertTailoring")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(design.getImageUrl()))")
     @Mapping(source = "design.partOfDesignList", target = "partOfDesign")
+    @Mapping(source = "design.minWeight", target = "minWeight")
+    @Mapping(source = "design.maxWeight", target = "maxWeight")
     @Mapping(source = "design.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "design.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     DesignResponse mapperToDesignResponse(Design design);
@@ -30,6 +32,8 @@ public interface DesignMapper {
     @Mapping(source = "design.designID", target = "designID")
     @Mapping(source = "user", target = "user")
     @Mapping(source = "expertTailoring", target = "expertTailoring")
+    @Mapping(source = "design.minWeight", target = "minWeight")
+    @Mapping(source = "design.maxWeight", target = "maxWeight")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(design.getImageUrl()))")
     @Mapping(source = "design.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "design.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")

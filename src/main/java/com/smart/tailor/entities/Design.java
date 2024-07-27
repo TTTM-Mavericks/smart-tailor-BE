@@ -38,6 +38,12 @@ public class Design extends AuditEntity implements Serializable {
     @Column(name = "public_status")
     private Boolean publicStatus;
 
+    @Column(name = "min_weight")
+    private Float minWeight;
+
+    @Column(name = "max_weight")
+    private Float maxWeight;
+
     @Lob
     @Column(name = "image_url", columnDefinition = "LONGTEXT")
     private byte[] imageUrl;

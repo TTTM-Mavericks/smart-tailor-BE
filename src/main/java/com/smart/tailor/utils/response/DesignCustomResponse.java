@@ -23,6 +23,10 @@ public class DesignCustomResponse {
 
     private Boolean publicStatus;
 
+    private Float minWeight;
+
+    private Float maxWeight;
+
     private String imageUrl;
 
     private String color;
