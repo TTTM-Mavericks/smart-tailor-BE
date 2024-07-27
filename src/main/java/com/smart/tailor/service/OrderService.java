@@ -4,7 +4,6 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
-import com.smart.tailor.utils.response.BrandResponse;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 
@@ -28,6 +27,8 @@ public interface OrderService {
     List<OrderResponse> getOrderByBrandID(UUID brandID);
 
     List<OrderResponse> getOrderByDesignID(UUID designID);
+
+    List<OrderResponse> getOrderByUserID(UUID userID);
 
     List<OrderResponse> getSubOrderByParentID(UUID parentOrderID);
 

@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +54,36 @@ public class OrderController {
             response.put("status", 200);
             response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
             var orderResponse = orderService.getOrderByOrderID(orderID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    @GetMapping(OrderAPI.GET_ORDER_BY_BRAND_ID + "/{brandID}")
+    public ResponseEntity<ObjectNode> getOrderByBrandID(@Valid @PathVariable("brandID") UUID brandID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+            var orderResponse = orderService.getOrderByBrandID(brandID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    @GetMapping(OrderAPI.GET_ORDER_BY_USER_ID + "/{userID}")
+    public ResponseEntity<ObjectNode> getOrderByUserID(@Valid @PathVariable("userID") UUID userID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+            var orderResponse = orderService.getOrderByUserID(userID);
             response.set("data", objectMapper.valueToTree(orderResponse));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
@@ -116,8 +145,8 @@ public class OrderController {
             response.put("message", MessageConstant.CHANGE_ORDER_STATUS_SUCCESSFULLY);
             var orderResponse = orderService.changeOrderStatus(orderRequest);
             response.set("data", objectMapper.valueToTree(orderResponse));
-            if(orderResponse.getOrderType().contains("PARENT_ORDER") &&
-                    orderResponse.getOrderStatus().equals(OrderStatus.PENDING)){
+            if (orderResponse.getOrderType().contains("PARENT_ORDER") &&
+                    orderResponse.getOrderStatus().equals(OrderStatus.PENDING)) {
                 applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
             }
 
