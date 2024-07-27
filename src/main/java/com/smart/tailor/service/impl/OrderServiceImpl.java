@@ -427,12 +427,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrderByBrandID(UUID brandID) {
-        return null;
+        return orderRepository.findOrderByBrandID(brandID)
+                .stream()
+                .map(this::safeMapToOrderResponse)
+                .toList();
     }
 
     @Override
     public List<OrderResponse> getOrderByDesignID(UUID designID) {
-        return null;
+        return orderRepository.findParentOrderByDesignID(designID).stream().map(this::safeMapToOrderResponse).toList();
+    }
+
+    @Override
+    public List<OrderResponse> getOrderByUserID(UUID userID) {
+        return orderRepository.findParentOrderByUserID(userID).stream().map(this::safeMapToOrderResponse).toList();
     }
 
     @Override
