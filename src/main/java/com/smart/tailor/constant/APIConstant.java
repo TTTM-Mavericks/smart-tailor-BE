@@ -302,8 +302,9 @@ public class APIConstant {
      */
     public class PaymentAPI {
         public static final String PAYMENT = API + "/payment";
-        public static final String CREATE_PAYMENT = "/payment-info";
+        public static final String CREATE_PAYMENT = "/create-payment";
         public static final String PAYMENT_INFO = "/payment-info";
+        public static final String MANUAL_PAYMENT_INFO = "/manual-payment-info";
         public static final String CONFIRM_PAYMENT = "/confirm-payment";
     }
 

@@ -74,4 +74,7 @@ public class Payment extends AuditEntity implements Serializable {
     private PaymentType paymentType;
 
     private Integer paymentCode;
+
+    @Column(name = "payment_url", columnDefinition = "TEXT")
+    private String paymentURl;
 }

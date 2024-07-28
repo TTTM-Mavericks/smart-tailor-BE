@@ -41,6 +41,7 @@ class PaymentMapperImpl implements PaymentMapper {
                     .orderID(payment.getOrder() != null ? payment.getOrder().getOrderID() : null)
                     .payOSResponse(payOSService.getPaymentInfo(payment.getPaymentCode()))
                     .createDate(payment.getCreateDate().toString())
+                    .paymentURl(payment.getPaymentURl())
                     .build();
         } catch (JsonProcessingException e) {
             logger.error("Error processing payment JSON", e);
