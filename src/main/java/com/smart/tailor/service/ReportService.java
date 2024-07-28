@@ -12,4 +12,8 @@ public interface ReportService {
     List<ReportResponse> getAllReport();
 
     List<ReportResponse> getAllReportByOrderID(UUID orderID);
+
+    List<ReportResponse> getAllReportByUserID(UUID userID) throws Exception;
+
+    List<ReportResponse> getAllReportByBrandID(UUID brandID) throws Exception;
 }
