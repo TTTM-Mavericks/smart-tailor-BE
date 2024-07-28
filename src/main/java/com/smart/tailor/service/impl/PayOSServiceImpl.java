@@ -42,7 +42,7 @@ public class PayOSServiceImpl implements PayOSService {
     private String apiKey;
     @Value("${PAYOS_CHECKSUM_KEY}")
     private String checksumKey;
-    @Value("${SERVER_URL}")
+    @Value("${CLIENT_URL}")
     private String clientURL;
     private final PayOSDataService payOSDataService;
 
@@ -61,7 +61,7 @@ public class PayOSServiceImpl implements PayOSService {
             String status = "PENDING";
 
             paymentRequest.setOrderCode(orderCode);
-            String returnUrl = paymentRequest.getReturnUrl() != null ? paymentRequest.getReturnUrl() : "http://localhost:3000";
+            String returnUrl = paymentRequest.getReturnUrl() != null ? paymentRequest.getReturnUrl() : clientURL;
             paymentRequest.setAmount(amount);
             paymentRequest.setReturnUrl(returnUrl);
             paymentRequest.setCancelUrl(cancelUrl);
@@ -83,7 +83,15 @@ public class PayOSServiceImpl implements PayOSService {
                     .headers(httpHeaders -> httpHeaders.putAll(headers))
                     .body(BodyInserters.fromValue(paymentRequest))
                     .retrieve()
-                    .bodyToMono(String.class);
+                    .bodyToMono(String.class)
+                    .retryWhen(Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(2)) // Retry indefinitely with exponential backoff
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure()) // Throw error after exhaustion
+                    )
+                    .onErrorResume(error -> {
+                        // Xử lý lỗi nếu cần
+                        System.err.println("Error after retries: " + error.getMessage());
+                        return Mono.empty();
+                    });
             String responseBody = response.block();
             JsonNode res = objectMapper.readTree(responseBody);
             System.out.println("ORDER CODE: " + orderCode);

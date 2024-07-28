@@ -10,6 +10,10 @@ import java.util.UUID;
 public interface PaymentService {
     PaymentResponse createPayOSPayment(PaymentRequest paymentRequest) throws Exception;
 
+    PaymentResponse createManualPayment(PaymentRequest paymentRequest) throws Exception;
+
+    PaymentResponse getManualPaymentByID(UUID paymentID) throws Exception;
+
     PaymentResponse getPaymentByID(UUID paymentID) throws Exception;
 
     List<Payment> findAllByOrderID(UUID orderID);

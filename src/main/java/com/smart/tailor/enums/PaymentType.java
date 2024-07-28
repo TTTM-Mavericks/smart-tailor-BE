@@ -6,5 +6,6 @@ public enum PaymentType {
     DEPOSIT,
     STAGE_1,
     STAGE_2,
-    ORDER
+    ORDER,
+    BRAND_INVOICE,
 }

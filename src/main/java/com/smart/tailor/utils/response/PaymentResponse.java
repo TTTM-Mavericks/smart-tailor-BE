@@ -32,6 +32,7 @@ public class PaymentResponse {
     private PaymentType paymentType;
 
     private UUID orderID;
+    private String paymentURl;
     private PayOSResponse payOSResponse;
 
     private String createDate;
