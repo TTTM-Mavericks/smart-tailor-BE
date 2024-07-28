@@ -316,5 +316,8 @@ public class APIConstant {
         public static final String CREATE_REPORT = "/create-report";
         public static final String GET_ALL_REPORT = "/get-all-report";
         public static final String GET_ALL_REPORT_BY_ORDER_ID = "/get-all-report-by-order-id";
+        public static final String GET_ALL_REPORT_BY_USER_ID = "/get-all-report-by-user-id";
+        public static final String GET_ALL_REPORT_BY_BRAND_ID = "/get-all-report-by-brand-id";
+
     }
 }
