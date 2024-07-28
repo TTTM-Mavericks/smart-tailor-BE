@@ -97,8 +97,10 @@ public class SecurityConfig {
 //                            /* Brand Labor Quantity API */
 //                            auth.requestMatchers("/api/v1/brand-labor-quantity/**").hasRole(RoleType.BRAND.name());
 //
-//                            /* Report API */
+//                             /* Report API */
 //                            auth.requestMatchers("/api/v1/report/**").hasAnyRole(RoleType.EMPLOYEE.name(), RoleType.BRAND.name(), RoleType.CUSTOMER.name());
+//                            auth.requestMatchers("/api/v1/report/get-all-report-by-brand-id/**").hasRole(RoleType.BRAND.name());
+//                            auth.requestMatchers("/api/v1/report/get-all-report-by-user-id/**").hasRole(RoleType.CUSTOMER.name());
 //
 //                            /* System Property API */
 //                            auth.requestMatchers("/api/v1/system-property/add-new-system-property").hasRole(RoleType.ADMIN.name());
@@ -160,6 +162,7 @@ public class SecurityConfig {
 //
 //                            /* Order API */
 //                            auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
+//                            auth.requestMatchers("/api/v1/order/get-order-by-brand-id/**").hasRole(RoleType.BRAND.name());
 //
 //                            /* Payment API */
 //                            auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
