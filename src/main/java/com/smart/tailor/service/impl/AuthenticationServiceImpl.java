@@ -13,6 +13,7 @@ import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.BadRequestWithCustomStatusCodeException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.AuthenticationRequest;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -112,48 +114,45 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
-        try {
-            if (authenticationRequest.getProvider() != Provider.GOOGLE) {
-                if (authenticationRequest.getPassword().isBlank() || authenticationRequest.getPassword().isEmpty() ||
-                        authenticationRequest.getEmail().isEmpty() || authenticationRequest.getEmail().isBlank()) {
-                    throw new Exception("MISSING ARGUMENT");
-                }
+        if (authenticationRequest.getProvider() != Provider.GOOGLE) {
+            if (authenticationRequest.getPassword().isBlank() || authenticationRequest.getPassword().isEmpty()){
+                throw new BadRequestException("Missing Password");
+            }
 
-                if (!Utilities.isValidEmail(authenticationRequest.getEmail())) {
-                    throw new Exception("EMAIL IS INVALID");
-                }
+            User existedUser = userService.getUserByEmail(authenticationRequest.getEmail());
+            if (existedUser == null) {
+                throw new ItemNotFoundException("User not found");
+            }
 
-                User existedUser = userService.getUserByEmail(authenticationRequest.getEmail());
-                if (existedUser == null) {
-                    throw new Exception("USER IS NOT EXISTED");
-                }
+            if (!existedUser.getUserStatus().equals(UserStatus.ACTIVE)) {
+                throw new BadRequestWithCustomStatusCodeException(
+                        HttpStatusCode.valueOf(HttpStatus.UNAUTHORIZED.value()),
+                        "User are not allow to enter");
+            }
 
-                if (!existedUser.getUserStatus().equals(UserStatus.ACTIVE)) {
-                    throw new Exception("USER ARE NOT ALLOW TO ENTER!");
-                }
-
+            try{
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 authenticationRequest.getEmail(),
                                 authenticationRequest.getPassword()
                         )
                 );
+            } catch (AuthenticationException authenticationException){
+                throw new BadRequestException(ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getMessage());
             }
-            var user = userService.getUserByEmail(authenticationRequest.getEmail());
-            var jwtToken = jwtService.generateToken(user);
-            var refreshToken = jwtService.generateRefreshToken(user);
-            revokeAllUserTokens(user);
-            saveUserToken(user, jwtToken);
-            return AuthenticationResponse
-                    .builder()
-                    .accessToken(jwtToken)
-                    .refreshToken(refreshToken)
-                    .user(userService.convertToUserResponse(user))
-                    .build();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+
         }
-        return null;
+        var user = userService.getUserByEmail(authenticationRequest.getEmail());
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwtToken);
+        return AuthenticationResponse
+                .builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .user(userService.convertToUserResponse(user))
+                .build();
     }
 
     @Override

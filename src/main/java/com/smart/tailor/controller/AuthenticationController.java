@@ -316,26 +316,14 @@ public class AuthenticationController {
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.LOGIN)
-    public ResponseEntity<ObjectNode> login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<ObjectNode> login(@Valid @RequestBody AuthenticationRequest authenticationRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
-        try {
-            AuthenticationResponse authenticationResponse = authenticationService.login(authenticationRequest);
-            if (authenticationResponse == null) {
-                respon.put("status", ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getStatusCode());
-                respon.put("message", ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-            respon.put("status", 200);
-            respon.put("message", MessageConstant.LOGIN_SUCCESSFULLY);
-            respon.set("data", objectMapper.valueToTree(authenticationResponse));
-            return ResponseEntity.ok(respon);
-        } catch (Exception ex) {
-            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
-            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
-            logger.error("ERROR IN LOGIN. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(respon);
-        }
+        AuthenticationResponse authenticationResponse = authenticationService.login(authenticationRequest);
+        respon.put("status", 200);
+        respon.put("message", MessageConstant.LOGIN_SUCCESSFULLY);
+        respon.set("data", objectMapper.valueToTree(authenticationResponse));
+        return ResponseEntity.ok(respon);
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.GOOGLE_LOGIN)
