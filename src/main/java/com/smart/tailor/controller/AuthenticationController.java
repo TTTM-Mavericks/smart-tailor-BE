@@ -26,6 +26,8 @@ import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
+import com.smart.tailor.validate.ValidEmail;
+import com.smart.tailor.validate.ValidUUID;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -61,7 +63,7 @@ public class AuthenticationController {
     private String clientId;
 
     @GetMapping(APIConstant.AuthenticationAPI.VERIFY + "/{token}")
-    public ResponseEntity<ObjectNode> verifyAccount(@PathVariable("token") UUID token) {
+    public ResponseEntity<ObjectNode> verifyAccount(@ValidUUID @PathVariable("token") UUID token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -87,7 +89,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.RESEND_VERIFICATION_TOKEN + "/{email}")
-    public ResponseEntity<ObjectNode> resendVerificationToken(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> resendVerificationToken(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -120,7 +122,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_ACCOUNT + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerifyAccount(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> checkVerifyAccount(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -144,7 +146,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_FORGOT_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerifyForgotPassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> checkVerifyForgotPassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -167,7 +169,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_CHANGE_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerifyChangePassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> checkVerifyChangePassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -208,7 +210,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.FORGOT_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> forgotPassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> forgotPassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -234,7 +236,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHANGE_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> changePassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> changePassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -260,7 +262,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.UPDATE_PASSWORD)
-    public ResponseEntity<ObjectNode> updatePassword(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<ObjectNode> updatePassword(@Valid @RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
