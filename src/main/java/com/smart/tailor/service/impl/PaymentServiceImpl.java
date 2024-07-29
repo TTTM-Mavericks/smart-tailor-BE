@@ -183,9 +183,9 @@ public class PaymentServiceImpl implements PaymentService {
                                 .paymentSenderBankNumber("")
 
                                 .paymentRecipient(null)
-                                .paymentRecipientName("")
-                                .paymentRecipientBankCode("")
-                                .paymentRecipientBankNumber("")
+                                .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                .paymentRecipientBankCode("MB BANK")
+                                .paymentRecipientBankNumber("0335567997")
 
                                 .paymentMethod(paymentMethod)
                                 .paymentAmount(paymentAmount)

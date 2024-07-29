@@ -64,7 +64,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     var detail = detailService.findAllByOrderID(orderResponse.getOrderID());
                     var design = detail.getDesign();
                     var sender = design.getUser();
-                    var recipient = userService.getUserByEmail("hoanganhduy1122@gmail.com");
+                    var recipient = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
 
                     var paymentList = paymentService.findAllByOrderID(orderResponse.getOrderID());
                     for (Payment p : paymentList) {
@@ -107,8 +107,8 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
 
                                             .paymentRecipientID(recipient.getUserID())
                                             .paymentRecipientName(recipient.getFullName())
-                                            .paymentRecipientBankCode("")
-                                            .paymentRecipientBankNumber("")
+                                            .paymentRecipientBankCode("MB Bank")
+                                            .paymentRecipientBankNumber("0335567997")
 
                                             .paymentType(PaymentType.DEPOSIT)
                                             .paymentAmount(order.getTotalPrice())

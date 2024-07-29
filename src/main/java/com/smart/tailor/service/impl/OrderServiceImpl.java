@@ -327,9 +327,9 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentSenderBankNumber("")
 
                                                     .paymentRecipientID(null)
-                                                    .paymentRecipientName("SMART TAILOR")
-                                                    .paymentRecipientBankCode("")
-                                                    .paymentRecipientBankNumber("")
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("MB Bank")
+                                                    .paymentRecipientBankNumber("0335567997")
 
                                                     .paymentType(PaymentType.STAGE_1)
                                                     .paymentAmount(order.getTotalPrice())
@@ -341,7 +341,7 @@ public class OrderServiceImpl implements OrderService {
                             case 1:
                                 isFinish = true;
                                 for (OrderResponse subOrder : subOrderList) {
-                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISG_SECOND_STAGE)) {
+                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)) {
                                         isFinish = false;
                                     }
                                 }
@@ -358,9 +358,9 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentSenderBankNumber("")
 
                                                     .paymentRecipientID(null)
-                                                    .paymentRecipientName("SMART TAILOR")
-                                                    .paymentRecipientBankCode("")
-                                                    .paymentRecipientBankNumber("")
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("MB Bank")
+                                                    .paymentRecipientBankNumber("0335567997")
 
                                                     .paymentType(PaymentType.STAGE_2)
                                                     .paymentAmount(order.getTotalPrice())
@@ -444,7 +444,7 @@ public class OrderServiceImpl implements OrderService {
                     .max(Comparator.comparing(PaymentResponse::getCreateDate));
 
             List<PaymentResponse> paymentList = new ArrayList<>();
-            if (paymentNewest.isPresent()) paymentList.add(paymentNewest.get());
+            if (paymentNewest.isPresent() && !paymentNewest.get().getPaymentStatus()) paymentList.add(paymentNewest.get());
 
             response.setPaymentList(paymentList);
             return response;
@@ -523,7 +523,7 @@ public class OrderServiceImpl implements OrderService {
         if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING)) {
             existedOrder.setExpectedStartDate(LocalDateTime.now());
         } else {
-            if (orderRequest.getStatus().equals(OrderStatus.COMPLETED)) {
+            if (orderRequest.getStatus().equals(OrderStatus.COMPLETED.name())) {
                 existedOrder.setProductionCompletionDate(LocalDateTime.now());
             }
         }
