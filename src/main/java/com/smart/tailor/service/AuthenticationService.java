@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Component
 public interface AuthenticationService {
-    AuthenticationResponse register(UserRequest userRequest) throws Exception;
+    AuthenticationResponse register(UserRequest userRequest);
 
     AuthenticationResponse login(AuthenticationRequest authenticationRequest);
 

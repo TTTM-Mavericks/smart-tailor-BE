@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.exception.BadRequestWithCustomStatusCodeException;
+import com.smart.tailor.exception.MultipleErrorException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -67,5 +69,13 @@ public class BadRequestExceptionHander {
         response.put("errors", error);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(BadRequestWithCustomStatusCodeException.class)
+    public ResponseEntity<ObjectNode> handleBadRequestWithCustomStatusCodeException(BadRequestWithCustomStatusCodeException ex) {
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", ex.getStatusCode().value());
+        response.put("message", ex.getReason());
+        return ResponseEntity.status(ex.getStatusCode().value()).body(response);
     }
 }
