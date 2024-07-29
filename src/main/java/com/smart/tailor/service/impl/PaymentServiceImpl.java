@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smart.tailor.config.VNPayConfig;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.entities.Order;
 import com.smart.tailor.entities.Payment;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
@@ -318,6 +319,11 @@ public class PaymentServiceImpl implements PaymentService {
                 var customer = sender.getCustomer();
                 senderAddress = customer.getProvince() + " " + customer.getDistrict() + " " + customer.getWard() + " " + customer.getAddress();
             }
+            var orderID = paymentRequest.getOrderID() != null ? paymentRequest.getOrderID() : null;
+            Order order = null;
+            if (orderID != null) {
+                order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
+            }
             var storedPayment = paymentRepository.save(
                     Payment.builder()
                             .paymentSender(sender)
@@ -334,7 +340,7 @@ public class PaymentServiceImpl implements PaymentService {
                             .paymentAmount(paymentAmount)
                             .paymentStatus(false)
                             .paymentType(paymentType)
-                            .order(null)
+                            .order(order)
                             .paymentCode(null)
                             .paymentURl(paymentUrl)
                             .build()
@@ -392,7 +398,7 @@ public class PaymentServiceImpl implements PaymentService {
             vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
             vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
-            String data = vnp_RequestId + "|" + vnp_Version + "|" + vnp_Command + "|" + vnp_TmnCode + "|" + vnp_TxnRef + "|" + params.get("vnp_CreateDate")+ "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + params.get("vnp_OrderInfo");
+            String data = vnp_RequestId + "|" + vnp_Version + "|" + vnp_Command + "|" + vnp_TmnCode + "|" + vnp_TxnRef + "|" + params.get("vnp_CreateDate") + "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + params.get("vnp_OrderInfo");
 
             String vnp_SecureHash = VNPayConfig.hmacSHA512(vnp_HashSecret, data);
             vnp_Params.put("vnp_SecureHash", vnp_SecureHash);

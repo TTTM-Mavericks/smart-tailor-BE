@@ -14,4 +14,6 @@ public interface BrandPropertiesService {
     BrandPropertiesResponse getByID(UUID propertyID);
 
     BrandPropertiesResponse addNew(BrandPropertiesRequest brandRequest) throws Exception;
+
+    BrandPropertiesResponse getByBrandIDAndPropertyID(UUID brandID, UUID propertyID);
 }

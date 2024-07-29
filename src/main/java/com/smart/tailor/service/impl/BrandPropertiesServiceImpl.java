@@ -8,7 +8,6 @@ import com.smart.tailor.repository.BrandPropertiesRepository;
 import com.smart.tailor.service.BrandPropertiesService;
 import com.smart.tailor.service.BrandService;
 import com.smart.tailor.service.SystemPropertiesService;
-import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandPropertiesRequest;
 import com.smart.tailor.utils.response.BrandPropertiesResponse;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +95,25 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
                 return null;
             }
             return brandPropertiesMapper.mapperToBrandPropertiesResponse(newBrandProperties);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public BrandPropertiesResponse getByBrandIDAndPropertyID(UUID brandID, UUID propertyID) {
+        try {
+            if (brandID == null) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
+            }
+            if (propertyID == null) {
+                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
+            }
+            var property = brandPropertiesRepository.findByBrand_BrandIDAndSystemPropertiesPropertyID(brandID, propertyID);
+            if (property == null) {
+                return null;
+            }
+            return brandPropertiesMapper.mapperToBrandPropertiesResponse(property);
         } catch (Exception ex) {
             throw ex;
         }

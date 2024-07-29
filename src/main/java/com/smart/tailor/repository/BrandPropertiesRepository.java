@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface BrandPropertiesRepository extends JpaRepository<BrandProperties, UUID> {
     List<BrandProperties> getAllByBrand_BrandID(UUID brandID);
+
+    BrandProperties findByBrand_BrandIDAndSystemPropertiesPropertyID(UUID brandID, UUID propertyID);
 }

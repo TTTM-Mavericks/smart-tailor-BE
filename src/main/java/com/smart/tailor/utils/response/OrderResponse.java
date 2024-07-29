@@ -27,11 +27,11 @@ public class OrderResponse {
     private String phone;
     private String buyerName;
     private Integer totalPrice;
-    private LocalDateTime expectedStartDate;
-    private LocalDateTime expectedProductCompletionDate;
-    private LocalDateTime estimatedDeliveryDate;
-    private LocalDateTime productionStartDate;
-    private LocalDateTime productionCompletionDate;
+    private String expectedStartDate;
+    private String expectedProductCompletionDate;
+    private String estimatedDeliveryDate;
+    private String productionStartDate;
+    private String productionCompletionDate;
     private List<DesignDetailResponse> detailList;
     private List<PaymentResponse> paymentList;
 }

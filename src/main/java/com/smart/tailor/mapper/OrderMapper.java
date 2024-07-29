@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.service.DesignService;
 import com.smart.tailor.service.PaymentService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.utils.response.PaymentResponse;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public interface OrderMapper {
@@ -50,11 +52,11 @@ class OrderMapperImpl implements OrderMapper {
                 .phone(order.getPhone())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
-                .expectedStartDate(order.getExpectedStartDate())
-                .expectedProductCompletionDate(order.getExpectedProductCompletionDate())
-                .estimatedDeliveryDate(order.getEstimatedDeliveryDate())
-                .productionStartDate(order.getProductionStartDate())
-                .productionCompletionDate(order.getProductionCompletionDate())
+                .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
+                .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
+                .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
+                .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
+                .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
                 .detailList(order.getDetailList() != null ?
                         order.getDetailList().stream()
                                 .map(detailMapper::mapperToDesignDetailResponse)
@@ -102,11 +104,11 @@ class OrderMapperImpl implements OrderMapper {
                 .phone(order.getPhone())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
-                .expectedStartDate(order.getExpectedStartDate())
-                .expectedProductCompletionDate(order.getExpectedProductCompletionDate())
-                .estimatedDeliveryDate(order.getEstimatedDeliveryDate())
-                .productionStartDate(order.getProductionStartDate())
-                .productionCompletionDate(order.getProductionCompletionDate())
+                .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
+                .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
+                .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
+                .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
+                .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
                 .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
                 .detailList(order.getDetailList() != null ?
                         order.getDetailList().stream()
