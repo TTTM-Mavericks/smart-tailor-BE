@@ -94,6 +94,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                             .status(OrderStatus.DEPOSIT.name())
                                             .build()
                             );
+                            orderService.confirmOrder(order.getOrderID());
                             var payOSResponse = paymentService.createPayOSPayment(
                                     PaymentRequest
                                             .builder()

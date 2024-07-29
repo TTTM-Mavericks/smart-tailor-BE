@@ -3,6 +3,7 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
+import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,6 +39,7 @@ public class OrderServiceImpl implements OrderService {
     private final BrandService brandService;
     private final DesignService designService;
     private final CustomerService customerService;
+    private final UserService userService;
     private final OrderMapper orderMapper;
     private final PaymentMapper paymentMapper;
     private final DesignDetailMapper detailMapper;
@@ -44,6 +47,7 @@ public class OrderServiceImpl implements OrderService {
     private final DesignDetailRepository detailRepository;
     private final PaymentService paymentService;
     private final SystemPropertiesService systemPropertiesService;
+    private final BrandPropertiesService brandPropertiesService;
     private final MailService mailService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -125,6 +129,7 @@ public class OrderServiceImpl implements OrderService {
                             .orderType("SUB_ORDER")
                             .parentOrder(parentOrder.get())
                             .totalPrice(0)
+                            .expectedStartDate(LocalDateTime.now().plusDays(1))
                             /**
                              * TODO
                              * .employee()
@@ -152,6 +157,7 @@ public class OrderServiceImpl implements OrderService {
                      */
                     .totalPrice(0)
                     .orderType("PARENT_ORDER")
+                    .expectedStartDate(LocalDateTime.now().plusDays(1))
                     .build();
             var orderResponse = orderRepository.save(order);
             return orderMapper.mapToOrderResponse(orderResponse);
@@ -198,11 +204,11 @@ public class OrderServiceImpl implements OrderService {
                 .phone(order.getPhone())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
-                .expectedStartDate(order.getExpectedStartDate())
-                .expectedProductCompletionDate(order.getExpectedProductCompletionDate())
-                .estimatedDeliveryDate(order.getEstimatedDeliveryDate())
-                .productionStartDate(order.getProductionStartDate())
-                .productionCompletionDate(order.getProductionCompletionDate())
+                .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
+                .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
+                .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
+                .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
+                .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
                 .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
                 .detailList(
                         designDetails
@@ -371,10 +377,39 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                                 if (isFinish) {
+                                    var maxDateTime = LocalDateTime.parse(subOrderList.get(0).getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                    for (OrderResponse subOrder : subOrderList) {
+                                        var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                        maxDateTime = maxDateTime.isAfter(completionDate) ? maxDateTime : completionDate;
+                                    }
                                     order.setOrderStatus(OrderStatus.COMPLETED);
+                                    order.setProductionCompletionDate(maxDateTime);
                                     updateOrder(order);
                                     break;
                                 }
+                        }
+                    }
+                    case DELIVERED -> {
+                        var subOrderList = getSubOrderByParentID(orderID);
+                        for (var subOrderResponse : subOrderList) {
+                            var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                            paymentService.createManualPayment(
+                                    PaymentRequest
+                                            .builder()
+                                            .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
+                                            .paymentSenderName("NGUYEN VAN A")
+                                            .paymentSenderBankCode("NCB")
+                                            .paymentSenderBankNumber("9704198526191432198")
+                                            .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
+                                            .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
+                                            .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
+                                            .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
+                                            .orderID(subOrder.getOrderID())
+                                            .paymentAmount(subOrder.getTotalPrice())
+                                            .paymentMethod(PaymentMethod.CREDIT_CARD)
+                                            .paymentType(PaymentType.BRAND_INVOICE)
+                                            .build()
+                            );
                         }
                     }
                 }
@@ -485,7 +520,13 @@ public class OrderServiceImpl implements OrderService {
 
         var existedOrder = order.get();
         existedOrder.setOrderStatus(OrderStatus.valueOf(orderRequest.getStatus()));
-
+        if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING)) {
+            existedOrder.setExpectedStartDate(LocalDateTime.now());
+        } else {
+            if (orderRequest.getStatus().equals(OrderStatus.COMPLETED)) {
+                existedOrder.setProductionCompletionDate(LocalDateTime.now());
+            }
+        }
         var updatedOrder = orderRepository.save(existedOrder);
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
@@ -586,6 +627,19 @@ public class OrderServiceImpl implements OrderService {
                 orderResponse = existedBrandOrder.getOrder();
                 orderResponse.setTotalPrice(price);
                 orderResponse.setQuantity(quantity);
+                var wageProperty = systemPropertiesService.getByName("BRAND_PRODUCTIVITY");
+                var dayCompleted = Integer.parseInt(
+                        brandPropertiesService.getByBrandIDAndPropertyID(
+                                brandID,
+                                wageProperty.getPropertyID()
+                        ).getBrandPropertyValue()
+                );
+                var oldCompleteDate = orderResponse.getExpectedProductCompletionDate();
+                var newCompleteDate = orderResponse.getExpectedStartDate().plusDays((long) Math.ceil(quantity / dayCompleted));
+                orderResponse.setExpectedProductCompletionDate(
+                        oldCompleteDate.isAfter(newCompleteDate) ? oldCompleteDate : newCompleteDate
+                );
+                updateOrder(orderResponse);
                 orderRepository.save(orderResponse);
 
                 basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
@@ -628,6 +682,22 @@ public class OrderServiceImpl implements OrderService {
 
                     detailResponse.add(detail);
                 }
+
+                var wageProperty = systemPropertiesService.getByName("BRAND_PRODUCTIVITY");
+                var dayCompleted = Integer.parseInt(
+                        brandPropertiesService.getByBrandIDAndPropertyID(
+                                brandID,
+                                wageProperty.getPropertyID()
+                        ).getBrandPropertyValue()
+                );
+                logger.info("Day Completed Line 641 {}", dayCompleted);
+                logger.info("Order Quantity Line 642 {}", quantity);
+                orderResponse.setExpectedProductCompletionDate(
+                        orderResponse.getExpectedStartDate()
+                                .plusDays((long) Math.ceil(quantity / dayCompleted))
+                );
+                updateOrder(orderResponse);
+
                 orderResponse = getOrderById(createdOrder.getOrderID()).get();
                 orderResponse.setTotalPrice(price);
                 orderResponse.setQuantity(quantity);
@@ -741,5 +811,30 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         return brandResponses;
+    }
+
+    @Override
+    public void confirmOrder(UUID orderID) {
+        try {
+            var checkOrder = getOrderById(orderID);
+            if (checkOrder.isEmpty()) {
+                throw new Exception(MessageConstant.RESOURCE_NOT_FOUND);
+            }
+            var order = checkOrder.get();
+
+            var subOrderList = getSubOrderByParentID(orderID);
+            String maxDate = subOrderList.get(0).getExpectedProductCompletionDate();
+            var convertMaxDate = LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+//            LocalDateTime maxDate = subOrderList.get(0).getExpectedProductCompletionDate();
+            for (var subOrder : subOrderList) {
+                var expectedCompleteDate = subOrder.getExpectedProductCompletionDate();
+                var convertExpectedCompleteDate = LocalDateTime.parse(expectedCompleteDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                maxDate = convertExpectedCompleteDate.isAfter(convertMaxDate) ? expectedCompleteDate : maxDate;
+            }
+            order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            updateOrder(order);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

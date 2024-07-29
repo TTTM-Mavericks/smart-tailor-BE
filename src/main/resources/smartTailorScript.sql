@@ -25,6 +25,9 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The percent for deposit.', 'DEPOSIT_PERCENT', 'PERCENT', true, '%',
         '50'),
        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The product can produce in one day.', 'BRAND_PRODUCTIVITY', 'PIECE', true, 'PIECE',
+        ''),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The number for divide.', 'DIVIDE_NUMBER', 'NUMBER', true, 'INT',
         '100');
 

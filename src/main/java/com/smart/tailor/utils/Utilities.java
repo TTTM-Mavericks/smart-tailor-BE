@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -155,7 +156,7 @@ public class Utilities {
 
     private static final Set<Integer> usedNumbers = new HashSet<>();
 
-    public static int convertUUIDToInt(String uuidStr){
+    public static int convertUUIDToInt(String uuidStr) {
         if (uuidStr.equals("null")) {
             return 000000;
         }
@@ -179,5 +180,11 @@ public class Utilities {
 
         usedNumbers.add(intValue);
         return intValue;
+    }
+
+    public static String convertLocalDateTimeToString(LocalDateTime localDateTime) {
+        if (localDateTime == null) return null;
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return dateTimeFormatter.format(localDateTime);
     }
 }

@@ -50,4 +50,5 @@ public interface OrderService {
 
     List<String> filterBrandForSpecificOrderBaseOnDesign(UUID designID);
 
+    void confirmOrder(UUID orderID);
 }
