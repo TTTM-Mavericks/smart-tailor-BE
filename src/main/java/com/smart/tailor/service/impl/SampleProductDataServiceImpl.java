@@ -30,11 +30,11 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     @Transactional
     @Override
     public void addNewSampleProductData(SampleProductDataRequest sampleProductDataRequest) {
-        UUID orderID = UUID.fromString(sampleProductDataRequest.getOrderID());
+        UUID subOrderID = UUID.fromString(sampleProductDataRequest.getSubOrderID());
         UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
 
-        var order = orderService.getOrderById(orderID)
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
+        var order = orderService.getOrderById(subOrderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with SubOrderID: " + subOrderID));
 
         var brand = brandService.findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
@@ -60,16 +60,17 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
         );
     }
 
+    @Transactional
     @Override
     public void updateSampleProductData(UUID sampleModelID, SampleProductDataRequest sampleProductDataRequest) {
-        UUID orderID = UUID.fromString(sampleProductDataRequest.getOrderID());
+        UUID subOrderID = UUID.fromString(sampleProductDataRequest.getSubOrderID());
         UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
 
         var sampleProductData = sampleProductDataRepository.findById(sampleModelID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Sample Product Data with SampleModelID: " + sampleModelID));
 
-        var order = orderService.getOrderById(orderID)
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
+        var order = orderService.getOrderById(subOrderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with SubOrderID: " + subOrderID));
 
         var brand = brandService.findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
@@ -105,10 +106,11 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     }
 
     @Override
-    public List<SampleProductDataResponse> getSampleProductDataByOrderID(UUID orderID) {
-        return sampleProductDataRepository
-                .findSampleProductDataByOrderOrderID(orderID)
+    public List<SampleProductDataResponse> getSampleProductDataByParentOrderID(UUID orderID) {
+        return orderService
+                .getSubOrderByParentID(orderID)
                 .stream()
+                .flatMap(subOrder -> sampleProductDataRepository.findSampleProductDataByOrderOrderID(subOrder.getOrderID()).stream())
                 .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
                 .collect(Collectors.toList());
     }

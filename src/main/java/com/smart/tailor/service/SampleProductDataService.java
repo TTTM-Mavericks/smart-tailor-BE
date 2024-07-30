@@ -13,5 +13,5 @@ public interface SampleProductDataService {
 
     SampleProductDataResponse getSampleProductDataByID(UUID sampleModelID);
 
-    List<SampleProductDataResponse> getSampleProductDataByOrderID(UUID orderID);
+    List<SampleProductDataResponse> getSampleProductDataByParentOrderID(UUID parentOrderID);
 }
