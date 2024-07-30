@@ -1,106 +1,115 @@
 package com.smart.tailor.service.impl;
 
-import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.SampleProductData;
+import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.mapper.SampleProductDataMapper;
 import com.smart.tailor.repository.SampleProductDataRepository;
 import com.smart.tailor.service.BrandService;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.service.SampleProductDataService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.SampleProductDataRequest;
+import com.smart.tailor.utils.response.SampleProductDataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class SampleProductDataServiceImpl implements SampleProductDataService {
-    private final SampleProductDataRepository sampleRepository;
+    private final SampleProductDataRepository sampleProductDataRepository;
     private final BrandService brandService;
     private final OrderService orderService;
+    private final SampleProductDataMapper sampleProductDataMapper;
 
+    @Transactional
     @Override
-    public SampleProductData addNewSample(SampleProductDataRequest sampleProductData) {
-        try {
-            if (checkValidateSample(sampleProductData)) {
-                var entity = SampleProductData.builder().orderID(sampleProductData.getOrderID()).brandID(sampleProductData.getBrandID()).images(sampleProductData.getImages() != null ? sampleProductData.getImages() : null).video(sampleProductData.getVideo() != null ? sampleProductData.getVideo() : null).description(sampleProductData.getDescription() != null ? sampleProductData.getDescription() : null).build();
-                var data = sampleRepository.save(entity);
-                return data;
-            } else {
-                throw new RuntimeException(MessageConstant.MISSING_ARGUMENT);
-            }
-        } catch (Exception ex) {
-            throw ex;
+    public void addNewSampleProductData(SampleProductDataRequest sampleProductDataRequest) {
+        UUID orderID = UUID.fromString(sampleProductDataRequest.getOrderID());
+        UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
+
+        var order = orderService.getOrderById(orderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
+
+        var brand = brandService.findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
+
+        byte[] base64ImageUrl = null;
+        if(Optional.ofNullable(sampleProductDataRequest.getImageUrl()).isPresent()){
+            base64ImageUrl = Utilities.encodeStringToBase64(sampleProductDataRequest.getImageUrl());
         }
+
+        byte[] base64Video = null;
+        if(Optional.ofNullable(sampleProductDataRequest.getVideo()).isPresent()){
+            base64Video = Utilities.encodeStringToBase64(sampleProductDataRequest.getVideo());
+        }
+
+        sampleProductDataRepository.save(SampleProductData
+                .builder()
+                .order(order)
+                .brand(brand)
+                .imageUrl(base64ImageUrl)
+                .video(base64Video)
+                .description(sampleProductDataRequest.getDescription())
+                .build()
+        );
     }
 
     @Override
-    public SampleProductData updateSample(SampleProductDataRequest sampleProductData) {
-        try {
-            if (checkValidateSample(sampleProductData)) {
-                var entity = SampleProductData.builder().orderID(sampleProductData.getOrderID()).brandID(sampleProductData.getBrandID()).images(sampleProductData.getImages() != null ? sampleProductData.getImages() : null).video(sampleProductData.getVideo() != null ? sampleProductData.getVideo() : null).description(sampleProductData.getDescription() != null ? sampleProductData.getDescription() : null).build();
-                var data = sampleRepository.save(entity);
-                return data;
-            } else {
-                throw new RuntimeException(MessageConstant.MISSING_ARGUMENT);
-            }
-        } catch (Exception ex) {
-            throw ex;
+    public void updateSampleProductData(UUID sampleModelID, SampleProductDataRequest sampleProductDataRequest) {
+        UUID orderID = UUID.fromString(sampleProductDataRequest.getOrderID());
+        UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
+
+        var sampleProductData = sampleProductDataRepository.findById(sampleModelID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Sample Product Data with SampleModelID: " + sampleModelID));
+
+        var order = orderService.getOrderById(orderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
+
+        var brand = brandService.findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
+
+        byte[] base64ImageUrl = null;
+        if(Optional.ofNullable(sampleProductDataRequest.getImageUrl()).isPresent()){
+            base64ImageUrl = Utilities.encodeStringToBase64(sampleProductDataRequest.getImageUrl());
         }
+
+        byte[] base64Video = null;
+        if(Optional.ofNullable(sampleProductDataRequest.getVideo()).isPresent()){
+            base64Video = Utilities.encodeStringToBase64(sampleProductDataRequest.getVideo());
+        }
+
+        sampleProductDataRepository.save(SampleProductData
+                .builder()
+                .sampleModelID(sampleModelID)
+                .order(order)
+                .brand(brand)
+                .imageUrl(base64ImageUrl)
+                .video(base64Video)
+                .description(sampleProductDataRequest.getDescription())
+                .build()
+        );
     }
 
     @Override
-    public SampleProductData getByID(UUID sampleID) {
-        try {
-            if (sampleID == null) {
-                throw new RuntimeException(MessageConstant.MISSING_ARGUMENT);
-            }
-
-            return sampleRepository.findById(sampleID).isEmpty() ? null : sampleRepository.findById(sampleID).get();
-
-        } catch (Exception ex) {
-            throw ex;
-        }
+    public SampleProductDataResponse getSampleProductDataByID(UUID sampleModelID) {
+        return sampleProductDataRepository
+                .findById(sampleModelID)
+                .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                .orElse(null);
     }
 
     @Override
-    public List<SampleProductData> getByOrderID(UUID orderID) {
-        try {
-            if (orderID == null) {
-                throw new RuntimeException(MessageConstant.MISSING_ARGUMENT);
-            }
-
-            return sampleRepository.findAllByOrderID(orderID);
-        } catch (Exception ex) {
-            throw ex;
-        }
-    }
-
-    private Boolean checkValidateSample(SampleProductDataRequest data) {
-        if (data == null) {
-            return false;
-        }
-        if (data.getOrderID() == null) {
-            return false;
-        }
-        if (data.getBrandID() == null) {
-            return false;
-        }
-
-        var orderID = data.getOrderID();
-        var order = orderService.getOrderById(orderID);
-        if (order.isEmpty()) {
-            return false;
-        }
-        var brandID = data.getBrandID();
-        var brand = brandService.findBrandById(brandID);
-        if (brand.isEmpty()) {
-            return false;
-        }
-
-        String image = data.getImages() != null ? data.getImages() : null;
-        String video = data.getVideo() != null ? data.getVideo() : null;
-        return image != null || video != null;
+    public List<SampleProductDataResponse> getSampleProductDataByOrderID(UUID orderID) {
+        return sampleProductDataRepository
+                .findSampleProductDataByOrderOrderID(orderID)
+                .stream()
+                .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                .collect(Collectors.toList());
     }
 }

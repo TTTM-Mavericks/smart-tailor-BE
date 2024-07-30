@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,57 +37,68 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
     private final ExcelImportService excelImportService;
     private final Logger logger = LoggerFactory.getLogger(ExpertTailoringMaterialServiceImpl.class);
 
-    @Transactional
     @Override
     public void createExpertTailoringMaterial(ExpertTailoringMaterialListRequest expertTailoringMaterialListRequest) {
         String categoryName = expertTailoringMaterialListRequest.getCategoryName();
         String materialName = expertTailoringMaterialListRequest.getMaterialName();
 
+        List<Object> errorDetails = new ArrayList<>();
+        String errorMaterial = null;
+
         var material = materialService.findByMaterialNameAndCategory_CategoryName(
-                        materialName, categoryName)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
-
-        List<Object> duplicateExpertTailoringMaterials = new ArrayList<>();
-
-        for(String expertTailoringName : expertTailoringMaterialListRequest.getExpertTailoringNames()){
-            var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(expertTailoringName)
-                    .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
-
-            var expertTailoringMaterialExisted = findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(
-                    expertTailoring.getExpertTailoringID(), material.getMaterialID());
-
-            if(expertTailoringMaterialExisted.isPresent()){
-                duplicateExpertTailoringMaterials.add(
-                        ExpertTailoringMaterialRequest
-                                .builder()
-                                .materialName(materialName)
-                                .categoryName(categoryName)
-                                .expertTailoringName(expertTailoringName)
-                                .build()
-                );
-                continue;
-            }
-            if (!duplicateExpertTailoringMaterials.isEmpty()) continue;
-
-            ExpertTailoringMaterialKey expertTailoringMaterialKey = ExpertTailoringMaterialKey
-                    .builder()
-                    .expertTailoringID(expertTailoring.getExpertTailoringID())
-                    .materialID(material.getMaterialID())
-                    .build();
-
-            ExpertTailoringMaterial expertTailoringMaterial = ExpertTailoringMaterial
-                    .builder()
-                    .expertTailoringMaterialKey(expertTailoringMaterialKey)
-                    .expertTailoring(expertTailoring)
-                    .material(material)
-                    .status(true)
-                    .build();
-
-            expertTailoringMaterialRepository.save(expertTailoringMaterial);
+                        materialName, categoryName);
+        if(material.isEmpty()){
+            errorMaterial = "Can not find Material with Category Name: " + categoryName + " and Material Name: " + materialName;
         }
 
-        if(!duplicateExpertTailoringMaterials.isEmpty()){
-            throw new DuplicateDataException(MessageConstant.EXPERT_TAILORING_MATERIAL_IS_EXISTED, duplicateExpertTailoringMaterials);
+        for(String expertTailoringName : expertTailoringMaterialListRequest.getExpertTailoringNames()){
+            List<String> errors = new ArrayList<>();
+            var expertTailoringMaterialRequest =  ExpertTailoringMaterialRequest
+                    .builder()
+                    .materialName(materialName)
+                    .categoryName(categoryName)
+                    .expertTailoringName(expertTailoringName)
+                    .build();
+
+            var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(expertTailoringName);
+            if(expertTailoring.isEmpty()){
+                errors.add("Can not find Expert Tailoring with Expert Tailoring Name: " + expertTailoringName);
+            }
+
+            var expertTailoringMaterialExisted = findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(
+                    expertTailoring.get().getExpertTailoringID(), material.get().getMaterialID());
+
+            if(!errorMaterial.isEmpty()){
+                errors.add(errorMaterial);
+            }
+
+            if(expertTailoringMaterialExisted.isPresent()){
+                errors.add("Expert Tailoring Material is Existed");
+            }
+
+            if(!errors.isEmpty()){
+                errorDetails.add(new ErrorDetail(expertTailoringMaterialRequest, errors));
+            } else {
+                ExpertTailoringMaterialKey expertTailoringMaterialKey = ExpertTailoringMaterialKey
+                        .builder()
+                        .expertTailoringID(expertTailoring.get().getExpertTailoringID())
+                        .materialID(material.get().getMaterialID())
+                        .build();
+
+                ExpertTailoringMaterial expertTailoringMaterial = ExpertTailoringMaterial
+                        .builder()
+                        .expertTailoringMaterialKey(expertTailoringMaterialKey)
+                        .expertTailoring(expertTailoring.get())
+                        .material(material.get())
+                        .status(true)
+                        .build();
+
+                expertTailoringMaterialRepository.save(expertTailoringMaterial);
+            }
+        }
+
+        if(!errorDetails.isEmpty()){
+            throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Size", errorDetails);
         }
     }
 

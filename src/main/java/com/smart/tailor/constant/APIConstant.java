@@ -325,10 +325,10 @@ public class APIConstant {
      * Sample Product Data
      */
     public class SampleProductDataAPI {
-        public static final String SAMPLE_PRODUCT = APIConstant.API + "/sample-product";
-        public static final String ADD_SAMPLE_PRODUCT = "/add-sample-product";
-        public static final String UPDATE_SAMPLE_PRODUCT = "/update-sample-product";
-        public static final String GET_SAMPLE_PRODUCT_BY_ID = "/get-sample-product-by-id";
-        public static final String GET_SAMPLE_PRODUCT_BY_ORDER_ID = "/get-sample-product-by-order-id";
+        public static final String SAMPLE_PRODUCT_DATA = APIConstant.API + "/sample-product-data";
+        public static final String ADD_SAMPLE_PRODUCT_DATA = "/add-sample-product-data";
+        public static final String UPDATE_SAMPLE_PRODUCT_DATA = "/update-sample-product-data";
+        public static final String GET_SAMPLE_PRODUCT_DATA_BY_ID = "/get-sample-product-data-by-id";
+        public static final String GET_SAMPLE_PRODUCT_DATA_BY_ORDER_ID = "/get-sample-product-data-by-order-id";
     }
 }
