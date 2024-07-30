@@ -320,4 +320,14 @@ public class APIConstant {
         public static final String GET_ALL_REPORT_BY_BRAND_ID = "/get-all-report-by-brand-id";
 
     }
+
+    /**
+     * Sample Product Data
+     */
+    public class SampleProductDataAPI {
+        public static final String SAMPLE_PRODUCT = APIConstant.API + "/sample-product";
+        public static final String ADD_SAMPLE_PRODUCT = "/add-sample-product";
+        public static final String UPDATE_SAMPLE_PRODUCT = "/add-sample-product";
+        public static final String GET_SAMPLE_PRODUCT_BY_ID = "/get-sample-product-by-id";
+    }
 }

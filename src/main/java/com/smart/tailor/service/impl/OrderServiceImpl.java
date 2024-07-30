@@ -266,7 +266,7 @@ public class OrderServiceImpl implements OrderService {
                                 var subOrderList = getSubOrderByParentID(orderID);
                                 for (OrderResponse subOrder : subOrderList) {
                                     var subOrderObject = getOrderById(subOrder.getOrderID()).get();
-                                    subOrderObject.setOrderStatus(OrderStatus.START_PRODUCING);
+                                    subOrderObject.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
                                     updateOrder(subOrderObject);
                                 }
                             }

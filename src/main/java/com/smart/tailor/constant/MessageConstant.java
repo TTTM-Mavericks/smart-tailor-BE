@@ -385,4 +385,11 @@ public class MessageConstant {
     /*    FAIL     */
     public static final String CAN_NOT_FIND_ANY_REPORT = "Can not find Any Report";
 
+    /**
+     * SAMPLE DATA
+     */
+    public static final String GET_SAMPLE_DATA_SUCCESSFULLY = "Get Sample Product Data Successfully!";
+    public static final String ADD_SAMPLE_DATA_SUCCESSFULLY = "Add Sample Product Data Successfully!";
+    public static final String UPDATE_SAMPLE_DATA_SUCCESSFULLY = "Update Sample Product Data Successfully!";
+
 }
