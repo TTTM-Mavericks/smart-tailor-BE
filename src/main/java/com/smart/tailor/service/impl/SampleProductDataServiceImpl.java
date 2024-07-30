@@ -10,6 +10,7 @@ import com.smart.tailor.utils.request.SampleProductDataRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -58,6 +59,19 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
 
             return sampleRepository.findById(sampleID).isEmpty() ? null : sampleRepository.findById(sampleID).get();
 
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public List<SampleProductData> getByOrderID(UUID orderID) {
+        try {
+            if (orderID == null) {
+                throw new RuntimeException(MessageConstant.MISSING_ARGUMENT);
+            }
+
+            return sampleRepository.findAllByOrderID(orderID);
         } catch (Exception ex) {
             throw ex;
         }

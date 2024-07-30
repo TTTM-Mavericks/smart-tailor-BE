@@ -40,9 +40,26 @@ public class SampleProductDataController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
-            var responseData = dataService.addNewSample(sampleData);
+            var responseData = dataService.updateSample(sampleData);
             response.put("status", 200);
             response.put("message", MessageConstant.UPDATE_SAMPLE_DATA_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(responseData));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", -1);
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping(SampleProductDataAPI.GET_SAMPLE_PRODUCT_BY_ORDER_ID + "/{orderID}")
+    public ResponseEntity<ObjectNode> getSampleProductByOrderID(@PathVariable("orderID") UUID orderID) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var responseData = dataService.getByOrderID(orderID);
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_SAMPLE_DATA_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(responseData));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
