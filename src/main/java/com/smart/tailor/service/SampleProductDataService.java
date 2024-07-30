@@ -3,6 +3,7 @@ package com.smart.tailor.service;
 import com.smart.tailor.entities.SampleProductData;
 import com.smart.tailor.utils.request.SampleProductDataRequest;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface SampleProductDataService {
@@ -11,4 +12,6 @@ public interface SampleProductDataService {
     SampleProductData updateSample(SampleProductDataRequest sampleProductData);
 
     SampleProductData getByID(UUID sampleID);
+
+    List<SampleProductData> getByOrderID(UUID orderID);
 }
