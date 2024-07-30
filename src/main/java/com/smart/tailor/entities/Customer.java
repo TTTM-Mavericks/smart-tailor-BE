@@ -32,7 +32,7 @@ public class Customer extends AuditEntity implements Serializable {
 
     private Boolean gender;
 
-    @Column(name = "date_of_birth")
+    @Column(name = "date_of_birth", nullable = true)
     private Date dateOfBirth;
 
     @Column(columnDefinition = "varchar(255)")

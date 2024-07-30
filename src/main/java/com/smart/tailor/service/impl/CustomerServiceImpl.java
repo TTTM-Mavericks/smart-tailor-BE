@@ -3,6 +3,7 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.FormatConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Customer;
+import com.smart.tailor.entities.User;
 import com.smart.tailor.mapper.CustomerMapper;
 import com.smart.tailor.repository.CustomerRepository;
 import com.smart.tailor.service.CustomerService;
@@ -36,8 +37,14 @@ public class CustomerServiceImpl implements CustomerService {
     private final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Override
-    public void createCustomer(UUID customerID, Boolean gender, Date dateOfBirth, String address, String province, String district, String ward) {
-        customerRepository.createCustomer(customerID, gender, dateOfBirth, address, province, district, ward);
+    public void createCustomer(User user, Boolean gender) {
+        customerRepository.save(
+                Customer
+                        .builder()
+                        .gender(gender)
+                        .user(user)
+                        .build()
+        );
     }
 
     @Override

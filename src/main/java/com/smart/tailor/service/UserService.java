@@ -22,7 +22,7 @@ public interface UserService {
 
     UserResponse convertToUserResponse(User user);
 
-    User registerNewUsers(UserRequest userRequest) throws Exception;
+    User registerNewUsers(UserRequest userRequest);
 
     List<UserResponse> getAllUserResponse();
 

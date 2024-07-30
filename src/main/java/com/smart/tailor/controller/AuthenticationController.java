@@ -26,8 +26,11 @@ import com.smart.tailor.utils.request.AuthenticationRequest;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
+import com.smart.tailor.validate.ValidEmail;
+import com.smart.tailor.validate.ValidUUID;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +40,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -46,19 +50,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping(APIConstant.AuthenticationAPI.AUTHENTICATION)
 @RequiredArgsConstructor
-public class AuthController {
+@Validated
+public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final VerificationTokenService verificationTokenService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RegistrationCompleteEventListener registrationCompleteEventListener;
     private final LogoutService logoutService;
-    private final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String clientId;
 
     @GetMapping(APIConstant.AuthenticationAPI.VERIFY + "/{token}")
-    public ResponseEntity<ObjectNode> verifyAccount(@PathVariable("token") UUID token) {
+    public ResponseEntity<ObjectNode> verifyAccount(@ValidUUID @PathVariable("token") UUID token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -84,7 +89,7 @@ public class AuthController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.RESEND_VERIFICATION_TOKEN + "/{email}")
-    public ResponseEntity<ObjectNode> resendVerificationToken(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> resendVerificationToken(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -117,7 +122,7 @@ public class AuthController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_ACCOUNT + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerifyAccount(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> checkVerifyAccount(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -141,7 +146,7 @@ public class AuthController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_FORGOT_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerifyForgotPassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> checkVerifyForgotPassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -164,7 +169,7 @@ public class AuthController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHECK_VERIFY_CHANGE_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> checkVerifyChangePassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> checkVerifyChangePassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -187,81 +192,25 @@ public class AuthController {
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.REGISTER)
-    public ResponseEntity<ObjectNode> register(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<ObjectNode> register(@Valid @RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
-        try {
-            // Check if enough argument?
-            if (userRequest == null || userRequest.getEmail() == null) {
-                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
-                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-
-            String email = userRequest.getEmail();
-            String password = userRequest.getPassword();
-
-            // Check email is valid?
-            if (!Utilities.isValidEmail(email)) {
-                respon.put("status", ErrorConstant.INVALID_EMAIL.getStatusCode());
-                respon.put("message", ErrorConstant.INVALID_EMAIL.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-
-            // Check password is valid? Only check when it's not google registration
-            if (userRequest.getProvider() != Provider.GOOGLE) {
-                if (!Utilities.isValidPassword(password)) {
-                    respon.put("status", ErrorConstant.INVALID_PASSWORD.getStatusCode());
-                    respon.put("message", ErrorConstant.INVALID_PASSWORD.getStatusCode());
-                    return ResponseEntity.ok(respon);
-                }
-            }
-
-            // Check email is not verify?
-            if (userService.getUserByEmail(userRequest.getEmail()) != null) {
-                if (userService.getUserByEmail(userRequest.getEmail()).getUserStatus().equals(UserStatus.INACTIVE)) {
-                    respon.put("status", ErrorConstant.ACCOUNT_NOT_VERIFIED.getStatusCode());
-                    respon.put("message", ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
-                    return ResponseEntity.ok(respon);
-                }
-            }
-
-            // Check email is duplicated?
-            if (userService.getUserByEmail(userRequest.getEmail()) != null) {
-                respon.put("status", ErrorConstant.DUPLICATE_REGISTERED_EMAIL.getStatusCode());
-                respon.put("message", ErrorConstant.DUPLICATE_REGISTERED_EMAIL.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-
-            var authenResponse = authenticationService.register(userRequest);
-            var registeredUser = userService.getUserByEmail(authenResponse.getUser().getEmail());
-
-            if (registeredUser == null) {
-                respon.put("status", ErrorConstant.REGISTER_NEW_USER_FAILED.getStatusCode());
-                respon.put("message", ErrorConstant.REGISTER_NEW_USER_FAILED.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-
-            if (registeredUser.getProvider().equals(Provider.LOCAL)) {
-                applicationEventPublisher.publishEvent(new RegistrationCompleteEvent(registeredUser, TypeOfVerification.VERIFY_ACCOUNT));
-                logger.info("Publish Event When Register By Local Successfully");
-                respon.put("message", MessageConstant.SEND_MAIL_FOR_VERIFY_ACCOUNT_SUCCESSFULLY);
-            } else {
-                respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
-            }
-            respon.put("status", 200);
-            respon.set("data", objectMapper.valueToTree(authenResponse));
-            return ResponseEntity.ok(respon);
-        } catch (Exception ex) {
-            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
-            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
-            logger.error("ERROR IN REGISTER ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(respon);
+        var authenResponse = authenticationService.register(userRequest);
+        var registeredUser = userService.getUserByEmail(authenResponse.getUser().getEmail());
+        if (registeredUser.getProvider().equals(Provider.LOCAL)) {
+            applicationEventPublisher.publishEvent(new RegistrationCompleteEvent(registeredUser, TypeOfVerification.VERIFY_ACCOUNT));
+            logger.info("Publish Event When Register By Local Successfully");
+            respon.put("message", MessageConstant.SEND_MAIL_FOR_VERIFY_ACCOUNT_SUCCESSFULLY);
+        } else {
+            respon.put("message", MessageConstant.REGISTER_NEW_USER_SUCCESSFULLY);
         }
+        respon.put("status", 200);
+        respon.set("data", objectMapper.valueToTree(authenResponse));
+        return ResponseEntity.ok(respon);
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.FORGOT_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> forgotPassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> forgotPassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -287,7 +236,7 @@ public class AuthController {
     }
 
     @GetMapping(APIConstant.AuthenticationAPI.CHANGE_PASSWORD + "/{email}")
-    public ResponseEntity<ObjectNode> changePassword(@PathVariable("email") String email) {
+    public ResponseEntity<ObjectNode> changePassword(@ValidEmail @PathVariable("email") String email) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -313,7 +262,7 @@ public class AuthController {
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.UPDATE_PASSWORD)
-    public ResponseEntity<ObjectNode> updatePassword(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<ObjectNode> updatePassword(@Valid @RequestBody UserRequest userRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -367,26 +316,14 @@ public class AuthController {
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.LOGIN)
-    public ResponseEntity<ObjectNode> login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<ObjectNode> login(@Valid @RequestBody AuthenticationRequest authenticationRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
-        try {
-            AuthenticationResponse authenticationResponse = authenticationService.login(authenticationRequest);
-            if (authenticationResponse == null) {
-                respon.put("status", ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getStatusCode());
-                respon.put("message", ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-            respon.put("status", 200);
-            respon.put("message", MessageConstant.LOGIN_SUCCESSFULLY);
-            respon.set("data", objectMapper.valueToTree(authenticationResponse));
-            return ResponseEntity.ok(respon);
-        } catch (Exception ex) {
-            respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
-            respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
-            logger.error("ERROR IN LOGIN. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(respon);
-        }
+        AuthenticationResponse authenticationResponse = authenticationService.login(authenticationRequest);
+        respon.put("status", 200);
+        respon.put("message", MessageConstant.LOGIN_SUCCESSFULLY);
+        respon.set("data", objectMapper.valueToTree(authenticationResponse));
+        return ResponseEntity.ok(respon);
     }
 
     @PostMapping(APIConstant.AuthenticationAPI.GOOGLE_LOGIN)

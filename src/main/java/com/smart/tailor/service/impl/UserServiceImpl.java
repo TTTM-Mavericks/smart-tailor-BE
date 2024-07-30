@@ -8,6 +8,7 @@ import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.enums.UserStatus;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
@@ -55,35 +56,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerNewUsers(UserRequest userRequest) throws Exception {
+    public User registerNewUsers(UserRequest userRequest){
         User savedUser = null;
-        try {
-
-            Optional<Roles> role = roleService.findRoleByRoleName(userRequest.getRoleName().trim().toUpperCase());
-            if (!role.isPresent()) {
-                throw new Exception(MessageConstant.CAN_NOT_FIND_ROLE + " " + userRequest.getRoleName());
-            }
-
-            if (!userRequest.getEmail().isEmpty() && !userRequest.getEmail().isBlank() && !userRequest.getPassword().isEmpty() && !userRequest.getPassword().isBlank()) {
-                savedUser = userRepository.save(
-                        User
-                            .builder()
-                            .email(userRequest.getEmail())
-                            .password(userRequest.getPassword())
-                            .language(userRequest.getLanguage())
-                            .provider(userRequest.getProvider())
-                            .userStatus(userRequest.getProvider().equals(Provider.LOCAL) ? UserStatus.INACTIVE : UserStatus.ACTIVE)
-                            .fullName(userRequest.getFullName())
-                            .phoneNumber(userRequest.getPhoneNumber())
-                            .roles(role.get())
-                            .imageUrl(userRequest.getImageUrl())
-                            .build()
-                );
-            }
-            return savedUser;
-        } catch (Exception ex) {
-            throw ex;
+        Optional<Roles> role = roleService.findRoleByRoleName(userRequest.getRoleName().trim().toUpperCase());
+        if (!role.isPresent()) {
+            throw new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ROLE + " " + userRequest.getRoleName());
         }
+
+        if (!userRequest.getEmail().isEmpty() && !userRequest.getEmail().isBlank() && !userRequest.getPassword().isEmpty() && !userRequest.getPassword().isBlank()) {
+            savedUser = userRepository.save(
+                    User
+                        .builder()
+                        .email(userRequest.getEmail())
+                        .password(userRequest.getPassword())
+                        .language(userRequest.getLanguage())
+                        .provider(userRequest.getProvider())
+                        .userStatus(userRequest.getProvider().equals(Provider.LOCAL) ? UserStatus.INACTIVE : UserStatus.ACTIVE)
+                        .fullName(userRequest.getFullName())
+                        .phoneNumber(userRequest.getPhoneNumber())
+                        .roles(role.get())
+                        .imageUrl(userRequest.getImageUrl())
+                        .build()
+            );
+        }
+        return savedUser;
     }
 
     @Override
