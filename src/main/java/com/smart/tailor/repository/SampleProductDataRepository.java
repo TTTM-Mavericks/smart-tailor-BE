@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface SampleProductDataRepository extends JpaRepository<SampleProductData, UUID> {
-    List<SampleProductData> findAllByOrderID(UUID orderID);
+    List<SampleProductData> findSampleProductDataByOrderOrderID(UUID orderID);
 }

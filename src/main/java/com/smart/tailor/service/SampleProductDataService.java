@@ -1,17 +1,17 @@
 package com.smart.tailor.service;
 
-import com.smart.tailor.entities.SampleProductData;
 import com.smart.tailor.utils.request.SampleProductDataRequest;
+import com.smart.tailor.utils.response.SampleProductDataResponse;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface SampleProductDataService {
-    SampleProductData addNewSample(SampleProductDataRequest sampleProductData);
+    void addNewSampleProductData(SampleProductDataRequest sampleProductDataRequest);
 
-    SampleProductData updateSample(SampleProductDataRequest sampleProductData);
+    void updateSampleProductData(UUID sampleModelID,SampleProductDataRequest sampleProductDataRequest);
 
-    SampleProductData getByID(UUID sampleID);
+    SampleProductDataResponse getSampleProductDataByID(UUID sampleModelID);
 
-    List<SampleProductData> getByOrderID(UUID orderID);
+    List<SampleProductDataResponse> getSampleProductDataByOrderID(UUID orderID);
 }
