@@ -12,6 +12,9 @@ public enum OrderStatus {
     /**
      * SUB ORDER
      */
+    CHECKING_SAMPLE_DATA,
+    APPROVED,
+    REJECTED,
     START_PRODUCING,
     FINISH_FIRST_STAGE,
     FINISH_SECOND_STAGE,

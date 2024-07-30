@@ -48,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentService paymentService;
     private final SystemPropertiesService systemPropertiesService;
     private final BrandPropertiesService brandPropertiesService;
+    private final EmployeeService employeeService;
     private final MailService mailService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -130,10 +131,7 @@ public class OrderServiceImpl implements OrderService {
                             .parentOrder(parentOrder.get())
                             .totalPrice(0)
                             .expectedStartDate(LocalDateTime.now().plusDays(1))
-                            /**
-                             * TODO
-                             * .employee()
-                             */
+                            .employee(getSuitableEmp())
                             .build();
                     var orderResponse = orderRepository.save(order);
                     return orderMapper.mapToOrderResponse(orderResponse);
@@ -151,10 +149,6 @@ public class OrderServiceImpl implements OrderService {
                     .phone(phone)
                     .buyerName(buyerName)
                     .orderStatus(orderRequest.getOrderStatus())
-                    /**
-                     * TODO
-                     * .employee()
-                     */
                     .totalPrice(0)
                     .orderType("PARENT_ORDER")
                     .expectedStartDate(LocalDateTime.now().plusDays(1))
@@ -272,7 +266,7 @@ public class OrderServiceImpl implements OrderService {
                                 var subOrderList = getSubOrderByParentID(orderID);
                                 for (OrderResponse subOrder : subOrderList) {
                                     var subOrderObject = getOrderById(subOrder.getOrderID()).get();
-                                    subOrderObject.setOrderStatus(OrderStatus.START_PRODUCING);
+                                    subOrderObject.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
                                     updateOrder(subOrderObject);
                                 }
                             }
@@ -444,7 +438,8 @@ public class OrderServiceImpl implements OrderService {
                     .max(Comparator.comparing(PaymentResponse::getCreateDate));
 
             List<PaymentResponse> paymentList = new ArrayList<>();
-            if (paymentNewest.isPresent() && !paymentNewest.get().getPaymentStatus()) paymentList.add(paymentNewest.get());
+            if (paymentNewest.isPresent() && !paymentNewest.get().getPaymentStatus())
+                paymentList.add(paymentNewest.get());
 
             response.setPaymentList(paymentList);
             return response;
@@ -835,6 +830,23 @@ public class OrderServiceImpl implements OrderService {
             updateOrder(order);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private Employee getSuitableEmp() {
+        try {
+            var empList = employeeService.getAll();
+            if (empList.isEmpty()) {
+                return null;
+            }
+            empList.sort(
+                    Comparator.comparingInt(Employee::getPendingTask)
+                            .thenComparingInt(Employee::getTotalTask)
+                            .thenComparing(Employee::getFailTask, Comparator.reverseOrder())
+            );
+            return empList.get(0);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 }
