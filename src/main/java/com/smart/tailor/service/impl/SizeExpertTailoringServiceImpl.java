@@ -98,6 +98,14 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public SizeExpertTailoringResponse findSizeExpertTailoringByExpertTailoringIDAndSizeID(UUID expertTailoringID, UUID sizeID) {
+        return sizeExpertTailoringRepository
+                .findSizeExpertTailoringByExpertTailoringExpertTailoringIDAndSizeSizeID(expertTailoringID, sizeID)
+                .map(sizeExpertTailoringMapper::mapperToSizeExpertTailoringResponse)
+                .orElse(null);
+    }
+
     @Transactional
     @Override
     public void updateSizeExpertTailoring(SizeExpertTailoringRequest sizeExpertTailoringRequest) {

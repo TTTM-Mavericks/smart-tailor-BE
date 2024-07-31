@@ -14,7 +14,9 @@ public interface SizeExpertTailoringService {
 
     List<SizeExpertTailoringResponse> findAllSizeExpertTailoring();
 
-    List<SizeExpertTailoringResponse> findAllSizeExpertTailoringID(UUID expectTailoringID);
+    List<SizeExpertTailoringResponse> findAllSizeExpertTailoringID(UUID expertTailoringID);
+
+    SizeExpertTailoringResponse findSizeExpertTailoringByExpertTailoringIDAndSizeID(UUID expertTailoringID, UUID sizeID);
 
     void updateSizeExpertTailoring(SizeExpertTailoringRequest sizeExpertTailoringRequest);
 
