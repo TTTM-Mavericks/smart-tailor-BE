@@ -49,20 +49,14 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
         var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(sizeExpertTailoringRequest.getExpertTailoringName())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Expert Tailoring with ExpertTailoringName: " + sizeExpertTailoringRequest.getExpertTailoringName()));
 
-        var sizeExpertTailoringExisted = sizeExpertTailoringRepository.existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndMinFabricAndMaxFabricAndUnit(
+        var sizeExpertTailoringExisted = sizeExpertTailoringRepository.existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndRatio(
                 sizeExpertTailoringRequest.getExpertTailoringName(),
                 sizeExpertTailoringRequest.getSizeName(),
-                sizeExpertTailoringRequest.getMinFabric(),
-                sizeExpertTailoringRequest.getMaxFabric(),
-                sizeExpertTailoringRequest.getUnit()
+                sizeExpertTailoringRequest.getRatio()
         );
 
         if (sizeExpertTailoringExisted) {
             throw new ItemAlreadyExistException("Size Expert Tailoring is existed");
-        }
-
-        if (sizeExpertTailoringRequest.getMinFabric() > sizeExpertTailoringRequest.getMaxFabric()) {
-            throw new BadRequestException("Min Fabric can not greater than Max Fabric");
         }
 
         SizeExpertTailoringKey sizeExpertTailoringKey = SizeExpertTailoringKey
@@ -75,11 +69,9 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 SizeExpertTailoring
                         .builder()
                         .sizeExpertTailoringKey(sizeExpertTailoringKey)
-                        .minFabric(sizeExpertTailoringRequest.getMinFabric())
-                        .maxFabric(sizeExpertTailoringRequest.getMaxFabric())
                         .size(size)
                         .expertTailoring(expertTailoring)
-                        .unit(sizeExpertTailoringRequest.getUnit())
+                        .ratio(sizeExpertTailoringRequest.getRatio())
                         .status(true)
                         .build()
         );
@@ -115,20 +107,14 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
         var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(sizeExpertTailoringRequest.getExpertTailoringName())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Expert Tailoring with ExpertTailoringName: " + sizeExpertTailoringRequest.getExpertTailoringName()));
 
-        var sizeExpertTailoringExisted = sizeExpertTailoringRepository.existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndMinFabricAndMaxFabricAndUnit(
+        var sizeExpertTailoringExisted = sizeExpertTailoringRepository.existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndRatio(
                 sizeExpertTailoringRequest.getExpertTailoringName(),
                 sizeExpertTailoringRequest.getSizeName(),
-                sizeExpertTailoringRequest.getMinFabric(),
-                sizeExpertTailoringRequest.getMaxFabric(),
-                sizeExpertTailoringRequest.getUnit()
+                sizeExpertTailoringRequest.getRatio()
         );
 
         if (sizeExpertTailoringExisted) {
             throw new ItemAlreadyExistException("Size Expert Tailoring is existed");
-        }
-
-        if (sizeExpertTailoringRequest.getMinFabric() > sizeExpertTailoringRequest.getMaxFabric()) {
-            throw new BadRequestException("Min Fabric can not greater than Max Fabric");
         }
 
         SizeExpertTailoringKey sizeExpertTailoringKey = SizeExpertTailoringKey
@@ -141,11 +127,9 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 SizeExpertTailoring
                         .builder()
                         .sizeExpertTailoringKey(sizeExpertTailoringKey)
-                        .minFabric(sizeExpertTailoringRequest.getMinFabric())
-                        .maxFabric(sizeExpertTailoringRequest.getMaxFabric())
                         .size(size)
                         .expertTailoring(expertTailoring)
-                        .unit(sizeExpertTailoringRequest.getUnit())
+                        .ratio(sizeExpertTailoringRequest.getRatio())
                         .status(true)
                         .build()
         );
@@ -168,7 +152,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
             logger.info("Inside getSizeExpertTailoringRequestFromExcel Method");
 
             boolean inValidData = false;
-            List<Object> cellErrorResponses = new ArrayList<>();
+            Set<SizeExpertTailoringRequest> duplicateExcelData = new HashSet<>();
 
             int rowIndex = 2;
             while (rowIndex <= sheet.getLastRowNum()) {
@@ -183,8 +167,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 boolean rowDataValid = true;
                 boolean isValid = false;
                 String message = "";
-                double doubleValue = -1;
-                for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+                for (int cellIndex = 0; cellIndex < 3; cellIndex++) {
                     Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     if (cell == null || cell.getCellType() == CellType.BLANK) {
                         inValidData = true;
@@ -194,173 +177,127 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                         switch (cellIndex) {
                             case 0:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    sizeExpertTailoringRequest.setExpertTailoringName(cell.getStringCellValue());
+                                    var expertTailoringName = cell.getStringCellValue();
+                                    if(expertTailoringName.length() > 50){
+                                        errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else {
+                                        sizeExpertTailoringRequest.setExpertTailoringName(expertTailoringName);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " must be data type string");
                                 }
                                 break;
                             case 1:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    sizeExpertTailoringRequest.setSizeName(cell.getStringCellValue());
+                                    var sizeName = cell.getStringCellValue();
+                                    if(sizeName.length() > 50){
+                                        errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 5 characters");
+                                        inValidData = true;
+                                        rowDataValid = false;
+                                    } else{
+                                        sizeExpertTailoringRequest.setSizeName(sizeName);
+                                    }
                                 } else {
                                     inValidData = true;
                                     rowDataValid = false;
-                                    errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
+                                    errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " must be data type string");
                                 }
                                 break;
                             case 2:
                                 isValid = false;
-                                doubleValue = -1;
-                                message = " Require Data Type Numeric!";
+                                double ratio = -1;
+                                message = " must be data type numeric";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        doubleValue = (double) cell.getNumericCellValue();
+                                        ratio = (double) cell.getNumericCellValue();
                                         isValid = true;
                                         break;
                                     case STRING:
                                         try {
-                                            doubleValue = Double.parseDouble(cell.getStringCellValue());
+                                            ratio = Double.parseDouble(cell.getStringCellValue());
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
-                                            System.out.println(e.getMessage());
                                         }
                                         break;
                                 }
-                                if(isValid && doubleValue >= 0){
-                                    sizeExpertTailoringRequest.setMinFabric(doubleValue);
+                                if(isValid && ratio >= 0){
+                                    sizeExpertTailoringRequest.setRatio(ratio);
                                 }else{
-                                    if(isValid && doubleValue < 0){
-                                        message = " Require Positive Numeric!";
+                                    if(isValid && ratio < 0){
+                                        message = " must be positive numeric";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;
                                     errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + message);
                                 }
-                                break;
-                            case 3:
-                                isValid = false;
-                                doubleValue = -1;
-                                message = " Require Data Type Numeric!";
-                                switch (cell.getCellType()) {
-                                    case NUMERIC:
-                                        doubleValue = (double) cell.getNumericCellValue();
-                                        isValid = true;
-                                        break;
-                                    case STRING:
-                                        try {
-                                            doubleValue = Double.parseDouble(cell.getStringCellValue());
-                                            isValid = true;
-                                        } catch (NumberFormatException e) {
-                                            isValid = false;
-                                            System.out.println(e.getMessage());
-                                        }
-                                        break;
-                                }
-                                if(isValid && doubleValue >= 0){
-                                    sizeExpertTailoringRequest.setMaxFabric(doubleValue);
-                                }else{
-                                    if(isValid && doubleValue < 0){
-                                        message = " Require Positive Numeric!";
-                                    }
-                                    inValidData = true;
-                                    rowDataValid = false;
-                                    errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + message);
-                                }
-                                break;
-                            case 4:
-                                if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
-                                    sizeExpertTailoringRequest.setUnit(cell.getStringCellValue());
-                                } else {
-                                    inValidData = true;
-                                    rowDataValid = false;
-                                    errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " Require Data Type String!");
-                                }
-                                break;
-                            default:
                                 break;
                         }
+
                     }
                 }
 
-                if (rowDataValid) {
-                    sizeExpertTailoringRequests.add(Pair.of(rowIndex + 1, sizeExpertTailoringRequest));
-                } else {
-                    errorFields.add(new ErrorDetail(errors));
+                if (!duplicateExcelData.add(sizeExpertTailoringRequest)) {
+                    errors.add("Duplicate Material Request Data at row Index " + (rowIndex + 1) + " in excel file");
                 }
-                rowIndex++;
-            }
-
-            if (sizeExpertTailoringRequests.isEmpty()) {
-                throw new BadRequestException("Size Expert Tailoring Excel File Has Empty Data");
-            }
-
-            Set<SizeExpertTailoringRequest> duplicateExcelData = new HashSet<>();
-
-            for (var pairSizeExpertTailoringRequest : sizeExpertTailoringRequests) {
-                var indexSizeExpertTailoringRequest = pairSizeExpertTailoringRequest.getFirst();
-                var sizeExpertTailoringRequest = pairSizeExpertTailoringRequest.getSecond();
-                List<String> errors = new ArrayList<>();
 
                 var size = sizeService.findBySizeName(sizeExpertTailoringRequest.getSizeName());
                 if(size.isEmpty()){
-                    errors.add("Size_Name at row Index: " + indexSizeExpertTailoringRequest + " Not Found!");
+                    errors.add("Size_Name at row Index " + (rowIndex + 1) + " Not Found!");
                 }
-
 
                 var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(sizeExpertTailoringRequest.getExpertTailoringName());
                 if(expertTailoring.isEmpty()){
-                    errors.add("Expert_Tailoring_Name at row Index: " + indexSizeExpertTailoringRequest + " Not Found!");
+                    errors.add("Expert_Tailoring_Name at row Index " + (rowIndex + 1) + " Not Found!");
                 }
 
-                if(!duplicateExcelData.add(sizeExpertTailoringRequest)){
-                    errors.add("Duplicate Size Expert Tailoring Request Data at row Index: " + indexSizeExpertTailoringRequest + " in Excel File");
-                }
-
-                var sizeExpertTailoringExisted = sizeExpertTailoringRepository.existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndMinFabricAndMaxFabricAndUnit(
-                        sizeExpertTailoringRequest.getExpertTailoringName(),
-                        sizeExpertTailoringRequest.getSizeName(),
-                        sizeExpertTailoringRequest.getMinFabric(),
-                        sizeExpertTailoringRequest.getMaxFabric(),
-                        sizeExpertTailoringRequest.getUnit()
-                );
-
-                if (sizeExpertTailoringExisted) {
-                    errors.add("Size Expert Tailoring is Existed");
-                }
-
-                if (sizeExpertTailoringRequest.getMinFabric() > sizeExpertTailoringRequest.getMaxFabric()) {
-                    errors.add("Min Fabric can not greater than Max Fabric");
-                }
-
-                if (errors.size() > 0){
-                    errorFields.add(new ErrorDetail(sizeExpertTailoringRequest, errors));
-                } else {
-                    SizeExpertTailoringKey sizeExpertTailoringKey = SizeExpertTailoringKey
-                            .builder()
-                            .expertTailoringID(expertTailoring.get().getExpertTailoringID())
-                            .sizeID(size.get().getSizeID())
-                            .build();
-
-                    sizeExpertTailoringRepository.save(
-                            SizeExpertTailoring
-                                    .builder()
-                                    .sizeExpertTailoringKey(sizeExpertTailoringKey)
-                                    .minFabric(sizeExpertTailoringRequest.getMinFabric())
-                                    .maxFabric(sizeExpertTailoringRequest.getMaxFabric())
-                                    .size(size.get())
-                                    .expertTailoring(expertTailoring.get())
-                                    .unit(sizeExpertTailoringRequest.getUnit())
-                                    .status(true)
-                                    .build()
+                if (rowDataValid){
+                    var sizeExpertTailoringExisted = sizeExpertTailoringRepository.existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndRatio(
+                            sizeExpertTailoringRequest.getExpertTailoringName(),
+                            sizeExpertTailoringRequest.getSizeName(),
+                            sizeExpertTailoringRequest.getRatio()
                     );
+
+                    if (sizeExpertTailoringExisted) {
+                        errors.add("Size Expert Tailoring is Existed");
+                    }
+
+                    if(errors.isEmpty()) {
+                        SizeExpertTailoringKey sizeExpertTailoringKey = SizeExpertTailoringKey
+                                .builder()
+                                .expertTailoringID(expertTailoring.get().getExpertTailoringID())
+                                .sizeID(size.get().getSizeID())
+                                .build();
+
+                        sizeExpertTailoringRepository.save(
+                                SizeExpertTailoring
+                                        .builder()
+                                        .sizeExpertTailoringKey(sizeExpertTailoringKey)
+                                        .size(size.get())
+                                        .expertTailoring(expertTailoring.get())
+                                        .ratio(sizeExpertTailoringRequest.getRatio())
+                                        .status(true)
+                                        .build()
+                        );
+                        sizeExpertTailoringRequests.add(Pair.of(rowIndex + 1, sizeExpertTailoringRequest));
+                    }
                 }
+
+                if (!errors.isEmpty())
+                    errorFields.add(new ErrorDetail(errors));
+                rowIndex++;
+            }
+
+            if(sizeExpertTailoringRequests.isEmpty() && errorFields.isEmpty()){
+                throw new BadRequestException("Material Request Excel File Has Empty Data");
             }
 
             if (!errorFields.isEmpty()) {
-                throw new ExcelFileInvalidDataTypeException("Some Data could not be processed correctly", errorFields);
+                throw new ExcelFileInvalidDataTypeException("The Size Expert Tailoring Excel File have " + sizeExpertTailoringRequests.size() + " create Success and " + errorFields.size() + " create Failure", errorFields);
             }
 
         } catch (IOException ex) {
@@ -370,7 +307,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
     }
 
     private boolean isRowCompletelyEmptyForSizeExpertTailoring(Row row) {
-        for (int cellIndex = 0; cellIndex < 5; cellIndex++) {
+        for (int cellIndex = 0; cellIndex < 3; cellIndex++) {
             Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
             if (cell != null && cell.getCellType() != CellType.BLANK) {
                 return false;
@@ -383,9 +320,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
         switch (cellIndex) {
             case 0: return "Expert_Tailoring_Name";
             case 1: return "Size_Name";
-            case 2: return "Min_Fabric";
-            case 3: return "Max_Fabric";
-            case 4: return "Unit";
+            case 2: return "Ratio";
             default: return "Unknown";
         }
     }
