@@ -43,6 +43,8 @@ public class Order extends AuditEntity implements Serializable {
 
     private Integer quantity;
 
+    private Float rating;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
     private OrderStatus orderStatus;

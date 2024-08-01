@@ -4,6 +4,7 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
+import com.smart.tailor.utils.request.RatingOrderRequest;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.utils.response.OrderStageResponse;
@@ -54,4 +55,6 @@ public interface OrderService {
     void confirmOrder(UUID orderID);
 
     List<OrderStageResponse> getOrderStageByOrderID(UUID orderID);
+  
+    void ratingOrder(RatingOrderRequest ratingOrderRequest);
 }

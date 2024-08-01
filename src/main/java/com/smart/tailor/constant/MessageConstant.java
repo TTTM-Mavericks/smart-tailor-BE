@@ -321,6 +321,7 @@ public class MessageConstant {
     public static final String GET_ORDER_STAGE_SUCCESSFULLY = "Get Order Successfully";
     public static final String CHANGE_ORDER_STATUS_SUCCESSFULLY = "Change Order Status Successfully";
     public static final String BRAND_PICK_ORDER_SUCCESSFULLY = "Brand Picked Order Successfully";
+    public static final String RATING_ORDER_SUCCESSFULLY = "Rating Order Successfully";
 
     /**
      * System Image

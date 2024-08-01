@@ -18,6 +18,7 @@ public class OrderCustomResponse {
     private UUID orderID;
     private UUID parentOrderID;
     private Integer quantity;
+    private Float rating;
     private OrderStatus orderStatus;
     private String orderType;
     private String address;

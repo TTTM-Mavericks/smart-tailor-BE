@@ -19,6 +19,7 @@ public class OrderResponse {
     private UUID parentOrderID;
     private Integer quantity;
     private OrderStatus orderStatus;
+    private Float rating;
     private String orderType;
     private String address;
     private String province;

@@ -239,32 +239,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         return null;
     }
 
-//    @Override
-//    public DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID sizeID) {
-//        try {
-//            if (designID == null) {
-//                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
-//            }
-//
-//            if (sizeID == null) {
-//                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": size");
-//            }
-//            if (!Utilities.isStringNotNullOrEmpty(sizeID.toString())) {
-//                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": size");
-//            }
-//
-//            return designDetailMapper.mapperToDesignDetailResponse(
-//                    designDetailRepository.findDesignDetailByDesignDesignIDAndSizeSizeID(
-//                            designID,
-//                            sizeID
-//                    )
-//            );
-//        } catch (Exception ex) {
-//            logger.error("ERROR IN DESIGN DETAIL SERVICE: {}", ex.getMessage());
-//            return null;
-//        }
-//    }
-
     @Override
     public DesignDetailResponse updateDesignDetail(DesignDetail designDetail) {
         return designDetailMapper.mapperToDesignDetailResponse(designDetailRepository.save(designDetail));
@@ -291,7 +265,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     }
 
     @Override
-    public Double calculateTotalPriceForSpecificOrder(UUID parentOrderID) throws Exception {
+    public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(UUID parentOrderID) throws Exception {
         var orderCustomResponse = orderService.getOrderByOrderID(parentOrderID);
         var listSubOrders = orderService.getSubOrderByParentID(parentOrderID);
         var designResponse = orderCustomResponse.getDesignResponse();
@@ -322,19 +296,25 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         );
 
         // Loop each SubOrder of ParentOrder
-        double totalPriceOfOrder = 0;
+        double totalPriceOfParentOrder = 0;
+        double customerPriceDeposit = 0;
+        double customerPriceLaborQuantity = 0;
+        List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
         for (var subOrder : listSubOrders) {
             List<DesignDetail> designDetailList = getDesignDetailBySubOrderID(subOrder.getOrderID());
+
             // Calculate All Quantity of Each Brand Can Pick
             int totalQuantityOfSubOrder = designDetailList
                     .stream()
                     .mapToInt(DesignDetail::getQuantity)
                     .sum();
 
-            double totalPriceOfEachSubOrder = 0.0;
-
+            double totalPriceOfEachSubOrder = 0;
+            double brandPriceDeposit = 0;
+            double brandPriceLaborQuantity = 0;
+            Brand brand = null;
             for (DesignDetail designDetail : designDetailList) {
-                var brand = designDetail.getBrand();
+                brand = designDetail.getBrand();
                 var designDetailQuantity = designDetail.getQuantity();
                 var size = designDetail.getSize();
 
@@ -344,64 +324,65 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                         size.getSizeID()
                 );
                 var ratio = sizeExpertTailoring.getRatio();
-                logger.error("Size Expert Tailoring with Expert Tailoring Name {}", sizeExpertTailoring.getExpertTailoringName());
-                logger.error("Size Expert Tailoring with Size Name {}", sizeExpertTailoring.getSizeName());
-                logger.error("Size Expert Tailoring with Ratio {}", sizeExpertTailoring.getRatio());
 
                 // Calculate All PartOfDesign Of One Design of Each SubOrder With BrandMaterialPrice And Ratio from SizeExpertTailoring
                 var totalPricePartOfDesignOfSubOrder = 0;
-                logger.error("Brand ID {} and Brand Email {} and totalPriceOfEachSubOrder {}", brand.getBrandID(), brand.getUser().getEmail(), totalQuantityOfSubOrder);
                 for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
                     totalPricePartOfDesignOfSubOrder += calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio);
                 }
-                logger.error("Total PartOfDesign Price of Brand Email {} is {}", brand.getUser().getEmail(), totalPricePartOfDesignOfSubOrder);
 
                 // Calculate All ItemMask Of One Design of Each SubOrder With BrandMaterialPrice
                 var totalPriceItemMaskOfSubOrder = 0;
                 for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
                     totalPriceItemMaskOfSubOrder += calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID());
                 }
-                logger.error("Total ItemMask Price of Brand Email {} is {}", brand.getUser().getEmail(), totalPriceItemMaskOfSubOrder);
 
                 // Calculate All Quantity of Each Brand to Get BrandLaborQuantity of Order
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
-                logger.error("Total Quantity of Order : {} and BrandLaborQuantity: {}", designDetailQuantity, brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
 
+                brandPriceDeposit += (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder) * designDetailQuantity;
+                brandPriceLaborQuantity += brandLaborQuantityOfSubOrder.getLaborCostPerQuantity() * designDetailQuantity;
+                customerPriceDeposit += (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder) * designDetailQuantity;
+                customerPriceLaborQuantity += brandLaborQuantityOfSubOrder.getLaborCostPerQuantity() * designDetailQuantity;
                 totalPriceOfEachSubOrder += (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder + brandLaborQuantityOfSubOrder.getLaborCostPerQuantity()) * designDetailQuantity;
-                logger.error("Total Price of SubOrder {}", totalPriceOfEachSubOrder);
             }
-
-            totalPriceOfOrder += totalPriceOfEachSubOrder;
+            BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
+                    .builder()
+                    .brandID(brand.getBrandID())
+                    .subOrderID(subOrder.getOrderID())
+                    .brandPriceDeposit(brandPriceDeposit)
+                    .brandPriceFirstStage(brandPriceLaborQuantity / 2)
+                    .brandPriceSecondStage(brandPriceLaborQuantity / 2)
+                    .build();
+            brandDetailPriceResponseList.add(brandDetailPriceResponse);
+            totalPriceOfParentOrder += totalPriceOfEachSubOrder;
         }
-        logger.error("Total Price Of Parent Order {}", totalPriceOfOrder);
-        return totalPriceOfOrder;
+
+        return OrderDetailPriceResponse
+                .builder()
+                .totalPriceOfParentOrder(totalPriceOfParentOrder)
+                .customerPriceDeposit(customerPriceDeposit)
+                .customerPriceFirstStage(customerPriceLaborQuantity / 2)
+                .customerSecondStage(customerPriceLaborQuantity / 2)
+                .brandDetailPriceResponseList(brandDetailPriceResponseList)
+                .build();
     }
 
-    private Integer calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partOfDesignInformation, UUID brandID, Double ratio) {
-        // Apply Ratio from SizeExpertTailoring to Width and Height of Each PartOfDesign
-        var width = partOfDesignInformation.getWidth() * ratio; // in Centimeter
-        var height = partOfDesignInformation.getHeight() * ratio; // in Centimeter
-        logger.error("Width After Applying Ratio {}", width);
-        logger.error("Height After Applying Ratio {}", height);
-        var materialID = partOfDesignInformation.getMaterialID();
+    private Integer calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, UUID brandID, Double ratio) {
+        var width = partInfo.getWidth() * ratio; // in Centimeter
+        var height = partInfo.getHeight() * ratio; // in Centimeter
+        var materialID = partInfo.getMaterialID();
         var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
-        var formular = (int) Math.ceil(width * height / 10000.0 * brandPriceMaterial);
-        logger.error("MaterialName: {} and BrandPrice: {} => Price Result in M^2 : {}", partOfDesignInformation.getMaterialName(), brandPriceMaterial, formular);
-        // Convert Cm^2 into M^2 by Dividing to 10000
-        return formular;
+        var price = (int) Math.ceil(width * height / 10000.0 * brandPriceMaterial);
+        return price;
     }
 
-    private Integer calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInformation, UUID brandID) {
-        var scaleX_Pixel = Math.abs(itemMaskInformation.getScaleX()); // in Pixel
-        var scaleY_Pixel = Math.abs(itemMaskInformation.getScaleY()); // in Pixel
-        var scaleX_Centimeter = scaleX_Pixel * PIXEL_TO_CENTIMETER;
-        var scaleY_Centimeter = scaleY_Pixel * PIXEL_TO_CENTIMETER;
-
-        var materialID = itemMaskInformation.getMaterialID();
+    private Integer calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, UUID brandID) {
+        var scaleX_Centimeter = Math.abs(itemMaskInfo.getScaleX()) * PIXEL_TO_CENTIMETER;
+        var scaleY_Centimeter = Math.abs(itemMaskInfo.getScaleY()) * PIXEL_TO_CENTIMETER;
+        var materialID = itemMaskInfo.getMaterialID();
         var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
-        var formular = (int) Math.ceil(scaleX_Centimeter * scaleY_Centimeter / 10000.0 * brandPriceMaterial);
-        logger.error("MaterialName: {} and BrandPrice: {} => Price Result in M^2 : {}", itemMaskInformation.getMaterialName(), brandPriceMaterial, formular);
-        // Convert Cm^2 into M^2 by Dividing to 10000
-        return formular;
+        var price = (int) Math.ceil(scaleX_Centimeter * scaleY_Centimeter / 10000.0 * brandPriceMaterial);
+        return price;
     }
 }

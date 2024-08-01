@@ -10,6 +10,7 @@ import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
+import com.smart.tailor.utils.request.RatingOrderRequest;
 import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -225,5 +227,15 @@ public class OrderController {
             logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
             return null;
         }
+    }
+
+    @PostMapping(OrderAPI.RATING_ORDER)
+    public ResponseEntity<ObjectNode> ratingOrder(@Valid @RequestBody RatingOrderRequest ratingOrderRequest) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        orderService.ratingOrder(ratingOrderRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", MessageConstant.RATING_ORDER_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
     }
 }
