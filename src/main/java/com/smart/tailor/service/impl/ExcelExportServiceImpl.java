@@ -507,7 +507,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         style.setLocked(true);
         style.setAlignment(HorizontalAlignment.CENTER);
         createCell(row, 0, "Size Expert Tailoring", style, sheet);
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 2));
         font.setFontHeightInPoints((short) 10);
 
         // Create Header of Excel Sheet
@@ -517,9 +517,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         style.setFont(font);
         createCell(row, 0, "Expert_Tailoring_Name", style, sheet);
         createCell(row, 1, "Size_Name", style, sheet);
-        createCell(row, 2, "Min_Fabric", style, sheet);
-        createCell(row, 3, "Max_Fabric", style, sheet);
-        createCell(row, 4, "Unit", style, sheet);
+        createCell(row, 2, "Ratio", style, sheet);
 
         int rowIndex = 2;
         XSSFFont fontData = workbook.createFont();
@@ -566,37 +564,18 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         sizeNameValidation.createErrorBox("Invalid Input", "Size Name must be one of the predefined values");
         sheet.addValidationData(sizeNameValidation);
 
-        // Apply Constraint to Cell 2 <=> minFabric
+        // Apply Constraint to Cell 2 <=> Ratio
         constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(C3), C3 >= 0)");
-        CellRangeAddressList minFabricRange = new CellRangeAddressList(2, 300, 2,2);
-        DataValidation minFabricValidation = dataValidationHelper.createValidation(constraint, minFabricRange);
-        minFabricValidation.setShowErrorBox(true);
-        minFabricValidation.createErrorBox("Invalid Input", "Min Fabric must be Type Number And Non-Negative Number");
-        sheet.addValidationData(minFabricValidation);
-
-        // Apply Constraint to Cell 3 <=> maxFabric
-        constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(D3), D3 >= 0)");
-        CellRangeAddressList maxFabricRange = new CellRangeAddressList(2, 300, 3,3);
-        DataValidation maxFabricValidation = dataValidationHelper.createValidation(constraint, maxFabricRange);
-        maxFabricValidation.setShowErrorBox(true);
-        maxFabricValidation.createErrorBox("Invalid Input", "Max Fabric must be Type Number And Non-Negative Number");
-        sheet.addValidationData(maxFabricValidation);
-
-        // Apply Constraint to Cell 4 <=> Unit
-        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(E3)");
-        CellRangeAddressList unitRange = new CellRangeAddressList(2, 300, 4, 4);
-        DataValidation unitValidation = dataValidationHelper.createValidation(constraint, unitRange);
-        unitValidation.setShowErrorBox(true);
-        unitValidation.createErrorBox("Invalid Input", "Unit must be Type String");
-        sheet.addValidationData(unitValidation);
+        CellRangeAddressList ratioRange = new CellRangeAddressList(2, 300, 2,2);
+        DataValidation ratioValidation = dataValidationHelper.createValidation(constraint, ratioRange);
+        ratioValidation.setShowErrorBox(true);
+        ratioValidation.createErrorBox("Invalid Input", "Ratio must be Type Number And Non-Negative Number");
+        sheet.addValidationData(ratioValidation);
 
         // Set Width for Specific Column
         sheet.setColumnWidth(0, 35 * 256);
         sheet.setColumnWidth(1, 35 * 256);
         sheet.setColumnWidth(2, 18 * 256);
-        sheet.setColumnWidth(3, 18 * 256);
-        sheet.setColumnWidth(4, 18 * 256);
-
 
         // Export Data to Excel
         ServletOutputStream outputStream = response.getOutputStream();

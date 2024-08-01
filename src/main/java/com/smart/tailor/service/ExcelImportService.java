@@ -13,7 +13,5 @@ public interface ExcelImportService {
 
     List<ExpertTailoringRequest> getExpertTailoringDataFromExcel(InputStream inputStream);
 
-    List<SizeExpertTailoringRequest> getSizeExpertTailoringRequestFromExcel(InputStream inputStream);
-
     List<ExpertTailoringMaterialListRequest> getExpertTailoringMaterialDataFromExcel(InputStream inputStream);
 }

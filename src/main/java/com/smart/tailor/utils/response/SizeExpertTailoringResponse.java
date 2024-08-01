@@ -20,11 +20,9 @@ public class SizeExpertTailoringResponse {
 
     private String sizeName;
 
-    private Double minFabric;
+    private Double ratio;
 
-    private Double maxFabric;
-
-    private String unit;
+    private Boolean status;
 
     private String createDate;
 

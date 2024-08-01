@@ -11,7 +11,8 @@ public interface SizeExpertTailoringMapper {
     @Mapping(source = "sizeExpertTailoring.size.sizeName", target = "sizeName")
     @Mapping(source = "sizeExpertTailoring.sizeExpertTailoringKey.expertTailoringID", target = "expertTailoringID")
     @Mapping(source = "sizeExpertTailoring.sizeExpertTailoringKey.sizeID", target = "sizeID")
-    @Mapping(source = "sizeExpertTailoring.unit", target = "unit")
+    @Mapping(source = "sizeExpertTailoring.ratio", target = "ratio")
+    @Mapping(source = "sizeExpertTailoring.status", target = "status")
     @Mapping(source = "sizeExpertTailoring.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(source = "sizeExpertTailoring.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     SizeExpertTailoringResponse mapperToSizeExpertTailoringResponse(SizeExpertTailoring sizeExpertTailoring);

@@ -27,12 +27,7 @@ public class SizeExpertTailoring extends AuditEntity implements Serializable {
     @JoinColumn(name = "size_id", referencedColumnName = "size_id", nullable = false, insertable = false, updatable = false)
     private Size size;
 
-    private Double minFabric;
-
-    private Double maxFabric;
-
-    @Column(columnDefinition = "varchar(50)")
-    private String unit;
+    private Double ratio;
 
     private Boolean status;
 }

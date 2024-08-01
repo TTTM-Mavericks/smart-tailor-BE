@@ -170,7 +170,6 @@ public class MaterialServiceImpl implements MaterialService {
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
-                                            System.out.println(e.getMessage());
                                         }
                                         break;
                                 }
