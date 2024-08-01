@@ -6,6 +6,7 @@ import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
+import com.smart.tailor.utils.response.OrderStageResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,4 +52,6 @@ public interface OrderService {
     List<String> filterBrandForSpecificOrderBaseOnDesign(UUID designID);
 
     void confirmOrder(UUID orderID);
+
+    List<OrderStageResponse> getOrderStageByOrderID(UUID orderID);
 }

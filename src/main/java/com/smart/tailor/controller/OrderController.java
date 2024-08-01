@@ -197,6 +197,21 @@ public class OrderController {
         }
     }
 
+    @GetMapping(OrderAPI.GET_ORDER_STAGE_BY_ID + "/{orderID}")
+    public ResponseEntity<ObjectNode> getOrderStageByID(@ValidUUID @PathVariable("orderID") UUID orderID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_ORDER_STAGE_SUCCESSFULLY);
+            var orderResponse = orderService.getOrderStageByOrderID(orderID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
     @GetMapping("/filter-brand-by-design-id/{designID}")
     public ResponseEntity<ObjectNode> filterBrandForSpecificOrderBaseOnDesign(@ValidUUID @PathVariable("designID") UUID designID) {
         try {

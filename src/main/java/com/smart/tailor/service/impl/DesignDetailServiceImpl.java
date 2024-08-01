@@ -1,7 +1,10 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.*;
+import com.smart.tailor.entities.Brand;
+import com.smart.tailor.entities.Design;
+import com.smart.tailor.entities.DesignDetail;
+import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
@@ -85,7 +88,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         );
     }
 
-//    @Transactional(readOnly = true)
+    //    @Transactional(readOnly = true)
     @Override
     public APIResponse createDesignDetail(DesignDetailRequest designDetailRequest) {
         try {
@@ -139,6 +142,26 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             } else {
                 buyerName = customerResponse.getFullName();
             }
+            List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
+            int index = -1;
+            int totalQuantity = 0;
+            for (DesignDetailSize sizeRequest : sizeList) {
+                index++;
+                if (sizeRequest.getSizeID() == null) {
+                    throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " at [" + index + "]: sizeID");
+                }
+                var size = sizeService.findByID(UUID.fromString(sizeRequest.getSizeID()))
+                        .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE));
+
+                if (sizeRequest.getQuantity() == null) {
+                    throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " at [" + index + "]: quantity");
+                }
+                Integer quantity = sizeRequest.getQuantity();
+                if (!Utilities.isValidNumber(quantity.toString()) || quantity <= 0) {
+                    throw new BadRequestException(MessageConstant.INVALID_INPUT + " at [" + index + "]: quantity");
+                }
+                totalQuantity += quantity;
+            }
             /**
              * Create Parent Order
              */
@@ -146,7 +169,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     OrderRequest
                             .builder()
                             .designID(designId)
-                            .quantity(0)
+                            .quantity(totalQuantity)
                             .parentOrderID(null)
                             .orderType("PARENT_ORDER")
                             .address(address)
@@ -161,8 +184,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             logger.info("CREATE NEW ORDER SUCCESSFULLY!: {}", parentOrderResponse);
             parentOrder = orderService.getOrderById(parentOrderResponse.getOrderID()).get();
 
-            List<DesignDetailSize> sizeList = designDetailRequest.getSizeList();
-            int index = -1;
             List<DesignDetail> designDetailList = new ArrayList<>();
             for (DesignDetailSize sizeRequest : sizeList) {
                 index++;
@@ -182,8 +203,8 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
                 Brand existedBrand = null;
 
-                parentOrder.setQuantity(parentOrder.getQuantity() + quantity);
-                orderService.updateOrder(parentOrder);
+//                parentOrder.setQuantity(parentOrder.getQuantity() + quantity);
+//                orderService.updateOrder(parentOrder);
 
                 designDetailList.add(
                         DesignDetail
