@@ -1,10 +1,7 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Brand;
-import com.smart.tailor.entities.Design;
-import com.smart.tailor.entities.DesignDetail;
-import com.smart.tailor.entities.Order;
+import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
@@ -38,6 +35,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final OrderMapper orderMapper;
     private final BrandService brandService;
     private final BrandMaterialService brandMaterialService;
+    private final SizeExpertTailoringService sizeExpertTailoringService;
     private final DesignService designService;
     private final CustomerService customerService;
     private final OrderService orderService;
@@ -276,6 +274,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         var orderCustomResponse = orderService.getOrderByOrderID(parentOrderID);
         var listSubOrders = orderService.getSubOrderByParentID(parentOrderID);
         var designResponse = orderCustomResponse.getDesignResponse();
+        var expertTailoring = designResponse.getExpertTailoring();
         List<PartOfDesignInformation> partOfDesignInformationList = new ArrayList<>();
         List<ItemMaskInformation> itemMaskInformationList = new ArrayList<>();
 
@@ -311,17 +310,28 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     .mapToInt(DesignDetail::getQuantity)
                     .sum();
 
-            double totalPriceOfEachSubOrder = 0;
+            double totalPriceOfEachSubOrder = 0.0;
 
             for (DesignDetail designDetail : designDetailList) {
                 var brand = designDetail.getBrand();
                 var designDetailQuantity = designDetail.getQuantity();
+                var size = designDetail.getSize();
 
-                // Calculate All PartOfDesign Of One Design of Each SubOrder With BrandMaterialPrice
+                // Calculate SizeExpertTailoring of Each SubOrder => Get Radio to Calculate PartOfDesign
+                var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
+                        expertTailoring.getExpertTailoringID(),
+                        size.getSizeID()
+                );
+                var ratio = sizeExpertTailoring.getRatio();
+                logger.error("Size Expert Tailoring with Expert Tailoring Name {}", sizeExpertTailoring.getExpertTailoringName());
+                logger.error("Size Expert Tailoring with Size Name {}", sizeExpertTailoring.getSizeName());
+                logger.error("Size Expert Tailoring with Ratio {}", sizeExpertTailoring.getRatio());
+
+                // Calculate All PartOfDesign Of One Design of Each SubOrder With BrandMaterialPrice And Ratio from SizeExpertTailoring
                 var totalPricePartOfDesignOfSubOrder = 0;
-                logger.error("Brand ID {} and Brand Email {}", brand.getBrandID(), brand.getUser().getEmail());
+                logger.error("Brand ID {} and Brand Email {} and totalPriceOfEachSubOrder {}", brand.getBrandID(), brand.getUser().getEmail(), totalQuantityOfSubOrder);
                 for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
-                    totalPricePartOfDesignOfSubOrder += calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID());
+                    totalPricePartOfDesignOfSubOrder += calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio);
                 }
                 logger.error("Total PartOfDesign Price of Brand Email {} is {}", brand.getUser().getEmail(), totalPricePartOfDesignOfSubOrder);
 
@@ -334,25 +344,28 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
                 // Calculate All Quantity of Each Brand to Get BrandLaborQuantity of Order
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
-                logger.error("Total Quantity of Order : {} and BrandLaborQuantity: {}", totalQuantityOfSubOrder, brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
+                logger.error("Total Quantity of Order : {} and BrandLaborQuantity: {}", designDetailQuantity, brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
 
-                totalPriceOfEachSubOrder = (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder + brandLaborQuantityOfSubOrder.getLaborCostPerQuantity()) * designDetailQuantity;
+                totalPriceOfEachSubOrder += (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder + brandLaborQuantityOfSubOrder.getLaborCostPerQuantity()) * designDetailQuantity;
                 logger.error("Total Price of SubOrder {}", totalPriceOfEachSubOrder);
             }
 
             totalPriceOfOrder += totalPriceOfEachSubOrder;
         }
-
+        logger.error("Total Price Of Parent Order {}", totalPriceOfOrder);
         return totalPriceOfOrder;
     }
 
-    private Integer calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partOfDesignInformation, UUID brandID) {
-        var width = partOfDesignInformation.getWidth(); // in Centimeter
-        var height = partOfDesignInformation.getHeight(); // in Centimeter
+    private Integer calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partOfDesignInformation, UUID brandID, Double ratio) {
+        // Apply Ratio from SizeExpertTailoring to Width and Height of Each PartOfDesign
+        var width = partOfDesignInformation.getWidth() * ratio; // in Centimeter
+        var height = partOfDesignInformation.getHeight() * ratio; // in Centimeter
+        logger.error("Width After Applying Ratio {}", width);
+        logger.error("Height After Applying Ratio {}", height);
         var materialID = partOfDesignInformation.getMaterialID();
         var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
         var formular = (int) Math.ceil(width * height / 10000.0 * brandPriceMaterial);
-        logger.info("MaterialName: {} and BrandPrice: {} => Result in M^2 : {}", partOfDesignInformation.getMaterialName(), brandPriceMaterial, formular);
+        logger.error("MaterialName: {} and BrandPrice: {} => Price Result in M^2 : {}", partOfDesignInformation.getMaterialName(), brandPriceMaterial, formular);
         // Convert Cm^2 into M^2 by Dividing to 10000
         return formular;
     }
@@ -366,7 +379,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         var materialID = itemMaskInformation.getMaterialID();
         var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
         var formular = (int) Math.ceil(scaleX_Centimeter * scaleY_Centimeter / 10000.0 * brandPriceMaterial);
-        logger.info("MaterialName: {} and BrandPrice: {} => Result in M^2 : {}", itemMaskInformation.getMaterialName(), brandPriceMaterial, formular);
+        logger.error("MaterialName: {} and BrandPrice: {} => Price Result in M^2 : {}", itemMaskInformation.getMaterialName(), brandPriceMaterial, formular);
         // Convert Cm^2 into M^2 by Dividing to 10000
         return formular;
     }
