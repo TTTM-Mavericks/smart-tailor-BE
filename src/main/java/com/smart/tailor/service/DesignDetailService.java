@@ -5,6 +5,7 @@ import com.smart.tailor.utils.request.DesignDetailRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignDetailCustomResponse;
 import com.smart.tailor.utils.response.DesignDetailResponse;
+import com.smart.tailor.utils.response.OrderDetailPriceResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,8 +18,6 @@ public interface DesignDetailService {
 
     APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
 
-//    DesignDetailResponse getDesignDetailByDesignAndSize(UUID designID, UUID size);
-
     DesignDetailResponse updateDesignDetail(DesignDetail designDetail);
 
     DesignDetail updateDetailByID(DesignDetail designDetail);
@@ -29,5 +28,5 @@ public interface DesignDetailService {
 
     List<DesignDetail> getDesignDetailBySubOrderID(UUID subOrderID);
 
-    Double calculateTotalPriceForSpecificOrder(UUID parentOrderID) throws Exception;
+    OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(UUID parentOrderID) throws Exception;
 }
