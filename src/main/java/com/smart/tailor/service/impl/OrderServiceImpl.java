@@ -14,10 +14,7 @@ import com.smart.tailor.repository.DesignDetailRepository;
 import com.smart.tailor.repository.OrderRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
-import com.smart.tailor.utils.request.OrderPickingRequest;
-import com.smart.tailor.utils.request.OrderRequest;
-import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
-import com.smart.tailor.utils.request.PaymentRequest;
+import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -191,6 +188,7 @@ public class OrderServiceImpl implements OrderService {
                 .orderID(order.getOrderID())
                 .quantity(order.getQuantity())
                 .orderStatus(order.getOrderStatus())
+                .rating(order.getRating())
                 .address(order.getAddress())
                 .province(order.getProvince())
                 .district(order.getDistrict())
@@ -956,5 +954,24 @@ public class OrderServiceImpl implements OrderService {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Transactional
+    @Override
+    public void ratingOrder(RatingOrderRequest ratingOrderRequest) {
+        var user = userService.getUserByUserID(UUID.fromString(ratingOrderRequest.getUserID()))
+                .orElseThrow(() -> new ItemNotFoundException("Can not find User with UserID: " + ratingOrderRequest.getUserID()));
+
+        var order = orderRepository.findById(UUID.fromString(ratingOrderRequest.getParentOrderID()))
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + ratingOrderRequest.getParentOrderID()));
+
+        order.setRating(ratingOrderRequest.getRating());
+
+        // Rating Brand Contribute to Order
+        orderRepository.save(order);
+    }
+
+    private void RatingBrandByOrderRating(Order parentOrder, Float orderRating){
+
     }
 }

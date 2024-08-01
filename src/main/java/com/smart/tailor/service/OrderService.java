@@ -4,6 +4,7 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
+import com.smart.tailor.utils.request.RatingOrderRequest;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 
@@ -51,4 +52,6 @@ public interface OrderService {
     List<String> filterBrandForSpecificOrderBaseOnDesign(UUID designID);
 
     void confirmOrder(UUID orderID);
+
+    void ratingOrder(RatingOrderRequest ratingOrderRequest);
 }
