@@ -46,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
     private final SystemPropertiesService systemPropertiesService;
     private final BrandPropertiesService brandPropertiesService;
     private final EmployeeService employeeService;
+    private final OrderStageService stageService;
     private final MailService mailService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -304,63 +305,75 @@ public class OrderServiceImpl implements OrderService {
                             case 0:
                                 isFinish = true;
                                 for (OrderResponse subOrder : subOrderList) {
-                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)) {
+                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)
+                                            && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         isFinish = false;
                                     }
                                 }
                                 if (isFinish) {
-                                    logger.error("CREATE STAGE_1");
-                                    var payOSResponse = paymentService.createPayOSPayment(
-                                            PaymentRequest
-                                                    .builder()
-                                                    .orderID(orderID)
+                                    var checkDeposited = paymentList.stream().filter(p ->
+                                            p.getPaymentType().equals(PaymentType.STAGE_1)
+                                    ).findFirst();
+                                    if (checkDeposited.isEmpty()) {
+                                        logger.error("CREATE STAGE_1");
+                                        var payOSResponse = paymentService.createPayOSPayment(
+                                                PaymentRequest
+                                                        .builder()
+                                                        .orderID(orderID)
 
-                                                    .paymentSenderID(null)
-                                                    .paymentSenderName(order.getBuyerName())
-                                                    .paymentSenderBankCode("")
-                                                    .paymentSenderBankNumber("")
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName(order.getBuyerName())
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
 
-                                                    .paymentRecipientID(null)
-                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                    .paymentRecipientBankCode("MB Bank")
-                                                    .paymentRecipientBankNumber("0335567997")
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("MB Bank")
+                                                        .paymentRecipientBankNumber("0335567997")
 
-                                                    .paymentType(PaymentType.STAGE_1)
-                                                    .paymentAmount(order.getTotalPrice())
-                                                    .itemList(null)
-                                                    .build()
-                                    );
+                                                        .paymentType(PaymentType.STAGE_1)
+                                                        .paymentAmount(order.getTotalPrice())
+                                                        .itemList(null)
+                                                        .build()
+                                        );
+                                    }
                                 }
                                 break;
                             case 1:
                                 isFinish = true;
                                 for (OrderResponse subOrder : subOrderList) {
-                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)) {
+                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)
+                                            && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         isFinish = false;
                                     }
                                 }
                                 if (isFinish) {
-                                    logger.error("CREATE STAGE_2");
-                                    var payOSResponse = paymentService.createPayOSPayment(
-                                            PaymentRequest
-                                                    .builder()
-                                                    .orderID(orderID)
+                                    var checkDeposited = paymentList.stream().filter(p ->
+                                            p.getPaymentType().equals(PaymentType.STAGE_2)
+                                    ).findFirst();
+                                    if (checkDeposited.isEmpty()) {
+                                        logger.error("CREATE STAGE_2");
+                                        var payOSResponse = paymentService.createPayOSPayment(
+                                                PaymentRequest
+                                                        .builder()
+                                                        .orderID(orderID)
 
-                                                    .paymentSenderID(null)
-                                                    .paymentSenderName(order.getBuyerName())
-                                                    .paymentSenderBankCode("")
-                                                    .paymentSenderBankNumber("")
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName(order.getBuyerName())
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
 
-                                                    .paymentRecipientID(null)
-                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                    .paymentRecipientBankCode("MB Bank")
-                                                    .paymentRecipientBankNumber("0335567997")
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("MB Bank")
+                                                        .paymentRecipientBankNumber("0335567997")
 
-                                                    .paymentType(PaymentType.STAGE_2)
-                                                    .paymentAmount(order.getTotalPrice())
-                                                    .itemList(null)
-                                                    .build()
-                                    );
+                                                        .paymentType(PaymentType.STAGE_2)
+                                                        .paymentAmount(order.getTotalPrice())
+                                                        .itemList(null)
+                                                        .build()
+                                        );
+                                    }
                                 }
                                 break;
                             case 2:
@@ -622,13 +635,22 @@ public class OrderServiceImpl implements OrderService {
 
         var existedOrder = order.get();
         existedOrder.setOrderStatus(OrderStatus.valueOf(orderRequest.getStatus()));
-        if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING)) {
+        if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING.name())) {
             existedOrder.setProductionStartDate(LocalDateTime.now());
         } else {
             if (orderRequest.getStatus().equals(OrderStatus.COMPLETED.name())) {
                 existedOrder.setProductionCompletionDate(LocalDateTime.now());
             }
         }
+        var stageResponseList = stageService.getOrderStageByOrderID(orderID);
+        for (var stageResponse : stageResponseList) {
+            if (stageResponse.getStage().equals(OrderStatus.valueOf(orderRequest.getStatus()))) {
+                var stage = stageService.getOrderStageByID(UUID.fromString(stageResponse.getStageId()));
+                stage.setStatus(true);
+                stageService.updateStage(stage);
+            }
+        }
+
         var updatedOrder = orderRepository.save(existedOrder);
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
@@ -810,6 +832,47 @@ public class OrderServiceImpl implements OrderService {
 
                 orderRepository.save(basedOrder);
 
+                int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+                stageService.createOrderStage(
+                        OrderStageRequest
+                                .builder()
+                                .orderID(createdOrder.getOrderID())
+                                .stage(OrderStatus.START_PRODUCING)
+                                .currentQuantity(0)
+                                .status(false)
+                                .build()
+                );
+                stageService.createOrderStage(
+                        OrderStageRequest
+                                .builder()
+                                .orderID(createdOrder.getOrderID())
+                                .stage(OrderStatus.COMPLETED)
+                                .currentQuantity(orderResponse.getQuantity())
+                                .status(false)
+                                .build()
+                );
+                if (quantity >= divideNumber) {
+                    int eachPhase = (int) Math.ceil(quantity / 3);
+                    stageService.createOrderStage(
+                            OrderStageRequest
+                                    .builder()
+                                    .orderID(createdOrder.getOrderID())
+                                    .stage(OrderStatus.FINISH_FIRST_STAGE)
+                                    .currentQuantity(eachPhase)
+                                    .status(false)
+                                    .build()
+                    );
+                    stageService.createOrderStage(
+                            OrderStageRequest
+                                    .builder()
+                                    .orderID(createdOrder.getOrderID())
+                                    .stage(OrderStatus.FINISH_SECOND_STAGE)
+                                    .currentQuantity(eachPhase)
+                                    .status(false)
+                                    .build()
+                    );
+                }
+
                 orderResponse.setDetailList(detailResponse);
                 return orderMapper.mapToOrderResponse(orderResponse);
             }
@@ -937,6 +1000,11 @@ public class OrderServiceImpl implements OrderService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<OrderStageResponse> getOrderStageByOrderID(UUID orderID) {
+        return stageService.getOrderStageByOrderID(orderID);
     }
 
     private Employee getSuitableEmp() {
