@@ -20,9 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -1120,20 +1122,98 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void ratingOrder(RatingOrderRequest ratingOrderRequest) {
         var user = userService.getUserByUserID(UUID.fromString(ratingOrderRequest.getUserID()))
-                .orElseThrow(() -> new ItemNotFoundException("Can not find User with UserID: " + ratingOrderRequest.getUserID()));
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find User with UserID: " + ratingOrderRequest.getUserID()));
 
-        var order = orderRepository.findById(UUID.fromString(ratingOrderRequest.getParentOrderID()))
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + ratingOrderRequest.getParentOrderID()));
+        var parentOrder = orderRepository.findById(UUID.fromString(ratingOrderRequest.getParentOrderID()))
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find Order with OrderID: " + ratingOrderRequest.getParentOrderID()));
 
-        order.setRating(ratingOrderRequest.getRating());
+        var orderRating = ratingOrderRequest.getRating();
+        parentOrder.setRating(orderRating);
+
+        // Save Rating for Order
+        orderRepository.save(parentOrder);
 
         // Rating Brand Contribute to Order
-        orderRepository.save(order);
+        var subOrderList = getSubOrderByParentID(parentOrder.getOrderID());
+        var estimateOrderTimeLine = getOrderTimeLineByParentOrderID(parentOrder.getOrderID());
+
+        // Define the format for parsing and formatting dates
+        DateTimeFormatter originalDateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter isoDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter fullDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
+
+        for (var subOrder : subOrderList) {
+            var designDetail = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
+            var brand = designDetail
+                    .stream()
+                    .map(DesignDetail::getBrand)
+                    .findFirst();
+
+            var completedAheadOfSchedule = 0;
+            var completedLate = 0;
+            var subOrderStageList = stageService.getOrderStageByOrderID(subOrder.getOrderID());
+            var brandOrderRating = orderRating;
+
+            for (var subOrderStage : subOrderStageList) {
+
+                if (subOrderStage.getLastModifiedDate() == null) continue;
+
+                // Parse the full date-time string and extract the date
+                LocalDateTime lastModifiedDateTime = LocalDateTime.parse(subOrderStage.getLastModifiedDate(), fullDateTimeFormatter);
+                LocalDate lastModifiedDate = lastModifiedDateTime.toLocalDate();
+
+                // Convert the estimated dates to LocalDate
+                LocalDate estimatedDateFinishFirstStage = LocalDate.parse(estimateOrderTimeLine.getEstimatedDateFinishFirstStage(), originalDateFormatter);
+                LocalDate estimatedDateFinishSecondStage = LocalDate.parse(estimateOrderTimeLine.getEstimatedDateFinishSecondStage(), originalDateFormatter);
+                LocalDate estimatedDateCompletion = LocalDate.parse(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage(), originalDateFormatter);
+
+                // Convert LocalDate to string in dd-MM-yyyy format for comparison
+                String lastModifiedDateStr = lastModifiedDate.format(originalDateFormatter);
+                String estimatedDateFinishFirstStageStr = estimatedDateFinishFirstStage.format(originalDateFormatter);
+                String estimatedDateFinishSecondStageStr = estimatedDateFinishSecondStage.format(originalDateFormatter);
+                String estimatedDateCompletionStr = estimatedDateCompletion.format(originalDateFormatter);
+
+                // Convert the strings back to LocalDate for comparison
+                LocalDate lastModifiedDateFormatted = LocalDate.parse(lastModifiedDateStr, originalDateFormatter);
+                LocalDate estimatedFinishFirstStageFormatted = LocalDate.parse(estimatedDateFinishFirstStageStr, originalDateFormatter);
+                LocalDate estimatedFinishSecondStageFormatted = LocalDate.parse(estimatedDateFinishSecondStageStr, originalDateFormatter);
+                LocalDate estimatedCompletionFormatted = LocalDate.parse(estimatedDateCompletionStr, originalDateFormatter);
+
+                // Check the stage and calculate counters based on dates
+                if (subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)) {
+                    if (lastModifiedDateFormatted.isBefore(estimatedFinishFirstStageFormatted)) {
+                        completedAheadOfSchedule++;
+                    } else if (lastModifiedDateFormatted.isAfter(estimatedFinishFirstStageFormatted)) {
+                        completedLate++;
+                    }
+                } else if (subOrderStage.getStage().equals(OrderStatus.FINISH_SECOND_STAGE)) {
+                    if (lastModifiedDateFormatted.isBefore(estimatedFinishSecondStageFormatted)) {
+                        completedAheadOfSchedule++;
+                    } else if (lastModifiedDateFormatted.isAfter(estimatedFinishSecondStageFormatted)) {
+                        completedLate++;
+                    }
+                } else if (subOrderStage.getStage().equals(OrderStatus.COMPLETED)) {
+                    if (lastModifiedDateFormatted.isBefore(estimatedCompletionFormatted)) {
+                        completedAheadOfSchedule++;
+                    } else if (lastModifiedDateFormatted.isAfter(estimatedCompletionFormatted)) {
+                        completedLate++;
+                    }
+                }
+            }
+
+            // Update orderRating based on the completion status
+            brandOrderRating += (completedAheadOfSchedule > 0) ? (float) (completedAheadOfSchedule * 0.25) : 0;
+            brandOrderRating += (completedLate > 0) ? (float) (completedLate * -0.75) : 0;
+            if(brandOrderRating <= 0) brandOrderRating = 0.0f;
+            else if(brandOrderRating > 5) brandOrderRating = 5.0f;
+
+            logger.info("Brand {} Complete A Head of Schedule {} and OrderRating {}", brand.get().getUser().getEmail(), completedAheadOfSchedule, brandOrderRating);
+            logger.info("Brand {} Complete Late {} and OrderRating {}",  brand.get().getUser().getEmail(), completedLate, brandOrderRating);
+            // Update the rating for the brand
+            brandService.ratingBrand(brand.get().getBrandID(), 1, brandOrderRating);
+        }
     }
 
-    private void RatingBrandByOrderRating(Order parentOrder, Float orderRating) {
-
-    }
 
     @Override
     public OrderTimeLineResponse getOrderTimeLineByParentOrderID(UUID parentOrderID) {
@@ -1181,14 +1261,16 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
         return OrderTimeLineResponse
                 .builder()
                 .estimatedQuantityFinishFirstStage(totalQuantityAtFirstStage)
-                .estimatedDateFinishFirstStage(parentOrder.getExpectedStartDate().plusDays(maximumDateAtFirstStage).toLocalDate().toString())
+                .estimatedDateFinishFirstStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtFirstStage)))
                 .estimatedQuantityFinishSecondStage(totalQuantityAtSecondStage)
-                .estimatedDateFinishSecondStage(parentOrder.getExpectedStartDate().plusDays(maximumDateAtSecondStage).toLocalDate().toString())
+                .estimatedDateFinishSecondStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtSecondStage)))
                 .estimatedQuantityFinishCompleteStage(totalQuantityAtCompleteStage)
-                .estimatedDateFinishCompleteStage(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage).toLocalDate().toString())
+                .estimatedDateFinishCompleteStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage)))
                 .build();
     }
 }

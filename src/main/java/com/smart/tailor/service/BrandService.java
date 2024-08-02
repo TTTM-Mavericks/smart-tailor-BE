@@ -29,4 +29,6 @@ public interface BrandService {
     Optional<Brand> findBrandById(UUID brandID);
 
     List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID);
+
+    void ratingBrand(UUID brandID, Integer numberOfRating, Float ratingScore);
 }

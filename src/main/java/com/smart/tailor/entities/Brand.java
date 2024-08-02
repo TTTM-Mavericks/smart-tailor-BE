@@ -33,8 +33,6 @@ public class Brand extends AuditEntity implements Serializable {
     @Column(name = "brand_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin", unique = false, nullable = false)
     private String brandName;
 
-    private Float rating;
-
     @Column(name = "bank_name", columnDefinition = "varchar(100)", unique = false, nullable = true)
     private String bankName;
 
@@ -65,6 +63,12 @@ public class Brand extends AuditEntity implements Serializable {
 
     @Column(name = "number_of_violations")
     private Integer numberOfViolations = 0;
+
+    private Float rating = 1.0f;
+
+    private Integer numberOfRatings = 1;
+
+    private Float totalRatingScore = 1.0f;
 
     @OneToMany(mappedBy = "brand")
     private List<BrandProperties> brandProperties;
