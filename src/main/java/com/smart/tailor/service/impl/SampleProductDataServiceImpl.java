@@ -1,6 +1,7 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.entities.SampleProductData;
+import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.SampleProductDataMapper;
 import com.smart.tailor.repository.SampleProductDataRepository;
@@ -128,14 +129,73 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
 
     @Override
     public List<SampleProductDataResponse> getSampleProductDataByParentOrderIDAndStageID(UUID orderID, UUID stageID) {
-        return orderService
-                .getSubOrderByParentID(orderID)
-                .stream()
-                .flatMap(
-                        subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
-                                .filter(f -> f.getOrderStage().getStageId().equals(stageID))
-                )
-                .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
-                .collect(Collectors.toList());
+        var order = orderService.getOrderById(orderID).orElseThrow(() -> new ItemNotFoundException("Can not found order"));
+        if (order.getOrderType().equals("PARENT_ORDER")) {
+            if (order.getOrderStatus().equals(OrderStatus.DEPOSIT)) {
+                return orderService
+                        .getSubOrderByParentID(orderID)
+                        .stream()
+                        .flatMap(
+                                subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
+                                        .filter(f -> f.getOrderStage().getStageId().equals(stageID)
+                                                && f.getOrderStage().getStage().equals(OrderStatus.START_PRODUCING)
+                                        )
+                        )
+                        .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                        .collect(Collectors.toList());
+            } else {
+                if (order.getOrderStatus().equals(OrderStatus.PROCESSING)) {
+                    var sampleInStage2 = orderService
+                            .getSubOrderByParentID(orderID)
+                            .stream()
+                            .flatMap(
+                                    subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
+                                            .filter(f -> f.getOrderStage().getStageId().equals(stageID)
+                                                    && f.getOrderStage().getStage().equals(OrderStatus.FINISH_SECOND_STAGE)
+                                            )
+                            )
+                            .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                            .collect(Collectors.toList());
+                    if (sampleInStage2.isEmpty()) {
+                        sampleInStage2 = orderService
+                                .getSubOrderByParentID(orderID)
+                                .stream()
+                                .flatMap(
+                                        subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
+                                                .filter(f -> f.getOrderStage().getStageId().equals(stageID)
+                                                        && f.getOrderStage().getStage().equals(OrderStatus.FINISH_FIRST_STAGE)
+                                                )
+                                )
+                                .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                                .collect(Collectors.toList());
+                        return sampleInStage2;
+                    } else {
+                        return sampleInStage2;
+                    }
+                } else {
+                    return orderService
+                            .getSubOrderByParentID(orderID)
+                            .stream()
+                            .flatMap(
+                                    subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
+                                            .filter(f -> f.getOrderStage().getStageId().equals(stageID)
+                                                    && f.getOrderStage().getStage().equals(OrderStatus.COMPLETED)
+                                            )
+                            )
+                            .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                            .collect(Collectors.toList());
+                }
+            }
+        } else {
+            return orderService
+                    .getSubOrderByParentID(orderID)
+                    .stream()
+                    .flatMap(
+                            subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
+                                    .filter(f -> f.getOrderStage().getStageId().equals(stageID))
+                    )
+                    .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                    .collect(Collectors.toList());
+        }
     }
 }
