@@ -933,15 +933,7 @@ public class OrderServiceImpl implements OrderService {
                                 .status(false)
                                 .build()
                 );
-                stageService.createOrderStage(
-                        OrderStageRequest
-                                .builder()
-                                .orderID(createdOrder.getOrderID())
-                                .stage(OrderStatus.COMPLETED)
-                                .currentQuantity(orderResponse.getQuantity())
-                                .status(false)
-                                .build()
-                );
+
                 if (quantity >= divideNumber) {
                     int eachPhase = Utilities.roundToNearestHalf(quantity * 1.0 / 3);
                     stageService.createOrderStage(
@@ -958,7 +950,26 @@ public class OrderServiceImpl implements OrderService {
                                     .builder()
                                     .orderID(createdOrder.getOrderID())
                                     .stage(OrderStatus.FINISH_SECOND_STAGE)
-                                    .currentQuantity(eachPhase * 2)
+                                    .currentQuantity(eachPhase)
+                                    .status(false)
+                                    .build()
+                    );
+                    stageService.createOrderStage(
+                            OrderStageRequest
+                                    .builder()
+                                    .orderID(createdOrder.getOrderID())
+                                    .stage(OrderStatus.COMPLETED)
+                                    .currentQuantity(orderResponse.getQuantity() - (eachPhase * 2))
+                                    .status(false)
+                                    .build()
+                    );
+                } else {
+                    stageService.createOrderStage(
+                            OrderStageRequest
+                                    .builder()
+                                    .orderID(createdOrder.getOrderID())
+                                    .stage(OrderStatus.COMPLETED)
+                                    .currentQuantity(orderResponse.getQuantity())
                                     .status(false)
                                     .build()
                     );
