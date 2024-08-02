@@ -28,4 +28,9 @@ public interface BrandRepository extends JpaRepository<Brand, UUID> {
     @Query(value = "select b.* from brand b join brand_expert_tailoring bet on b.brand_id = bet.brand_id " +
             "join expert_tailoring et on et.expert_tailoring_id = bet.expert_tailoring_id where et.expert_tailoring_id = ?1 ", nativeQuery = true)
     List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE Brand b SET b.rating = ?1, b.number_of_ratings = ?2, b.total_rating_score = ?3, b.last_modified_date = current_timestamp WHERE b.brand_id = ?4", nativeQuery = true)
+    void updateBrandRatingAndScore(Float rating, Integer numberOfRatings, Float totalRatingScore, UUID brandID);
 }

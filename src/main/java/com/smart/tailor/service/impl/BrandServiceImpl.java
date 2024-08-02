@@ -8,6 +8,7 @@ import com.smart.tailor.enums.BrandStatus;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.BrandRepository;
 import com.smart.tailor.service.BrandService;
@@ -93,7 +94,9 @@ public class BrandServiceImpl implements BrandService {
                                 .ward(brandRequest.getWard() != null && !brandRequest.getWard().trim().isEmpty() ? brandRequest.getWard() : null)
                                 .district(brandRequest.getDistrict() != null && !brandRequest.getDistrict().trim().isEmpty() ? brandRequest.getDistrict() : null)
                                 .QR_Payment(brandRequest.getQrPayment() != null && !brandRequest.getQrPayment().trim().isEmpty() ? brandRequest.getQrPayment() : null)
-                                .rating(0.0f)
+                                .rating(1.0f)
+                                .numberOfRatings(1)
+                                .totalRatingScore(1.0f)
                                 .numberOfViolations(0)
                                 .build()
                 );
@@ -215,5 +218,22 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID) {
         return brandRepository.findAllBrandByExpertTailoringID(expertTailoringID);
+    }
+
+    @Override
+    public void ratingBrand(UUID brandID, Integer numberOfRating, Float ratingScore) {
+        logger.info("Inside Rating Brand");
+        var brand = findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
+
+        var numberOfRatingsUpdate = brand.getNumberOfRatings() + numberOfRating;
+        var totalRatingScoreUpdate = brand.getTotalRatingScore() + ratingScore;
+        var ratingUpdate = totalRatingScoreUpdate / numberOfRatingsUpdate;
+        brandRepository.updateBrandRatingAndScore(
+                ratingUpdate <= 0 ? 0 : ratingUpdate,
+                numberOfRatingsUpdate,
+                totalRatingScoreUpdate,
+                brandID
+        );
     }
 }

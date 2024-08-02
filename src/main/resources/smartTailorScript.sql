@@ -29,7 +29,13 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         ''),
        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The number for divide.', 'DIVIDE_NUMBER', 'NUMBER', true, 'INT',
-        '100');
+        '100'),
+        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+         'The rate for Brand have Order Status ahead of schedule.', 'RATE_AHEAD_SCHEDULE', 'NUMBER', true, 'FLOAT',
+         '0.25'),
+        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The rate for Brand have Order Status late of schedule.', 'RATE_LATE_SCHEDULE', 'NUMBER', true, 'FLOAT',
+        '0.75');
 
 -- INSERT INTO SYSTEM IMAGE
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date,
@@ -392,29 +398,29 @@ VALUES ((SELECT user_id FROM users WHERE email = 'nguyenvanquan@gmail.com'), tru
 
 
 -- INSERT INTO BRAND
-INSERT INTO brand (brand_id, brand_name, rating, bank_name, account_number, account_name, qr_payment, address, ward,
+INSERT INTO brand (brand_id, brand_name, rating, number_of_ratings, total_rating_score, bank_name, account_number, account_name, qr_payment, address, ward,
                    district, province, brand_status, number_of_violations, create_date, last_modified_date)
-VALUES ((SELECT user_id FROM users WHERE email = 'tammtse161087@fpt.edu.vn'), 'Nike Brand', 4.5, 'Brand Bank',
+VALUES ((SELECT user_id FROM users WHERE email = 'tammtse161087@fpt.edu.vn'), 'Nike Brand', 1, 1, 1, 'Brand Bank',
         '1234567890', 'Nike', 'http://example.com/qr_nike.jpg', '740 Nguyễn Xiển', ' Long Thạnh Mỹ', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'tunmse161130@fpt.edu.vn'), 'Adidas Brand', 4.2, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'tunmse161130@fpt.edu.vn'), 'Adidas Brand', 1, 1, 1, 'Brand Bank',
         '0987654321', 'Adidas', 'http://example.com/qr_adidas.jpg', '269 Đ. Liên Phường', 'Phước Long B', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'truongnhlse160191@fpt.edu.vn'), 'Puma Brand', 4.0, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'truongnhlse160191@fpt.edu.vn'), 'Puma Brand', 1, 1, 1, 'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '441 Lê Văn Việt', 'Tăng Nhơn Phú A', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'ngohongquang999@gmail.com'), 'Hong Quang Brand', 4.0, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'ngohongquang999@gmail.com'), 'Hong Quang Brand', 1, 1, 1, 'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '857 Phạm Văn Đồng', 'Linh Tây', 'Thủ Đức',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'doanthuan97@gmail.com'), 'Thuan An Brand', 4.0, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'doanthuan97@gmail.com'), 'Thuan An Brand', 1, 1, 1, 'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '432 Đ. Liên Phường', 'Phước Long B', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Thanh Giang Brand', 4.0, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Thanh Giang Brand', 1, 1, 1, 'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '77C Trần Ngọc Diện', 'Thảo Điền', 'Thủ Đức',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null);
 
