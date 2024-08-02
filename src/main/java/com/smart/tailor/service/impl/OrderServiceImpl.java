@@ -274,126 +274,168 @@ public class OrderServiceImpl implements OrderService {
                     case PROCESSING -> {
                         logger.error("INCASE PROCESSING");
 
-                        // CHECK CURRENT STAGE
-                        var stage = -1;
-                        if (!paymentList.isEmpty()) {
-                            var checkDeposited = paymentList.stream().filter(p ->
-                                    p.getPaymentType().equals(PaymentType.STAGE_2)
-                            ).findFirst();
-                            if (checkDeposited.isEmpty()) {
-                                checkDeposited = paymentList.stream().filter(p ->
-                                        p.getPaymentType().equals(PaymentType.STAGE_1)
+                        int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+                        if (order.getQuantity() >= divideNumber) {
+
+                            // CHECK CURRENT STAGE
+                            var stage = -1;
+                            if (!paymentList.isEmpty()) {
+                                var checkDeposited = paymentList.stream().filter(p ->
+                                        p.getPaymentType().equals(PaymentType.STAGE_2)
                                 ).findFirst();
-                                if (checkDeposited.isPresent()) {
-                                    if (checkDeposited.get().getPaymentStatus()) {
-                                        stage = 1;
+                                if (checkDeposited.isEmpty()) {
+                                    checkDeposited = paymentList.stream().filter(p ->
+                                            p.getPaymentType().equals(PaymentType.STAGE_1)
+                                    ).findFirst();
+                                    if (checkDeposited.isPresent()) {
+                                        if (checkDeposited.get().getPaymentStatus()) {
+                                            stage = 1;
+                                        } else {
+                                            stage = 0;
+                                        }
                                     } else {
                                         stage = 0;
                                     }
                                 } else {
-                                    stage = 0;
+                                    if (checkDeposited.get().getPaymentStatus())
+                                        stage = 2;
                                 }
-                            } else {
-                                if (checkDeposited.get().getPaymentStatus())
-                                    stage = 2;
+                            }
+
+                            var subOrderList = getSubOrderByParentID(orderID);
+                            boolean isFinish = true;
+                            switch (stage) {
+                                case 0:
+                                    isFinish = true;
+                                    for (OrderResponse subOrder : subOrderList) {
+                                        if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)
+                                                && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                            isFinish = false;
+                                        }
+                                    }
+                                    if (isFinish) {
+                                        var checkDeposited = paymentList.stream().filter(p ->
+                                                p.getPaymentType().equals(PaymentType.STAGE_1)
+                                        ).findFirst();
+                                        if (checkDeposited.isEmpty()) {
+                                            logger.error("CREATE STAGE_1");
+                                            var payOSResponse = paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(orderID)
+
+                                                            .paymentSenderID(null)
+                                                            .paymentSenderName(order.getBuyerName())
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
+
+                                                            .paymentRecipientID(null)
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("MB Bank")
+                                                            .paymentRecipientBankNumber("0335567997")
+
+                                                            .paymentType(PaymentType.STAGE_1)
+                                                            .paymentAmount(order.getTotalPrice())
+                                                            .itemList(null)
+                                                            .build()
+                                            );
+                                        }
+                                    }
+                                    break;
+                                case 1:
+                                    isFinish = true;
+                                    for (OrderResponse subOrder : subOrderList) {
+                                        if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)
+                                                && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                            isFinish = false;
+                                        }
+                                    }
+                                    if (isFinish) {
+                                        var checkDeposited = paymentList.stream().filter(p ->
+                                                p.getPaymentType().equals(PaymentType.STAGE_2)
+                                        ).findFirst();
+                                        if (checkDeposited.isEmpty()) {
+                                            logger.error("CREATE STAGE_2");
+                                            var payOSResponse = paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(orderID)
+
+                                                            .paymentSenderID(null)
+                                                            .paymentSenderName(order.getBuyerName())
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
+
+                                                            .paymentRecipientID(null)
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("MB Bank")
+                                                            .paymentRecipientBankNumber("0335567997")
+
+                                                            .paymentType(PaymentType.STAGE_2)
+                                                            .paymentAmount(order.getTotalPrice())
+                                                            .itemList(null)
+                                                            .build()
+                                            );
+                                        }
+                                    }
+                                    break;
+                                case 2:
+                                    isFinish = true;
+                                    for (OrderResponse subOrder : subOrderList) {
+                                        if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                            isFinish = false;
+                                        }
+                                    }
+                                    if (isFinish) {
+                                        var maxDateTime = LocalDateTime.parse(subOrderList.get(0).getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                        for (OrderResponse subOrder : subOrderList) {
+                                            var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                            maxDateTime = maxDateTime.isAfter(completionDate) ? maxDateTime : completionDate;
+                                        }
+                                        order.setOrderStatus(OrderStatus.COMPLETED);
+                                        order.setProductionCompletionDate(maxDateTime);
+                                        updateOrder(order);
+                                        break;
+                                    }
                             }
                         }
-
-                        var subOrderList = getSubOrderByParentID(orderID);
-                        boolean isFinish = true;
-                        switch (stage) {
-                            case 0:
-                                isFinish = true;
-                                for (OrderResponse subOrder : subOrderList) {
-                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)
-                                            && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
-                                        isFinish = false;
-                                    }
+                        else {
+                            var subOrderList = getSubOrderByParentID(orderID);
+                            boolean isFinish = true;
+                            isFinish = true;
+                            for (OrderResponse subOrder : subOrderList) {
+                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                    isFinish = false;
                                 }
-                                if (isFinish) {
-                                    var checkDeposited = paymentList.stream().filter(p ->
-                                            p.getPaymentType().equals(PaymentType.STAGE_1)
-                                    ).findFirst();
-                                    if (checkDeposited.isEmpty()) {
-                                        logger.error("CREATE STAGE_1");
-                                        var payOSResponse = paymentService.createPayOSPayment(
-                                                PaymentRequest
-                                                        .builder()
-                                                        .orderID(orderID)
+                            }
+                            if (isFinish) {
+                                var checkDeposited = paymentList.stream().filter(p ->
+                                        p.getPaymentType().equals(PaymentType.COMPLETED_ORDER)
+                                ).findFirst();
+                                if (checkDeposited.isEmpty()) {
+                                    logger.error("CREATE COMPLETE_ORDER");
+                                    var payOSResponse = paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .orderID(orderID)
 
-                                                        .paymentSenderID(null)
-                                                        .paymentSenderName(order.getBuyerName())
-                                                        .paymentSenderBankCode("")
-                                                        .paymentSenderBankNumber("")
+                                                    .paymentSenderID(null)
+                                                    .paymentSenderName(order.getBuyerName())
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
 
-                                                        .paymentRecipientID(null)
-                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                        .paymentRecipientBankCode("MB Bank")
-                                                        .paymentRecipientBankNumber("0335567997")
+                                                    .paymentRecipientID(null)
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("MB Bank")
+                                                    .paymentRecipientBankNumber("0335567997")
 
-                                                        .paymentType(PaymentType.STAGE_1)
-                                                        .paymentAmount(order.getTotalPrice())
-                                                        .itemList(null)
-                                                        .build()
-                                        );
-                                    }
+                                                    .paymentType(PaymentType.COMPLETED_ORDER)
+                                                    .paymentAmount(order.getTotalPrice())
+                                                    .itemList(null)
+                                                    .build()
+                                    );
                                 }
-                                break;
-                            case 1:
-                                isFinish = true;
-                                for (OrderResponse subOrder : subOrderList) {
-                                    if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)
-                                            && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
-                                        isFinish = false;
-                                    }
-                                }
-                                if (isFinish) {
-                                    var checkDeposited = paymentList.stream().filter(p ->
-                                            p.getPaymentType().equals(PaymentType.STAGE_2)
-                                    ).findFirst();
-                                    if (checkDeposited.isEmpty()) {
-                                        logger.error("CREATE STAGE_2");
-                                        var payOSResponse = paymentService.createPayOSPayment(
-                                                PaymentRequest
-                                                        .builder()
-                                                        .orderID(orderID)
-
-                                                        .paymentSenderID(null)
-                                                        .paymentSenderName(order.getBuyerName())
-                                                        .paymentSenderBankCode("")
-                                                        .paymentSenderBankNumber("")
-
-                                                        .paymentRecipientID(null)
-                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                        .paymentRecipientBankCode("MB Bank")
-                                                        .paymentRecipientBankNumber("0335567997")
-
-                                                        .paymentType(PaymentType.STAGE_2)
-                                                        .paymentAmount(order.getTotalPrice())
-                                                        .itemList(null)
-                                                        .build()
-                                        );
-                                    }
-                                }
-                                break;
-                            case 2:
-                                isFinish = true;
-                                for (OrderResponse subOrder : subOrderList) {
-                                    if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
-                                        isFinish = false;
-                                    }
-                                }
-                                if (isFinish) {
-                                    var maxDateTime = LocalDateTime.parse(subOrderList.get(0).getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                                    for (OrderResponse subOrder : subOrderList) {
-                                        var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                                        maxDateTime = maxDateTime.isAfter(completionDate) ? maxDateTime : completionDate;
-                                    }
-                                    order.setOrderStatus(OrderStatus.COMPLETED);
-                                    order.setProductionCompletionDate(maxDateTime);
-                                    updateOrder(order);
-                                    break;
-                                }
+                            }
                         }
                     }
                     case DELIVERED -> {
@@ -990,13 +1032,46 @@ public class OrderServiceImpl implements OrderService {
             String maxDate = subOrderList.get(0).getExpectedProductCompletionDate();
             var convertMaxDate = LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 //            LocalDateTime maxDate = subOrderList.get(0).getExpectedProductCompletionDate();
+            int quantity = 0;
             for (var subOrder : subOrderList) {
                 var expectedCompleteDate = subOrder.getExpectedProductCompletionDate();
                 var convertExpectedCompleteDate = LocalDateTime.parse(expectedCompleteDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                 maxDate = convertExpectedCompleteDate.isAfter(convertMaxDate) ? expectedCompleteDate : maxDate;
+                quantity += subOrder.getQuantity();
             }
             order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             updateOrder(order);
+
+            int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+            stageService.createOrderStage(
+                    OrderStageRequest
+                            .builder()
+                            .orderID(orderID)
+                            .stage(OrderStatus.DEPOSIT)
+                            .currentQuantity(0)
+                            .status(false)
+                            .build()
+            );
+
+            stageService.createOrderStage(
+                    OrderStageRequest
+                            .builder()
+                            .orderID(orderID)
+                            .stage(OrderStatus.PROCESSING)
+                            .currentQuantity(0)
+                            .status(false)
+                            .build()
+            );
+
+            stageService.createOrderStage(
+                    OrderStageRequest
+                            .builder()
+                            .orderID(orderID)
+                            .stage(OrderStatus.COMPLETED)
+                            .currentQuantity(quantity)
+                            .status(false)
+                            .build()
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1039,7 +1114,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
-    private void RatingBrandByOrderRating(Order parentOrder, Float orderRating){
+    private void RatingBrandByOrderRating(Order parentOrder, Float orderRating) {
 
     }
 }
