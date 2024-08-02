@@ -333,5 +333,6 @@ public class APIConstant {
         public static final String UPDATE_SAMPLE_PRODUCT_DATA = "/update-sample-product-data";
         public static final String GET_SAMPLE_PRODUCT_DATA_BY_ID = "/get-sample-product-data-by-id";
         public static final String GET_SAMPLE_PRODUCT_DATA_BY_PARENT_ORDER_ID = "/get-sample-product-data-by-parent-order-id";
+        public static final String GET_SAMPLE_PRODUCT_DATA_BY_PARENT_ORDER_ID_AND_STAGE_ID = "/get-sample-product-data-by-parent-order-id";
     }
 }

@@ -125,4 +125,17 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
                 .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<SampleProductDataResponse> getSampleProductDataByParentOrderIDAndStageID(UUID orderID, UUID stageID) {
+        return orderService
+                .getSubOrderByParentID(orderID)
+                .stream()
+                .flatMap(
+                        subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
+                                .filter(f -> f.getOrderStage().getStageId().equals(stageID))
+                )
+                .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
+                .collect(Collectors.toList());
+    }
 }
