@@ -16,6 +16,10 @@ public class SampleProductDataRequest {
     @ValidStringUUID(message = "Order Stage ID must be a valid UUID")
     private String orderStageID;
 
+    @NotBlank(message = "Order ID is required")
+    @ValidStringUUID(message = "Order ID must be a valid UUID")
+    private String orderID;
+
     @NotBlank(message = "Brand ID is required")
     @ValidStringUUID(message = "Brand ID must be a valid UUID")
     private String brandID;

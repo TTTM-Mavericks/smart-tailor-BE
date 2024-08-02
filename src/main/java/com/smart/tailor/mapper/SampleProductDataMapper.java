@@ -9,9 +9,13 @@ import java.util.Base64;
 
 @Mapper(componentModel = "spring")
 public interface SampleProductDataMapper {
-    @Mapping(source = "sampleProductData.orderStage.order.orderID", target = "orderID")
+    @Mapping(source = "sampleProductData.orderStage.stageId", target = "orderStageID")
     @Mapping(source = "sampleProductData.brand.brandID", target = "brandID")
+    @Mapping(source = "sampleProductData.order.orderID", target = "orderID")
+    @Mapping(source = "sampleProductData.brand.brandName", target = "brandName")
+    @Mapping(source = "sampleProductData.orderStage.stage", target = "stage")
     @Mapping(source = "sampleProductData.sampleModelID", target = "sampleModelID")
+    @Mapping(source = "sampleProductData.status", target = "status")
     @Mapping(target = "video", expression = "java(decodeByteArrayToString(sampleProductData.getVideo()))")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(sampleProductData.getImageUrl()))")
     @Mapping(source = "sampleProductData.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")

@@ -32,12 +32,13 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     @Transactional
     @Override
     public void addNewSampleProductData(SampleProductDataRequest sampleProductDataRequest) {
-        UUID subOrderID = UUID.fromString(sampleProductDataRequest.getOrderStageID());
+        UUID subOrderID = UUID.fromString(sampleProductDataRequest.getOrderID());
+        UUID stageID = UUID.fromString(sampleProductDataRequest.getOrderStageID());
         UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
 
-        var orderStage = stageService.getOrderStageByID(subOrderID);
-        if (orderStage == null)
-            throw new ItemNotFoundException("Can not find Order with SubOrderID: " + subOrderID);
+        var orderStage = stageService.getOrderStageByID(stageID);
+        var order = orderService.getOrderById(subOrderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + subOrderID));
 
         var brand = brandService.findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
@@ -54,6 +55,7 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
 
         sampleProductDataRepository.save(SampleProductData
                 .builder()
+                .order(order)
                 .orderStage(orderStage)
                 .brand(brand)
                 .imageUrl(base64ImageUrl)
@@ -68,11 +70,13 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     @Override
     public void updateSampleProductData(UUID sampleModelID, SampleProductDataRequest sampleProductDataRequest) {
         UUID stageID = UUID.fromString(sampleProductDataRequest.getOrderStageID());
+        UUID orderID = UUID.fromString(sampleProductDataRequest.getOrderID());
         UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
 
         var sampleProductData = sampleProductDataRepository.findById(sampleModelID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Sample Product Data with SampleModelID: " + sampleModelID));
-
+        var order = orderService.getOrderById(orderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with orderID: " + orderID));
         var orderStage = stageService.getOrderStageByID(stageID);
         if (orderStage == null)
             throw new ItemNotFoundException("Can not find Order Stage with ID: " + stageID);
@@ -93,6 +97,7 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
         sampleProductDataRepository.save(SampleProductData
                 .builder()
                 .sampleModelID(sampleModelID)
+                .order(order)
                 .orderStage(orderStage)
                 .brand(brand)
                 .imageUrl(base64ImageUrl)

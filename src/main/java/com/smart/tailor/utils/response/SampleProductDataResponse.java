@@ -1,5 +1,6 @@
 package com.smart.tailor.utils.response;
 
+import com.smart.tailor.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,15 @@ public class SampleProductDataResponse {
 
     private UUID orderID;
 
+    private UUID orderStageID;
+
     private UUID brandID;
+
+    private String brandName;
+
+    OrderStatus stage;
+
+    Boolean status;
 
     private String description;
 
