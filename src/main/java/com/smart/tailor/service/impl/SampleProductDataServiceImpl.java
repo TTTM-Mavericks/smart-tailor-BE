@@ -131,27 +131,26 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     public List<SampleProductDataResponse> getSampleProductDataByParentOrderIDAndStageID(UUID orderID, UUID stageID) {
         var order = orderService.getOrderById(orderID).orElseThrow(() -> new ItemNotFoundException("Can not found order"));
         if (order.getOrderType().equals("PARENT_ORDER")) {
-            if (order.getOrderStatus().equals(OrderStatus.DEPOSIT)) {
+            var stage = stageService.getOrderStageByID(stageID);
+            if (stage.getStage().equals(OrderStatus.DEPOSIT)) {
                 return orderService
                         .getSubOrderByParentID(orderID)
                         .stream()
                         .flatMap(
                                 subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
-                                        .filter(f -> f.getOrderStage().getStageId().equals(stageID)
-                                                && f.getOrderStage().getStage().equals(OrderStatus.START_PRODUCING)
+                                        .filter(f -> f.getOrderStage().getStage().equals(OrderStatus.START_PRODUCING)
                                         )
                         )
                         .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
                         .collect(Collectors.toList());
             } else {
-                if (order.getOrderStatus().equals(OrderStatus.PROCESSING)) {
+                if (stage.getStage().equals(OrderStatus.PROCESSING)) {
                     var sampleInStage2 = orderService
                             .getSubOrderByParentID(orderID)
                             .stream()
                             .flatMap(
                                     subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
-                                            .filter(f -> f.getOrderStage().getStageId().equals(stageID)
-                                                    && f.getOrderStage().getStage().equals(OrderStatus.FINISH_SECOND_STAGE)
+                                            .filter(f -> f.getOrderStage().getStage().equals(OrderStatus.FINISH_SECOND_STAGE)
                                             )
                             )
                             .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
@@ -162,8 +161,7 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
                                 .stream()
                                 .flatMap(
                                         subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
-                                                .filter(f -> f.getOrderStage().getStageId().equals(stageID)
-                                                        && f.getOrderStage().getStage().equals(OrderStatus.FINISH_FIRST_STAGE)
+                                                .filter(f -> f.getOrderStage().getStage().equals(OrderStatus.FINISH_FIRST_STAGE)
                                                 )
                                 )
                                 .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
@@ -178,8 +176,7 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
                             .stream()
                             .flatMap(
                                     subOrder -> sampleProductDataRepository.findSampleProductDataByOrderID(subOrder.getOrderID()).stream()
-                                            .filter(f -> f.getOrderStage().getStageId().equals(stageID)
-                                                    && f.getOrderStage().getStage().equals(OrderStatus.COMPLETED)
+                                            .filter(f -> f.getOrderStage().getStage().equals(OrderStatus.COMPLETED)
                                             )
                             )
                             .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
