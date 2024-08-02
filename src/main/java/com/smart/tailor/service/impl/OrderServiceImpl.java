@@ -339,6 +339,11 @@ public class OrderServiceImpl implements OrderService {
                                                             .itemList(null)
                                                             .build()
                                             );
+                                            for (OrderResponse subOrderResponse : subOrderList) {
+                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                                subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+                                                updateOrder(subOrder);
+                                            }
                                         }
                                     }
                                     break;
@@ -376,6 +381,11 @@ public class OrderServiceImpl implements OrderService {
                                                             .itemList(null)
                                                             .build()
                                             );
+                                            for (OrderResponse subOrderResponse : subOrderList) {
+                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                                subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+                                                updateOrder(subOrder);
+                                            }
                                         }
                                     }
                                     break;
@@ -398,8 +408,7 @@ public class OrderServiceImpl implements OrderService {
                                         break;
                                     }
                             }
-                        }
-                        else {
+                        } else {
                             var subOrderList = getSubOrderByParentID(orderID);
                             boolean isFinish = true;
                             isFinish = true;
