@@ -444,6 +444,14 @@ public class OrderServiceImpl implements OrderService {
                                                     .build()
                                     );
                                 }
+                                logger.info("Change Status PROCESSING Order");
+                                changeOrderStatus(
+                                        OrderStatusUpdateRequest
+                                                .builder()
+                                                .orderID(orderID.toString())
+                                                .status(OrderStatus.COMPLETED.name())
+                                                .build()
+                                );
                             }
                         }
                     }
