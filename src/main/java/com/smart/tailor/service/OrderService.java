@@ -8,6 +8,7 @@ import com.smart.tailor.utils.request.RatingOrderRequest;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.utils.response.OrderStageResponse;
+import com.smart.tailor.utils.response.OrderTimeLineResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,4 +58,6 @@ public interface OrderService {
     List<OrderStageResponse> getOrderStageByOrderID(UUID orderID);
   
     void ratingOrder(RatingOrderRequest ratingOrderRequest);
+
+    OrderTimeLineResponse getOrderTimeLineByParentOrderID(UUID parentOrderID);
 }

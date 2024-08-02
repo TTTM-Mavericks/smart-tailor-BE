@@ -18,5 +18,4 @@ public enum OrderStatus {
     START_PRODUCING,
     FINISH_FIRST_STAGE,
     FINISH_SECOND_STAGE,
-
 }

@@ -16,9 +16,9 @@ public class BrandDetailPriceResponse {
 
     private UUID subOrderID;
 
-    private Double brandPriceDeposit;
+    private String brandPriceDeposit;
 
-    private Double brandPriceFirstStage;
+    private String brandPriceFirstStage;
 
-    private Double brandPriceSecondStage;
+    private String brandPriceSecondStage;
 }

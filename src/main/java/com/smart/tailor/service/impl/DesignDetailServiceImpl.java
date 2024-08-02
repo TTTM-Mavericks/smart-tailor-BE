@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final OrderService orderService;
     private final SizeService sizeService;
     private final BrandLaborQuantityService brandLaborQuantityService;
-    private static final Double PIXEL_TO_CENTIMETER = 0.0264583333;
+    private static final BigDecimal PIXEL_TO_CENTIMETER = new BigDecimal("0.0264583");
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
     @Transactional(readOnly = true)
@@ -273,116 +274,112 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         List<PartOfDesignInformation> partOfDesignInformationList = new ArrayList<>();
         List<ItemMaskInformation> itemMaskInformationList = new ArrayList<>();
 
-        // Get All Information Include Width, Height and Material of PartOfDesign of Design
-        // Get All Information Include ScaleX, ScaleY and Material of ItemMask of Design
         designResponse.getPartOfDesign().forEach(partOfDesignResponse -> {
-                    partOfDesignInformationList.add(PartOfDesignInformation
-                            .builder()
-                            .width(partOfDesignResponse.getWidth())
-                            .height(partOfDesignResponse.getHeight())
-                            .materialID(partOfDesignResponse.getMaterial().getMaterialID())
-                            .materialName(partOfDesignResponse.getMaterial().getMaterialName())
-                            .build());
-                    partOfDesignResponse.getItemMasks().forEach(itemMaskResponse -> {
-                        itemMaskInformationList.add(ItemMaskInformation
-                                .builder()
-                                .scaleX(itemMaskResponse.getScaleX())
-                                .scaleY(itemMaskResponse.getScaleY())
-                                .materialID(itemMaskResponse.getMaterial().getMaterialID())
-                                .materialName(itemMaskResponse.getMaterial().getMaterialName())
-                                .build());
-                    });
-                }
-        );
+            partOfDesignInformationList.add(PartOfDesignInformation
+                    .builder()
+                    .width(partOfDesignResponse.getWidth())
+                    .height(partOfDesignResponse.getHeight())
+                    .materialID(partOfDesignResponse.getMaterial().getMaterialID())
+                    .materialName(partOfDesignResponse.getMaterial().getMaterialName())
+                    .build());
+            partOfDesignResponse.getItemMasks().forEach(itemMaskResponse -> {
+                itemMaskInformationList.add(ItemMaskInformation
+                        .builder()
+                        .scaleX(itemMaskResponse.getScaleX())
+                        .scaleY(itemMaskResponse.getScaleY())
+                        .materialID(itemMaskResponse.getMaterial().getMaterialID())
+                        .materialName(itemMaskResponse.getMaterial().getMaterialName())
+                        .build());
+            });
+        });
 
-        // Loop each SubOrder of ParentOrder
-        double totalPriceOfParentOrder = 0;
-        double customerPriceDeposit = 0;
-        double customerPriceLaborQuantity = 0;
+        BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
+        BigDecimal customerPriceDeposit = BigDecimal.ZERO;
+        BigDecimal customerPriceLaborQuantity = BigDecimal.ZERO;
         List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
         for (var subOrder : listSubOrders) {
             List<DesignDetail> designDetailList = getDesignDetailBySubOrderID(subOrder.getOrderID());
 
-            // Calculate All Quantity of Each Brand Can Pick
             int totalQuantityOfSubOrder = designDetailList
                     .stream()
                     .mapToInt(DesignDetail::getQuantity)
                     .sum();
 
-            double totalPriceOfEachSubOrder = 0;
-            double brandPriceDeposit = 0;
-            double brandPriceLaborQuantity = 0;
+            BigDecimal totalPriceOfEachSubOrder = BigDecimal.ZERO;
+            BigDecimal brandPriceDeposit = BigDecimal.ZERO;
+            BigDecimal brandPriceLaborQuantity = BigDecimal.ZERO;
             Brand brand = null;
             for (DesignDetail designDetail : designDetailList) {
                 brand = designDetail.getBrand();
-                var designDetailQuantity = designDetail.getQuantity();
+                var designDetailQuantity = BigDecimal.valueOf(designDetail.getQuantity());
                 var size = designDetail.getSize();
 
-                // Calculate SizeExpertTailoring of Each SubOrder => Get Radio to Calculate PartOfDesign
                 var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
                         expertTailoring.getExpertTailoringID(),
                         size.getSizeID()
                 );
-                var ratio = sizeExpertTailoring.getRatio();
+                var ratio = BigDecimal.valueOf(sizeExpertTailoring.getRatio());
 
-                // Calculate All PartOfDesign Of One Design of Each SubOrder With BrandMaterialPrice And Ratio from SizeExpertTailoring
-                var totalPricePartOfDesignOfSubOrder = 0;
+                BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
                 for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
-                    totalPricePartOfDesignOfSubOrder += calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio);
+                    totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio));
                 }
 
-                // Calculate All ItemMask Of One Design of Each SubOrder With BrandMaterialPrice
-                var totalPriceItemMaskOfSubOrder = 0;
+                BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
                 for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
-                    totalPriceItemMaskOfSubOrder += calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID());
+                    totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID()));
                 }
 
-                // Calculate All Quantity of Each Brand to Get BrandLaborQuantity of Order
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
 
-                brandPriceDeposit += (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder) * designDetailQuantity;
-                brandPriceLaborQuantity += brandLaborQuantityOfSubOrder.getLaborCostPerQuantity() * designDetailQuantity;
-                customerPriceDeposit += (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder) * designDetailQuantity;
-                customerPriceLaborQuantity += brandLaborQuantityOfSubOrder.getLaborCostPerQuantity() * designDetailQuantity;
-                totalPriceOfEachSubOrder += (totalPricePartOfDesignOfSubOrder + totalPriceItemMaskOfSubOrder + brandLaborQuantityOfSubOrder.getLaborCostPerQuantity()) * designDetailQuantity;
+                BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
+
+                brandPriceDeposit = brandPriceDeposit.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).multiply(designDetailQuantity));
+                brandPriceLaborQuantity = brandPriceLaborQuantity.add(brandLaborCostPerQuantity.multiply(designDetailQuantity));
+                customerPriceDeposit = customerPriceDeposit.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).multiply(designDetailQuantity));
+                customerPriceLaborQuantity = customerPriceLaborQuantity.add(brandLaborCostPerQuantity.multiply(designDetailQuantity));
+                totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
             }
             BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
                     .builder()
                     .brandID(brand.getBrandID())
                     .subOrderID(subOrder.getOrderID())
-                    .brandPriceDeposit(brandPriceDeposit)
-                    .brandPriceFirstStage(brandPriceLaborQuantity / 2)
-                    .brandPriceSecondStage(brandPriceLaborQuantity / 2)
+                    .brandPriceDeposit(brandPriceDeposit.toString())
+                    .brandPriceFirstStage(brandPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
+                    .brandPriceSecondStage(brandPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
                     .build();
             brandDetailPriceResponseList.add(brandDetailPriceResponse);
-            totalPriceOfParentOrder += totalPriceOfEachSubOrder;
+            totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
 
         return OrderDetailPriceResponse
                 .builder()
-                .totalPriceOfParentOrder(totalPriceOfParentOrder)
-                .customerPriceDeposit(customerPriceDeposit)
-                .customerPriceFirstStage(customerPriceLaborQuantity / 2)
-                .customerSecondStage(customerPriceLaborQuantity / 2)
+                .totalPriceOfParentOrder(totalPriceOfParentOrder.toString())
+                .customerPriceDeposit(customerPriceDeposit.toString())
+                .customerPriceFirstStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
+                .customerSecondStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
                 .brandDetailPriceResponseList(brandDetailPriceResponseList)
                 .build();
     }
 
-    private Integer calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, UUID brandID, Double ratio) {
-        var width = partInfo.getWidth() * ratio; // in Centimeter
-        var height = partInfo.getHeight() * ratio; // in Centimeter
-        var materialID = partInfo.getMaterialID();
-        var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
-        var price = (int) Math.ceil(width * height / 10000.0 * brandPriceMaterial);
+
+    private BigDecimal calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, UUID brandID, BigDecimal ratio) {
+        BigDecimal width = BigDecimal.valueOf(partInfo.getWidth()).multiply(ratio); // in Centimeter
+        BigDecimal height = BigDecimal.valueOf(partInfo.getHeight()).multiply(ratio); // in Centimeter
+        UUID materialID = partInfo.getMaterialID();
+        BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
+        BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), BigDecimal.ROUND_CEILING);
+        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, BigDecimal.ROUND_CEILING);
         return price;
     }
 
-    private Integer calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, UUID brandID) {
-        var scaleX_Centimeter = Math.abs(itemMaskInfo.getScaleX()) * PIXEL_TO_CENTIMETER;
-        var scaleY_Centimeter = Math.abs(itemMaskInfo.getScaleY()) * PIXEL_TO_CENTIMETER;
-        var materialID = itemMaskInfo.getMaterialID();
-        var brandPriceMaterial = brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
-        var price = (int) Math.ceil(scaleX_Centimeter * scaleY_Centimeter / 10000.0 * brandPriceMaterial);
+    private BigDecimal calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, UUID brandID) {
+        BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(PIXEL_TO_CENTIMETER);
+        BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(PIXEL_TO_CENTIMETER);
+        UUID materialID = itemMaskInfo.getMaterialID();
+        BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
+        BigDecimal area = scaleX_Centimeter.multiply(scaleY_Centimeter).divide(BigDecimal.valueOf(10000), BigDecimal.ROUND_CEILING);
+        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, BigDecimal.ROUND_CEILING);
         return price;
     }
 }
