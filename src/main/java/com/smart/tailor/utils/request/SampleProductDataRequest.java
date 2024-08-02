@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SampleProductDataRequest {
-    @NotBlank(message = "Sub Order ID is required")
-    @ValidStringUUID(message = "Sub Order ID must be a valid UUID")
-    private String subOrderID;
+    @NotBlank(message = "Order Stage ID is required")
+    @ValidStringUUID(message = "Order Stage ID must be a valid UUID")
+    private String orderStageID;
 
     @NotBlank(message = "Brand ID is required")
     @ValidStringUUID(message = "Brand ID must be a valid UUID")
@@ -25,4 +25,6 @@ public class SampleProductDataRequest {
     private String imageUrl;
 
     private String video;
+
+    private Boolean status;
 }
