@@ -715,9 +715,18 @@ public class OrderServiceImpl implements OrderService {
                                             .get().getStageId()
                             )
                     );
+                    var subStage = stageService.getOrderStageByID(
+                            UUID.fromString(
+                                    stageService.getOrderStageByOrderID(existedOrder.getOrderID())
+                                            .stream()
+                                            .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
+                                            .findFirst()
+                                            .get().getStageId()
+                            )
+                    );
                     if (stage != null) {
                         stage.setCurrentQuantity(
-                                stage.getCurrentQuantity() + existedOrder.getQuantity()
+                                stage.getCurrentQuantity() + subStage.getCurrentQuantity()
                         );
                         stageService.updateStage(stage);
                     }
