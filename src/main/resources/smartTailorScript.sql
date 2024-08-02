@@ -727,3 +727,33 @@ VALUES
 ((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Floss'), 1323, CURRENT_TIMESTAMP, NULL),
 ((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1190, CURRENT_TIMESTAMP, NULL);
 
+-- INSERT INTO BRAND PROPERTY
+INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status, create_date, last_modified_date)
+VALUES
+-- Insert for email tunmse161130@fpt.edu.vn
+(UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+(SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 50, true, CURRENT_TIMESTAMP, NULL);
+
+-- Insert for email tammtse161087@fpt.edu.vn
+INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status, create_date, last_modified_date)
+VALUES
+(UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+(SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 52, true, CURRENT_TIMESTAMP, NULL);
+
+-- Insert for email truongnhlse160191@fpt.edu.vn
+INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status, create_date, last_modified_date)
+VALUES
+(UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+(SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 48, true, CURRENT_TIMESTAMP, NULL);
+
+-- INSERT INTO Expert Tailoring Material
+INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
+ExpertTailoring : shirtModel and Category : Fabric
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),true,NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),true,NOW(),NULL),
+
+ExpertTailoring : shirtModel and Category : Thread
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),true,NOW(),NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),true,NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),true,NOW(),NULL);
