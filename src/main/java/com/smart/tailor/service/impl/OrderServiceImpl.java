@@ -911,7 +911,7 @@ public class OrderServiceImpl implements OrderService {
                                 .build()
                 );
                 if (quantity >= divideNumber) {
-                    int eachPhase = (int) Math.ceil(quantity / 3);
+                    int eachPhase = Utilities.roundToNearestHalf(quantity * 1.0 / 3);
                     stageService.createOrderStage(
                             OrderStageRequest
                                     .builder()
@@ -926,7 +926,7 @@ public class OrderServiceImpl implements OrderService {
                                     .builder()
                                     .orderID(createdOrder.getOrderID())
                                     .stage(OrderStatus.FINISH_SECOND_STAGE)
-                                    .currentQuantity(eachPhase)
+                                    .currentQuantity(eachPhase * 2)
                                     .status(false)
                                     .build()
                     );
@@ -1133,5 +1133,62 @@ public class OrderServiceImpl implements OrderService {
 
     private void RatingBrandByOrderRating(Order parentOrder, Float orderRating) {
 
+    }
+
+    @Override
+    public OrderTimeLineResponse getOrderTimeLineByParentOrderID(UUID parentOrderID) {
+        var parentOrder = orderRepository.findById(parentOrderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with Parent Order ID: " + parentOrderID));
+
+
+        var subOrderList = getSubOrderByParentID(parentOrderID);
+        var totalQuantityAtFirstStage = 0;
+        var totalQuantityAtSecondStage = 0;
+        var totalQuantityAtCompleteStage = 0;
+        var maximumDateAtFirstStage = -1;
+        var maximumDateAtSecondStage = -1;
+        var maximumDateAtCompleteStage = -1;
+        for(var subOrder : subOrderList){
+            var designDetail = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
+            var brand = designDetail
+                    .stream()
+                    .map(DesignDetail::getBrand)
+                    .findFirst();
+
+            var systemPropertiesResponse = systemPropertiesService.getByName("BRAND_PRODUCTIVITY");
+            var brandProductivity = brandPropertiesService.getByBrandIDAndPropertyID(brand.get().getBrandID(), systemPropertiesResponse.getPropertyID());
+            // Get All Stage Of SubOrder
+            var subOrderStageList = stageService.getOrderStageByOrderID(subOrder.getOrderID());
+            for(var subOrderStage : subOrderStageList){
+                // Calculate All Quantity At FirstStage, SecondStage, CompleteStage
+                // Find the Maximum Date At FirstStage, SecondStage, CompleteStage
+                if(subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)){
+                    logger.info("Finish First Stage");
+                    logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
+                    totalQuantityAtFirstStage += subOrderStage.getCurrentQuantity();
+                    maximumDateAtFirstStage = Math.max(maximumDateAtFirstStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+                } else if(subOrderStage.getStage().equals(OrderStatus.FINISH_SECOND_STAGE)){
+                    logger.info("Finish Second Stage");
+                    logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
+                    totalQuantityAtSecondStage += subOrderStage.getCurrentQuantity();
+                    maximumDateAtSecondStage = Math.max(maximumDateAtSecondStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+                } else if(subOrderStage.getStage().equals(OrderStatus.COMPLETED)) {
+                    logger.info("Finish Complete Stage");
+                    logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
+                    totalQuantityAtCompleteStage += subOrderStage.getCurrentQuantity();
+                    maximumDateAtCompleteStage = Math.max(maximumDateAtCompleteStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+                }
+            }
+        }
+
+        return OrderTimeLineResponse
+                .builder()
+                .estimatedQuantityFinishFirstStage(totalQuantityAtFirstStage)
+                .estimatedDateFinishFirstStage(parentOrder.getExpectedStartDate().plusDays(maximumDateAtFirstStage).toLocalDate().toString())
+                .estimatedQuantityFinishSecondStage(totalQuantityAtSecondStage)
+                .estimatedDateFinishSecondStage(parentOrder.getExpectedStartDate().plusDays(maximumDateAtSecondStage).toLocalDate().toString())
+                .estimatedQuantityFinishCompleteStage(totalQuantityAtCompleteStage)
+                .estimatedDateFinishCompleteStage(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage).toLocalDate().toString())
+                .build();
     }
 }

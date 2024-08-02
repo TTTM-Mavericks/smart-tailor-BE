@@ -187,4 +187,13 @@ public class Utilities {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return dateTimeFormatter.format(localDateTime);
     }
+
+    public static int roundToNearestHalf(double value) {
+        double fractionalPart = value - Math.floor(value);
+        if (fractionalPart < 0.5) {
+            return (int) Math.floor(value);
+        } else {
+            return (int) Math.ceil(value);
+        }
+    }
 }

@@ -216,17 +216,12 @@ public class OrderController {
 
     @GetMapping("/filter-brand-by-design-id/{designID}")
     public ResponseEntity<ObjectNode> filterBrandForSpecificOrderBaseOnDesign(@ValidUUID @PathVariable("designID") UUID designID) {
-        try {
-            ObjectNode response = objectMapper.createObjectNode();
-            response.put("status", 200);
-            response.put("message", "Filter Brand For Specific Order Base On Design");
-            var listFilterBrand = orderService.filterBrandForSpecificOrderBaseOnDesign(designID);
-            response.set("data", objectMapper.valueToTree(listFilterBrand));
-            return ResponseEntity.ok(response);
-        } catch (Exception ex) {
-            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
-            return null;
-        }
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", 200);
+        response.put("message", "Filter Brand For Specific Order Base On Design");
+        var listFilterBrand = orderService.filterBrandForSpecificOrderBaseOnDesign(designID);
+        response.set("data", objectMapper.valueToTree(listFilterBrand));
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(OrderAPI.RATING_ORDER)
@@ -236,6 +231,15 @@ public class OrderController {
         orderService.ratingOrder(ratingOrderRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.RATING_ORDER_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(OrderAPI.ORDER_TIME_LINE_BY_PARENT_ORDER_ID + "/{parentOrderID}")
+    public ResponseEntity<ObjectNode> orderTimeLineByParentOrderID(@ValidUUID @PathVariable("parentOrderID") UUID parentOrderID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", 200);
+        response.put("message", "Order Time Line by Parent Order ID Successfully");
+        response.set("data", objectMapper.valueToTree(orderService.getOrderTimeLineByParentOrderID(parentOrderID)));
         return ResponseEntity.ok(response);
     }
 }

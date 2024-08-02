@@ -12,13 +12,13 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class OrderDetailPriceResponse {
-    private Double totalPriceOfParentOrder;
+    private String totalPriceOfParentOrder;
 
-    private Double customerPriceDeposit;
+    private String customerPriceDeposit;
 
-    private Double customerPriceFirstStage;
+    private String customerPriceFirstStage;
 
-    private Double customerSecondStage;
+    private String customerSecondStage;
 
     private List<BrandDetailPriceResponse> brandDetailPriceResponseList;
 }
