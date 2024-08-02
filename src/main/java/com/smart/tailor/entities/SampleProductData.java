@@ -25,10 +25,15 @@ public class SampleProductData extends AuditEntity implements Serializable {
     @Column(name = "sample_model_id", nullable = false, unique = true)
     private UUID sampleModelID;
 
+//    @ManyToOne
+//    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
+//    @JsonBackReference
+//    private Order order;
+
     @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
+    @JoinColumn(name = "stage_id", referencedColumnName = "stage_id")
     @JsonBackReference
-    private Order order;
+    private OrderStage orderStage;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", referencedColumnName = "brand_id")
@@ -45,4 +50,6 @@ public class SampleProductData extends AuditEntity implements Serializable {
     @Lob
     @Column(name = "video", columnDefinition = "LONGTEXT")
     private byte[] video;
+
+    boolean status;
 }

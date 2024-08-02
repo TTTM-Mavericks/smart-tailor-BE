@@ -9,7 +9,7 @@ import java.util.Base64;
 
 @Mapper(componentModel = "spring")
 public interface SampleProductDataMapper {
-    @Mapping(source = "sampleProductData.order.orderID", target = "orderID")
+    @Mapping(source = "sampleProductData.orderStage.order.orderID", target = "orderID")
     @Mapping(source = "sampleProductData.brand.brandID", target = "brandID")
     @Mapping(source = "sampleProductData.sampleModelID", target = "sampleModelID")
     @Mapping(target = "video", expression = "java(decodeByteArrayToString(sampleProductData.getVideo()))")
