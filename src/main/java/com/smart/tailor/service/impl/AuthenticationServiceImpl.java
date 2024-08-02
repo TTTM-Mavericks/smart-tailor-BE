@@ -94,10 +94,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (user != null && user.getRoles().getRoleName().equals("CUSTOMER")) {
             logger.info("Inside Create Customer Profile Method");
             customerService.createCustomer(user, true);
-        } else {
-            throw new BadRequestWithCustomStatusCodeException(
-                    HttpStatus.valueOf(ErrorConstant.REGISTER_NEW_USER_FAILED.getStatusCode()),
-                    ErrorConstant.REGISTER_NEW_USER_FAILED.getMessage());
         }
 
         var jwtToken = jwtService.generateToken(user);
