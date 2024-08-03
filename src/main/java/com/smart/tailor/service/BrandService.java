@@ -3,6 +3,7 @@ package com.smart.tailor.service;
 import com.smart.tailor.entities.Brand;
 import com.smart.tailor.utils.request.BrandRequest;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.response.BrandResponse;
 import com.smart.tailor.utils.response.UserResponse;
 
 import java.util.List;
@@ -14,14 +15,6 @@ public interface BrandService {
 
     Brand saveBrand(UUID brandID, BrandRequest brandRequest) throws Exception;
 
-    Boolean verifyUser(String email, String token) throws Exception;
-
-    UserResponse register(UserRequest userRequest) throws Exception;
-
-    Boolean checkVerify(String email);
-
-    Optional<Brand> findBrandByBrandName(String brandName);
-
     Brand getBrandByEmail(String email) throws Exception;
 
     Brand updateBrand(Brand brand) throws Exception;
@@ -31,4 +24,6 @@ public interface BrandService {
     List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID);
 
     void ratingBrand(UUID brandID, Integer numberOfRating, Float ratingScore);
+
+    BrandResponse findBrandInformationByBrandID(UUID brandID);
 }

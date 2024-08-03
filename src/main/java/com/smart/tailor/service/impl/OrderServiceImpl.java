@@ -1180,9 +1180,17 @@ public class OrderServiceImpl implements OrderService {
         var estimateOrderTimeLine = getOrderTimeLineByParentOrderID(parentOrder.getOrderID());
 
         // Define the format for parsing and formatting dates
-        DateTimeFormatter originalDateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        DateTimeFormatter isoDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter fullDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+        // Convert estimated dates to LocalDateTime
+        LocalDateTime estimatedDateFinishFirstStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishFirstStage(), outputFormatter);
+        LocalDateTime estimatedDateFinishSecondStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishSecondStage(), outputFormatter);
+        LocalDateTime estimatedDateCompletion = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage(), outputFormatter);
+
+        logger.info("Estimated Date Finish First Stage: {}", estimatedDateFinishFirstStage);
+        logger.info("Estimated Date Finish Second Stage: {}", estimatedDateFinishSecondStage);
+        logger.info("Estimated Date Completion: {}", estimatedDateCompletion);
 
         for (var subOrder : subOrderList) {
             var designDetail = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
@@ -1200,46 +1208,35 @@ public class OrderServiceImpl implements OrderService {
 
                 if (subOrderStage.getLastModifiedDate() == null) continue;
 
-                // Parse the full date-time string and extract the date
-                LocalDateTime lastModifiedDateTime = LocalDateTime.parse(subOrderStage.getLastModifiedDate(), fullDateTimeFormatter);
-                LocalDate lastModifiedDate = lastModifiedDateTime.toLocalDate();
+                // Parse the full date-time string
+                LocalDateTime lastModifiedDateTime = LocalDateTime.parse(subOrderStage.getLastModifiedDate(), inputFormatter);
 
-                // Convert the estimated dates to LocalDate
-                LocalDate estimatedDateFinishFirstStage = LocalDate.parse(estimateOrderTimeLine.getEstimatedDateFinishFirstStage(), originalDateFormatter);
-                LocalDate estimatedDateFinishSecondStage = LocalDate.parse(estimateOrderTimeLine.getEstimatedDateFinishSecondStage(), originalDateFormatter);
-                LocalDate estimatedDateCompletion = LocalDate.parse(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage(), originalDateFormatter);
+                // Format lastModifiedDateTime to "dd-MM-yyyy HH:mm:ss"
+                String lastModifiedDateTimeStr = lastModifiedDateTime.format(outputFormatter);
+                LocalDateTime lastModifiedDateTimeFormatted = LocalDateTime.parse(lastModifiedDateTimeStr, outputFormatter);
 
-                // Convert LocalDate to string in dd-MM-yyyy format for comparison
-                String lastModifiedDateStr = lastModifiedDate.format(originalDateFormatter);
-                String estimatedDateFinishFirstStageStr = estimatedDateFinishFirstStage.format(originalDateFormatter);
-                String estimatedDateFinishSecondStageStr = estimatedDateFinishSecondStage.format(originalDateFormatter);
-                String estimatedDateCompletionStr = estimatedDateCompletion.format(originalDateFormatter);
-
-                // Convert the strings back to LocalDate for comparison
-                LocalDate lastModifiedDateFormatted = LocalDate.parse(lastModifiedDateStr, originalDateFormatter);
-                LocalDate estimatedFinishFirstStageFormatted = LocalDate.parse(estimatedDateFinishFirstStageStr, originalDateFormatter);
-                LocalDate estimatedFinishSecondStageFormatted = LocalDate.parse(estimatedDateFinishSecondStageStr, originalDateFormatter);
-                LocalDate estimatedCompletionFormatted = LocalDate.parse(estimatedDateCompletionStr, originalDateFormatter);
-
-                // Check the stage and calculate counters based on dates
+                // Compare the stages and calculate counters based on dates
                 if (subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)) {
-                    if (lastModifiedDateFormatted.isBefore(estimatedFinishFirstStageFormatted)) {
+                    if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishFirstStage)) {
                         completedAheadOfSchedule++;
-                    } else if (lastModifiedDateFormatted.isAfter(estimatedFinishFirstStageFormatted)) {
+                    } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishFirstStage)) {
                         completedLate++;
                     }
+                    logger.error("Last Modified Date Time At Finish First Stage: {}", lastModifiedDateTimeFormatted);
                 } else if (subOrderStage.getStage().equals(OrderStatus.FINISH_SECOND_STAGE)) {
-                    if (lastModifiedDateFormatted.isBefore(estimatedFinishSecondStageFormatted)) {
+                    if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishSecondStage)) {
                         completedAheadOfSchedule++;
-                    } else if (lastModifiedDateFormatted.isAfter(estimatedFinishSecondStageFormatted)) {
+                    } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishSecondStage)) {
                         completedLate++;
                     }
+                    logger.error("Last Modified Date Time At Finish Second Stage: {}", lastModifiedDateTimeFormatted);
                 } else if (subOrderStage.getStage().equals(OrderStatus.COMPLETED)) {
-                    if (lastModifiedDateFormatted.isBefore(estimatedCompletionFormatted)) {
+                    if (lastModifiedDateTimeFormatted.isBefore(estimatedDateCompletion)) {
                         completedAheadOfSchedule++;
-                    } else if (lastModifiedDateFormatted.isAfter(estimatedCompletionFormatted)) {
+                    } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateCompletion)) {
                         completedLate++;
                     }
+                    logger.error("Last Modified Date Time At Finish Complete Stage: {}", lastModifiedDateTimeFormatted);
                 }
             }
 
@@ -1249,13 +1246,13 @@ public class OrderServiceImpl implements OrderService {
             if (brandOrderRating <= 0) brandOrderRating = 0.0f;
             else if (brandOrderRating > 5) brandOrderRating = 5.0f;
 
-            logger.info("Brand {} Complete A Head of Schedule {} and OrderRating {}", brand.get().getUser().getEmail(), completedAheadOfSchedule, brandOrderRating);
-            logger.info("Brand {} Complete Late {} and OrderRating {}", brand.get().getUser().getEmail(), completedLate, brandOrderRating);
+            logger.warn("Brand {} Complete A Head of Schedule {}", brand.get().getUser().getEmail(), completedAheadOfSchedule);
+            logger.warn("Brand {} Complete Late {}", brand.get().getUser().getEmail(), completedLate);
+            logger.warn("Order Rating {}", brandOrderRating);
             // Update the rating for the brand
             brandService.ratingBrand(brand.get().getBrandID(), 1, brandOrderRating);
         }
     }
-
 
     @Override
     public OrderTimeLineResponse getOrderTimeLineByParentOrderID(UUID parentOrderID) {
@@ -1303,7 +1300,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
         return OrderTimeLineResponse
                 .builder()
