@@ -1241,8 +1241,14 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // Update orderRating based on the completion status
-            brandOrderRating += (completedAheadOfSchedule > 0) ? (float) (completedAheadOfSchedule * 0.25) : 0;
-            brandOrderRating += (completedLate > 0) ? (float) (completedLate * -0.75) : 0;
+            var systemPropertyRateAHeadSchedule = systemPropertiesService.getByName("RATE_AHEAD_SCHEDULE");
+            var rateAHeadSchedule = Double.parseDouble(systemPropertyRateAHeadSchedule.getPropertyValue());
+
+            var systemPropertyRateLateSchedule = systemPropertiesService.getByName("RATE_LATE_SCHEDULE");
+            var rateLateSchedule = Double.parseDouble(systemPropertyRateLateSchedule.getPropertyValue());
+
+            brandOrderRating += (completedAheadOfSchedule > 0) ? (float) (completedAheadOfSchedule * rateAHeadSchedule) : 0;
+            brandOrderRating += (completedLate > 0) ? (float) (completedLate * -rateLateSchedule) : 0;
             if (brandOrderRating <= 0) brandOrderRating = 0.0f;
             else if (brandOrderRating > 5) brandOrderRating = 5.0f;
 
@@ -1261,9 +1267,6 @@ public class OrderServiceImpl implements OrderService {
 
 
         var subOrderList = getSubOrderByParentID(parentOrderID);
-        var totalQuantityAtFirstStage = 0;
-        var totalQuantityAtSecondStage = 0;
-        var totalQuantityAtCompleteStage = 0;
         var maximumDateAtFirstStage = -1;
         var maximumDateAtSecondStage = -1;
         var maximumDateAtCompleteStage = -1;
@@ -1284,17 +1287,14 @@ public class OrderServiceImpl implements OrderService {
                 if (subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)) {
                     logger.info("Finish First Stage");
                     logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
-                    totalQuantityAtFirstStage += subOrderStage.getCurrentQuantity();
                     maximumDateAtFirstStage = Math.max(maximumDateAtFirstStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
                 } else if (subOrderStage.getStage().equals(OrderStatus.FINISH_SECOND_STAGE)) {
                     logger.info("Finish Second Stage");
                     logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
-                    totalQuantityAtSecondStage += subOrderStage.getCurrentQuantity();
                     maximumDateAtSecondStage = Math.max(maximumDateAtSecondStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
                 } else if (subOrderStage.getStage().equals(OrderStatus.COMPLETED)) {
                     logger.info("Finish Complete Stage");
                     logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
-                    totalQuantityAtCompleteStage += subOrderStage.getCurrentQuantity();
                     maximumDateAtCompleteStage = Math.max(maximumDateAtCompleteStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
                 }
             }
@@ -1304,11 +1304,11 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderTimeLineResponse
                 .builder()
-                .estimatedQuantityFinishFirstStage(totalQuantityAtFirstStage)
+                .estimatedQuantityFinishFirstStage(Utilities.roundToNearestHalf(parentOrder.getQuantity() * 1.0 / 3))
                 .estimatedDateFinishFirstStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtFirstStage)))
-                .estimatedQuantityFinishSecondStage(totalQuantityAtSecondStage)
+                .estimatedQuantityFinishSecondStage(Utilities.roundToNearestHalf(parentOrder.getQuantity() * 2.0 / 3))
                 .estimatedDateFinishSecondStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtSecondStage)))
-                .estimatedQuantityFinishCompleteStage(totalQuantityAtCompleteStage)
+                .estimatedQuantityFinishCompleteStage(parentOrder.getQuantity())
                 .estimatedDateFinishCompleteStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage)))
                 .build();
     }
