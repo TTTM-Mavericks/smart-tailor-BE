@@ -9,6 +9,7 @@ import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.mapper.BrandMapper;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.BrandRepository;
 import com.smart.tailor.service.BrandService;
@@ -17,6 +18,7 @@ import com.smart.tailor.service.RoleService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.BrandRequest;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.response.BrandResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -31,15 +33,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
     private final BrandRepository brandRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
-    private final RoleService roleService;
     private final UserService userService;
-    private final Map<String, Object> storageObject = new HashMap<>();
-    private final Map<String, String> verifyAccount = new HashMap<>();
-    private final Map<String, String> verified = new HashMap<>();
-    private final Map<String, String> expiredTimeLink = new HashMap<>();
-    private final EmailSenderService emailSenderService;
+    private final BrandMapper brandMapper;
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     @Override
@@ -108,87 +103,6 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public UserResponse register(UserRequest userRequest) throws Exception {
-        try {
-            userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-            Provider provider = userRequest.getProvider() != null ? userRequest.getProvider() : Provider.LOCAL;
-            userRequest.setProvider(provider);
-
-
-            UserRequest checkUserRequest = (UserRequest) storageObject.get(userRequest.getEmail());
-            if (checkUserRequest != null) {
-                String oldToken = verifyAccount.get(userRequest.getEmail());
-                LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(userRequest.getEmail() + " expiredTime"));
-                verifyAccount.remove(oldToken);
-                expiredTimeLink.remove(expiredTime);
-                storageObject.remove(userRequest.getEmail());
-            }
-
-            // Store Object Class to HashMap
-            storageObject.put(userRequest.getEmail(), userRequest);
-
-            String token = UUID.randomUUID().toString();
-            verifyAccount.put(userRequest.getEmail(), token);
-
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime expiredLinkVerify = now.plusMinutes(5);
-            expiredTimeLink.put(userRequest.getEmail() + " expiredTime", expiredLinkVerify.toString());
-
-            logger.info("Before Mail Email : {}, token : {}", userRequest.getEmail(), verifyAccount.get(userRequest.getEmail()));
-
-            String verificationUrl = "https://be.mavericks-tttm.studio/api/v1/brand/verify" + "?email=" + userRequest.getEmail() + "&token=" + token;
-
-            String emailText = "<!DOCTYPE html>" + "<html>" + "<head>" + "    <meta charset='UTF-8'>" + "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" + "    <title>Account Verification</title>" + "    <style>" + "        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" + "        .container { width: 100%; padding: 20px; }" + "        .content { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }" + "        .header { font-size: 24px; font-weight: bold; color: #333333; }" + "        .message { font-size: 16px; color: #555555; }" + "        .button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #ffffff; background-color: #4CAF50; text-align: center; text-decoration: none; border-radius: 5px; margin-top: 20px; }" + "    </style>" + "</head>" + "<body>" + "    <div class='container'>" + "        <div class='content'>" + "            <div class='header'>Verify Your Account</div>" + "            <div class='message'>Hi " + userRequest.getEmail() + ",</div>" + "            <div class='message'>Thank you for registering. To complete your registration, please verify your email by clicking the button below.</div>" + "            <a href='" + verificationUrl + "' class='button'>Verify Account</a>" + "            <div class='message'>If you did not register for an account, please ignore this email.</div>" + "        </div>" + "    </div>" + "</body>" + "</html>";
-            emailSenderService.sendEmail(userRequest.getEmail(), "Account Verification", emailText);
-            var user = User.builder().email(userRequest.getEmail()).password(passwordEncoder.encode(userRequest.getPassword())).userStatus(UserStatus.ACTIVE).fullName(userRequest.getFullName()).roles(roleService.findRoleByRoleName("BRAND").get()).phoneNumber(userRequest.getPhoneNumber()).imageUrl(userRequest.getImageUrl()).language(userRequest.getLanguage()).provider(userRequest.getProvider()).build();
-            return userMapper.mapperToUserResponse(user);
-        } catch (Exception ex) {
-            throw ex;
-        }
-    }
-
-    // 5s => call check verify or not
-    @Override
-    public Boolean checkVerify(String email) {
-        try {
-            var registerUser = userService.getUserByEmail(email);
-            return registerUser != null && registerUser.getUserStatus().equals(UserStatus.ACTIVE);
-        } catch (Exception ex) {
-            logger.error("ERROR IN BrandServiceImpl - checkVerify: {}", ex.getMessage());
-        }
-        return false;
-    }
-
-    // user click verify link
-    @Override
-    public Boolean verifyUser(String email, String token) throws Exception {
-        LocalDateTime expiredTime = LocalDateTime.parse(expiredTimeLink.get(email + " expiredTime"));
-        LocalDateTime currentTime = LocalDateTime.now();
-        String oldToken = verifyAccount.get(email);
-        if (currentTime.isAfter(expiredTime)) {
-            verifyAccount.remove(oldToken);
-            expiredTimeLink.remove(expiredTime);
-            storageObject.remove(email);
-            return false;
-        }
-        logger.info(" Get Token From HashMap {}", oldToken);
-        if (oldToken.equals(token)) {
-            UserRequest userRequest = (UserRequest) storageObject.get(email);
-            var user = userService.registerNewUsers(userRequest);
-            verified.put(email, "TRUE");
-            verifyAccount.remove(oldToken);
-            expiredTimeLink.remove(expiredTime);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Optional<Brand> findBrandByBrandName(String brandName) {
-        return brandRepository.findBrandByBrandName(brandName);
-    }
-
-    @Override
     public Brand getBrandByEmail(String email) throws Exception {
         try {
             if (email == null || email.isEmpty() || email.isBlank()) {
@@ -235,5 +149,13 @@ public class BrandServiceImpl implements BrandService {
                 totalRatingScoreUpdate,
                 brandID
         );
+    }
+
+    @Override
+    public BrandResponse findBrandInformationByBrandID(UUID brandID) {
+        var brand = findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
+
+        return brandMapper.mapperToBrandResponse(brand);
     }
 }
