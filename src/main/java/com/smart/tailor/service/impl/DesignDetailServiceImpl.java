@@ -293,6 +293,9 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             });
         });
 
+        var totalMinWeightOfParentOrder = orderCustomResponse.getQuantity() * designResponse.getMinWeight();
+        var totalMaxWeightOfParentOrder = orderCustomResponse.getQuantity() * designResponse.getMaxWeight();
+
         BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
         BigDecimal customerPriceDeposit = BigDecimal.ZERO;
         BigDecimal customerPriceLaborQuantity = BigDecimal.ZERO;

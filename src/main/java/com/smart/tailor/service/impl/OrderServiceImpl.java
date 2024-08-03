@@ -1280,24 +1280,17 @@ public class OrderServiceImpl implements OrderService {
             var systemPropertiesResponse = systemPropertiesService.getByName("BRAND_PRODUCTIVITY");
             var brandProductivity = brandPropertiesService.getByBrandIDAndPropertyID(brand.get().getBrandID(), systemPropertiesResponse.getPropertyID());
             // Get All Stage Of SubOrder
-            var subOrderStageList = stageService.getOrderStageByOrderID(subOrder.getOrderID());
-            for (var subOrderStage : subOrderStageList) {
-                // Calculate All Quantity At FirstStage, SecondStage, CompleteStage
-                // Find the Maximum Date At FirstStage, SecondStage, CompleteStage
-                if (subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)) {
-                    logger.info("Finish First Stage");
-                    logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
-                    maximumDateAtFirstStage = Math.max(maximumDateAtFirstStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
-                } else if (subOrderStage.getStage().equals(OrderStatus.FINISH_SECOND_STAGE)) {
-                    logger.info("Finish Second Stage");
-                    logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
-                    maximumDateAtSecondStage = Math.max(maximumDateAtSecondStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
-                } else if (subOrderStage.getStage().equals(OrderStatus.COMPLETED)) {
-                    logger.info("Finish Complete Stage");
-                    logger.info("Brand {} Current Quantity {} Brand Property {}", brand.get().getUser().getEmail(), subOrderStage.getCurrentQuantity(), brandProductivity.getBrandPropertyValue());
-                    maximumDateAtCompleteStage = Math.max(maximumDateAtCompleteStage, (int) Math.ceil(subOrderStage.getCurrentQuantity() * 1.0 / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
-                }
-            }
+            // Calculate All Quantity At FirstStage, SecondStage, CompleteStage
+            // Find the Maximum Date At FirstStage, SecondStage, CompleteStage
+            logger.info("Finish First Stage");
+            logger.info("Brand {} Brand Quantity {} Brand Property {}", brand.get().getUser().getEmail(), Utilities.roundToNearestHalf(subOrder.getQuantity() * 1.0 / 3), brandProductivity.getBrandPropertyValue());
+            maximumDateAtFirstStage = Math.max(maximumDateAtFirstStage, (int) Math.ceil((subOrder.getQuantity() * 1.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+            logger.info("Finish Second Stage");
+            logger.info("Brand {} Brand Quantity {} Brand Property {}", brand.get().getUser().getEmail(), Utilities.roundToNearestHalf(subOrder.getQuantity() * 2.0 / 3), brandProductivity.getBrandPropertyValue());
+            maximumDateAtSecondStage = Math.max(maximumDateAtSecondStage, (int) Math.ceil((subOrder.getQuantity() * 2.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+            logger.info("Finish Complete Stage");
+            logger.info("Brand {} Brand Quantity {} Brand Property {}", brand.get().getUser().getEmail(), Utilities.roundToNearestHalf(subOrder.getQuantity() * 1.0), brandProductivity.getBrandPropertyValue());
+            maximumDateAtCompleteStage = Math.max(maximumDateAtCompleteStage, (int) Math.ceil((subOrder.getQuantity() * 1.0) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
         }
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
