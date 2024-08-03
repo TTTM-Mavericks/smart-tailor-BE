@@ -2,11 +2,11 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.exception.ExcelFileErrorReadingException;
-import com.smart.tailor.exception.ExcelFileNotSupportException;
 import com.smart.tailor.exception.ExcelFileInvalidDataTypeException;
+import com.smart.tailor.exception.ExcelFileNotSupportException;
 import com.smart.tailor.service.ExcelImportService;
-import com.smart.tailor.utils.request.*;
-import com.smart.tailor.utils.response.APIResponse;
+import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
+import com.smart.tailor.utils.request.ExpertTailoringRequest;
 import com.smart.tailor.utils.response.CellErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +17,15 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -152,9 +154,12 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
     private String getCellNameForExpertTailoring(int cellIndex) {
         switch (cellIndex) {
-            case 0: return "Expert_Tailoring_Name";
-            case 1: return "Size_Image_URL";
-            default: return "Unknown_Data";
+            case 0:
+                return "Expert_Tailoring_Name";
+            case 1:
+                return "Size_Image_URL";
+            default:
+                return "Unknown_Data";
         }
     }
 
@@ -298,10 +303,14 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
     private String getCellNameForExpertTailoringMaterial(int cellIndex) {
         switch (cellIndex) {
-            case 0: return "Category_Name";
-            case 1: return "Material_Name";
-            case 2: return "Expert_Tailoring_Name";
-            default: return "Unknown";
+            case 0:
+                return "Category_Name";
+            case 1:
+                return "Material_Name";
+            case 2:
+                return "Expert_Tailoring_Name";
+            default:
+                return "Unknown";
         }
     }
 }

@@ -4,7 +4,6 @@ import com.smart.tailor.enums.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Role;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,12 +20,6 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 @RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final RestAccessDenyEntryPoint restAccessDenyEntryPoint;
-    private final RestUnauthorizedEntryPoint restUnauthorizedEntryPoint;
-    private final LogoutHandler logoutHandler;
-    private final AuthenticationProvider authenticationProvider;
-
     private static final String[] WHITE_LIST_URL = {
             "/v2/api-docs",
             "/v3/api-docs",
@@ -40,7 +33,6 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/ws/**"
     };
-
     private static final String[] authenticatedRole = {
             RoleType.ADMIN.name(),
             RoleType.MANAGER.name(),
@@ -49,6 +41,11 @@ public class SecurityConfig {
             RoleType.BRAND.name(),
             RoleType.CUSTOMER.name(),
     };
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final RestAccessDenyEntryPoint restAccessDenyEntryPoint;
+    private final RestUnauthorizedEntryPoint restUnauthorizedEntryPoint;
+    private final LogoutHandler logoutHandler;
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -168,7 +165,7 @@ public class SecurityConfig {
 //                            auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
 //
 //                            auth.requestMatchers(WHITE_LIST_URL).permitAll();
-                              auth.anyRequest().permitAll();
+                            auth.anyRequest().permitAll();
                         }
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

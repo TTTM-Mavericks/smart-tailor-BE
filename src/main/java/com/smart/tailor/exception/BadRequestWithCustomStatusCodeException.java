@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Getter
 @Setter
 public class BadRequestWithCustomStatusCodeException extends ResponseStatusException {
-    public BadRequestWithCustomStatusCodeException(HttpStatusCode statusCode, String message){
+    public BadRequestWithCustomStatusCodeException(HttpStatusCode statusCode, String message) {
         super(statusCode, message);
     }
 }

@@ -35,15 +35,15 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         logger.info("The link to verify account registration {}", LinkConstant.LINK_VERIFICATION_ACCOUNT);
     }
 
-    public void sendVerificationEmail(User registeredUser, String verificationUrl){
+    public void sendVerificationEmail(User registeredUser, String verificationUrl) {
         mailService.sendMailVerifyAccount(registeredUser.getEmail(), "Email Verification", verificationUrl);
     }
 
-    public void sendPasswordResetEmail(User registeredUser, String verificationUrl){
+    public void sendPasswordResetEmail(User registeredUser, String verificationUrl) {
         mailService.sendMailResetPassword(registeredUser.getEmail(), "Reset Password Request", verificationUrl);
     }
 
-    public void sendChangePasswordMail(User registeredUser, String verificationUrl){
+    public void sendChangePasswordMail(User registeredUser, String verificationUrl) {
         mailService.sendMailChangePassword(registeredUser.getEmail(), "Change Password Request", verificationUrl);
     }
 }

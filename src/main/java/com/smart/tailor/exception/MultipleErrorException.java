@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class MultipleErrorException extends ResponseStatusException {
     private Object errorDetails;
 
-    public MultipleErrorException(HttpStatusCode statusCode, String message, Object errorDetails){
+    public MultipleErrorException(HttpStatusCode statusCode, String message, Object errorDetails) {
         super(statusCode, message);
         this.errorDetails = errorDetails;
     }

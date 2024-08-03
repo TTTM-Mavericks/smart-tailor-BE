@@ -4,7 +4,6 @@ package com.smart.tailor.utils.request;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.validate.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

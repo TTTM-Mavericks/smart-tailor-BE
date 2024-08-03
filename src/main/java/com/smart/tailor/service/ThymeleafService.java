@@ -1,7 +1,6 @@
 package com.smart.tailor.service;
 
 import com.smart.tailor.utils.response.OrderCustomResponse;
-import com.smart.tailor.utils.response.OrderResponse;
 
 public interface ThymeleafService {
     String createThymeleafForVerifyAccount(String email, String verificationUrl);

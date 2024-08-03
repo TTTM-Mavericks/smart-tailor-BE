@@ -1,7 +1,6 @@
 package com.smart.tailor.repository;
 
 import com.smart.tailor.entities.Material;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,7 +27,7 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
             "join expert_tailoring_material etm on m.material_id = etm.material_id " +
             "join expert_tailoring et on et.expert_tailoring_id = etm.expert_tailoring_id " +
             "where et.expert_tailoring_id = ?1 && c.category_id = ?2 && etm.status = true", nativeQuery = true)
-    List<Material>findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
+    List<Material> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
 
     @Query(value = "SELECT MIN(bm.brand_price) FROM brand_material bm join material m on m.material_id = bm.material_id where m.material_id = ?1", nativeQuery = true)
     Integer getMinPriceByMaterialID(UUID materialID);
@@ -48,6 +47,6 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
             "join expert_tailoring_material etm on m.material_id = etm.material_id " +
             "join expert_tailoring et on et.expert_tailoring_id = etm.expert_tailoring_id " +
             "where et.expert_tailoring_id = ?1 && c.category_name = ?2 && etm.status = true", nativeQuery = true)
-    List<Material>findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName);
+    List<Material> findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName);
 
 }

@@ -3,7 +3,6 @@ package com.smart.tailor.repository;
 import com.smart.tailor.entities.SizeExpertTailoring;
 import com.smart.tailor.entities.SizeExpertTailoringKey;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

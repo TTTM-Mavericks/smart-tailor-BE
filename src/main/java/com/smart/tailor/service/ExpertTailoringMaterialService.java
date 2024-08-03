@@ -3,7 +3,6 @@ package com.smart.tailor.service;
 import com.smart.tailor.entities.ExpertTailoringMaterial;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
 import com.smart.tailor.utils.response.ExpertTailoringMaterialResponse;
-import com.smart.tailor.utils.response.MaterialResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 

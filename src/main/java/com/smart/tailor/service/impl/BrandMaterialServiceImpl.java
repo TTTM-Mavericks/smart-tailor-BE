@@ -135,9 +135,9 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
             List<ErrorDetail> errorFields = new ArrayList<>();
             int rowIndex = 2;
-            while(rowIndex <= sheet.getLastRowNum()){
+            while (rowIndex <= sheet.getLastRowNum()) {
                 Row row = sheet.getRow(rowIndex);
-                if(row == null || isRowCompletelyEmptyForBrandMaterial(row)){
+                if (row == null || isRowCompletelyEmptyForBrandMaterial(row)) {
                     rowIndex++;
                     continue;
                 }
@@ -163,7 +163,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                             case 0:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var categoryName = cell.getStringCellValue();
-                                    if(categoryName.length() > 50){
+                                    if (categoryName.length() > 50) {
                                         errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
                                         inValidData = true;
                                         rowDataValid = false;
@@ -179,11 +179,11 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                             case 1:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var materialName = cell.getStringCellValue();
-                                    if(materialName.length() > 50){
+                                    if (materialName.length() > 50) {
                                         errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
                                         inValidData = true;
                                         rowDataValid = false;
-                                    } else{
+                                    } else {
                                         brandMaterialRequest.setMaterialName(materialName);
                                     }
                                 } else {
@@ -225,11 +225,11 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                             case 3:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var unit = cell.getStringCellValue();
-                                    if(unit.length() > 50){
+                                    if (unit.length() > 50) {
                                         errors.add(getCellNameForBrandMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
                                         inValidData = true;
                                         rowDataValid = false;
-                                    } else{
+                                    } else {
                                         brandMaterialRequest.setUnit(unit);
                                     }
                                 } else {
@@ -293,7 +293,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                         }
                                         break;
                                 }
-                                if(isEmpty) break;
+                                if (isEmpty) break;
                                 if (isValid && brandPrice >= 0) {
                                     brandMaterialRequest.setBrandPrice(brandPrice);
                                 } else {
@@ -309,19 +309,19 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                         }
                     }
                 }
-                if(!duplicateExcelData.add(brandMaterialRequest)){
+                if (!duplicateExcelData.add(brandMaterialRequest)) {
                     errors.add("Duplicate Brand Material Request Data at row Index " + (rowIndex + 1) + " in excel file");
                 }
 
                 var brand = brandService.findBrandById(brandID).orElse(null);
-                if(brand == null){
+                if (brand == null) {
                     errors.add("Can not find Brand with BrandID " + brandID);
                 }
 
                 var material = materialService.findByMaterialNameAndCategory_CategoryName(brandMaterialRequest.getMaterialName(),
                         brandMaterialRequest.getCategoryName());
 
-                var existedFullMaterial =  materialService.isExistedMaterial(
+                var existedFullMaterial = materialService.isExistedMaterial(
                         MaterialRequest
                                 .builder()
                                 .materialName(brandMaterialRequest.getMaterialName())
@@ -332,11 +332,11 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                                 .build()
                 );
 
-                if(!existedFullMaterial || material.isEmpty()){
-                    errors.add("Material_Name at row Index " + (rowIndex + 1) +  " not found");
+                if (!existedFullMaterial || material.isEmpty()) {
+                    errors.add("Material_Name at row Index " + (rowIndex + 1) + " not found");
                 }
 
-                if(rowDataValid && !brandPriceIsEmpty){
+                if (rowDataValid && !brandPriceIsEmpty) {
                     var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(),
                             brandMaterialRequest.getMaterialName(), brandID);
 
@@ -358,7 +358,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                         throw new BadRequestException("Brand Price must be between " + roundedLowerBound + " and " + roundedUpperBound);
                     }
 
-                    if (errors.isEmpty()){
+                    if (errors.isEmpty()) {
                         BrandMaterialKey brandMaterialKey = BrandMaterialKey
                                 .builder()
                                 .brandID(brand.getBrandID())
@@ -379,13 +379,13 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
                     }
                 }
 
-                if(!errors.isEmpty()){
+                if (!errors.isEmpty()) {
                     errorFields.add(new ErrorDetail(errors));
                 }
                 rowIndex++;
             }
 
-            if(brandMaterialRequests.isEmpty() && errorFields.isEmpty()){
+            if (brandMaterialRequests.isEmpty() && errorFields.isEmpty()) {
                 throw new BadRequestException("Brand Material Request excel file has empty data");
             }
 

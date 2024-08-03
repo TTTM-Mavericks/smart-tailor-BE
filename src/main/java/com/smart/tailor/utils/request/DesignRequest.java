@@ -2,10 +2,12 @@ package com.smart.tailor.utils.request;
 
 import com.smart.tailor.validate.ValidColor;
 import com.smart.tailor.validate.ValidStringUUID;
-import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 

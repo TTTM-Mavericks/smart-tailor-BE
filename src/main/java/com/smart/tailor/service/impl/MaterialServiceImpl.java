@@ -5,10 +5,16 @@ import com.smart.tailor.entities.Material;
 import com.smart.tailor.exception.*;
 import com.smart.tailor.mapper.MaterialMapper;
 import com.smart.tailor.repository.MaterialRepository;
-import com.smart.tailor.service.*;
+import com.smart.tailor.service.CategoryService;
+import com.smart.tailor.service.ExcelExportService;
+import com.smart.tailor.service.ExcelImportService;
+import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.MaterialRequest;
-import com.smart.tailor.utils.response.*;
+import com.smart.tailor.utils.response.CategoryResponse;
+import com.smart.tailor.utils.response.ErrorDetail;
+import com.smart.tailor.utils.response.MaterialResponse;
+import com.smart.tailor.utils.response.MaterialWithPriceResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,8 +77,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public Boolean isExistedMaterial(MaterialRequest materialRequest)
-    {
+    public Boolean isExistedMaterial(MaterialRequest materialRequest) {
         return materialRepository.existsByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCaseAndHsCodeAndUnitIgnoreCaseAndBasePrice(
                 materialRequest.getMaterialName(),
                 materialRequest.getCategoryName(),
@@ -126,7 +131,7 @@ public class MaterialServiceImpl implements MaterialService {
                             case 0:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var categoryName = cell.getStringCellValue();
-                                    if(categoryName.length() > 50){
+                                    if (categoryName.length() > 50) {
                                         errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
                                         inValidData = true;
                                         rowDataValid = false;
@@ -142,11 +147,11 @@ public class MaterialServiceImpl implements MaterialService {
                             case 1:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var materialName = cell.getStringCellValue();
-                                    if(materialName.length() > 50){
+                                    if (materialName.length() > 50) {
                                         errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
                                         inValidData = true;
                                         rowDataValid = false;
-                                    } else{
+                                    } else {
                                         materialRequest.setMaterialName(materialName);
                                     }
                                 } else {
@@ -187,11 +192,11 @@ public class MaterialServiceImpl implements MaterialService {
                             case 3:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var unit = cell.getStringCellValue();
-                                    if(unit.length() > 50){
+                                    if (unit.length() > 50) {
                                         errors.add(getCellNameForCategoryMaterial(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
                                         inValidData = true;
                                         rowDataValid = false;
-                                    } else{
+                                    } else {
                                         materialRequest.setUnit(unit);
                                     }
                                 } else {
@@ -241,7 +246,7 @@ public class MaterialServiceImpl implements MaterialService {
                 }
 
                 var category = categoryService.findByCategoryName(materialRequest.getCategoryName());
-                if(category.isEmpty()){
+                if (category.isEmpty()) {
                     errors.add("Category_Name at row Index " + (rowIndex + 1) + " not found");
                 }
 
@@ -250,7 +255,7 @@ public class MaterialServiceImpl implements MaterialService {
                         errors.add("Material_Name at row Index " + (rowIndex + 1) + " is existed");
                     }
 
-                    if(errors.isEmpty()) {
+                    if (errors.isEmpty()) {
                         var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
                         var materialID = material.isPresent() ? material.get().getMaterialID() : UUID.randomUUID();
                         materialRepository.save(
@@ -273,7 +278,7 @@ public class MaterialServiceImpl implements MaterialService {
                 rowIndex++;
             }
 
-            if(materialRequests.isEmpty() && errorFields.isEmpty()){
+            if (materialRequests.isEmpty() && errorFields.isEmpty()) {
                 throw new BadRequestException("Material Request Excel File Has Empty Data");
             }
 
@@ -298,12 +303,18 @@ public class MaterialServiceImpl implements MaterialService {
 
     private String getCellNameForCategoryMaterial(int cellIndex) {
         switch (cellIndex) {
-            case 0: return "Category_Name";
-            case 1: return "Material_Name";
-            case 2: return "HS_Code";
-            case 3: return "Unit";
-            case 4: return "Base_Price";
-            default: return "Unknown";
+            case 0:
+                return "Category_Name";
+            case 1:
+                return "Material_Name";
+            case 2:
+                return "HS_Code";
+            case 3:
+                return "Unit";
+            case 4:
+                return "Base_Price";
+            default:
+                return "Unknown";
         }
     }
 

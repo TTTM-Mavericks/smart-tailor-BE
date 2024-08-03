@@ -3,7 +3,7 @@
 
 <head>
     <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'>
     <title>Order Detail Information</title>
     <style>
         body {
@@ -12,18 +12,21 @@
             padding: 0;
             background-color: #f8f9fa;
         }
+
         .container {
             width: 100%;
             max-width: 800px;
             margin: 40px auto;
             padding: 20px;
         }
+
         .content {
             background-color: #ffffff;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .header {
             font-size: 28px;
             font-weight: bold;
@@ -32,12 +35,14 @@
             border-bottom: 2px solid #dee2e6;
             padding-bottom: 10px;
         }
+
         .message {
             font-size: 16px;
             color: #6c757d;
             line-height: 1.5;
             margin-bottom: 20px;
         }
+
         .button {
             display: inline-block;
             padding: 12px 25px;
@@ -50,27 +55,33 @@
             margin-top: 20px;
             transition: background-color 0.3s ease;
         }
+
         .button:hover {
             background-color: #218838;
         }
+
         .design-detail {
             margin-top: 30px;
         }
+
         .design-detail-title {
             font-size: 20px;
             font-weight: bold;
             color: #343a40;
             margin-bottom: 15px;
         }
+
         .design-detail-item {
             margin-bottom: 10px;
             font-size: 16px;
             color: #495057;
         }
+
         .design-detail-item span {
             font-weight: bold;
             color: #212529;
         }
+
         .footer {
             margin-top: 30px;
             padding-top: 20px;
@@ -79,10 +90,12 @@
             color: #6c757d;
             text-align: center;
         }
+
         .footer a {
             color: #28a745;
             text-decoration: none;
         }
+
         .footer a:hover {
             text-decoration: underline;
         }
@@ -103,10 +116,12 @@
                 <div class='design-detail-item'>Quantity: <span th:text="${detail.quantity}"></span></div>
             </div>
         </div>
-        <a th:href="@{${sendMailSelectedBrandsForOrderLink}}" class='button' style="color: black">Redirect to Brand Pick Order</a>
+        <a class='button' style="color: black" th:href="@{${sendMailSelectedBrandsForOrderLink}}">Redirect to Brand Pick
+            Order</a>
     </div>
     <div class='footer'>
-        If you have any questions, please contact us at <a href="mailto:support@example.com">support@example.com</a>.<br>
+        If you have any questions, please contact us at <a
+            href="mailto:support@example.com">support@example.com</a>.<br>
         &copy; 2024 Smart Tailor. All rights reserved.
     </div>
 </div>

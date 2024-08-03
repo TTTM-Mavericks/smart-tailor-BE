@@ -3,14 +3,12 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.entities.Report;
 import com.smart.tailor.entities.ReportImage;
 import com.smart.tailor.exception.ItemNotFoundException;
-import com.smart.tailor.mapper.ReportImageMapper;
 import com.smart.tailor.mapper.ReportMapper;
 import com.smart.tailor.repository.ReportRepository;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.service.ReportImageService;
 import com.smart.tailor.service.ReportService;
 import com.smart.tailor.utils.request.ReportRequest;
-import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.ReportResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,12 +40,12 @@ public class ReportServiceImpl implements ReportService {
 
         var saveReport = reportRepository.save(
                 Report
-                    .builder()
-                    .typeOfReport(reportRequest.getTypeOfReport())
-                    .order(order)
-                    .content(reportRequest.getContent())
-                    .reportStatus(true)
-                    .build()
+                        .builder()
+                        .typeOfReport(reportRequest.getTypeOfReport())
+                        .order(order)
+                        .content(reportRequest.getContent())
+                        .reportStatus(true)
+                        .build()
         );
 
         List<ReportImage> reportImageList = reportImageService.createReportImage(saveReport, reportRequest.getReportImageList());
@@ -89,10 +85,10 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<ReportResponse> getAllReportByBrandID(UUID brandID) throws Exception {
-       return orderService
-               .getOrderByBrandID(brandID)
-               .stream()
-               .flatMap(orderCustomResponse -> getAllReportByOrderID(orderCustomResponse.getOrderID()).stream())
-               .collect(Collectors.toList());
+        return orderService
+                .getOrderByBrandID(brandID)
+                .stream()
+                .flatMap(orderCustomResponse -> getAllReportByOrderID(orderCustomResponse.getOrderID()).stream())
+                .collect(Collectors.toList());
     }
 }

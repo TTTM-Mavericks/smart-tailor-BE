@@ -9,7 +9,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE, TYPE_PARAMETER})
@@ -17,6 +16,8 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 @Constraint(validatedBy = ValidDataTypeConstraint.class)
 public @interface ValidDataType {
     String message() default "Invalid Data Type";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

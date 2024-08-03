@@ -14,7 +14,6 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.TypeOfVerification;
-import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.event.RegistrationCompleteEvent;
 import com.smart.tailor.event.listener.RegistrationCompleteEventListener;
 import com.smart.tailor.service.AuthenticationService;

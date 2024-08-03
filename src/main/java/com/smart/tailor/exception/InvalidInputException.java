@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class InvalidInputException extends ResponseStatusException {
     private HashMap errorFields;
 
-    public InvalidInputException(HttpStatusCode statusCode, String message, HashMap errorFields){
+    public InvalidInputException(HttpStatusCode statusCode, String message, HashMap errorFields) {
         super(statusCode, message);
         this.errorFields = errorFields;
     }

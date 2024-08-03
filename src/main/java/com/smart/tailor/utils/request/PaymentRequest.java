@@ -1,6 +1,5 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import lombok.AllArgsConstructor;

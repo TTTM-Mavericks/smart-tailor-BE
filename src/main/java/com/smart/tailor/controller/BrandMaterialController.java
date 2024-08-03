@@ -72,7 +72,7 @@ public class BrandMaterialController {
     @PutMapping(APIConstant.BrandMaterialAPI.UPDATE_BRAND_MATERIAL)
     public ResponseEntity<ObjectNode> updateBrandMaterial(@Valid @RequestBody BrandMaterialRequest brandMaterialRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-       brandMaterialService.updateBrandMaterial(brandMaterialRequest);
+        brandMaterialService.updateBrandMaterial(brandMaterialRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.UPDATE_BRAND_MATERIAL_SUCCESSFULLY);
         return ResponseEntity.ok(response);

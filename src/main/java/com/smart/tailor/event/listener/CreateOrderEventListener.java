@@ -4,10 +4,10 @@ import com.smart.tailor.event.CreateOrderEvent;
 import com.smart.tailor.service.MailService;
 import com.smart.tailor.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +29,7 @@ public class CreateOrderEventListener implements ApplicationListener<CreateOrder
             var orderCustomResponse = orderService.getOrderByOrderID(orderResponse.getOrderID());
             var listBrandEmailSelected = orderService.filterBrandForSpecificOrderBaseOnDesign(orderCustomResponse.getDesignResponse().getDesignID());
             // send Mail to selected Brand for Specific Order
-            for(var brandEmailSelected : listBrandEmailSelected){
+            for (var brandEmailSelected : listBrandEmailSelected) {
                 mailService.sendMailToSelectedBrandsForSpecificOrder(
                         brandEmailSelected,
                         "Order Design For Brand",

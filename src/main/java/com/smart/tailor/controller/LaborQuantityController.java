@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.service.CategoryService;
 import com.smart.tailor.service.LaborQuantityService;
-import com.smart.tailor.utils.request.CategoryRequest;
 import com.smart.tailor.utils.request.LaborQuantityRequest;
 import com.smart.tailor.utils.request.LaborQuantityRequestList;
 import com.smart.tailor.validate.ValidUUID;
@@ -20,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController

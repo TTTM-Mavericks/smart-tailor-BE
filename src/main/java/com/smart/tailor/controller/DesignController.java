@@ -8,8 +8,6 @@ import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.service.DesignService;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
-import com.smart.tailor.utils.request.PartOfDesignRequest;
-import com.smart.tailor.utils.request.UpdateDesignRequest;
 import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -112,7 +109,7 @@ public class DesignController {
 
     @PutMapping(APIConstant.DesignAPI.UPDATE_PUBLIC_STATUS_BY_DESIGN_ID + "/{designID}")
     public ResponseEntity<ObjectNode> updatePublicStatusByDesignID(@ValidUUID @PathVariable("designID") UUID designID) {
-       designService.updatePublicStatusDesign(designID);
+        designService.updatePublicStatusDesign(designID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.UPDATE_PUBLIC_STATUS_SUCCESSFULLY);

@@ -5,11 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.SizeExpertTailoringService;
-import com.smart.tailor.service.SizeService;
-import com.smart.tailor.utils.request.ListSizeRequest;
 import com.smart.tailor.utils.request.SizeExpertTailoringRequest;
-import com.smart.tailor.utils.request.SizeRequest;
-import com.smart.tailor.validate.ValidUUID;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +47,7 @@ public class SizeExpertTailoringController {
     }
 
     @GetMapping(APIConstant.SizeExpertTailoringAPI.GET_ALL_SIZE_BY_EXPERT_TAILORING + "/{expectTailoringID}")
-    public ResponseEntity<ObjectNode> findAllSizeByExpectTailoringID(@PathVariable("expectTailoringID") UUID expectTailoringID){
+    public ResponseEntity<ObjectNode> findAllSizeByExpectTailoringID(@PathVariable("expectTailoringID") UUID expectTailoringID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var sizeExpertTailoringResponses = sizeExpertTailoringService.findAllSizeExpertTailoringID(expectTailoringID);

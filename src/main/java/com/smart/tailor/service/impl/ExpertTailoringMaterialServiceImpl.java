@@ -46,14 +46,14 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
         String errorMaterial = null;
 
         var material = materialService.findByMaterialNameAndCategory_CategoryName(
-                        materialName, categoryName);
-        if(material.isEmpty()){
+                materialName, categoryName);
+        if (material.isEmpty()) {
             errorMaterial = "Can not find Material with Category Name: " + categoryName + " and Material Name: " + materialName;
         }
 
-        for(String expertTailoringName : expertTailoringMaterialListRequest.getExpertTailoringNames()){
+        for (String expertTailoringName : expertTailoringMaterialListRequest.getExpertTailoringNames()) {
             List<String> errors = new ArrayList<>();
-            var expertTailoringMaterialRequest =  ExpertTailoringMaterialRequest
+            var expertTailoringMaterialRequest = ExpertTailoringMaterialRequest
                     .builder()
                     .materialName(materialName)
                     .categoryName(categoryName)
@@ -61,22 +61,22 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
                     .build();
 
             var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(expertTailoringName);
-            if(expertTailoring.isEmpty()){
+            if (expertTailoring.isEmpty()) {
                 errors.add("Can not find Expert Tailoring with Expert Tailoring Name: " + expertTailoringName);
             }
 
             var expertTailoringMaterialExisted = findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(
                     expertTailoring.get().getExpertTailoringID(), material.get().getMaterialID());
 
-            if(!errorMaterial.isEmpty()){
+            if (!errorMaterial.isEmpty()) {
                 errors.add(errorMaterial);
             }
 
-            if(expertTailoringMaterialExisted.isPresent()){
+            if (expertTailoringMaterialExisted.isPresent()) {
                 errors.add("Expert Tailoring Material is Existed");
             }
 
-            if(!errors.isEmpty()){
+            if (!errors.isEmpty()) {
                 errorDetails.add(new ErrorDetail(expertTailoringMaterialRequest, errors));
             } else {
                 ExpertTailoringMaterialKey expertTailoringMaterialKey = ExpertTailoringMaterialKey
@@ -97,7 +97,7 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
             }
         }
 
-        if(!errorDetails.isEmpty()){
+        if (!errorDetails.isEmpty()) {
             throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Size", errorDetails);
         }
     }
@@ -140,7 +140,7 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
                 .stream()
                 .filter(expertTailoringMaterial ->
                         expertTailoringMaterial.getExpertTailoringMaterialKey().getExpertTailoringID().toString().equals(expertTailoringID.toString()) &&
-                        expertTailoringMaterial.getStatus())
+                                expertTailoringMaterial.getStatus())
                 .map(expertTailoringMaterialMapper::mapperToExpertTailoringMaterialResponse)
                 .collect(Collectors.toList());
     }
@@ -152,7 +152,7 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
                 .stream()
                 .filter(expertTailoringMaterial ->
                         expertTailoringMaterial.getExpertTailoring().getExpertTailoringName().equalsIgnoreCase(expertTailoringName) &&
-                        expertTailoringMaterial.getStatus())
+                                expertTailoringMaterial.getStatus())
                 .map(expertTailoringMaterialMapper::mapperToExpertTailoringMaterialResponse)
                 .collect(Collectors.toList());
     }

@@ -2,7 +2,6 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.service.ThymeleafService;
 import com.smart.tailor.utils.response.OrderCustomResponse;
-import com.smart.tailor.utils.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -28,8 +27,7 @@ public class ThymeleafServiceImpl implements ThymeleafService {
     private static final String TEMPLATE_SELECTED_BRAND_FOR_SPECIFIC_ORDER = "TemplateSelectedBrandForSpecificOrder";
     private static final TemplateEngine templateEngine;
 
-    static
-    {
+    static {
         templateEngine = emailTemplateEngine();
     }
 

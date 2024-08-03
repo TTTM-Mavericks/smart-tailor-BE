@@ -5,9 +5,6 @@ import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
-import com.smart.tailor.service.SystemImageService;
-import com.smart.tailor.utils.Utilities;
-import com.smart.tailor.utils.request.SystemImageRequest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,7 +22,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Random;
 
 @SpringBootApplication
 @EnableJpaAuditing()

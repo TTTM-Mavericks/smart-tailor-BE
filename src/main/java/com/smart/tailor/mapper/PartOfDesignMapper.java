@@ -4,6 +4,7 @@ import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.utils.response.PartOfDesignResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
 import java.util.Base64;
 
 
@@ -21,8 +22,8 @@ public interface PartOfDesignMapper {
     @Mapping(target = "successImageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getSuccessImageUrl()))")
     PartOfDesignResponse mapperToPartOfDesignResponse(PartOfDesign partOfDesign);
 
-    default String decodeByteArrayToString(byte[] values){
-        if(values != null){
+    default String decodeByteArrayToString(byte[] values) {
+        if (values != null) {
             return new String(Base64.getDecoder().decode(values));
         }
         return null;

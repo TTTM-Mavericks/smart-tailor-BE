@@ -13,9 +13,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class DesignDetailRequest {
+    List<DesignDetailSize> sizeList;
     private UUID designId;
     private UUID orderId;
-    List<DesignDetailSize> sizeList;
     private Boolean detailStatus;
     private String address;
     private String province;

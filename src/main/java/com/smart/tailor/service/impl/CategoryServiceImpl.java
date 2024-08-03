@@ -48,26 +48,26 @@ public class CategoryServiceImpl implements CategoryService {
     public void createCategory(CategoryListRequest categoryListRequest) {
         var categoryNames = categoryListRequest.getCategoryNames();
         List<ErrorDetail> errorDetails = new ArrayList<>();
-        for(int i = 0; i < categoryNames.size(); i++){
+        for (int i = 0; i < categoryNames.size(); i++) {
             String categoryName = categoryNames.get(i);
             List<String> errors = new ArrayList<>();
 
-            if(!Utilities.isStringNotNullOrEmpty(categoryName)){
+            if (!Utilities.isStringNotNullOrEmpty(categoryName)) {
                 errors.add("Category Name is null or empty");
             }
 
-            if(categoryName != null){
-                if(categoryName.length() > 50){
+            if (categoryName != null) {
+                if (categoryName.length() > 50) {
                     errors.add("Category Name must not exceed 50 characters");
                 }
 
                 Optional<Category> categoryOptional = findByCategoryName(categoryName);
-                if(categoryOptional.isPresent()) {
+                if (categoryOptional.isPresent()) {
                     errors.add("Category Name is existed: " + categoryName);
                 }
             }
 
-            if(!errors.isEmpty()){
+            if (!errors.isEmpty()) {
                 errorDetails.add(new ErrorDetail(categoryName, errors));
             } else {
                 categoryRepository.save(
@@ -80,7 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
             }
         }
 
-        if(!errorDetails.isEmpty()){
+        if (!errorDetails.isEmpty()) {
             throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Category", errorDetails);
         }
     }
@@ -97,7 +97,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponse findCategoryByID(UUID categoryID) {
         var categoryOptional = categoryRepository.findByCategoryID(categoryID);
-        if(categoryOptional.isPresent()){
+        if (categoryOptional.isPresent()) {
             return categoryMapper.mapperToCategoryResponse(categoryOptional.get());
         }
         return null;
@@ -113,8 +113,8 @@ public class CategoryServiceImpl implements CategoryService {
         // Check Category Name is Existed or not
         var categoryNameExisted = findByCategoryName(categoryRequest.getCategoryName());
 
-        if(categoryNameExisted.isPresent()){
-            if(!categoryNameExisted.get().getCategoryID().toString().equals((categoryResponse.getCategoryID().toString()))){
+        if (categoryNameExisted.isPresent()) {
+            if (!categoryNameExisted.get().getCategoryID().toString().equals((categoryResponse.getCategoryID().toString()))) {
                 throw new ItemAlreadyExistException("Category Name is existed: " + categoryRequest.getCategoryName());
             }
         }
@@ -122,11 +122,11 @@ public class CategoryServiceImpl implements CategoryService {
         // Update Category when CategoryID is Existed and CategoryName is not Existed
         categoryRepository.save(
                 Category
-                    .builder()
-                    .categoryID(categoryResponse.getCategoryID())
-                    .categoryName(categoryRequest.getCategoryName())
-                    .status(categoryResponse.getStatus())
-                    .build()
+                        .builder()
+                        .categoryID(categoryResponse.getCategoryID())
+                        .categoryName(categoryRequest.getCategoryName())
+                        .status(categoryResponse.getStatus())
+                        .build()
         );
     }
 

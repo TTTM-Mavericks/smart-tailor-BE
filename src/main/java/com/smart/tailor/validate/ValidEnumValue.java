@@ -16,8 +16,12 @@ import static java.lang.annotation.ElementType.*;
 @Constraint(validatedBy = ValidEnumValueConstraint.class)
 public @interface ValidEnumValue {
     String name();
+
     String message() default "{name} must be any of enum {enumClass}";
+
     Class<? extends Enum<?>> enumClass();
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

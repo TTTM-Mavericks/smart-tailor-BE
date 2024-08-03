@@ -7,9 +7,10 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ExcelFileDuplicateDataException extends RuntimeException{
+public class ExcelFileDuplicateDataException extends RuntimeException {
     private List<Object> errors;
-    public ExcelFileDuplicateDataException(String message, List<Object> errors){
+
+    public ExcelFileDuplicateDataException(String message, List<Object> errors) {
         super(message);
         this.errors = errors;
     }

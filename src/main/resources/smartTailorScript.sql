@@ -30,10 +30,10 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The number for divide.', 'DIVIDE_NUMBER', 'NUMBER', true, 'INT',
         '100'),
-        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
-         'The rate for Brand have Order Status ahead of schedule.', 'RATE_AHEAD_SCHEDULE', 'NUMBER', true, 'FLOAT',
-         '0.25'),
-        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The rate for Brand have Order Status ahead of schedule.', 'RATE_AHEAD_SCHEDULE', 'NUMBER', true, 'FLOAT',
+        '0.25'),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The rate for Brand have Order Status late of schedule.', 'RATE_LATE_SCHEDULE', 'NUMBER', true, 'FLOAT',
         '0.75');
 
@@ -179,7 +179,9 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Fabric'),
        (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), true, NULL, 'Embroider');
 
 -- INSERT INTO MATERIAL
-INSERT INTO material (material_id, create_date, last_modified_date, base_price, hs_code, material_name, status, unit, category_id) VALUES
+INSERT INTO material (material_id, create_date, last_modified_date, base_price, hs_code, material_name, status, unit,
+                      category_id)
+VALUES
 -- Fabric Category
 (UNHEX(REPLACE(UUID(), '-', '')), NOW(6), NULL, 4000, 5407101000, 'Cotton Fabric', 1, 'meter',
  (SELECT category_id FROM category WHERE category_name = 'Fabric')),
@@ -348,7 +350,7 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), 'nguyenvanquan@gmail.com',
         (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null),
 
-        (UNHEX(REPLACE(UUID(), '-', '')), 'ngohongquang999@gmail.com',
+       (UNHEX(REPLACE(UUID(), '-', '')), 'ngohongquang999@gmail.com',
         '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Ngo Hong Quang', 'vietnam', '0903826475',
         (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null),
@@ -363,23 +365,26 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), 'nguyenvanquan@gmail.com',
         (SELECT role_id FROM roles WHERE role_name = 'BRAND'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null),
 
-        (UNHEX(REPLACE(UUID(), '-', '')), 'adminsmarttailor123@gmail.com',
+       (UNHEX(REPLACE(UUID(), '-', '')), 'adminsmarttailor123@gmail.com',
         '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Admin Smart Tailor', 'vietnam', '0914633465',
         (SELECT role_id FROM roles WHERE role_name = 'ADMIN'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null),
 
        (UNHEX(REPLACE(UUID(), '-', '')), 'managersmarttailor123@gmail.com',
-        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Manager Smart Tailor', 'vietnam', '09146376465',
+        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Manager Smart Tailor', 'vietnam',
+        '09146376465',
         (SELECT role_id FROM roles WHERE role_name = 'MANAGER'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null),
 
        (UNHEX(REPLACE(UUID(), '-', '')), 'employeesmarttailor123@gmail.com',
-        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Employee Smart Tailor', 'vietnam', '09146993465',
+        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Employee Smart Tailor', 'vietnam',
+        '09146993465',
         (SELECT role_id FROM roles WHERE role_name = 'EMPLOYEE'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null),
 
        (UNHEX(REPLACE(UUID(), '-', '')), 'accountantsmarttailor123@gmail.com',
-        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Accountant Smart Tailor', 'vietnam', '09146993290',
+        '$2a$12$BJhxIHUhA3r/XRflGiRU9.K8T3b8.JDXveDWDV0ypkBL.KeLUUx/K', 'Accountant Smart Tailor', 'vietnam',
+        '09146993290',
         (SELECT role_id FROM roles WHERE role_name = 'ACCOUNTANT'), 'LOCAL', 'ACTIVE', 'http://example.com/image2.jpg',
         current_timestamp, null);
 
@@ -398,7 +403,8 @@ VALUES ((SELECT user_id FROM users WHERE email = 'nguyenvanquan@gmail.com'), tru
 
 
 -- INSERT INTO BRAND
-INSERT INTO brand (brand_id, brand_name, rating, number_of_ratings, total_rating_score, bank_name, account_number, account_name, qr_payment, address, ward,
+INSERT INTO brand (brand_id, brand_name, rating, number_of_ratings, total_rating_score, bank_name, account_number,
+                   account_name, qr_payment, address, ward,
                    district, province, brand_status, number_of_violations, create_date, last_modified_date)
 VALUES ((SELECT user_id FROM users WHERE email = 'tammtse161087@fpt.edu.vn'), 'Nike Brand', 1, 1, 1, 'Brand Bank',
         '1234567890', 'Nike', 'http://example.com/qr_nike.jpg', '740 Nguyễn Xiển', ' Long Thạnh Mỹ', 'Quận 9',
@@ -412,7 +418,8 @@ VALUES ((SELECT user_id FROM users WHERE email = 'tammtse161087@fpt.edu.vn'), 'N
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '441 Lê Văn Việt', 'Tăng Nhơn Phú A', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'ngohongquang999@gmail.com'), 'Hong Quang Brand', 1, 1, 1, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'ngohongquang999@gmail.com'), 'Hong Quang Brand', 1, 1, 1,
+        'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '857 Phạm Văn Đồng', 'Linh Tây', 'Thủ Đức',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
@@ -420,7 +427,8 @@ VALUES ((SELECT user_id FROM users WHERE email = 'tammtse161087@fpt.edu.vn'), 'N
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '432 Đ. Liên Phường', 'Phước Long B', 'Quận 9',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null),
 
-       ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Thanh Giang Brand', 1, 1, 1, 'Brand Bank',
+       ((SELECT user_id FROM users WHERE email = 'phamthanhgiang458@gmail.com'), 'Thanh Giang Brand', 1, 1, 1,
+        'Brand Bank',
         '1357924680', 'Puma', 'http://example.com/qr_puma.jpg', '77C Trần Ngọc Diện', 'Thảo Điền', 'Thủ Đức',
         'Thành phố Hồ Chí Minh', 'ACCEPT', 0, current_timestamp, null);
 
@@ -429,337 +437,1054 @@ VALUES ((SELECT user_id FROM users WHERE email = 'tammtse161087@fpt.edu.vn'), 'N
 INSERT INTO size_expert_tailoring (expert_tailoring_id, size_id, ratio, create_date, last_modified_date)
 VALUES
 -- hoodieModel
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), (SELECT size_id FROM size WHERE size_name = 'M'), 1.2, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), (SELECT size_id FROM size WHERE size_name = 'L'), 1.4, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), (SELECT size_id FROM size WHERE size_name = 'XL'), 1.6, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.8, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'),
+ (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'),
+ (SELECT size_id FROM size WHERE size_name = 'M'), 1.2, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'),
+ (SELECT size_id FROM size WHERE size_name = 'L'), 1.4, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XL'), 1.6, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.8, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2, CURRENT_TIMESTAMP, NULL),
 
 -- shirtModel
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT size_id FROM size WHERE size_name = 'M'), 1.15, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT size_id FROM size WHERE size_name = 'L'), 1.3, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT size_id FROM size WHERE size_name = 'XL'), 1.5, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.7, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT size_id FROM size WHERE size_name = 'XXXL'), 1.9, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'M'), 1.15, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'L'), 1.3, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XL'), 1.5, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.7, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXXL'), 1.9, CURRENT_TIMESTAMP, NULL),
 
 -- longSkirtModel
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), (SELECT size_id FROM size WHERE size_name = 'M'), 1.25, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), (SELECT size_id FROM size WHERE size_name = 'L'), 1.5, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), (SELECT size_id FROM size WHERE size_name = 'XL'), 1.75, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), (SELECT size_id FROM size WHERE size_name = 'XXL'), 2, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2.25, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'M'), 1.25, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'L'), 1.5, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XL'), 1.75, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXL'), 2, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2.25, CURRENT_TIMESTAMP, NULL),
 
 -- skirtFullModel
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), (SELECT size_id FROM size WHERE size_name = 'M'), 1.1, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), (SELECT size_id FROM size WHERE size_name = 'L'), 1.3, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), (SELECT size_id FROM size WHERE size_name = 'XL'), 1.5, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.7, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), (SELECT size_id FROM size WHERE size_name = 'XXXL'), 1.9, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'),
+ (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'),
+ (SELECT size_id FROM size WHERE size_name = 'M'), 1.1, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'),
+ (SELECT size_id FROM size WHERE size_name = 'L'), 1.3, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XL'), 1.5, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.7, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXXL'), 1.9, CURRENT_TIMESTAMP, NULL),
 
 -- womenSkirtTopModel
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), (SELECT size_id FROM size WHERE size_name = 'M'), 1.2, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), (SELECT size_id FROM size WHERE size_name = 'L'), 1.4, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), (SELECT size_id FROM size WHERE size_name = 'XL'), 1.6, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.8, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ (SELECT size_id FROM size WHERE size_name = 'M'), 1.2, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ (SELECT size_id FROM size WHERE size_name = 'L'), 1.4, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XL'), 1.6, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.8, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2, CURRENT_TIMESTAMP, NULL),
 
 -- womenSkirtBottomModel
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), (SELECT size_id FROM size WHERE size_name = 'M'), 1.2, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), (SELECT size_id FROM size WHERE size_name = 'L'), 1.4, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), (SELECT size_id FROM size WHERE size_name = 'XL'), 1.6, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.8, CURRENT_TIMESTAMP, NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2, CURRENT_TIMESTAMP, NULL);
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ (SELECT size_id FROM size WHERE size_name = 'S'), 1, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ (SELECT size_id FROM size WHERE size_name = 'M'), 1.2, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ (SELECT size_id FROM size WHERE size_name = 'L'), 1.4, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XL'), 1.6, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXL'), 1.8, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ (SELECT size_id FROM size WHERE size_name = 'XXXL'), 2, CURRENT_TIMESTAMP, NULL);
 
 -- INSERT BRAND EXPERT TAILORING
 INSERT INTO brand_expert_tailoring(brand_id, expert_tailoring_id, create_date, last_modified_date)
 VALUES
 
 -- Brand with email tunmse161130@fpt.edu.vn have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp,
+ null),
 
 -- Brand with email tammtse161087@fpt.edu.vn have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ current_timestamp, null),
 
 -- Brand with email tammtse161087@fpt.edu.vn have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ current_timestamp, null),
 
 -- Brand with email ngohongquang999@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'hoodieModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'ngohongquang999@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'ngohongquang999@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'longSkirtModel'), current_timestamp,
+ null),
 
 -- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'doanthuan97@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'doanthuan97@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ current_timestamp, null),
 
 -- Brand with email doanthuan97@gmail.com have ExpertTailoringName: shirtModel,
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtBottomModel'),
+ current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'skirtFullModel'), current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'phamthanhgiang458@gmail.com'),
- (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'), current_timestamp, null);
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'phamthanhgiang458@gmail.com'),
+ (SELECT expert_tailoring_id from expert_tailoring WHERE expert_tailoring_name = 'womenSkirtTopModel'),
+ current_timestamp, null);
 
 
 -- INSERT BRAND LABOR QUANTITY
-INSERT INTO brand_labor_quantity(brand_id, labor_quantity_id, brand_labor_cost_per_quantity, status, create_date, last_modified_date)
+INSERT INTO brand_labor_quantity(brand_id, labor_quantity_id, brand_labor_cost_per_quantity, status, create_date,
+                                 last_modified_date)
 values
 -- Brand Labor Quantity with Email tunmse161130@fpt.edu.vn
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 65469, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 65469, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 65242, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 65242, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 61469, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 61469, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 42521, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 42521, true,
+ current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 39240, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 39240, true,
+ current_timestamp, null),
 
 -- Brand Labor Quantity with Email tammtse161087@fpt.edu.vn
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 61301, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 61301, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 58891, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 58891, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 56075, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 56075, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 50651, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 50651, true,
+ current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 48904, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 48904, true,
+ current_timestamp, null),
 
 -- Brand Labor Quantity with Email truongnhlse160191@fpt.edu.vn
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 62686, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 62686, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 48843, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 48843, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 48436, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 48436, true, current_timestamp,
+ null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 39240, true, current_timestamp, null),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 39240, true,
+ current_timestamp, null),
 
-((SELECT b.brand_id FROM users u JOIN brand b on u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 36038, true, current_timestamp, null);
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b on u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 36038, true,
+ current_timestamp, null);
 
 -- INSERT INTO BRAND MATERIAL
 INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, last_modified_date)
 VALUES
 --     BRAND MATERIAL WITH EMAIL tunmse161130@fpt.edu.vn
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Fabric'), 4007, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Fabric'), 5082, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Linen Fabric'), 4681, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyester Thread'), 1277, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Nylon Thread'), 8003, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Thread'), 1480, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Organic Cotton'), 3786, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Recycled Cotton'), 4192, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Combed Cotton'), 3298, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Textile Ink'), 1174, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Ink'), 1726, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Dye Sublimation Ink'), 3473, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Masking Tape'), 6991, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Double-Sided Tape'), 8975, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Packing Tape'), 1730, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Woven Label'), 1790, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Printed Label'), 6617, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Label'), 5821, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Button'), 8527, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Button'), 1325, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Wooden Button'), 2805, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Eco-Friendly Bag'), 7517, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Reusable Shopping Bag'), 1588, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Canvas Bag'), 4705, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Accessory Kit'), 2770, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Zipper Pulls'), 1163, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Needles'), 1520, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Paper Hang Tag'), 9520, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Hang Tag'), 1105, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Hang Tag'), 4018, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Zipper'), 5002, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Zipper'), 7028, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Invisible Zipper'), 4619, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing Ink'), 3300, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Paper'), 9429, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Thread'), 2412, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Press Machine'), 2327, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Transfer Vinyl'), 5600, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Thermal Tape'), 1775, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Film'), 5598, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Hoops'), 9377, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Needles'), 9323, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Floss'), 1303, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1223, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Fabric'), 4007, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Fabric'), 5082, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Linen Fabric'), 4681, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyester Thread'), 1277, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Nylon Thread'), 8003, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Thread'), 1480, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Organic Cotton'), 3786, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Recycled Cotton'), 4192, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Combed Cotton'), 3298, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Textile Ink'), 1174, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Ink'), 1726, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Dye Sublimation Ink'), 3473, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Masking Tape'), 6991, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Double-Sided Tape'), 8975, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Packing Tape'), 1730, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Woven Label'), 1790, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Printed Label'), 6617, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Label'), 5821, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Button'), 8527, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Button'), 1325, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Wooden Button'), 2805, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Eco-Friendly Bag'), 7517, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Reusable Shopping Bag'), 1588, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Canvas Bag'), 4705, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Accessory Kit'), 2770, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Zipper Pulls'), 1163, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Needles'), 1520, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Paper Hang Tag'), 9520, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Hang Tag'), 1105, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Hang Tag'), 4018, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Zipper'), 5002, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Zipper'), 7028, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Invisible Zipper'), 4619, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing Ink'), 3300, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Paper'), 9429, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Thread'), 2412, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Press Machine'), 2327, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Transfer Vinyl'), 5600, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Thermal Tape'), 1775, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Film'), 5598, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Hoops'), 9377, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Needles'), 9323, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Floss'), 1303, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1223, CURRENT_TIMESTAMP, NULL),
 
 --     BRAND MATERIAL WITH EMAIL tammtse161087@fpt.edu.vn
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Fabric'), 3991, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Fabric'), 5093, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Linen Fabric'), 4679, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyester Thread'), 1292, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Nylon Thread'), 8019, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Thread'), 1519, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Organic Cotton'), 3796, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Recycled Cotton'), 4207, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Combed Cotton'), 3295, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Textile Ink'), 1174, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Ink'), 1677, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Dye Sublimation Ink'), 3519, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Masking Tape'), 6992, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Double-Sided Tape'), 9002, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Packing Tape'), 1680, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Woven Label'), 1807, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Printed Label'), 6613, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Label'), 5802, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Button'), 8522, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Button'), 1324, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Wooden Button'), 2772, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Eco-Friendly Bag'), 7506, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Reusable Shopping Bag'), 1589, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Canvas Bag'), 4715, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Accessory Kit'), 2753, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Zipper Pulls'), 1142, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Needles'), 1496, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Paper Hang Tag'), 9523, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Hang Tag'), 1076, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Hang Tag'), 4010, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Zipper'), 4996, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Zipper'), 6972, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Invisible Zipper'), 4629, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing Ink'), 3301, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Paper'), 9428, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Thread'), 2381, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Press Machine'), 2315, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Transfer Vinyl'), 5628, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Thermal Tape'), 1830, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Film'), 5615, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Hoops'), 9397, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Needles'), 9284, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Floss'), 1301, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1220, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Fabric'), 3991, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Fabric'), 5093, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Linen Fabric'), 4679, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyester Thread'), 1292, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Nylon Thread'), 8019, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Thread'), 1519, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Organic Cotton'), 3796, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Recycled Cotton'), 4207, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Combed Cotton'), 3295, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Textile Ink'), 1174, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Ink'), 1677, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Dye Sublimation Ink'), 3519, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Masking Tape'), 6992, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Double-Sided Tape'), 9002, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Packing Tape'), 1680, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Woven Label'), 1807, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Printed Label'), 6613, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Label'), 5802, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Button'), 8522, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Button'), 1324, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Wooden Button'), 2772, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Eco-Friendly Bag'), 7506, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Reusable Shopping Bag'), 1589, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Canvas Bag'), 4715, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Accessory Kit'), 2753, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Zipper Pulls'), 1142, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Needles'), 1496, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Paper Hang Tag'), 9523, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Hang Tag'), 1076, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Hang Tag'), 4010, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Zipper'), 4996, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Zipper'), 6972, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Invisible Zipper'), 4629, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing Ink'), 3301, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Paper'), 9428, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Thread'), 2381, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Press Machine'), 2315, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Transfer Vinyl'), 5628, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Thermal Tape'), 1830, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Film'), 5615, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Hoops'), 9397, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Needles'), 9284, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Floss'), 1301, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1220, CURRENT_TIMESTAMP, NULL),
 
 --     BRAND MATERIAL WITH EMAIL truongnhlse160191@fpt.edu.vn
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Fabric'), 3986, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Fabric'), 5079, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Linen Fabric'), 4729, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyester Thread'), 1301, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Nylon Thread'), 8021, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Thread'), 1507, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Organic Cotton'), 3819, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Recycled Cotton'), 4205, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Combed Cotton'), 3282, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Textile Ink'), 1213, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Ink'), 1724, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Dye Sublimation Ink'), 3499, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Masking Tape'), 6992, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Double-Sided Tape'), 8977, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Packing Tape'), 1704, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Woven Label'), 1822, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Printed Label'), 6615, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Label'), 5782, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Button'), 8524, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Button'), 1270, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Wooden Button'), 2797, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Eco-Friendly Bag'), 7507, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Reusable Shopping Bag'), 1615, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Canvas Bag'), 4703, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Accessory Kit'), 2736, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Zipper Pulls'), 1131, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Needles'), 1523, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Paper Hang Tag'), 9488, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Hang Tag'), 1096, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Hang Tag'), 3992, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Zipper'), 4977, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Zipper'), 6974, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Invisible Zipper'), 4590, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing Ink'), 3279, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Paper'), 9419, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Thread'), 2406, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Press Machine'), 2278, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Transfer Vinyl'), 5578, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Thermal Tape'), 1791, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Film'), 5598, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Hoops'), 9379, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Needles'), 9301, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Floss'), 1323, CURRENT_TIMESTAMP, NULL),
-((SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'), (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1190, CURRENT_TIMESTAMP, NULL);
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Fabric'), 3986, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Fabric'), 5079, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Linen Fabric'), 4729, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyester Thread'), 1301, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Nylon Thread'), 8021, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cotton Thread'), 1507, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Organic Cotton'), 3819, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Recycled Cotton'), 4205, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Combed Cotton'), 3282, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Textile Ink'), 1213, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Ink'), 1724, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Dye Sublimation Ink'), 3499, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Masking Tape'), 6992, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Double-Sided Tape'), 8977, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Packing Tape'), 1704, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Woven Label'), 1822, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Printed Label'), 6615, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Label'), 5782, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Button'), 8524, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Button'), 1270, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Wooden Button'), 2797, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Eco-Friendly Bag'), 7507, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Reusable Shopping Bag'), 1615, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Canvas Bag'), 4703, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Accessory Kit'), 2736, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Zipper Pulls'), 1131, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sewing Needles'), 1523, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Paper Hang Tag'), 9488, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Hang Tag'), 1096, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Hang Tag'), 3992, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Metal Zipper'), 4977, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastic Zipper'), 6974, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Invisible Zipper'), 4590, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing Ink'), 3279, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Paper'), 9419, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Thread'), 2406, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Press Machine'), 2278, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Transfer Vinyl'), 5578, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Thermal Tape'), 1791, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Film'), 5598, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Hoops'), 9379, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Needles'), 9301, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Floss'), 1323, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1190, CURRENT_TIMESTAMP, NULL);
 
 -- INSERT INTO BRAND PROPERTY
-INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status, create_date, last_modified_date)
+INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status,
+                              create_date, last_modified_date)
 VALUES
 -- Insert for email tunmse161130@fpt.edu.vn
-(UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tunmse161130@fpt.edu.vn'),
-(SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 50, true, CURRENT_TIMESTAMP, NULL);
+(UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id
+                                   FROM users u
+                                            JOIN brand b ON u.user_id = b.brand_id
+                                   WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 50, true, CURRENT_TIMESTAMP,
+ NULL);
 
 -- Insert for email tammtse161087@fpt.edu.vn
-INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status, create_date, last_modified_date)
-VALUES
-(UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'tammtse161087@fpt.edu.vn'),
-(SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 52, true, CURRENT_TIMESTAMP, NULL);
+INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status,
+                              create_date, last_modified_date)
+VALUES (UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id
+                                          FROM users u
+                                                   JOIN brand b ON u.user_id = b.brand_id
+                                          WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+        (SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 52, true,
+        CURRENT_TIMESTAMP, NULL);
 
 -- Insert for email truongnhlse160191@fpt.edu.vn
-INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status, create_date, last_modified_date)
-VALUES
-(UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id FROM users u JOIN brand b ON u.user_id = b.brand_id WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
-(SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 48, true, CURRENT_TIMESTAMP, NULL);
+INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status,
+                              create_date, last_modified_date)
+VALUES (UNHEX(REPLACE(UUID(), '-', '')), (SELECT b.brand_id
+                                          FROM users u
+                                                   JOIN brand b ON u.user_id = b.brand_id
+                                          WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+        (SELECT property_id FROM system_properties WHERE property_name = 'BRAND_PRODUCTIVITY'), 48, true,
+        CURRENT_TIMESTAMP, NULL);
 
 -- INSERT INTO Expert Tailoring Material
-INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date) VALUES
+INSERT INTO expert_tailoring_material (expert_tailoring_id, material_id, status, create_date, last_modified_date)
+VALUES
 -- ExpertTailoring : shirtModel and Category : Fabric
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Silk Fabric'),true,NOW(), NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Linen Fabric'),true,NOW(),NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Cotton Fabric'), true, NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Silk Fabric'), true, NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Linen Fabric'), true, NOW(), NULL),
 
 -- ExpertTailoring : shirtModel and Category : Thread
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'), (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'),true,NOW(),NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Nylon Thread'),true,NOW(), NULL),
-((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),(SELECT material_id FROM material WHERE material_name = 'Cotton Thread'),true,NOW(),NULL);
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Polyester Thread'), true, NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Nylon Thread'), true, NOW(), NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Cotton Thread'), true, NOW(), NULL);

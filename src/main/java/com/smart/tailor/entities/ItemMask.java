@@ -2,7 +2,6 @@ package com.smart.tailor.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.smart.tailor.enums.PrintType;
 import jakarta.persistence.*;

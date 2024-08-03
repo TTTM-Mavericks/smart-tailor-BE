@@ -15,7 +15,7 @@ public class ValidEmailConstraint implements ConstraintValidator<ValidEmail, Str
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        if(email == null) return false;
+        if (email == null) return false;
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);

@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1247,11 +1246,11 @@ public class OrderServiceImpl implements OrderService {
             // Update orderRating based on the completion status
             brandOrderRating += (completedAheadOfSchedule > 0) ? (float) (completedAheadOfSchedule * 0.25) : 0;
             brandOrderRating += (completedLate > 0) ? (float) (completedLate * -0.75) : 0;
-            if(brandOrderRating <= 0) brandOrderRating = 0.0f;
-            else if(brandOrderRating > 5) brandOrderRating = 5.0f;
+            if (brandOrderRating <= 0) brandOrderRating = 0.0f;
+            else if (brandOrderRating > 5) brandOrderRating = 5.0f;
 
             logger.info("Brand {} Complete A Head of Schedule {} and OrderRating {}", brand.get().getUser().getEmail(), completedAheadOfSchedule, brandOrderRating);
-            logger.info("Brand {} Complete Late {} and OrderRating {}",  brand.get().getUser().getEmail(), completedLate, brandOrderRating);
+            logger.info("Brand {} Complete Late {} and OrderRating {}", brand.get().getUser().getEmail(), completedLate, brandOrderRating);
             // Update the rating for the brand
             brandService.ratingBrand(brand.get().getBrandID(), 1, brandOrderRating);
         }

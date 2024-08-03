@@ -6,7 +6,6 @@ import com.smart.tailor.utils.request.CustomerRequest;
 import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.CustomerResponse;
 
-import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 

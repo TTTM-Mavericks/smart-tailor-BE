@@ -30,9 +30,9 @@ public class ReportImageServiceImpl implements ReportImageService {
     @Override
     public List<ReportImage> createReportImage(Report report, List<ReportImageRequest> reportImageRequestList) {
         List<ReportImage> reportImageList = new ArrayList<>();
-        for(ReportImageRequest reportImageRequest : reportImageRequestList){
+        for (ReportImageRequest reportImageRequest : reportImageRequestList) {
             byte[] base64ReportImageUrl = null;
-            if(Optional.ofNullable(reportImageRequest.getReportImageUrl()).isPresent()){
+            if (Optional.ofNullable(reportImageRequest.getReportImageUrl()).isPresent()) {
                 base64ReportImageUrl = Utilities.encodeStringToBase64(reportImageRequest.getReportImageUrl());
             }
 

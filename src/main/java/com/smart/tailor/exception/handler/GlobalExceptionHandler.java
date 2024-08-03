@@ -12,7 +12,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.HandlerMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,10 +62,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ObjectNode> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex){
+    public ResponseEntity<ObjectNode> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         String unsupportedMethod = ex.getMethod();
         List<String> supportedMethod = new ArrayList<>();
-        for(HttpMethod requestMethod : ex.getSupportedHttpMethods()){
+        for (HttpMethod requestMethod : ex.getSupportedHttpMethods()) {
             supportedMethod.add(requestMethod.name());
         }
         ObjectNode response = objectMapper.createObjectNode();

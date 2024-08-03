@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CellErrorResponse{
+public class CellErrorResponse {
     private int rowIndex;
 
     private int cellIndex;

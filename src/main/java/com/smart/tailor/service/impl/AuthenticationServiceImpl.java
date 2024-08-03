@@ -1,9 +1,7 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.ErrorConstant;
-import com.smart.tailor.constant.FormatConstant;
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Customer;
 import com.smart.tailor.entities.Token;
 import com.smart.tailor.entities.User;
 import com.smart.tailor.entities.VerificationToken;
@@ -29,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -37,11 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -58,7 +51,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     @Override
-    public AuthenticationResponse register(UserRequest userRequest){
+    public AuthenticationResponse register(UserRequest userRequest) {
         // Check password is valid? Only check when it's not google registration
         if (userRequest.getProvider() != Provider.GOOGLE) {
             if (!Utilities.isValidPassword(userRequest.getPassword())) {
@@ -111,7 +104,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
         if (authenticationRequest.getProvider() != Provider.GOOGLE) {
-            if (authenticationRequest.getPassword().isBlank() || authenticationRequest.getPassword().isEmpty()){
+            if (authenticationRequest.getPassword().isBlank() || authenticationRequest.getPassword().isEmpty()) {
                 throw new BadRequestException("Missing Password");
             }
 
@@ -126,14 +119,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         "User are not allow to enter");
             }
 
-            try{
+            try {
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 authenticationRequest.getEmail(),
                                 authenticationRequest.getPassword()
                         )
                 );
-            } catch (AuthenticationException authenticationException){
+            } catch (AuthenticationException authenticationException) {
                 throw new BadRequestException(ErrorConstant.INVALID_EMAIL_OR_PASSWORD.getMessage());
             }
 

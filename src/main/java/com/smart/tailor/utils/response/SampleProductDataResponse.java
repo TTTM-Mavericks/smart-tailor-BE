@@ -13,20 +13,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SampleProductDataResponse {
-    private UUID sampleModelID;
-
-    private UUID orderID;
-
-    private UUID orderStageID;
-
-    private UUID brandID;
-
-    private String brandName;
-
     OrderStatus stage;
-
     Boolean status;
-
+    private UUID sampleModelID;
+    private UUID orderID;
+    private UUID orderStageID;
+    private UUID brandID;
+    private String brandName;
     private String description;
 
     private String imageUrl;

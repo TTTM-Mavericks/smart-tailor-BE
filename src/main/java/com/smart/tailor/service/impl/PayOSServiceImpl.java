@@ -34,6 +34,8 @@ import java.util.Map.Entry;
 @Service
 @RequiredArgsConstructor
 public class PayOSServiceImpl implements PayOSService {
+    private final PayOSDataService payOSDataService;
+    private final Logger logger = LoggerFactory.getLogger(PayOSServiceImpl.class);
     @Value("${PAYOS_CREATE_PAYMENT_LINK_URL}")
     private String createPaymentLinkUrl;
     @Value("${PAYOS_CLIENT_ID}")
@@ -44,10 +46,81 @@ public class PayOSServiceImpl implements PayOSService {
     private String checksumKey;
     @Value("${CLIENT_URL}")
     private String clientURL;
-    private final PayOSDataService payOSDataService;
-
-    private final Logger logger = LoggerFactory.getLogger(PayOSServiceImpl.class);
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    private static String convertObjToQueryStr(JsonNode object) {
+        StringBuilder stringBuilder = new StringBuilder();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        object.fields().forEachRemaining(entry -> {
+            String key = entry.getKey();
+            JsonNode value = entry.getValue();
+            String valueAsString = value.isTextual() ? value.asText() : value.toString();
+
+            if (!stringBuilder.isEmpty()) {
+                stringBuilder.append('&');
+            }
+            stringBuilder.append(key).append('=').append(valueAsString);
+        });
+
+        return stringBuilder.toString();
+    }
+
+    private static JsonNode sortObjDataByKey(JsonNode object) {
+        if (!object.isObject()) {
+            return object;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode orderedObject = objectMapper.createObjectNode();
+
+        Iterator<Entry<String, JsonNode>> fieldsIterator = object.fields();
+        TreeMap<String, JsonNode> sortedMap = new TreeMap<>();
+
+        while (fieldsIterator.hasNext()) {
+            Entry<String, JsonNode> field = fieldsIterator.next();
+            sortedMap.put(field.getKey(), field.getValue());
+        }
+
+        sortedMap.forEach(orderedObject::set);
+
+        return orderedObject;
+    }
+
+    private static String generateHmacSHA256(String dataStr, String key)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        sha256Hmac.init(secretKey);
+        byte[] hmacBytes = sha256Hmac.doFinal(dataStr.getBytes(StandardCharsets.UTF_8));
+
+        // Chuyển byte array sang chuỗi hex
+        StringBuilder hexStringBuilder = new StringBuilder();
+        for (byte b : hmacBytes) {
+            hexStringBuilder.append(String.format("%02x", b));
+        }
+        return hexStringBuilder.toString();
+    }
+
+    public static String createSignatureFromObj(JsonNode data, String key)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        JsonNode sortedDataByKey = sortObjDataByKey(data);
+        String dataQueryStr = convertObjToQueryStr(sortedDataByKey);
+        return generateHmacSHA256(dataQueryStr, key);
+    }
+
+    public static String createSignatureOfPaymentRequest(PayOSRequest data, String key)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        int amount = data.getAmount();
+        String cancelUrl = data.getCancelUrl();
+        String description = data.getDescription();
+        int orderCode = data.getOrderCode();
+        String returnUrl = data.getReturnUrl();
+        String dataStr = "amount=" + amount + "&cancelUrl=" + cancelUrl + "&description=" + description
+                + "&orderCode=" + orderCode + "&returnUrl=" + returnUrl;
+        // Sử dụng HMAC-SHA-256 để tính toán chữ ký
+        return generateHmacSHA256(dataStr, key);
+    }
 
     @Override
     public PayOSCreationResponse createPaymentLink(PayOSRequest paymentRequest) throws Exception {
@@ -258,80 +331,5 @@ public class PayOSServiceImpl implements PayOSService {
         var payOSData = payOSDataService.findByOrderCode(orderCode).get();
         payOSData.setStatus(onlinePayOS.getStatus());
         payOSDataService.save(payOSData);
-    }
-
-
-    private static String convertObjToQueryStr(JsonNode object) {
-        StringBuilder stringBuilder = new StringBuilder();
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        object.fields().forEachRemaining(entry -> {
-            String key = entry.getKey();
-            JsonNode value = entry.getValue();
-            String valueAsString = value.isTextual() ? value.asText() : value.toString();
-
-            if (!stringBuilder.isEmpty()) {
-                stringBuilder.append('&');
-            }
-            stringBuilder.append(key).append('=').append(valueAsString);
-        });
-
-        return stringBuilder.toString();
-    }
-
-    private static JsonNode sortObjDataByKey(JsonNode object) {
-        if (!object.isObject()) {
-            return object;
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode orderedObject = objectMapper.createObjectNode();
-
-        Iterator<Entry<String, JsonNode>> fieldsIterator = object.fields();
-        TreeMap<String, JsonNode> sortedMap = new TreeMap<>();
-
-        while (fieldsIterator.hasNext()) {
-            Entry<String, JsonNode> field = fieldsIterator.next();
-            sortedMap.put(field.getKey(), field.getValue());
-        }
-
-        sortedMap.forEach(orderedObject::set);
-
-        return orderedObject;
-    }
-
-    private static String generateHmacSHA256(String dataStr, String key)
-            throws NoSuchAlgorithmException, InvalidKeyException {
-        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256Hmac.init(secretKey);
-        byte[] hmacBytes = sha256Hmac.doFinal(dataStr.getBytes(StandardCharsets.UTF_8));
-
-        // Chuyển byte array sang chuỗi hex
-        StringBuilder hexStringBuilder = new StringBuilder();
-        for (byte b : hmacBytes) {
-            hexStringBuilder.append(String.format("%02x", b));
-        }
-        return hexStringBuilder.toString();
-    }
-
-    public static String createSignatureFromObj(JsonNode data, String key)
-            throws NoSuchAlgorithmException, InvalidKeyException {
-        JsonNode sortedDataByKey = sortObjDataByKey(data);
-        String dataQueryStr = convertObjToQueryStr(sortedDataByKey);
-        return generateHmacSHA256(dataQueryStr, key);
-    }
-
-    public static String createSignatureOfPaymentRequest(PayOSRequest data, String key)
-            throws NoSuchAlgorithmException, InvalidKeyException {
-        int amount = data.getAmount();
-        String cancelUrl = data.getCancelUrl();
-        String description = data.getDescription();
-        int orderCode = data.getOrderCode();
-        String returnUrl = data.getReturnUrl();
-        String dataStr = "amount=" + amount + "&cancelUrl=" + cancelUrl + "&description=" + description
-                + "&orderCode=" + orderCode + "&returnUrl=" + returnUrl;
-        // Sử dụng HMAC-SHA-256 để tính toán chữ ký
-        return generateHmacSHA256(dataStr, key);
     }
 }

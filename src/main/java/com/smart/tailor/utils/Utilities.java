@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
+    private static final Set<Integer> usedNumbers = new HashSet<>();
+
     public static boolean isNonNullOrEmpty(String str) {
         if (str == null) {
             return false;
@@ -153,8 +155,6 @@ public class Utilities {
         byte[] bytesToEncode = stringToCode.getBytes();
         return Base64.getEncoder().encode(bytesToEncode);
     }
-
-    private static final Set<Integer> usedNumbers = new HashSet<>();
 
     public static int convertUUIDToInt(String uuidStr) {
         if (uuidStr.equals("null")) {

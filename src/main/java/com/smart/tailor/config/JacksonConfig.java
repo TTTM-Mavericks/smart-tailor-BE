@@ -16,10 +16,10 @@ public class JacksonConfig {
 //        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
 //        return objectMapper;
         return
-            JsonMapper
-                    .builder()
-                    .addModule(new JavaTimeModule())
-                    .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
-                    .build();
+                JsonMapper
+                        .builder()
+                        .addModule(new JavaTimeModule())
+                        .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                        .build();
     }
 }

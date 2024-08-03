@@ -34,7 +34,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     public void saveUserVerificationToken(User user, UUID token, TypeOfVerification typeOfVerification) {
         LocalDateTime localDateTime = LocalDateTime.now();
         VerificationToken existedVerificationToken = findByUserID(user.getUserID());
-        if(existedVerificationToken == null){
+        if (existedVerificationToken == null) {
             verificationTokenRepository.save(
                     VerificationToken
                             .builder()
@@ -45,8 +45,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                             .expirationDateTime(localDateTime.plusMinutes(1))
                             .build()
             );
-        }
-        else {
+        } else {
             existedVerificationToken.setTypeOfVerification(typeOfVerification);
             existedVerificationToken.setToken(token);
             existedVerificationToken.setEnabled(false);
@@ -57,8 +56,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     @Override
     public VerificationToken generateNewVerificationToken(String userEmail) {
-       var verificationToken = findVerificationTokenByUserEmail(userEmail);
-        if(verificationToken != null){
+        var verificationToken = findVerificationTokenByUserEmail(userEmail);
+        if (verificationToken != null) {
             verificationToken.setToken(UUID.randomUUID());
             verificationToken.setExpirationDateTime(LocalDateTime.now().plusMinutes(1));
             verificationToken.setEnabled(false);
@@ -69,10 +68,10 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     @Override
     public VerificationToken findVerificationTokenByUserEmail(String userEmail) {
-        if(!Utilities.isStringNotNullOrEmpty(userEmail)){
+        if (!Utilities.isStringNotNullOrEmpty(userEmail)) {
             return null;
         }
-        if(!Utilities.isValidEmail(userEmail)){
+        if (!Utilities.isValidEmail(userEmail)) {
             return null;
         }
         return verificationTokenRepository.findVerificationTokenByUserEmail(userEmail);

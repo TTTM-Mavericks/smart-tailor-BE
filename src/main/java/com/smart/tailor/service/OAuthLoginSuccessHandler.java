@@ -56,8 +56,7 @@ public class OAuthLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
 //                    .build();
 //            img = imageService.saveImage(img);
 
-            if(oauth2ClientName.equalsIgnoreCase(Provider.FACEBOOK.name()))
-            {
+            if (oauth2ClientName.equalsIgnoreCase(Provider.FACEBOOK.name())) {
                 userRequest.setProvider(Provider.FACEBOOK);
             }
 

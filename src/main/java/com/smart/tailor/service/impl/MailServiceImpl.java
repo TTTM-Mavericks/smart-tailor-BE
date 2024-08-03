@@ -3,7 +3,6 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.service.MailService;
 import com.smart.tailor.service.ThymeleafService;
 import com.smart.tailor.utils.response.OrderCustomResponse;
-import com.smart.tailor.utils.response.OrderResponse;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void sendMailVerifyAccount(String emailTo, String emailSubject, String verificationUrl) {
-        try{
+        try {
             MimeMessage message = javaMailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(
@@ -44,16 +43,14 @@ public class MailServiceImpl implements MailService {
             helper.setText(thymeleafService.createThymeleafForVerifyAccount(emailTo, verificationUrl), true);
             logger.info("Inside Send Mail Verify Account Method");
             javaMailSender.send(message);
-        }
-        catch (Exception ex )
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     @Override
     public void sendMailChangePassword(String emailTo, String emailSubject, String verificationUrl) {
-        try{
+        try {
             MimeMessage message = javaMailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(
@@ -68,16 +65,14 @@ public class MailServiceImpl implements MailService {
             helper.setText(thymeleafService.createThymeleafForChangePassword(emailTo, verificationUrl), true);
             logger.info("Inside Send Mail Change Password Method");
             javaMailSender.send(message);
-        }
-        catch (Exception ex )
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     @Override
     public void sendMailResetPassword(String emailTo, String emailSubject, String verificationUrl) {
-        try{
+        try {
             MimeMessage message = javaMailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(
@@ -92,16 +87,14 @@ public class MailServiceImpl implements MailService {
             helper.setText(thymeleafService.createThymeleafForResetPassword(emailTo, verificationUrl), true);
             logger.info("Inside Send Mail Reset Password Method");
             javaMailSender.send(message);
-        }
-        catch (Exception ex )
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     @Override
     public void sendMailToSelectedBrandsForSpecificOrder(String emailTo, String emailSubject, String sendMailSelectedBrandsForOrderLink, OrderCustomResponse orderResponse) {
-        try{
+        try {
             MimeMessage message = javaMailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(
@@ -116,9 +109,7 @@ public class MailServiceImpl implements MailService {
             helper.setText(thymeleafService.createThymeleafForSelectedBrandForSpecificOrder(emailTo, orderResponse, sendMailSelectedBrandsForOrderLink), true);
             logger.info("Inside Send Mail to Selected Brands For Specific Order Method");
             javaMailSender.send(message);
-        }
-        catch (Exception ex )
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

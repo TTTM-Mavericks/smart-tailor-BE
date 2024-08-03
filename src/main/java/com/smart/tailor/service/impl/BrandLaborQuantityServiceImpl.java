@@ -1,24 +1,19 @@
 package com.smart.tailor.service.impl;
 
-import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.BrandLaborQuantity;
 import com.smart.tailor.entities.BrandLaborQuantityKey;
 import com.smart.tailor.exception.BadRequestException;
-import com.smart.tailor.exception.DuplicateDataException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.exception.MultipleErrorException;
 import com.smart.tailor.mapper.BrandLaborQuantityMapper;
-import com.smart.tailor.repository.BrandExpertTailoringRepository;
 import com.smart.tailor.repository.BrandLaborQuantityRepository;
 import com.smart.tailor.service.BrandLaborQuantityService;
 import com.smart.tailor.service.BrandService;
 import com.smart.tailor.service.LaborQuantityService;
 import com.smart.tailor.utils.request.BrandLaborQuantityListRequest;
 import com.smart.tailor.utils.request.BrandLaborQuantityRequest;
-import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.BrandLaborQuantityResponse;
 import com.smart.tailor.utils.response.ErrorDetail;
-import com.smart.tailor.utils.response.LaborQuantityResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -49,28 +44,27 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
 
         var brandLaborQuantityRequests = brandLaborQuantityListRequest.getBrandLaborQuantity();
 
-        for(BrandLaborQuantityRequest brandLaborQuantityRequest : brandLaborQuantityRequests){
+        for (BrandLaborQuantityRequest brandLaborQuantityRequest : brandLaborQuantityRequests) {
             List<String> errors = new ArrayList<>();
             var laborQuantityID = UUID.fromString(brandLaborQuantityRequest.getLaborQuantityID());
             var laborQuantity = laborQuantityService.findByID(laborQuantityID).orElse(null);
-            if(laborQuantity == null) {
+            if (laborQuantity == null) {
                 errorDetails.add(new ErrorDetail("Can not find Labor Quantity with LaborQuantityID: " + laborQuantityID));
-            }
-            else {
-                if(
+            } else {
+                if (
                         laborQuantity.getLaborQuantityMinPrice() > brandLaborQuantityRequest.getBrandLaborCostPerQuantity() ||
-                        laborQuantity.getLaborQuantityMaxPrice() < brandLaborQuantityRequest.getBrandLaborCostPerQuantity()
-                ){
+                                laborQuantity.getLaborQuantityMaxPrice() < brandLaborQuantityRequest.getBrandLaborCostPerQuantity()
+                ) {
                     errors.add("Brand Labor Cost must be between Min Price and Max Price");
                 }
 
                 var brandLaborQuantityExisted = brandLaborQuantityRepository.findBrandLaborQuantitiesByLaborQuantityIDAndBrandID(laborQuantityID, brandID);
 
-                if(brandLaborQuantityExisted != null){
+                if (brandLaborQuantityExisted != null) {
                     errors.add("Brand Labor Quantity is existed");
                 }
 
-                if(!errors.isEmpty()){
+                if (!errors.isEmpty()) {
                     errorDetails.add(new ErrorDetail(brandLaborQuantityRequest, errors));
                 } else {
                     BrandLaborQuantityKey brandLaborQuantityKey = BrandLaborQuantityKey
@@ -93,7 +87,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
             }
         }
 
-        if (!errorDetails.isEmpty()){
+        if (!errorDetails.isEmpty()) {
             throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Brand Labor Quantity", errorDetails);
         }
     }
@@ -118,15 +112,15 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
         var laborQuantity = laborQuantityService.findByID(laborQuantityID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find LaborQuantity with LaborQuantityID: " + laborQuantityID));
 
-        if(
+        if (
                 laborQuantity.getLaborQuantityMinPrice() > brandLaborQuantityRequest.getBrandLaborCostPerQuantity() ||
-                laborQuantity.getLaborQuantityMaxPrice() < brandLaborQuantityRequest.getBrandLaborCostPerQuantity()
-        ){
+                        laborQuantity.getLaborQuantityMaxPrice() < brandLaborQuantityRequest.getBrandLaborCostPerQuantity()
+        ) {
             throw new BadRequestException("Brand Labor Cost must be between Min and Max Price");
         }
 
         var brandLaborQuantityExisted = brandLaborQuantityRepository.findBrandLaborQuantitiesByLaborQuantityIDAndBrandID(laborQuantityID, brandID);
-        if(brandLaborQuantityExisted == null){
+        if (brandLaborQuantityExisted == null) {
             throw new ItemNotFoundException("Can not find Brand Labor Quantity");
         }
 

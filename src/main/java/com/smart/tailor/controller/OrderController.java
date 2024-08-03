@@ -32,8 +32,8 @@ import java.util.UUID;
 public class OrderController {
     private final OrderService orderService;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private ObjectMapper objectMapper = new ObjectMapper();
     private final Logger logger = LoggerFactory.getLogger(OrderController.class);
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping(OrderAPI.CREATE_ORDER)
     public ResponseEntity<ObjectNode> createOrder(@Valid @RequestBody OrderRequest orderRequest) {

@@ -147,7 +147,7 @@ public class ExpertTailoringController {
 
     @PutMapping(APIConstant.ExpertTailoringAPI.UPDATE_EXPERT_TAILORING + "/{expertTailoringID}")
     public ResponseEntity<ObjectNode> updateExpertTailoring(@ValidUUID @PathVariable("expertTailoringID") UUID expertTailoringID,
-                                                     @Valid @RequestBody ExpertTailoringRequest expertTailoringRequest) {
+                                                            @Valid @RequestBody ExpertTailoringRequest expertTailoringRequest) {
         ObjectNode response = objectMapper.createObjectNode();
         expertTailoringService.updateExpertTailoring(expertTailoringID, expertTailoringRequest);
         response.put("status", HttpStatus.OK.value());

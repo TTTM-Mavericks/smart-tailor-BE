@@ -35,10 +35,10 @@ public class ItemMaskController {
     public ResponseEntity<ObjectNode> getAllItemMaskByPartOfDesignID(@ValidUUID @PathVariable("partOfDesignID") UUID partOfDesignID) {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponses = itemMaskService.getListItemMaskByPartOfDesignID(partOfDesignID);
-        if(itemMaskResponses.isEmpty()){
+        if (itemMaskResponses.isEmpty()) {
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_ITEM_MASK_BY_PART_OF_DESIGN_ID);
-        }else{
+        } else {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_ITEM_MASK_BY_PART_OF_DESIGN_ID_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(itemMaskResponses));
@@ -51,10 +51,10 @@ public class ItemMaskController {
     public ResponseEntity<ObjectNode> getAllItemMask() {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponses = itemMaskService.getAllItemMask();
-        if(itemMaskResponses.isEmpty()){
+        if (itemMaskResponses.isEmpty()) {
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_ITEM_MASK);
-        }else{
+        } else {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_ITEM_MASK_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(itemMaskResponses));
@@ -66,10 +66,10 @@ public class ItemMaskController {
     public ResponseEntity<ObjectNode> getDesignByID(@ValidUUID @PathVariable("itemMaskID") UUID itemMaskID) {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponse = itemMaskService.getItemMaskByItemMaskID(itemMaskID);
-        if(itemMaskResponse == null){
+        if (itemMaskResponse == null) {
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_ITEM_MASK);
-        }else{
+        } else {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ITEM_MASK_BY_ID_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(itemMaskResponse));

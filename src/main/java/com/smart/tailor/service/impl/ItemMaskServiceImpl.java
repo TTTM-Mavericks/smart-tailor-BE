@@ -13,13 +13,11 @@ import com.smart.tailor.service.ItemMaskService;
 import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.ItemMaskRequest;
-import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.ItemMaskResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,61 +41,61 @@ public class ItemMaskServiceImpl implements ItemMaskService {
     public List<ItemMask> createItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList) {
         List<ItemMask> itemMaskList = new ArrayList<>();
 
-        for(ItemMaskRequest itemMaskRequest : itemMaskRequestList){
-            if(!Utilities.isValidBoolean(itemMaskRequest.getIsSystemItem())){
+        for (ItemMaskRequest itemMaskRequest : itemMaskRequestList) {
+            if (!Utilities.isValidBoolean(itemMaskRequest.getIsSystemItem())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isSystemItem");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getPositionX())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getPositionX())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionX");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getPositionY())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getPositionY())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionY");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getScaleX())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getScaleX())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleX");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getScaleY())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getScaleY())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleY");
             }
 
-            if(!Utilities.isValidInteger(itemMaskRequest.getIndexZ())){
+            if (!Utilities.isValidInteger(itemMaskRequest.getIndexZ())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getRotate())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getRotate())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " rotate");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getTopLeftRadius())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getTopLeftRadius())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " topLeftRadius");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getTopRightRadius())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getTopRightRadius())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " topRightRadius");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getBottomLeftRadius())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getBottomLeftRadius())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomLeftRadius");
             }
 
-            if(!Utilities.isValidFloat(itemMaskRequest.getBottomRightRadius())){
+            if (!Utilities.isValidFloat(itemMaskRequest.getBottomRightRadius())) {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomRightRadius");
             }
 
             // Check Whether ImageUrl is existed or not. Then Convert It to Base64
             byte[] base64ImageUrl = null;
-            if(Optional.ofNullable(itemMaskRequest.getImageUrl()).isPresent()){
+            if (Optional.ofNullable(itemMaskRequest.getImageUrl()).isPresent()) {
                 base64ImageUrl = Utilities.encodeStringToBase64(itemMaskRequest.getImageUrl());
             }
 
             String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
             String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
 
-            var itemMask =   ItemMask
+            var itemMask = ItemMask
                     .builder()
                     .partOfDesign(partOfDesign)
                     .itemMaskName(itemMaskName)
@@ -118,8 +116,8 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                     .build();
 
             Material material = null;
-            if(Utilities.isStringNotNullOrEmpty(itemMaskRequest.getMaterialID())){
-                if(!Utilities.isValidUUIDType(itemMaskRequest.getMaterialID())){
+            if (Utilities.isStringNotNullOrEmpty(itemMaskRequest.getMaterialID())) {
+                if (!Utilities.isValidUUIDType(itemMaskRequest.getMaterialID())) {
                     throw new BadRequestException("Invalid Type UUID of MaterialID: " + itemMaskRequest.getMaterialID());
                 }
 
@@ -148,7 +146,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
     @Override
     public ItemMaskResponse getItemMaskByItemMaskID(UUID itemMaskID) {
         var itemMask = itemMaskRepository.findById(itemMaskID);
-        if(itemMask.isPresent()){
+        if (itemMask.isPresent()) {
             return itemMaskMapper.mapperToItemMaskResponse(itemMask.get());
         }
         return null;

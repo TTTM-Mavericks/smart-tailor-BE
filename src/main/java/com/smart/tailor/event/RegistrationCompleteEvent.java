@@ -12,7 +12,7 @@ public class RegistrationCompleteEvent extends ApplicationEvent {
     private User user;
     private TypeOfVerification typeOfVerification;
 
-    public RegistrationCompleteEvent(User user, TypeOfVerification typeOfVerification){
+    public RegistrationCompleteEvent(User user, TypeOfVerification typeOfVerification) {
         super(user);
         this.user = user;
         this.typeOfVerification = typeOfVerification;

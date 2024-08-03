@@ -67,7 +67,7 @@ public class CategoryController {
         ObjectNode response = objectMapper.createObjectNode();
         categoryService.createCategory(categoryListRequest);
         response.put("status", HttpStatus.OK.value());
-        response.put("message",MessageConstant.ADD_NEW_CATEGORY_SUCCESSFULLY);
+        response.put("message", MessageConstant.ADD_NEW_CATEGORY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
@@ -77,17 +77,17 @@ public class CategoryController {
         ObjectNode response = objectMapper.createObjectNode();
         categoryService.updateCategory(categoryRequest);
         response.put("status", HttpStatus.OK.value());
-        response.put("message",MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY);
+        response.put("message", MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping(APIConstant.CategoryAPI.CHANGE_STATUS_CATEGORY + "/{categoryID}")
-    public ResponseEntity<ObjectNode> changeStatusCategory(@ValidUUID @PathVariable("categoryID") UUID categoryID ) {
+    public ResponseEntity<ObjectNode> changeStatusCategory(@ValidUUID @PathVariable("categoryID") UUID categoryID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         categoryService.changeStatusCategory(categoryID);
         response.put("status", HttpStatus.OK.value());
-        response.put("message",MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY);
+        response.put("message", MessageConstant.UPDATE_CATEGORY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 }

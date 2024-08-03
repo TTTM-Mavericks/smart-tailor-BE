@@ -32,31 +32,31 @@ import static com.smart.tailor.constant.FormatConstant.PERCENTAGE_FLUCTUATION_WI
 @RequiredArgsConstructor
 @Slf4j
 public class ExcelExportServiceImpl implements ExcelExportService {
-    private void createCell(Row row, int columnIndex, Object value, CellStyle style, XSSFSheet sheet){
+    private void createCell(Row row, int columnIndex, Object value, CellStyle style, XSSFSheet sheet) {
         Cell cell = row.createCell(columnIndex);
-        if(value instanceof Integer){
+        if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
-        } else if(value instanceof Double){
+        } else if (value instanceof Double) {
             cell.setCellValue((Double) value);
-        } else if(value instanceof Float){
+        } else if (value instanceof Float) {
             cell.setCellValue((Float) value);
-        } else if(value instanceof Long){
+        } else if (value instanceof Long) {
             cell.setCellValue((Long) value);
-        } else if(value instanceof Boolean){
+        } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else if(value instanceof LocalDateTime localDateTime){
+        } else if (value instanceof LocalDateTime localDateTime) {
             Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
             cell.setCellValue(date);
-        }else if(value instanceof Date){
+        } else if (value instanceof Date) {
             cell.setCellValue((Date) value);
-        }else if(value instanceof LocalDate localDate){
+        } else if (value instanceof LocalDate localDate) {
             Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
             cell.setCellValue(date);
-        }else if(value instanceof Calendar){
+        } else if (value instanceof Calendar) {
             cell.setCellValue((Calendar) value);
-        }else if(value instanceof String){
+        } else if (value instanceof String) {
             cell.setCellValue((String) value);
-        }else {
+        } else {
             cell.setCellValue("");
         }
         cell.setCellStyle(style);
@@ -171,7 +171,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         dateTimeCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm:ss.00"));
         dateTimeCellStyle.setAlignment(HorizontalAlignment.CENTER);
 
-        for(var expertTailoring : expertTailoringResponses){
+        for (var expertTailoring : expertTailoringResponses) {
             Row rowSheet = sheet.createRow(rowIndex++);
             int countIndex = 0;
             createCell(rowSheet, countIndex++, expertTailoring.getExpertTailoringName(), styleData, sheet);
@@ -252,7 +252,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         styleData.setBorderLeft(BorderStyle.MEDIUM);
         styleData.setBorderRight(BorderStyle.MEDIUM);
 
-        for(var materialResponse : materialResponses){
+        for (var materialResponse : materialResponses) {
             Row rowSheet = sheet.createRow(rowIndex++);
             int countIndex = 0;
             createCell(rowSheet, countIndex++, materialResponse.getCategoryName(), lockedData, sheet);
@@ -263,14 +263,14 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             createCell(rowSheet, countIndex++, null, styleData, sheet);
         }
         // Auto Size Column to fit content
-        for(int i = 0; i < 6; ++i){
+        for (int i = 0; i < 6; ++i) {
             sheet.autoSizeColumn(i);
         }
         // Set Password to Unlock Columns and Rows
         sheet.protectSheet("Aa@123456");
 
         // Apply Border to Sheet
-        rangeAddress = new CellRangeAddress(0, materialResponses.size(),  0, 5);
+        rangeAddress = new CellRangeAddress(0, materialResponses.size(), 0, 5);
 
         // Apply data validation for Brand Price column from rowIndex = 2 to the last row
         int lastRow = sheet.getLastRowNum();
@@ -341,7 +341,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         sheet.protectSheet("Aa@123456");
 
         // Unlocked For Specific Cells
-        for(int i = 2; i <= 200; ++i){
+        for (int i = 2; i <= 200; ++i) {
             row = sheet.createRow(i);
             Cell cellA = row.createCell(0);
             Cell cellB = row.createCell(1);
@@ -354,7 +354,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 0 Which is Expert Tailoring Name
         DataValidationConstraint constraint = dataValidationHelper.createCustomConstraint("ISTEXT(A3)");
-        CellRangeAddressList expertTailoringNameRange = new CellRangeAddressList(2, 200, 0,0);
+        CellRangeAddressList expertTailoringNameRange = new CellRangeAddressList(2, 200, 0, 0);
         DataValidation expertTailoringNameValidation = dataValidationHelper.createValidation(constraint, expertTailoringNameRange);
         expertTailoringNameValidation.setShowErrorBox(true);
         expertTailoringNameValidation.createErrorBox("Invalid Input", "Expert Tailoring Name must be Type String");
@@ -362,7 +362,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 0 Which is Expert Tailoring Name
         constraint = dataValidationHelper.createCustomConstraint("ISTEXT(B3)");
-        CellRangeAddressList expertTailoringUrlRange = new CellRangeAddressList(2, 200, 1,1);
+        CellRangeAddressList expertTailoringUrlRange = new CellRangeAddressList(2, 200, 1, 1);
         DataValidation expertTailoringUrlValidation = dataValidationHelper.createValidation(constraint, expertTailoringUrlRange);
         expertTailoringUrlValidation.setShowErrorBox(true);
         expertTailoringUrlValidation.createErrorBox("Invalid Input", "Expert Tailoring Url must be Type String");
@@ -420,7 +420,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         sheet.protectSheet("Aa@123456");
 
         // Unlocked For Specific Cells
-        for(int i = 2; i <= 200; ++i){
+        for (int i = 2; i <= 200; ++i) {
             row = sheet.createRow(i);
             Cell cellA = row.createCell(0);
             Cell cellB = row.createCell(1);
@@ -439,7 +439,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 0 <=> CategoryName
         DataValidationConstraint constraint = dataValidationHelper.createExplicitListConstraint(categoryNames);
-        CellRangeAddressList categoryNameRange = new CellRangeAddressList(2, 200, 0,0);
+        CellRangeAddressList categoryNameRange = new CellRangeAddressList(2, 200, 0, 0);
         DataValidation categoryNameValidation = dataValidationHelper.createValidation(constraint, categoryNameRange);
         categoryNameValidation.setShowErrorBox(true);
         categoryNameValidation.createErrorBox("Invalid Input", "Category Name must be one of predefined values");
@@ -455,7 +455,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 2 <=> HSCode
         constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(C3), C3 >= 0)");
-        CellRangeAddressList hsCodeRange = new CellRangeAddressList(2, 200, 2,2);
+        CellRangeAddressList hsCodeRange = new CellRangeAddressList(2, 200, 2, 2);
         DataValidation hsCodeValidation = dataValidationHelper.createValidation(constraint, hsCodeRange);
         hsCodeValidation.setShowErrorBox(true);
         hsCodeValidation.createErrorBox("Invalid Input", "HS Code must be Type Number And Non-Negative Number");
@@ -471,7 +471,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 4 <=> BasePrice
         constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(E3), E3 >= 0)");
-        CellRangeAddressList basePriceRange = new CellRangeAddressList(2, 200, 4,4);
+        CellRangeAddressList basePriceRange = new CellRangeAddressList(2, 200, 4, 4);
         DataValidation basePriceValidation = dataValidationHelper.createValidation(constraint, basePriceRange);
         basePriceValidation.setShowErrorBox(true);
         basePriceValidation.createErrorBox("Invalid Input", "Base Price must be Type Number And Non-Negative Number");
@@ -531,7 +531,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         sheet.protectSheet("Aa@123456");
 
         // Unlocked For Specific Cells
-        for(int i = 2; i <= 300; ++i){
+        for (int i = 2; i <= 300; ++i) {
             row = sheet.createRow(i);
             Cell cellA = row.createCell(0);
             Cell cellB = row.createCell(1);
@@ -550,7 +550,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 0 <=> expertTailoringName
         DataValidationConstraint constraint = dataValidationHelper.createExplicitListConstraint(expertTailoringNames);
-        CellRangeAddressList expertTailoringNameRange = new CellRangeAddressList(2, 300, 0,0);
+        CellRangeAddressList expertTailoringNameRange = new CellRangeAddressList(2, 300, 0, 0);
         DataValidation expertTailoringNameValidation = dataValidationHelper.createValidation(constraint, expertTailoringNameRange);
         expertTailoringNameValidation.setShowErrorBox(true);
         expertTailoringNameValidation.createErrorBox("Invalid Input", "Expert Tailoring Name must be one of the predefined values");
@@ -566,7 +566,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 2 <=> Ratio
         constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(C3), C3 >= 0)");
-        CellRangeAddressList ratioRange = new CellRangeAddressList(2, 300, 2,2);
+        CellRangeAddressList ratioRange = new CellRangeAddressList(2, 300, 2, 2);
         DataValidation ratioValidation = dataValidationHelper.createValidation(constraint, ratioRange);
         ratioValidation.setShowErrorBox(true);
         ratioValidation.createErrorBox("Invalid Input", "Ratio must be Type Number And Non-Negative Number");
@@ -646,7 +646,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         styleData.setBorderLeft(BorderStyle.MEDIUM);
         styleData.setBorderRight(BorderStyle.MEDIUM);
 
-        for(var materialResponse : materialResponses){
+        for (var materialResponse : materialResponses) {
             Row rowSheet = sheet.createRow(rowIndex++);
             int countIndex = 0;
             createCell(rowSheet, countIndex++, materialResponse.getCategoryName(), lockedData, sheet);
@@ -664,7 +664,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         CellRangeAddressList expertTailoringNameRange = new CellRangeAddressList(2, 300, 2, 2);
         DataValidation expertTailoringNameValidation = dataValidationHelper.createValidation(constraint, expertTailoringNameRange);
         expertTailoringNameValidation.setShowErrorBox(true);
-        expertTailoringNameValidation.createErrorBox( "Invalid Input",
+        expertTailoringNameValidation.createErrorBox("Invalid Input",
                 "Expert Tailoring Name must be Type String. If multiple values, they have to be separated by commas."
         );
         sheet.addValidationData(expertTailoringNameValidation);

@@ -1,8 +1,6 @@
 package com.smart.tailor.service;
 
-import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Size;
-import com.smart.tailor.exception.DuplicateDataException;
 import com.smart.tailor.exception.ItemAlreadyExistException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.exception.MultipleErrorException;
@@ -30,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SizeServiceImpl implements SizeService{
+public class SizeServiceImpl implements SizeService {
     private final SizeRepository sizeRepository;
     private final SizeMapper sizeMapper;
     private final Logger logger = LoggerFactory.getLogger(SizeServiceImpl.class);
@@ -38,25 +36,25 @@ public class SizeServiceImpl implements SizeService{
     @Override
     public void createSize(ListSizeRequest listSizeRequest) {
         List<Object> errorDetails = new ArrayList<>();
-        for(SizeRequest sizeRequest : listSizeRequest.getSizeRequestList()){
+        for (SizeRequest sizeRequest : listSizeRequest.getSizeRequestList()) {
             List<String> errors = new ArrayList<>();
-            if(!Utilities.isStringNotNullOrEmpty(sizeRequest.getSizeName())){
+            if (!Utilities.isStringNotNullOrEmpty(sizeRequest.getSizeName())) {
                 errors.add("Size Name must not be null or blank");
             }
 
-            if(sizeRequest.getSizeName() == null){
-                if(sizeRequest.getSizeName().length() > 5){
+            if (sizeRequest.getSizeName() == null) {
+                if (sizeRequest.getSizeName().length() > 5) {
                     errors.add("Size Name must not exceed 5 characters");
                 }
 
                 var sizeExisted = sizeRepository.findBySizeName(sizeRequest.getSizeName().toUpperCase());
 
-                if(sizeExisted.isPresent()){
+                if (sizeExisted.isPresent()) {
                     errors.add("Size is existed with Size Name: " + sizeRequest.getSizeName());
                 }
             }
 
-            if(!errors.isEmpty()){
+            if (!errors.isEmpty()) {
                 errorDetails.add(new ErrorDetail(sizeRequest, errors));
             } else {
                 sizeRepository.save(
@@ -68,7 +66,7 @@ public class SizeServiceImpl implements SizeService{
                 );
             }
         }
-        if(!errorDetails.isEmpty()){
+        if (!errorDetails.isEmpty()) {
             throw new MultipleErrorException(HttpStatus.BAD_REQUEST, "Error occur When Create Size", errorDetails);
         }
     }
@@ -89,8 +87,8 @@ public class SizeServiceImpl implements SizeService{
                 .orElseThrow(() -> new ItemNotFoundException("Can not find any Size with SizeID: " + sizeID));
 
         var sizeExisted = sizeRepository.findBySizeName(sizeRequest.getSizeName().toUpperCase());
-        if(sizeExisted.isPresent()){
-            if(!sizeExisted.get().getSizeID().toString().equals(currentSize.getSizeID().toString())){
+        if (sizeExisted.isPresent()) {
+            if (!sizeExisted.get().getSizeID().toString().equals(currentSize.getSizeID().toString())) {
                 throw new ItemAlreadyExistException("Size is existed with SizeName: " + sizeRequest.getSizeName());
             }
         }

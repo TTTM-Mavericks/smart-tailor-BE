@@ -13,11 +13,11 @@ public class ValidUUIDConstraint implements ConstraintValidator<ValidUUID, UUID>
 
     @Override
     public boolean isValid(UUID value, ConstraintValidatorContext context) {
-        if(value == null) return false;
-        try{
+        if (value == null) return false;
+        try {
             UUID.fromString(value.toString());
             return true;
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }

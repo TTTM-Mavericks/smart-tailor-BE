@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.exception.BadRequestWithCustomStatusCodeException;
-import com.smart.tailor.exception.MultipleErrorException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,13 +21,13 @@ public class BadRequestExceptionHander {
     private final ObjectMapper objectMapper;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ObjectNode> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+    public ResponseEntity<ObjectNode> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         ObjectNode response = objectMapper.createObjectNode();
         ArrayNode errorsArray = objectMapper.createArrayNode();
 
         e.getBindingResult().getAllErrors().forEach(error -> {
             ObjectNode errorNode = objectMapper.createObjectNode();
-            errorNode.put("field", ((FieldError)error).getField());
+            errorNode.put("field", ((FieldError) error).getField());
             errorNode.put("message", error.getDefaultMessage());
             errorsArray.add(errorNode);
         });
@@ -41,13 +40,13 @@ public class BadRequestExceptionHander {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ObjectNode> handleConstraintViolationException(ConstraintViolationException e){
+    public ResponseEntity<ObjectNode> handleConstraintViolationException(ConstraintViolationException e) {
         ObjectNode response = objectMapper.createObjectNode();
         ArrayNode errorsArray = objectMapper.createArrayNode();
 
         e.getConstraintViolations().forEach(error -> {
             ObjectNode errorNode = objectMapper.createObjectNode();
-            errorNode.put("field", ((FieldError)error).getField());
+            errorNode.put("field", ((FieldError) error).getField());
             errorNode.put("message", error.getPropertyPath().toString());
             errorsArray.add(errorNode);
         });

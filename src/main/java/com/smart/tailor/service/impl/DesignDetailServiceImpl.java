@@ -33,6 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DesignDetailServiceImpl implements DesignDetailService {
 
+    private static final BigDecimal PIXEL_TO_CENTIMETER = new BigDecimal("0.0264583");
     private final DesignDetailRepository designDetailRepository;
     private final DesignDetailMapper designDetailMapper;
     private final DesignMapper designMapper;
@@ -45,7 +46,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final OrderService orderService;
     private final SizeService sizeService;
     private final BrandLaborQuantityService brandLaborQuantityService;
-    private static final BigDecimal PIXEL_TO_CENTIMETER = new BigDecimal("0.0264583");
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
     @Transactional(readOnly = true)

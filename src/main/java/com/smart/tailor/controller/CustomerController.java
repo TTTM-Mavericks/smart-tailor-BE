@@ -33,9 +33,9 @@ public class CustomerController {
         try {
             var apiResponse = customerService.updateCustomerProfile(customerRequest);
 
-                response.put("status", apiResponse.getStatus());
-                response.put("message", apiResponse.getMessage());
-                response.put("data", objectMapper.valueToTree(apiResponse.getData()));
+            response.put("status", apiResponse.getStatus());
+            response.put("message", apiResponse.getMessage());
+            response.put("data", objectMapper.valueToTree(apiResponse.getData()));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());

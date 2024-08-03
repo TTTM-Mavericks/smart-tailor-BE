@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface SampleProductDataService {
     void addNewSampleProductData(SampleProductDataRequest sampleProductDataRequest);
 
-    void updateSampleProductData(UUID sampleModelID,SampleProductDataRequest sampleProductDataRequest);
+    void updateSampleProductData(UUID sampleModelID, SampleProductDataRequest sampleProductDataRequest);
 
     SampleProductDataResponse getSampleProductDataByID(UUID sampleModelID);
 

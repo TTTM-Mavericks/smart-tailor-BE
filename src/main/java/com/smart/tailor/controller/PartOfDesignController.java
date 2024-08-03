@@ -13,7 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
@@ -31,10 +34,10 @@ public class PartOfDesignController {
     public ResponseEntity<ObjectNode> getAllPartOfDesignByDesignID(@ValidUUID @PathVariable("designID") UUID designID) {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponses = partOfDesignService.getListPartOfDesignByDesignID(designID);
-        if(partOfDesignResponses.isEmpty()){
+        if (partOfDesignResponses.isEmpty()) {
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_PART_OF_DESIGN_BY_DESIGN_ID);
-        }else{
+        } else {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_PART_OF_DESIGN_BY_DESIGN_ID_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(partOfDesignResponses));
@@ -47,10 +50,10 @@ public class PartOfDesignController {
     public ResponseEntity<ObjectNode> getAllPartOfDesign() {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponses = partOfDesignService.getAllPartOfDesign();
-        if(partOfDesignResponses.isEmpty()){
+        if (partOfDesignResponses.isEmpty()) {
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_PART_OF_DESIGN);
-        }else{
+        } else {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_PART_OF_DESIGN_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(partOfDesignResponses));
@@ -62,10 +65,10 @@ public class PartOfDesignController {
     public ResponseEntity<ObjectNode> getDesignByID(@ValidUUID @PathVariable("partOfDesignID") UUID partOfDesignID) {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponse = partOfDesignService.getPartOfDesignByPartOfDesignID(partOfDesignID);
-        if(partOfDesignResponse == null){
+        if (partOfDesignResponse == null) {
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", MessageConstant.CAN_NOT_FIND_ANY_PART_OF_DESIGN);
-        }else{
+        } else {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_PART_OF_DESIGN_BY_ID_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(partOfDesignResponse));

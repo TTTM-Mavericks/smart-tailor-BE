@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationEvent;
 public class CreateOrderEvent extends ApplicationEvent {
     private OrderResponse orderResponse;
 
-    public CreateOrderEvent(OrderResponse orderResponse){
+    public CreateOrderEvent(OrderResponse orderResponse) {
         super(orderResponse);
         this.orderResponse = orderResponse;
     }

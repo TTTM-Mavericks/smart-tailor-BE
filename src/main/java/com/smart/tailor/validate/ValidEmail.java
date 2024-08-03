@@ -16,6 +16,8 @@ import static java.lang.annotation.ElementType.*;
 @Constraint(validatedBy = ValidEmailConstraint.class)
 public @interface ValidEmail {
     String message() default "Invalid Email Address";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

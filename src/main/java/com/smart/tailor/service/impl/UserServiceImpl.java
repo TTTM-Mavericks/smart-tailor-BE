@@ -15,7 +15,6 @@ import com.smart.tailor.service.RoleService;
 import com.smart.tailor.service.TokenService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.service.VerificationTokenService;
-import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +55,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerNewUsers(UserRequest userRequest){
+    public User registerNewUsers(UserRequest userRequest) {
         User savedUser = null;
         Optional<Roles> role = roleService.findRoleByRoleName(userRequest.getRoleName().trim().toUpperCase());
         if (!role.isPresent()) {
@@ -66,17 +65,17 @@ public class UserServiceImpl implements UserService {
         if (!userRequest.getEmail().isEmpty() && !userRequest.getEmail().isBlank() && !userRequest.getPassword().isEmpty() && !userRequest.getPassword().isBlank()) {
             savedUser = userRepository.save(
                     User
-                        .builder()
-                        .email(userRequest.getEmail())
-                        .password(userRequest.getPassword())
-                        .language(userRequest.getLanguage())
-                        .provider(userRequest.getProvider())
-                        .userStatus(userRequest.getProvider().equals(Provider.LOCAL) ? UserStatus.INACTIVE : UserStatus.ACTIVE)
-                        .fullName(userRequest.getFullName())
-                        .phoneNumber(userRequest.getPhoneNumber())
-                        .roles(role.get())
-                        .imageUrl(userRequest.getImageUrl())
-                        .build()
+                            .builder()
+                            .email(userRequest.getEmail())
+                            .password(userRequest.getPassword())
+                            .language(userRequest.getLanguage())
+                            .provider(userRequest.getProvider())
+                            .userStatus(userRequest.getProvider().equals(Provider.LOCAL) ? UserStatus.INACTIVE : UserStatus.ACTIVE)
+                            .fullName(userRequest.getFullName())
+                            .phoneNumber(userRequest.getPhoneNumber())
+                            .roles(role.get())
+                            .imageUrl(userRequest.getImageUrl())
+                            .build()
             );
         }
         return savedUser;
@@ -105,7 +104,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUserProfile(UserRequest userRequest) {
         User userExisted = userRepository.getByEmail(userRequest.getEmail());
-        if (userExisted != null){
+        if (userExisted != null) {
             userExisted.setFullName(userRequest.getFullName());
             userExisted.setImageUrl(userRequest.getImageUrl());
             userExisted.setPhoneNumber(userRequest.getPhoneNumber());

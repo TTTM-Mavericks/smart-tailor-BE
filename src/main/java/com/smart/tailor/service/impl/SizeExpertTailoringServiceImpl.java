@@ -8,7 +8,10 @@ import com.smart.tailor.mapper.SizeExpertTailoringMapper;
 import com.smart.tailor.repository.SizeExpertTailoringRepository;
 import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.SizeExpertTailoringRequest;
-import com.smart.tailor.utils.response.*;
+import com.smart.tailor.utils.response.ErrorDetail;
+import com.smart.tailor.utils.response.ExpertTailoringResponse;
+import com.smart.tailor.utils.response.SizeExpertTailoringResponse;
+import com.smart.tailor.utils.response.SizeResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -186,7 +189,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                             case 0:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var expertTailoringName = cell.getStringCellValue();
-                                    if(expertTailoringName.length() > 50){
+                                    if (expertTailoringName.length() > 50) {
                                         errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 50 characters");
                                         inValidData = true;
                                         rowDataValid = false;
@@ -202,11 +205,11 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                             case 1:
                                 if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                     var sizeName = cell.getStringCellValue();
-                                    if(sizeName.length() > 50){
+                                    if (sizeName.length() > 50) {
                                         errors.add(getCellNameForSizeExpertTailoring(cellIndex) + " at row Index " + (rowIndex + 1) + " must not exceed 5 characters");
                                         inValidData = true;
                                         rowDataValid = false;
-                                    } else{
+                                    } else {
                                         sizeExpertTailoringRequest.setSizeName(sizeName);
                                     }
                                 } else {
@@ -233,10 +236,10 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                                         }
                                         break;
                                 }
-                                if(isValid && ratio >= 0){
+                                if (isValid && ratio >= 0) {
                                     sizeExpertTailoringRequest.setRatio(ratio);
-                                }else{
-                                    if(isValid && ratio < 0){
+                                } else {
+                                    if (isValid && ratio < 0) {
                                         message = " must be positive numeric";
                                     }
                                     inValidData = true;
@@ -254,16 +257,16 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 }
 
                 var size = sizeService.findBySizeName(sizeExpertTailoringRequest.getSizeName());
-                if(size.isEmpty()){
+                if (size.isEmpty()) {
                     errors.add("Size_Name at row Index " + (rowIndex + 1) + " Not Found!");
                 }
 
                 var expertTailoring = expertTailoringService.getExpertTailoringByExpertTailoringName(sizeExpertTailoringRequest.getExpertTailoringName());
-                if(expertTailoring.isEmpty()){
+                if (expertTailoring.isEmpty()) {
                     errors.add("Expert_Tailoring_Name at row Index " + (rowIndex + 1) + " Not Found!");
                 }
 
-                if (rowDataValid){
+                if (rowDataValid) {
                     var sizeExpertTailoringExisted = sizeExpertTailoringRepository.existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndRatio(
                             sizeExpertTailoringRequest.getExpertTailoringName(),
                             sizeExpertTailoringRequest.getSizeName(),
@@ -274,7 +277,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                         errors.add("Size Expert Tailoring is Existed");
                     }
 
-                    if(errors.isEmpty()) {
+                    if (errors.isEmpty()) {
                         SizeExpertTailoringKey sizeExpertTailoringKey = SizeExpertTailoringKey
                                 .builder()
                                 .expertTailoringID(expertTailoring.get().getExpertTailoringID())
@@ -300,7 +303,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
                 rowIndex++;
             }
 
-            if(sizeExpertTailoringRequests.isEmpty() && errorFields.isEmpty()){
+            if (sizeExpertTailoringRequests.isEmpty() && errorFields.isEmpty()) {
                 throw new BadRequestException("Material Request Excel File Has Empty Data");
             }
 
@@ -326,10 +329,14 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
 
     private String getCellNameForSizeExpertTailoring(int cellIndex) {
         switch (cellIndex) {
-            case 0: return "Expert_Tailoring_Name";
-            case 1: return "Size_Name";
-            case 2: return "Ratio";
-            default: return "Unknown";
+            case 0:
+                return "Expert_Tailoring_Name";
+            case 1:
+                return "Size_Name";
+            case 2:
+                return "Ratio";
+            default:
+                return "Unknown";
         }
     }
 
