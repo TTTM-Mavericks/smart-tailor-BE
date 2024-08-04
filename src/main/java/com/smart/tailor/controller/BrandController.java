@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -321,7 +322,7 @@ public class BrandController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
-             var brand = brandService.findBrandInformationByBrandID(brandID);
+            var brand = brandService.findBrandInformationByBrandID(brandID);
             if (brand == null) {
                 response.put("status", 200);
                 response.put("message", MessageConstant.CAN_NOT_FIND_BRAND + " with brandID: " + brandID);
@@ -336,6 +337,31 @@ public class BrandController {
             response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
             logger.error("ERROR IN GET BRAND BY ID. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(response);
+        }
+    }
+
+    @PutMapping(BrandAPI.CHANGE_IMAGE_STATUS + "/{imageId}")
+    public ResponseEntity<ObjectNode> changeImageStatus(
+            @PathVariable("imageId") UUID imageId) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            boolean result = brandService.changeBrandImageStatus(imageId);
+            if (result) {
+                response.put("status", 200);
+                response.put("message", MessageConstant.CHANGE_IMAGE_STATUS_SUCCESS);
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", HttpStatus.NOT_FOUND.value());
+                response.put("message", MessageConstant.RESOURCE_NOT_FOUND);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        } catch (Exception ex) {
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("LỖI KHI THAY ĐỔI TRẠNG THÁI HÌNH ẢNH. THÔNG TIN LỖI: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }

@@ -1,10 +1,9 @@
 package com.smart.tailor.service;
 
 import com.smart.tailor.entities.Brand;
+import com.smart.tailor.entities.BrandImage;
 import com.smart.tailor.utils.request.BrandRequest;
-import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.BrandResponse;
-import com.smart.tailor.utils.response.UserResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +25,8 @@ public interface BrandService {
     void ratingBrand(UUID brandID, Integer numberOfRating, Float ratingScore);
 
     BrandResponse findBrandInformationByBrandID(UUID brandID);
+
+    List<BrandImage> getBrandImage(UUID brandID);
+
+    boolean changeBrandImageStatus(UUID imageId);
 }

@@ -48,6 +48,8 @@ public class MessageConstant {
     public static final String REJECT_BRAND_SUCCESSFULLY = "Reject Brand Successfully!";
     public static final String ACCEPT_BRAND_FAILED = "Accept Brand Fail!";
     public static final String REJECT_BRAND_FAILED = "Reject Brand Fail!";
+    public static final String CHANGE_IMAGE_STATUS_SUCCESS = "Image status changed successfully.";
+
 
     /**
      * AUTHENTICATION

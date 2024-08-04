@@ -3,125 +3,111 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Brand;
-import com.smart.tailor.entities.User;
+import com.smart.tailor.entities.BrandImage;
 import com.smart.tailor.enums.BrandStatus;
-import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.BrandMapper;
-import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.BrandRepository;
+import com.smart.tailor.service.BrandImageService;
 import com.smart.tailor.service.BrandService;
-import com.smart.tailor.service.EmailSenderService;
-import com.smart.tailor.service.RoleService;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.request.BrandImageRequest;
 import com.smart.tailor.utils.request.BrandRequest;
-import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.BrandResponse;
-import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
     private final BrandRepository brandRepository;
     private final UserService userService;
+    private final BrandImageService brandImageService;
     private final BrandMapper brandMapper;
-    private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(BrandServiceImpl.class);
 
     @Override
-    public Optional<Brand> getBrandById(UUID brandId) throws Exception {
-        try {
-            if (brandId == null || brandId.toString().isEmpty() || brandId.toString().isBlank()) {
-                throw new Exception(MessageConstant.MISSING_ARGUMENT);
-            }
-            var brand = brandRepository.getBrandByBrandID(brandId);
-            if (brand.isEmpty()) {
-                var user = userService.getUserByUserID(brandId);
-                if (user.isPresent()) {
-                    return Optional.ofNullable(
-                            Brand.builder()
-                                    .brandID(brandId)
-                                    .brandStatus(BrandStatus.PENDING)
-                                    .build()
-                    );
-                } else {
-                    return Optional.empty();
+    public Optional<Brand> getBrandById(UUID brandId) {
+        if (brandId == null || brandId.toString().isEmpty()) {
+            throw new IllegalArgumentException(MessageConstant.MISSING_ARGUMENT);
+        }
+        return brandRepository.findById(brandId)
+                .or(() -> {
+                    var user = userService.getUserByUserID(brandId);
+                    return user.isPresent()
+                            ? Optional.of(Brand.builder().brandID(brandId).brandStatus(BrandStatus.PENDING).build())
+                            : Optional.empty();
+                });
+    }
+
+    @Override
+    public Brand saveBrand(UUID brandID, BrandRequest brandRequest) {
+        var user = userService.getUserByUserID(brandID)
+                .orElseThrow(() -> new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND));
+
+        if (user.getUserStatus() == UserStatus.INACTIVE) {
+            throw new BadRequestException(ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
+        }
+
+        Brand savedBrand = brandRepository.save(
+                Brand.builder()
+                        .user(user)
+                        .brandName(brandRequest.getBrandName())
+                        .bankName(brandRequest.getBankName())
+                        .accountNumber(brandRequest.getAccountNumber())
+                        .accountName(brandRequest.getAccountName())
+                        .brandStatus(BrandStatus.PENDING)
+                        .address(brandRequest.getAddress())
+                        .province(brandRequest.getProvince())
+                        .ward(brandRequest.getWard())
+                        .district(brandRequest.getDistrict())
+                        .QR_Payment(brandRequest.getQrPayment())
+                        .rating(1.0f)
+                        .numberOfRatings(1)
+                        .totalRatingScore(1.0f)
+                        .numberOfViolations(0)
+                        .build()
+        );
+
+        // Save images
+        if (brandRequest.getBrandImages() != null) {
+            for (BrandImageRequest imageRequest : brandRequest.getBrandImages()) {
+                byte[] base64ImageUrl = null;
+                if (Optional.ofNullable(imageRequest.getImageUrl()).isPresent()) {
+                    base64ImageUrl = Utilities.encodeStringToBase64(imageRequest.getImageUrl());
                 }
-            } else {
-                return brand;
+                BrandImage brandImage = BrandImage.builder()
+                        .brand(savedBrand)
+                        .imageUrl(base64ImageUrl)
+                        .imageDescription(imageRequest.getImageDescription())
+                        .status(false)
+                        .build();
+                brandImageService.saveBrandImage(brandImage);
             }
-        } catch (Exception ex) {
-            throw ex;
         }
+        return savedBrand;
     }
 
     @Override
-    public Brand saveBrand(UUID brandID, BrandRequest brandRequest) throws Exception {
-        Brand savedBrand = null;
-        try {
-            var checkUser = userService.getUserByUserID(brandID);
-            if (checkUser.isEmpty()) {
-                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
-            }
-            var user = checkUser.get();
-            if (user.getUserStatus().equals(UserStatus.INACTIVE)) {
-                throw new BadRequestException(ErrorConstant.ACCOUNT_NOT_VERIFIED.getMessage());
-            } else {
-                savedBrand = brandRepository.save(
-                        Brand.builder()
-                                .user(user)
-                                .brandName(brandRequest.getBrandName())
-                                .bankName(brandRequest.getBankName() != null && !brandRequest.getBrandName().trim().isEmpty() ? brandRequest.getAccountName() : null)
-                                .accountNumber(brandRequest.getAccountNumber() != null && !brandRequest.getAccountNumber().trim().isEmpty() ? brandRequest.getAccountNumber() : null)
-                                .accountName(brandRequest.getAccountName() != null ? brandRequest.getAccountName() : null)
-                                .brandStatus(BrandStatus.PENDING)
-                                .address(brandRequest.getAddress() != null && !brandRequest.getAddress().trim().isEmpty() ? brandRequest.getAddress() : null)
-                                .province(brandRequest.getProvince() != null && !brandRequest.getProvince().trim().isEmpty() ? brandRequest.getProvince() : null)
-                                .ward(brandRequest.getWard() != null && !brandRequest.getWard().trim().isEmpty() ? brandRequest.getWard() : null)
-                                .district(brandRequest.getDistrict() != null && !brandRequest.getDistrict().trim().isEmpty() ? brandRequest.getDistrict() : null)
-                                .QR_Payment(brandRequest.getQrPayment() != null && !brandRequest.getQrPayment().trim().isEmpty() ? brandRequest.getQrPayment() : null)
-                                .rating(1.0f)
-                                .numberOfRatings(1)
-                                .totalRatingScore(1.0f)
-                                .numberOfViolations(0)
-                                .build()
-                );
-            }
-            return savedBrand;
-        } catch (Exception ex) {
-            throw ex;
+    public Brand getBrandByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException(MessageConstant.MISSING_ARGUMENT);
         }
+        return brandRepository.findBrandByUserEmail(email);
     }
 
     @Override
-    public Brand getBrandByEmail(String email) throws Exception {
-        try {
-            if (email == null || email.isEmpty() || email.isBlank()) {
-                throw new Exception(MessageConstant.MISSING_ARGUMENT);
-            }
-            return brandRepository.findBrandByUserEmail(email);
-        } catch (Exception ex) {
-            throw ex;
-        }
-    }
-
-    @Override
-    public Brand updateBrand(Brand brand) throws Exception {
-        try {
-            Brand savedBrand = brandRepository.save(brand);
-            return savedBrand;
-        } catch (Exception ex) {
-            throw ex;
-        }
+    public Brand updateBrand(Brand brand) {
+        return brandRepository.save(brand);
     }
 
     @Override
@@ -138,13 +124,13 @@ public class BrandServiceImpl implements BrandService {
     public void ratingBrand(UUID brandID, Integer numberOfRating, Float ratingScore) {
         logger.info("Inside Rating Brand");
         var brand = findBrandById(brandID)
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
 
         var numberOfRatingsUpdate = brand.getNumberOfRatings() + numberOfRating;
         var totalRatingScoreUpdate = brand.getTotalRatingScore() + ratingScore;
         var ratingUpdate = totalRatingScoreUpdate / numberOfRatingsUpdate;
         brandRepository.updateBrandRatingAndScore(
-                ratingUpdate <= 0 ? 0 : ratingUpdate,
+                Math.max(ratingUpdate, 0),
                 numberOfRatingsUpdate,
                 totalRatingScoreUpdate,
                 brandID
@@ -154,8 +140,24 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public BrandResponse findBrandInformationByBrandID(UUID brandID) {
         var brand = findBrandById(brandID)
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
-
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
         return brandMapper.mapperToBrandResponse(brand);
+    }
+
+    @Override
+    public List<BrandImage> getBrandImage(UUID brandID) {
+        var brand = findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
+        return brandImageService.getBrandImagesByBrand(brand);
+    }
+
+    @Override
+    public boolean changeBrandImageStatus(UUID imageId) {
+        try {
+            brandImageService.updateBrandImageStatusById(imageId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

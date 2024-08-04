@@ -72,4 +72,7 @@ public class Brand extends AuditEntity implements Serializable {
 
     @OneToMany(mappedBy = "brand")
     private List<BrandProperties> brandProperties;
+
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BrandImage> brandImages;
 }
