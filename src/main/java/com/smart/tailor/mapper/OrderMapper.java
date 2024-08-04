@@ -29,6 +29,7 @@ class OrderMapperImpl implements OrderMapper {
     private final DesignDetailMapper detailMapper;
     private final PaymentService paymentService;
     private final PaymentMapper paymentMapper;
+    private final BrandMapper brandMapper;
     private final Logger logger = LoggerFactory.getLogger(OrderMapperImpl.class);
 
     @Transactional(readOnly = true)
@@ -79,7 +80,25 @@ class OrderMapperImpl implements OrderMapper {
             logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
             throw ex;
         }
-
+        try {
+            if (order.getOrderType().equals("SUB_ORDER")) {
+                if (order.getDetailList() != null) {
+                    if (order.getDetailList().get(0) != null) {
+                        if (order.getDetailList().get(0).getBrand() != null) {
+                            var brand = order.getDetailList().get(0).getBrand();
+                            if (brand != null) {
+                                orderResponse.brand(brandMapper.mapperToBrandResponse(brand));
+                            }
+                        }
+                    }
+                }
+            } else {
+                orderResponse.brand(null);
+            }
+        } catch (Exception ex) {
+            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
+            throw ex;
+        }
         return orderResponse.build();
     }
 
