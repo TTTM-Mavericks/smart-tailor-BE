@@ -199,13 +199,13 @@ public class OrderController {
         }
     }
 
-    @GetMapping(OrderAPI.GET_ORDER_FULL_PROP + "/{orderID}")
-    public ResponseEntity<ObjectNode> getFullPropOrder(@ValidUUID @PathVariable("orderID") UUID orderID) {
+    @GetMapping(OrderAPI.GET_ORDER_FULL_PROP)
+    public ResponseEntity<ObjectNode> getFullPropOrder() {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
             response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
-            var orderResponse = orderService.getFullProp(orderID);
+            var orderResponse = orderService.getFullProp();
             response.set("data", objectMapper.valueToTree(orderResponse));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {

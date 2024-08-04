@@ -1303,9 +1303,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public FullOrderResponse getFullProp(UUID orderID) throws JsonProcessingException {
-        var order = orderRepository.findById(orderID)
-                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND));
-        return orderMapper.mapToFullOrderResponse(order);
+    public List<FullOrderResponse> getFullProp() throws JsonProcessingException {
+        try {
+            var listOrder = orderRepository.findAll()
+                    .stream()
+                    .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL || order.getOrderStatus() == OrderStatus.DELIVERED)
+                    .toList();
+            List<FullOrderResponse> response = new ArrayList<>();
+            for (Order order : listOrder) {
+                FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
+                response.add(fullOrderResponse);
+            }
+            return response;
+        } catch (Exception ex) {
+            throw ex;
+        }
     }
 }
