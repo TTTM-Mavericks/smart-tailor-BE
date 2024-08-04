@@ -27,7 +27,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static com.smart.tailor.constant.FormatConstant.PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
 
 @Service
 @RequiredArgsConstructor
