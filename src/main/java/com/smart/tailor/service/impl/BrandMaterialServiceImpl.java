@@ -41,6 +41,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     private final BrandMaterialMapper brandMaterialMapper;
     private final ExcelImportService excelImportService;
     private final ExcelExportService excelExportService;
+    private final SystemPropertiesService systemPropertiesService;
     private final Logger logger = LoggerFactory.getLogger(BrandMaterialServiceImpl.class);
 
     @Override
