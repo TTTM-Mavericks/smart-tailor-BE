@@ -5,6 +5,8 @@ import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,15 +24,47 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Random;
 
 @SpringBootApplication
 @EnableJpaAuditing()
 @EnableCaching
 @EnableScheduling
 public class SmartTailorBeApplication {
+    public static final Logger logger = LoggerFactory.getLogger(SmartTailorBeApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(SmartTailorBeApplication.class, args);
+        // Tạo 6 ký tự ngẫu nhiên từ a-z và A-Z
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder randomChars = new StringBuilder(6);
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            randomChars.append(chars.charAt(random.nextInt(chars.length())));
+        }
+
+        // Lấy thời gian hiện tại và định dạng theo HH:mm:ss
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String timeString = now.format(formatter);
+        String[] timeParts = timeString.split(":");
+        String HH = timeParts[0];
+        String mm = timeParts[1];
+        String ss = timeParts[2];
+
+        // Trộn các ký tự và số theo mẫu
+        StringBuilder result = new StringBuilder(12);
+        result.append(randomChars.substring(0, 2));
+        result.append(HH);
+        result.append(randomChars.substring(2, 4));
+        result.append("@");
+        result.append(mm);
+        result.append(randomChars.substring(4, 6));
+        result.append(ss);
+
+        logger.info("The result Random String {}", result.toString());
     }
 
     @Order(value = 1)
