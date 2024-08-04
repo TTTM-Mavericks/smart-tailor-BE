@@ -15,4 +15,5 @@ public class BrandImageResponse {
     private UUID imageID;
     private String imageUrl;  // Chuỗi Base64 của hình ảnh
     private String imageDescription;
+    private Boolean status;
 }

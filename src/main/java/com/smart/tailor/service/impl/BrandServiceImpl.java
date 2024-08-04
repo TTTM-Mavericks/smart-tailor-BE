@@ -89,6 +89,7 @@ public class BrandServiceImpl implements BrandService {
                         .brand(savedBrand)
                         .imageUrl(base64ImageUrl)
                         .imageDescription(imageRequest.getImageDescription())
+                        .status(false)
                         .build();
                 brandImageService.saveBrandImage(brandImage);
             }

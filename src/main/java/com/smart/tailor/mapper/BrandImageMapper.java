@@ -11,6 +11,7 @@ import java.util.Base64;
 public interface BrandImageMapper {
 
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(brandImage.getImageUrl()))")
+    @Mapping(target = "status", source = "brandImage.status")
     BrandImageResponse mapToBrandImageResponse(BrandImage brandImage);
 
     default String decodeByteArrayToString(byte[] values) {
