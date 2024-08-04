@@ -2,6 +2,7 @@ package com.smart.tailor.service.impl;
 
 
 import com.smart.tailor.service.ExcelExportService;
+import com.smart.tailor.service.SystemPropertiesService;
 import com.smart.tailor.utils.response.ExpertTailoringResponse;
 import com.smart.tailor.utils.response.MaterialResponse;
 import jakarta.servlet.ServletOutputStream;
@@ -26,12 +27,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static com.smart.tailor.constant.FormatConstant.PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ExcelExportServiceImpl implements ExcelExportService {
+    private final SystemPropertiesService systemPropertiesService;
+
     private void createCell(Row row, int columnIndex, Object value, CellStyle style, XSSFSheet sheet) {
         Cell cell = row.createCell(columnIndex);
         if (value instanceof Integer) {
@@ -62,71 +64,6 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         cell.setCellStyle(style);
         sheet.autoSizeColumn(columnIndex);
     }
-
-//    @Override
-//    public void exportBrandMaterialData(List<BrandMaterialResponse> brandMaterialResponses, HttpServletResponse response) throws IOException {
-//        XSSFWorkbook workbook = new XSSFWorkbook();
-//        XSSFSheet sheet = workbook.createSheet("Brand Material List");
-//
-//        // Create Title Row of Excel Sheet
-//        Row row = sheet.createRow(0);
-//        CellStyle style = workbook.createCellStyle();
-//        XSSFFont font = workbook.createFont();
-//        font.setBold(true);
-//        font.setFontHeight(20);
-//        style.setFont(font);
-//        style.setAlignment(HorizontalAlignment.CENTER);
-//        createCell(row, 0, "Brand Material List", style, sheet);
-//        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6));
-//        font.setFontHeightInPoints((short) 10);
-//
-//        // Create Header of Excel Sheet
-//        row = sheet.createRow(1);
-//        font.setBold(true);
-//        font.setFontHeight(16);
-//        style.setFont(font);
-//        createCell(row, 0, "Category Name", style, sheet);
-//        createCell(row, 1, "Material Name", style, sheet);
-//        createCell(row, 2, "Brand Name", style, sheet);
-//        createCell(row, 3, "Unit", style, sheet);
-//        createCell(row, 4, "Price", style, sheet);
-//        createCell(row, 5, "Create Date", style, sheet);
-//        createCell(row, 6, "Last Modified Date", style, sheet);
-//
-//        // Write Data from DB to Excel Sheet
-//        int rowIndex = 2;
-//        CellStyle styleData = workbook.createCellStyle();
-//        XSSFFont fontData = workbook.createFont();
-//        fontData.setBold(false);
-//        fontData.setFontHeight(14);
-//        styleData.setFont(fontData);
-//        styleData.setAlignment(HorizontalAlignment.CENTER);
-//
-//        // Format CreateDate and LastModifiedDate
-//        CellStyle dateTimeCellStyle = workbook.createCellStyle();
-//        CreationHelper createHelper = workbook.getCreationHelper();
-//        dateTimeCellStyle.setFont(fontData);
-//        dateTimeCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm:ss.00"));
-//        dateTimeCellStyle.setAlignment(HorizontalAlignment.CENTER);
-//
-//        for(var brandMaterial : brandMaterialResponses){
-//            Row rowSheet = sheet.createRow(rowIndex++);
-//            int countIndex = 0;
-//            createCell(rowSheet, countIndex++, brandMaterial.getCategoryName(), styleData, sheet);
-//            createCell(rowSheet, countIndex++, brandMaterial.getMaterialName(), styleData, sheet);
-//            createCell(rowSheet, countIndex++, brandMaterial.getBrandName(), styleData, sheet);
-//            createCell(rowSheet, countIndex++, brandMaterial.getUnit(), styleData, sheet);
-//            createCell(rowSheet, countIndex++, brandMaterial.getPrice(), styleData, sheet);
-//            createCell(rowSheet, countIndex++, brandMaterial.getCreateDate(), dateTimeCellStyle, sheet);
-//            createCell(rowSheet, countIndex++, brandMaterial.getLastModifiedDate(), dateTimeCellStyle, sheet);
-//        }
-//
-//        // Export Data to Excel
-//        ServletOutputStream outputStream = response.getOutputStream();
-//        workbook.write(outputStream);
-//        workbook.close();
-//        outputStream.close();
-//    }
 
     @Override
     public void exportExpertTailoringData(List<ExpertTailoringResponse> expertTailoringResponses, HttpServletResponse response) throws IOException {
@@ -274,8 +211,8 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply data validation for Brand Price column from rowIndex = 2 to the last row
         int lastRow = sheet.getLastRowNum();
-
-        String brandPriceFormula = "AND(F3>=1, E3>=F3*" + (1 - PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE) + ", E3<=F3*" + (1 + PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE) + ")";
+        var priceVariationPercentageForMaterial = Double.parseDouble(systemPropertiesService.getByName("PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL").getPropertyValue());
+        String brandPriceFormula = "AND(F3>=1, E3>=F3*" + (1 - priceVariationPercentageForMaterial) + ", E3<=F3*" + (1 + priceVariationPercentageForMaterial) + ")";
         DataValidationHelper validationHelper = sheet.getDataValidationHelper();
 
         // Create a CellRangeAddressList for Brand Price column
@@ -289,7 +226,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Show error box if the data validation fails
         brandPriceValidation.setShowErrorBox(true);
-        brandPriceValidation.createErrorBox("Invalid Input", "Brand Price must be between " + (100 - PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE * 100) + "% and " + (100 + PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE * 100) + "% of Base Price.");
+        brandPriceValidation.createErrorBox("Invalid Input", "Brand Price must be between " + (100 - priceVariationPercentageForMaterial * 100) + "% and " + (100 + priceVariationPercentageForMaterial * 100) + "% of Base Price.");
 
         // Add data validation to the sheet
         sheet.addValidationData(brandPriceValidation);

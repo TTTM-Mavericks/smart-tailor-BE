@@ -38,7 +38,7 @@
 
         .message {
             font-size: 16px;
-            color: #6c757d;
+            color: #000000;
             line-height: 1.5;
             margin-bottom: 20px;
         }
@@ -47,17 +47,19 @@
             display: inline-block;
             padding: 12px 25px;
             font-size: 16px;
-            color: #000000;
-            background-color: #28a745;
+            color: #ffffff !important; /* Chữ màu trắng khi chưa hover */
+            background-color: #28a745; /* Nền màu xanh lá cây khi chưa hover */
+            border: 2px solid #28a745; /* Viền màu xanh lá cây */
             text-align: center;
             text-decoration: none;
             border-radius: 5px;
             margin-top: 20px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .button:hover {
-            background-color: #218838;
+            background-color: #218838; /* Nền màu xanh đậm hơn khi hover */
+            color: #ffffff !important; /* Chữ màu trắng khi hover */
         }
 
         .design-detail {
@@ -74,12 +76,12 @@
         .design-detail-item {
             margin-bottom: 10px;
             font-size: 16px;
-            color: #495057;
+            color: #000000; /* Đặt màu chữ là đen */
         }
 
         .design-detail-item span {
-            font-weight: bold;
-            color: #212529;
+            font-weight: normal; /* Bỏ bolder */
+            color: #000000; /* Đặt màu chữ là đen */
         }
 
         .footer {
@@ -104,9 +106,9 @@
 <body>
 <div class='container'>
     <div class='content'>
-        <div class='header'>Order Detail Information</div>
-        <div class='message'>Hi <span th:text="${email}"></span>,</div>
-        <div class='message'>We received a request from customer design. Below are the details of customer order:</div>
+        <div class='header'>Order Detail Notification</div>
+        <div class='message'>Dear <span th:text="${email}"></span>,</div>
+        <div class='message'>We are pleased to inform you that a new order has been placed by a customer. Below are the details of the order that requires your attention:</div>
         <div class='message'>Order ID: <span th:text="${orderID}"></span></div>
         <div class='design-detail'>
             <div class='design-detail-title'>Design Details:</div>
@@ -116,12 +118,11 @@
                 <div class='design-detail-item'>Quantity: <span th:text="${detail.quantity}"></span></div>
             </div>
         </div>
-        <a class='button' style="color: black" th:href="@{${sendMailSelectedBrandsForOrderLink}}">Redirect to Brand Pick
-            Order</a>
+        <a class='button' th:href="@{${sendMailSelectedBrandsForOrderLink}}">View Order Details</a>
+        <div class='message' style="margin-top: 10px;">If you have any questions or need further information regarding this order, please do not hesitate to contact us.</div>
+        <div class='message'>For support, you can reach out to our team at <a href="mailto:support@example.com">support@example.com</a>.</div>
     </div>
     <div class='footer'>
-        If you have any questions, please contact us at <a
-            href="mailto:support@example.com">support@example.com</a>.<br>
         &copy; 2024 Smart Tailor. All rights reserved.
     </div>
 </div>

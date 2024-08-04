@@ -35,7 +35,12 @@ VALUES (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         '0.25'),
        (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
         'The rate for Brand have Order Status late of schedule.', 'RATE_LATE_SCHEDULE', 'NUMBER', true, 'FLOAT',
-        '0.75');
+        '0.75'),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null, 'The duration for which an unverified account can exist before being deleted. Once this time expires, the account will be removed.',
+        'TIME_BEFORE_ACCOUNT_DELETION', 'NUMBER', true, 'INT','12'),
+       (UNHEX(REPLACE(UUID(), '-', '')), current_timestamp, null,
+        'The percentage range within which the price for Material can vary. Prices outside this range will not be accepted for Material pricing.',
+        'PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL', 'NUMBER', true, 'FLOAT', '0.07');
 
 -- INSERT INTO SYSTEM IMAGE
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date,

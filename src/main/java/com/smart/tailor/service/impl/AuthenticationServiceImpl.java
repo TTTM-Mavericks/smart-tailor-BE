@@ -84,10 +84,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRequest.setProvider(provider);
         var user = userService.registerNewUsers(userRequest);
 
-        if (user != null && user.getRoles().getRoleName().equals("CUSTOMER")) {
-            logger.info("Inside Create Customer Profile Method");
-            customerService.createCustomer(user, true);
-        }
+
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -223,6 +220,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Change Status User
         if (verificationToken.getTypeOfVerification().equals(TypeOfVerification.VERIFY_ACCOUNT)) {
             userService.updateStatusAccount(user.getEmail(), UserStatus.ACTIVE);
+
+            if (user != null && user.getRoles().getRoleName().equals("CUSTOMER")) {
+                logger.info("Inside Create Customer Profile Method");
+                customerService.createCustomer(user, true);
+            }
         }
         verificationTokenService.enableVerificationToken(verificationToken);
         return MessageConstant.TOKEN_IS_VALID;

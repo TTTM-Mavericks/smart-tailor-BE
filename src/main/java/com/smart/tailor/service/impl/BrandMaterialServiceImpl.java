@@ -29,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 
-import static com.smart.tailor.constant.FormatConstant.PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     private final BrandMaterialRepository brandMaterialRepository;
     private final BrandMaterialMapper brandMaterialMapper;
     private final ExcelImportService excelImportService;
-    private final ExcelExportService excelExportService;
+    private final SystemPropertiesService systemPropertiesService;
     private final Logger logger = LoggerFactory.getLogger(BrandMaterialServiceImpl.class);
 
     @Override
@@ -63,10 +62,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
         int basePrice = brandMaterialRequest.getBasePrice();
         int brandPrice = brandMaterialRequest.getBrandPrice();
-        double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
+        var priceVariationPercentageForMaterial = Double.parseDouble(systemPropertiesService.getByName("PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL").getPropertyValue());
 
-        Integer lowerBound = basePrice;
-        Integer upperBound = basePrice;
+        double lowerBound = basePrice * (1 - priceVariationPercentageForMaterial);
+        double upperBound = basePrice * (1 + priceVariationPercentageForMaterial);
 
         int roundedLowerBound = (int) Math.ceil(lowerBound);
         int roundedUpperBound = (int) Math.ceil(upperBound);
@@ -346,16 +345,16 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
                     int basePrice = brandMaterialRequest.getBasePrice();
                     int brandPrice = brandMaterialRequest.getBrandPrice();
-                    double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
+                    var priceVariationPercentageForMaterial = Double.parseDouble(systemPropertiesService.getByName("PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL").getPropertyValue());
 
-                    double lowerBound = basePrice * (1 - percentageFluctuation);
-                    double upperBound = basePrice * (1 + percentageFluctuation);
+                    double lowerBound = basePrice * (1 - priceVariationPercentageForMaterial);
+                    double upperBound = basePrice * (1 + priceVariationPercentageForMaterial);
 
                     int roundedLowerBound = (int) Math.ceil(lowerBound);
                     int roundedUpperBound = (int) Math.ceil(upperBound);
 
                     if (brandPrice < roundedLowerBound || brandPrice > roundedUpperBound) {
-                        throw new BadRequestException("Brand Price must be between " + roundedLowerBound + " and " + roundedUpperBound);
+                        errors.add("Brand Price must be between " + roundedLowerBound + " and " + roundedUpperBound);
                     }
 
                     if (errors.isEmpty()) {
@@ -449,10 +448,10 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
         int basePrice = brandMaterialRequest.getBasePrice();
         int brandPrice = brandMaterialRequest.getBrandPrice();
-        double percentageFluctuation = PERCENTAGE_FLUCTUATION_WITHIN_LIMIT_RANGE;
+        var priceVariationPercentageForMaterial = Double.parseDouble(systemPropertiesService.getByName("PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL").getPropertyValue());
 
-        double lowerBound = basePrice * (1 - percentageFluctuation);
-        double upperBound = basePrice * (1 + percentageFluctuation);
+        double lowerBound = basePrice * (1 - priceVariationPercentageForMaterial);
+        double upperBound = basePrice * (1 + priceVariationPercentageForMaterial);
 
         int roundedLowerBound = (int) Math.ceil(lowerBound);
         int roundedUpperBound = (int) Math.ceil(upperBound);

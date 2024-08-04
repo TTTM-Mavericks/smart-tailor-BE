@@ -29,17 +29,19 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
     private final PayOSDataService payOSDataService;
     private final PayOSService payOSService;
     private final DesignDetailService detailService;
+    private final SystemPropertiesService systemPropertiesService;
 
     @Scheduled(cron = "0 0 * * * *") // second - minute - hour - dayOfMonth - month - dayOfWeek   // Run every hour
     @Override
     public void deleteUserWithEmailUnverifiedSchedule() {
         logger.info("Scheduled task is running at {}", LocalDateTime.now());
         var listUnverifiedUser = userService.findAllUnverifiedUser();
+        var timeBeforeAccountDelete = Integer.parseInt(systemPropertiesService.getByName("TIME_BEFORE_ACCOUNT_DELETION").getPropertyValue());
         for (User user : listUnverifiedUser) {
             LocalDateTime userCreateDateTime = user.getCreateDate();
             // Config System Properties about Time Expire For Each UnVerified User
             // Using Default Expire Time
-            LocalDateTime userExpiredDateTime = userCreateDateTime.plusHours(12);
+            LocalDateTime userExpiredDateTime = userCreateDateTime.plusHours(timeBeforeAccountDelete);
             LocalDateTime currentDateTime = LocalDateTime.now();
             if (currentDateTime.isAfter(userExpiredDateTime)) {
                 logger.info("Delete User {}", user);

@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ExcelExportService {
-//    void exportBrandMaterialData(List<BrandMaterialResponse> brandMaterialResponses, HttpServletResponse response) throws IOException;
-
     void exportExpertTailoringData(List<ExpertTailoringResponse> expertTailoringResponse, HttpServletResponse response) throws IOException;
 
     void exportCategoryMaterialForBrand(List<MaterialResponse> materialResponses, HttpServletResponse response) throws IOException;
