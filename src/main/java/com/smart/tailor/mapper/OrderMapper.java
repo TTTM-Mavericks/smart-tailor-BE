@@ -187,7 +187,7 @@ class OrderMapperImpl implements OrderMapper {
                         order.getDetailList().stream()
                                 .map(detailMapper::mapperToDesignDetailResponse)
                                 .toList() : null);
-
+        orderResponse.paymentStatus(false);
         try {
             List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
                     .stream()
@@ -209,6 +209,13 @@ class OrderMapperImpl implements OrderMapper {
                         .map(this::mapToOrderResponse)
                         .toList();
                 orderResponse.subOrderList(subOrderList);
+                boolean isFinish = false;
+                for (OrderResponse sub : subOrderList) {
+                    var paymentList = sub.getPaymentList();
+                    isFinish = paymentList.stream()
+                            .allMatch(PaymentResponse::getPaymentStatus);
+                }
+                orderResponse.paymentStatus(isFinish);
             } else {
                 orderResponse.subOrderList(null);
             }

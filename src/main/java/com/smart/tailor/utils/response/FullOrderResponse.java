@@ -16,6 +16,7 @@ import java.util.UUID;
 public class FullOrderResponse {
     private DesignResponse designResponse;
     private UUID orderID;
+    private Boolean paymentStatus;
     private Integer quantity;
     private Float rating;
     private OrderStatus orderStatus;
