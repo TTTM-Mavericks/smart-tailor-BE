@@ -15,6 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderResponse {
     private UUID orderID;
+    private BrandResponse brand;
     private UUID parentOrderID;
     private Integer quantity;
     private OrderStatus orderStatus;
