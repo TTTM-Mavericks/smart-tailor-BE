@@ -13,7 +13,7 @@ public interface OrderStageMapper {
     @Mapping(source = "orderStage.currentQuantity", target = "currentQuantity")
     @Mapping(source = "orderStage.remainingQuantity", target = "remainingQuantity")
     @Mapping(source = "orderStage.status", target = "status")
-    @Mapping(source = "orderStage.createDate", target = "createdDate")
-    @Mapping(source = "orderStage.lastModifiedDate", target = "lastModifiedDate")
+    @Mapping(source = "orderStage.createDate", target = "createdDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "orderStage.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     OrderStageResponse mapToOrderStageResponse(OrderStage orderStage);
 }

@@ -1180,7 +1180,7 @@ public class OrderServiceImpl implements OrderService {
         var estimateOrderTimeLine = getOrderTimeLineByParentOrderID(parentOrder.getOrderID());
 
         // Define the format for parsing and formatting dates
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
         // Convert estimated dates to LocalDateTime
@@ -1208,12 +1208,7 @@ public class OrderServiceImpl implements OrderService {
 
                 if (subOrderStage.getLastModifiedDate() == null) continue;
 
-                // Parse the full date-time string
-                LocalDateTime lastModifiedDateTime = LocalDateTime.parse(subOrderStage.getLastModifiedDate(), inputFormatter);
-
-                // Format lastModifiedDateTime to "dd-MM-yyyy HH:mm:ss"
-                String lastModifiedDateTimeStr = lastModifiedDateTime.format(outputFormatter);
-                LocalDateTime lastModifiedDateTimeFormatted = LocalDateTime.parse(lastModifiedDateTimeStr, outputFormatter);
+                LocalDateTime lastModifiedDateTimeFormatted = LocalDateTime.parse(subOrderStage.getLastModifiedDate(), inputFormatter);
 
                 // Compare the stages and calculate counters based on dates
                 if (subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)) {
@@ -1259,6 +1254,7 @@ public class OrderServiceImpl implements OrderService {
             brandService.ratingBrand(brand.get().getBrandID(), 1, brandOrderRating);
         }
     }
+
 
     @Override
     public OrderTimeLineResponse getOrderTimeLineByParentOrderID(UUID parentOrderID) {
