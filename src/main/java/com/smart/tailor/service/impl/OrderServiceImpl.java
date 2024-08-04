@@ -1,5 +1,6 @@
 package com.smart.tailor.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -1300,5 +1300,23 @@ public class OrderServiceImpl implements OrderService {
                 .estimatedQuantityFinishCompleteStage(parentOrder.getQuantity())
                 .estimatedDateFinishCompleteStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage)))
                 .build();
+    }
+
+    @Override
+    public List<FullOrderResponse> getFullProp() throws JsonProcessingException {
+        try {
+            var listOrder = orderRepository.findAll()
+                    .stream()
+                    .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL || order.getOrderStatus() == OrderStatus.DELIVERED)
+                    .toList();
+            List<FullOrderResponse> response = new ArrayList<>();
+            for (Order order : listOrder) {
+                FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
+                response.add(fullOrderResponse);
+            }
+            return response;
+        } catch (Exception ex) {
+            throw ex;
+        }
     }
 }

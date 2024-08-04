@@ -2,9 +2,11 @@ package com.smart.tailor.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Order;
+import com.smart.tailor.repository.OrderRepository;
 import com.smart.tailor.service.DesignService;
 import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.utils.Utilities;
+import com.smart.tailor.utils.response.FullOrderResponse;
 import com.smart.tailor.utils.response.OrderCustomResponse;
 import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.utils.response.PaymentResponse;
@@ -20,6 +22,8 @@ public interface OrderMapper {
     OrderResponse mapToOrderResponse(Order order) throws JsonProcessingException;
 
     OrderCustomResponse mapToOrderCustomResponse(Order order) throws JsonProcessingException;
+
+    FullOrderResponse mapToFullOrderResponse(Order order) throws JsonProcessingException;
 }
 
 @Component
@@ -28,6 +32,7 @@ class OrderMapperImpl implements OrderMapper {
     private final DesignService designService;
     private final DesignDetailMapper detailMapper;
     private final PaymentService paymentService;
+    private final OrderRepository orderRepository;
     private final PaymentMapper paymentMapper;
     private final BrandMapper brandMapper;
     private final Logger logger = LoggerFactory.getLogger(OrderMapperImpl.class);
@@ -149,6 +154,75 @@ class OrderMapperImpl implements OrderMapper {
             throw ex;
         }
 
+        return orderResponse.build();
+    }
+
+    @Override
+    public FullOrderResponse mapToFullOrderResponse(Order order) throws JsonProcessingException {
+        if (order == null) {
+            return null;
+        }
+
+        FullOrderResponse.FullOrderResponseBuilder orderResponse = FullOrderResponse.builder()
+                .designResponse(designService.getDesignByOrderID(order.getOrderID()))
+                .orderType(order.getOrderType())
+                .orderID(order.getOrderID())
+                .quantity(order.getQuantity())
+                .orderStatus(order.getOrderStatus())
+                .address(order.getAddress())
+                .province(order.getProvince())
+                .district(order.getDistrict())
+                .ward(order.getWard())
+                .phone(order.getPhone())
+                .rating(order.getRating())
+                .buyerName(order.getBuyerName())
+                .totalPrice(order.getTotalPrice())
+                .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
+                .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
+                .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
+                .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
+                .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
+                .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
+                .detailList(order.getDetailList() != null ?
+                        order.getDetailList().stream()
+                                .map(detailMapper::mapperToDesignDetailResponse)
+                                .toList() : null);
+        orderResponse.paymentStatus(false);
+        try {
+            List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
+                    .stream()
+                    .map(paymentMapper::mapperToPaymentResponse)
+                    .toList();
+
+            if (!paymentResponseList.isEmpty()) {
+                orderResponse.paymentList(paymentResponseList);
+            }
+        } catch (Exception ex) {
+            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
+            throw ex;
+        }
+        try {
+            if (!order.getOrderType().equals("SUB_ORDER")) {
+                List<OrderResponse> subOrderList = orderRepository.findAll()
+                        .stream()
+                        .filter(o -> o.getOrderType().equals("SUB_ORDER") && o.getParentOrder().getOrderID().equals(order.getOrderID()))
+                        .map(this::mapToOrderResponse)
+                        .toList();
+                orderResponse.subOrderList(subOrderList);
+                boolean isFinish = false;
+                for (OrderResponse sub : subOrderList) {
+                    var paymentList = sub.getPaymentList();
+                    isFinish = paymentList.stream()
+                            .allMatch(PaymentResponse::getPaymentStatus);
+                }
+                orderResponse.paymentStatus(isFinish);
+            } else {
+                orderResponse.subOrderList(null);
+            }
+        } catch (Exception ex) {
+            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
+            throw ex;
+        }
         return orderResponse.build();
     }
 }
