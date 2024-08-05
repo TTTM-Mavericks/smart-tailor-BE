@@ -50,7 +50,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
         }
     }
 
-    @Scheduled(cron = "0 0 * * * *") // Run every minute
+    @Scheduled(cron = "0 * * * * *") // Run every minute
     @Override
     @Transactional
     public void checkValidOrderAfterExpirationTimeOrder() throws Exception {
