@@ -61,5 +61,5 @@ public interface OrderService {
 
     List<FullOrderResponse> getFullProp() throws JsonProcessingException;
 
-    List<FullOrderResponse> getFullPropByBrandID(UUID brandID) throws JsonProcessingException;
+    List<FullOrderResponse> getFullPropByBrandID(String brandID) throws JsonProcessingException;
 }

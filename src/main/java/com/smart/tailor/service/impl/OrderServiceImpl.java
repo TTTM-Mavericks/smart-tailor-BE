@@ -1499,7 +1499,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<FullOrderResponse> getFullPropByBrandID(UUID brandID) throws JsonProcessingException {
+    public List<FullOrderResponse> getFullPropByBrandID(String brandID) throws JsonProcessingException {
         try {
             var listOrder = orderRepository.findAll()
                     .stream()

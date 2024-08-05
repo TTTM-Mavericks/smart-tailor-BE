@@ -215,7 +215,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_FULL_PROP_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getFullPropOrderByBrandID(@PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> getFullPropOrderByBrandID(@PathVariable("brandID") String brandID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
