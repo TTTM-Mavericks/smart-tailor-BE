@@ -89,7 +89,7 @@ class OrderMapperImpl implements OrderMapper {
         }
         try {
             if (order.getOrderType().equals("SUB_ORDER")) {
-                if (order.getDetailList() != null) {
+                if (!order.getDetailList().isEmpty()) {
                     if (order.getDetailList().get(0) != null) {
                         if (order.getDetailList().get(0).getBrand() != null) {
                             var brand = order.getDetailList().get(0).getBrand();
