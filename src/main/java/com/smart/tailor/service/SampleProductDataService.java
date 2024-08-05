@@ -4,16 +4,16 @@ import com.smart.tailor.utils.request.SampleProductDataRequest;
 import com.smart.tailor.utils.response.SampleProductDataResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface SampleProductDataService {
     void addNewSampleProductData(SampleProductDataRequest sampleProductDataRequest);
 
-    void updateSampleProductData(UUID sampleModelID, SampleProductDataRequest sampleProductDataRequest);
+    void updateSampleProductData(String sampleModelID, SampleProductDataRequest sampleProductDataRequest);
 
-    SampleProductDataResponse getSampleProductDataByID(UUID sampleModelID);
+    SampleProductDataResponse getSampleProductDataByID(String sampleModelID);
 
-    List<SampleProductDataResponse> getSampleProductDataByParentOrderID(UUID parentOrderID);
+    List<SampleProductDataResponse> getSampleProductDataByParentOrderID(String parentOrderID);
 
-    List<SampleProductDataResponse> getSampleProductDataByParentOrderIDAndStageID(UUID orderID, UUID stageID);
+    List<SampleProductDataResponse> getSampleProductDataByParentOrderIDAndStageID(String orderID, String stageID);
 }

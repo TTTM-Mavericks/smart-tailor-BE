@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.UUID;
+
 
 @Component
 public interface AuthenticationService {
@@ -24,7 +24,7 @@ public interface AuthenticationService {
 
     AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    String verifyUser(UUID token);
+    String verifyUser(String token);
 
     User forgotPassword(String email);
 

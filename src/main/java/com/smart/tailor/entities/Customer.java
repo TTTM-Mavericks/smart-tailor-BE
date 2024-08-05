@@ -3,12 +3,12 @@ package com.smart.tailor.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
+
 
 
 @Entity
@@ -22,8 +22,7 @@ import java.util.UUID;
 public class Customer extends AuditEntity implements Serializable {
     @Id
     @Column(name = "customer_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID customerID;
+    private String customerID;
 
     @OneToOne
     @MapsId

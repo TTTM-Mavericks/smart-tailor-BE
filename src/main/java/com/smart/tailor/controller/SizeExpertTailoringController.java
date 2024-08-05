@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.SizeExpertTailoringAPI.SIZE_EXPERT_TAILORING)
@@ -47,7 +47,7 @@ public class SizeExpertTailoringController {
     }
 
     @GetMapping(APIConstant.SizeExpertTailoringAPI.GET_ALL_SIZE_BY_EXPERT_TAILORING + "/{expectTailoringID}")
-    public ResponseEntity<ObjectNode> findAllSizeByExpectTailoringID(@PathVariable("expectTailoringID") UUID expectTailoringID) {
+    public ResponseEntity<ObjectNode> findAllSizeByExpectTailoringID(@PathVariable("expectTailoringID") String expectTailoringID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var sizeExpertTailoringResponses = sizeExpertTailoringService.findAllSizeExpertTailoringID(expectTailoringID);

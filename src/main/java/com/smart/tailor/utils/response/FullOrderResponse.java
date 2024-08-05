@@ -15,7 +15,7 @@ import java.util.UUID;
 @Builder
 public class FullOrderResponse {
     private DesignResponse designResponse;
-    private UUID orderID;
+    private String orderID;
     private Boolean paymentStatus;
     private Integer quantity;
     private Float rating;

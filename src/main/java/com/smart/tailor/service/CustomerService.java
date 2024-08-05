@@ -7,16 +7,16 @@ import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.CustomerResponse;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface CustomerService {
     void createCustomer(User user, Boolean gender);
 
-    Optional<Customer> findById(UUID customerID);
+    Optional<Customer> findById(String customerID);
 
     APIResponse updateCustomerProfile(CustomerRequest customerRequest);
 
-    CustomerResponse getCustomerByUserID(UUID userID);
+    CustomerResponse getCustomerByUserID(String userID);
 
     CustomerResponse mapperToCustomerResponse(Customer customer);
 }

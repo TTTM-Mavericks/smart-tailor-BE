@@ -26,7 +26,7 @@ import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import com.smart.tailor.validate.ValidEmail;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.AuthenticationAPI.AUTHENTICATION)
@@ -62,7 +62,7 @@ public class AuthenticationController {
     private String clientId;
 
     @GetMapping(APIConstant.AuthenticationAPI.VERIFY + "/{token}")
-    public ResponseEntity<ObjectNode> verifyAccount(@ValidUUID @PathVariable("token") UUID token) {
+    public ResponseEntity<ObjectNode> verifyAccount( @PathVariable("token") String token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {

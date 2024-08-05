@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +61,7 @@ public class SystemImageServiceImpl implements SystemImageService {
     }
 
     @Override
-    public SystemImageResponse getSystemImageById(UUID systemImageId) {
+    public SystemImageResponse getSystemImageById(String systemImageId) {
         return convertToSystemImageResponse(systemImageRepository.findById(systemImageId).isPresent() ? systemImageRepository.findById(systemImageId).get() : null);
     }
 

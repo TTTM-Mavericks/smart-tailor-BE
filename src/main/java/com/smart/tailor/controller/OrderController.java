@@ -12,7 +12,7 @@ import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.request.RatingOrderRequest;
 import com.smart.tailor.utils.response.OrderResponse;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(OrderAPI.ORDER)
@@ -51,7 +51,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_BY_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getOrderByID(@ValidUUID @PathVariable("orderID") UUID orderID) {
+    public ResponseEntity<ObjectNode> getOrderByID( @PathVariable("orderID") String orderID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -66,7 +66,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getOrderByBrandID(@ValidUUID @PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> getOrderByBrandID( @PathVariable("brandID") String brandID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -81,7 +81,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_BY_USER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getOrderByUserID(@ValidUUID @PathVariable("userID") UUID userID) {
+    public ResponseEntity<ObjectNode> getOrderByUserID( @PathVariable("userID") String userID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -111,7 +111,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_PARENT_ORDER_BY_DESIGN_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> getParentOrderByDesignID(@ValidUUID @PathVariable("designID") UUID designID) {
+    public ResponseEntity<ObjectNode> getParentOrderByDesignID( @PathVariable("designID") String designID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -126,7 +126,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ALL_ORDER + "/{parentID}")
-    public ResponseEntity<ObjectNode> getAllSubOrderByParentOrderID(@ValidUUID @PathVariable("parentID") UUID parentID) {
+    public ResponseEntity<ObjectNode> getAllSubOrderByParentOrderID( @PathVariable("parentID") String parentID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -185,7 +185,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_DETAIL_BY_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getOrderDetailByID(@ValidUUID @PathVariable("orderID") UUID orderID) {
+    public ResponseEntity<ObjectNode> getOrderDetailByID( @PathVariable("orderID") String orderID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -215,7 +215,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_STAGE_BY_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getOrderStageByID(@ValidUUID @PathVariable("orderID") UUID orderID) {
+    public ResponseEntity<ObjectNode> getOrderStageByID( @PathVariable("orderID") String orderID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -230,7 +230,7 @@ public class OrderController {
     }
 
     @GetMapping("/filter-brand-by-design-id/{designID}")
-    public ResponseEntity<ObjectNode> filterBrandForSpecificOrderBaseOnDesign(@ValidUUID @PathVariable("designID") UUID designID) {
+    public ResponseEntity<ObjectNode> filterBrandForSpecificOrderBaseOnDesign( @PathVariable("designID") String designID) {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", 200);
         response.put("message", "Filter Brand For Specific Order Base On Design");
@@ -250,7 +250,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.ORDER_TIME_LINE_BY_PARENT_ORDER_ID + "/{parentOrderID}")
-    public ResponseEntity<ObjectNode> orderTimeLineByParentOrderID(@ValidUUID @PathVariable("parentOrderID") UUID parentOrderID) {
+    public ResponseEntity<ObjectNode> orderTimeLineByParentOrderID( @PathVariable("parentOrderID") String parentOrderID) {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", 200);
         response.put("message", "Order Time Line by Parent Order ID Successfully");

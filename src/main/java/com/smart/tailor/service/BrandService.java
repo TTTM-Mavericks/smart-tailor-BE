@@ -7,26 +7,26 @@ import com.smart.tailor.utils.response.BrandResponse;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface BrandService {
-    Optional<Brand> getBrandById(UUID brandId) throws Exception;
+    Optional<Brand> getBrandById(String brandId) throws Exception;
 
-    Brand saveBrand(UUID brandID, BrandRequest brandRequest) throws Exception;
+    Brand saveBrand(String brandID, BrandRequest brandRequest) throws Exception;
 
     Brand getBrandByEmail(String email) throws Exception;
 
     Brand updateBrand(Brand brand) throws Exception;
 
-    Optional<Brand> findBrandById(UUID brandID);
+    Optional<Brand> findBrandById(String brandID);
 
-    List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID);
+    List<Brand> findAllBrandByExpertTailoringID(String expertTailoringID);
 
-    void ratingBrand(UUID brandID, Integer numberOfRating, Float ratingScore);
+    void ratingBrand(String brandID, Integer numberOfRating, Float ratingScore);
 
-    BrandResponse findBrandInformationByBrandID(UUID brandID);
+    BrandResponse findBrandInformationByBrandID(String brandID);
 
-    List<BrandImage> getBrandImage(UUID brandID);
+    List<BrandImage> getBrandImage(String brandID);
 
-    boolean changeBrandImageStatus(UUID imageId);
+    boolean changeBrandImageStatus(String imageId);
 }

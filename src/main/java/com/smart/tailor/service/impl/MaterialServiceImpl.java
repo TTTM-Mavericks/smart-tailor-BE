@@ -257,7 +257,7 @@ public class MaterialServiceImpl implements MaterialService {
 
                     if (errors.isEmpty()) {
                         var material = materialRepository.findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(materialRequest.getMaterialName(), materialRequest.getCategoryName());
-                        var materialID = material.isPresent() ? material.get().getMaterialID() : UUID.randomUUID();
+                        var materialID = material.isPresent() ? material.get().getMaterialID() : Utilities.generateCustomPrimaryKey();
                         materialRepository.save(
                                 Material
                                         .builder()
@@ -355,19 +355,19 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public MaterialResponse findByMaterialID(UUID materialID) {
+    public MaterialResponse findByMaterialID(String materialID) {
         if (Utilities.isStringNotNullOrEmpty(materialID.toString())) {
-            var material = materialRepository.findByMaterialID(materialID);
-            if (material.isPresent()) {
-                return materialMapper.mapperToMaterialResponseWithoutPrices(material.get());
-            }
+            var material = materialRepository.findById(materialID)
+                    .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + materialID));
+
+            return materialMapper.mapperToMaterialResponseWithoutPrices(material);
         }
         return null;
     }
 
     @Transactional
     @Override
-    public void updateMaterial(UUID materialID, MaterialRequest materialRequest) {
+    public void updateMaterial(String materialID, MaterialRequest materialRequest) {
         var material = materialRepository.findById(materialID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + materialID));
 
@@ -390,7 +390,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Transactional
     @Override
-    public void updateStatusMaterial(UUID materialID) {
+    public void updateStatusMaterial(String materialID) {
         var material = materialRepository.findByMaterialID(materialID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + materialID));
 
@@ -417,12 +417,12 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public Optional<Material> findMaterialByID(UUID materialID) {
+    public Optional<Material> findMaterialByID(String materialID) {
         return materialRepository.findById(materialID);
     }
 
     @Override
-    public List<MaterialResponse> findListMaterialByCategoryID(UUID categoryID) {
+    public List<MaterialResponse> findListMaterialByCategoryID(String categoryID) {
         var category = categoryService.findCategoryOptionalByID(categoryID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Category with CategoryID: " + categoryID));
 
@@ -446,7 +446,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialWithPriceResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID) {
+    public List<MaterialWithPriceResponse> findAllMaterialByExpertTailoringIDAndCategoryID(String expertTailoringID, String categoryID) {
         return materialRepository
                 .findAllMaterialByExpertTailoringIDAndCategoryID(expertTailoringID, categoryID)
                 .stream()
@@ -459,7 +459,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<Material> findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName) {
+    public List<Material> findMaterialsByExpertTailoringIDAndCategoryName(String expertTailoringID, String categoryName) {
         return materialRepository
                 .findMaterialsByExpertTailoringIDAndCategoryName(expertTailoringID, categoryName)
                 .stream()

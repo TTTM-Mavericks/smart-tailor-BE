@@ -5,7 +5,7 @@ import com.smart.tailor.entities.Token;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface TokenService {
     Optional<Token> findByToken(String token);
@@ -14,9 +14,9 @@ public interface TokenService {
 
     boolean findTokenWithNotExpiredAndNotRevoked(String token);
 
-    List<Token> findAllValidTokenByUser(UUID userID);
+    List<Token> findAllValidTokenByUser(String userID);
 
     void revokeAllUserTokens(List<Token> tokens);
 
-    void deleteTokenByUserID(UUID userID);
+    void deleteTokenByUserID(String userID);
 }

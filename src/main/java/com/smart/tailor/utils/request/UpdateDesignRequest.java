@@ -1,6 +1,6 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidStringUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -19,7 +19,6 @@ import java.util.List;
 public class UpdateDesignRequest {
     @NotBlank(message = "designID can not be blank")
     @NotNull(message = "designID can not be null")
-    @ValidStringUUID(message = "designID is invalid of type UUID")
     private String designID;
 
     @NotEmpty(message = "partOfDesign is not empty")

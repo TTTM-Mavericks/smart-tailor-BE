@@ -7,7 +7,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.CategoryService;
 import com.smart.tailor.utils.request.CategoryListRequest;
 import com.smart.tailor.utils.request.CategoryRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.CategoryAPI.CATEGORY)
@@ -46,7 +46,7 @@ public class CategoryController {
     }
 
     @GetMapping(APIConstant.CategoryAPI.GET_CATEGORY_BY_ID + "/{categoryID}")
-    public ResponseEntity<ObjectNode> getCategoryByID(@ValidUUID @PathVariable("categoryID") UUID categoryID) {
+    public ResponseEntity<ObjectNode> getCategoryByID( @PathVariable("categoryID") String categoryID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var category = categoryService.findCategoryByID(categoryID);
@@ -82,7 +82,7 @@ public class CategoryController {
     }
 
     @PutMapping(APIConstant.CategoryAPI.CHANGE_STATUS_CATEGORY + "/{categoryID}")
-    public ResponseEntity<ObjectNode> changeStatusCategory(@ValidUUID @PathVariable("categoryID") UUID categoryID) {
+    public ResponseEntity<ObjectNode> changeStatusCategory( @PathVariable("categoryID") String categoryID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         categoryService.changeStatusCategory(categoryID);

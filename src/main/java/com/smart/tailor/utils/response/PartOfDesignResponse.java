@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class PartOfDesignResponse {
-    private UUID partOfDesignID;
+    private String partOfDesignID;
 
     private String partOfDesignName;
 

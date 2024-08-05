@@ -1,13 +1,14 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "labor_quantity")
@@ -20,8 +21,7 @@ import java.util.UUID;
 public class LaborQuantity extends AuditEntity implements Serializable {
     @Id
     @Column(name = "labor_quantity_id")
-    @UuidGenerator
-    private UUID laborQuantityID;
+    private String laborQuantityID;
 
     private Integer laborQuantityMinQuantity;
 
@@ -32,4 +32,9 @@ public class LaborQuantity extends AuditEntity implements Serializable {
     private Integer laborQuantityMaxPrice;
 
     private Boolean status;
+
+    @PrePersist
+    private void prePersist() {
+        this.laborQuantityID = Utilities.generateCustomPrimaryKey();
+    }
 }

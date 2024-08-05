@@ -7,15 +7,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubOrderResponse {
-    private UUID orderID;
-    private UUID parentOrderID;
+    private String orderID;
+    private String parentOrderID;
     private Integer quantity;
     private OrderStatus orderStatus;
     private String orderType;

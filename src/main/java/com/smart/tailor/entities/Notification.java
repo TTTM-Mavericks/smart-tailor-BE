@@ -1,13 +1,14 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "notification")
@@ -20,14 +21,13 @@ import java.util.UUID;
 public class Notification extends AuditEntity implements Serializable {
     @Id
     @Column(name = "notification_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID notificationID;
+    private String notificationID;
 
     @Column(columnDefinition = "varchar(100)")
     private String action;
 
     @Column(name = "user_id")
-    private UUID userID;
+    private String userID;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
@@ -37,4 +37,9 @@ public class Notification extends AuditEntity implements Serializable {
 
     @Column(columnDefinition = "varchar(255)")
     private String detail;
+
+    @PrePersist
+    private void prePersist() {
+        this.notificationID = Utilities.generateCustomPrimaryKey();
+    }
 }

@@ -6,9 +6,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.io.Serializable;
-import java.util.UUID;
 
 @Embeddable
 @AllArgsConstructor
@@ -18,14 +16,14 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BrandExpertTailoringKey implements Serializable {
     @Column(name = "expert_tailoring_id", nullable = false)
-    private UUID expertTailoringID;
+    private String expertTailoringID;
 
     @ManyToOne
     @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id", nullable = false, insertable = false, updatable = false)
     private ExpertTailoring expertTailoring;
 
     @Column(name = "brand_id", nullable = false)
-    private UUID brandID;
+    private String brandID;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)

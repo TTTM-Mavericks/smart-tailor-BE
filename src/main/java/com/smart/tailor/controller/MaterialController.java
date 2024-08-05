@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.MaterialService;
 import com.smart.tailor.utils.request.MaterialRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.MaterialAPI.MATERIAL)
@@ -70,7 +70,7 @@ public class MaterialController {
     }
 
     @GetMapping(APIConstant.MaterialAPI.GET_MATERIAL_BY_ID + "/{materialID}")
-    public ResponseEntity<ObjectNode> getMaterialByID(@ValidUUID @PathVariable("materialID") UUID materialID) {
+    public ResponseEntity<ObjectNode> getMaterialByID( @PathVariable("materialID")  String materialID) {
         ObjectNode response = objectMapper.createObjectNode();
         var materials = materialService.findByMaterialID(materialID);
         if (materials != null) {
@@ -85,7 +85,7 @@ public class MaterialController {
     }
 
     @GetMapping(APIConstant.MaterialAPI.GET_LIST_MATERIAL_BY_CATEGORY_ID + "/{categoryID}")
-    public ResponseEntity<ObjectNode> getListMaterialByCategoryID(@ValidUUID @PathVariable("categoryID") UUID categoryID) {
+    public ResponseEntity<ObjectNode> getListMaterialByCategoryID( @PathVariable("categoryID") String categoryID) {
         ObjectNode response = objectMapper.createObjectNode();
         var materials = materialService.findListMaterialByCategoryID(categoryID);
         if (materials != null) {
@@ -100,7 +100,7 @@ public class MaterialController {
     }
 
     @PutMapping(APIConstant.MaterialAPI.UPDATE_STATUS_MATERIAL + "/{materialID}")
-    public ResponseEntity<ObjectNode> changeStatusMaterial(@ValidUUID @PathVariable("materialID") UUID materialID) {
+    public ResponseEntity<ObjectNode> changeStatusMaterial( @PathVariable("materialID") String materialID) {
         ObjectNode response = objectMapper.createObjectNode();
         materialService.updateStatusMaterial(materialID);
         response.put("status", HttpStatus.OK.value());
@@ -109,7 +109,7 @@ public class MaterialController {
     }
 
     @PutMapping(APIConstant.MaterialAPI.UPDATE_MATERIAL + "/{materialID}")
-    public ResponseEntity<ObjectNode> updateMaterial(@ValidUUID @PathVariable("materialID") UUID materialID,
+    public ResponseEntity<ObjectNode> updateMaterial( @PathVariable("materialID") String materialID,
                                                      @Valid @RequestBody MaterialRequest materialRequest) {
         ObjectNode response = objectMapper.createObjectNode();
         materialService.updateMaterial(materialID, materialRequest);
@@ -199,8 +199,8 @@ public class MaterialController {
     }
 
     @GetMapping(APIConstant.MaterialAPI.GET_LIST_MATERIAL_BY_EXPERT_TAILORING_ID_AND_CATEGORY_ID)
-    public ResponseEntity<ObjectNode> getListMaterialByCategoryID(@ValidUUID @RequestParam("expertTailoringID") UUID expertTailoringID,
-                                                                  @ValidUUID @RequestParam("categoryID") UUID categoryID) {
+    public ResponseEntity<ObjectNode> getListMaterialByCategoryID( @RequestParam("expertTailoringID") String expertTailoringID,
+                                                                   @RequestParam("categoryID") String categoryID) {
         ObjectNode response = objectMapper.createObjectNode();
         var materials = materialService.findAllMaterialByExpertTailoringIDAndCategoryID(expertTailoringID, categoryID);
         if (!materials.isEmpty()) {

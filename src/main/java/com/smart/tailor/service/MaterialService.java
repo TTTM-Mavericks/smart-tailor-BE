@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface MaterialService {
     Optional<Material> findByMaterialNameAndCategory_CategoryName(String materialName, String categoryName);
@@ -27,25 +27,25 @@ public interface MaterialService {
 
     List<MaterialResponse> exportCategoryMaterialForBrandByExcel(HttpServletResponse response) throws IOException;
 
-    MaterialResponse findByMaterialID(UUID materialID);
+    MaterialResponse findByMaterialID(String materialID);
 
-    void updateMaterial(UUID materialID, MaterialRequest materialRequest);
+    void updateMaterial(String materialID, MaterialRequest materialRequest);
 
-    void updateStatusMaterial(UUID materialID);
+    void updateStatusMaterial(String materialID);
 
     void generateSampleCategoryMaterialByExportExcel(HttpServletResponse response) throws IOException;
 
     Optional<Material> findByMaterialName(String materialName);
 
-    Optional<Material> findMaterialByID(UUID materialID);
+    Optional<Material> findMaterialByID(String materialID);
 
-    List<MaterialResponse> findListMaterialByCategoryID(UUID categoryID);
+    List<MaterialResponse> findListMaterialByCategoryID(String categoryID);
 
     List<MaterialResponse> findListMaterialByCategoryName(String categoryName);
 
-    List<MaterialWithPriceResponse> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
+    List<MaterialWithPriceResponse> findAllMaterialByExpertTailoringIDAndCategoryID(String expertTailoringID, String categoryID);
 
     Boolean isExistedMaterial(MaterialRequest materialRequest);
 
-    List<Material> findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName);
+    List<Material> findMaterialsByExpertTailoringIDAndCategoryName(String expertTailoringID, String categoryName);
 }

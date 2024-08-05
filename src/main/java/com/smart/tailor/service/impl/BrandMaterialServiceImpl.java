@@ -46,7 +46,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     @Transactional
     public void createBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
         // Check If Brand ID is Existed
-        var brand = brandService.findBrandById(UUID.fromString(brandMaterialRequest.getBrandID()))
+        var brand = brandService.findBrandById(brandMaterialRequest.getBrandID())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandMaterialRequest.getBrandID()));
 
         // Check if Category and Material is Existed or not
@@ -55,7 +55,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
         // Check Whether BrandMaterial is Existed or not
         // If Existed ==> Fail to Store Brand Material because Each Brand only enter one MaterialName belong to one CategoryName
-        var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), UUID.fromString(brandMaterialRequest.getBrandID()));
+        var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), brandMaterialRequest.getBrandID());
         if (brandMaterialExisted != null) {
             throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
@@ -103,7 +103,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public List<BrandMaterialResponse> getAllBrandMaterialByBrandID(UUID brandID) {
+    public List<BrandMaterialResponse> getAllBrandMaterialByBrandID(String brandID) {
         Optional<Brand> brand = brandService.findBrandById(brandID);
         if (brand.isEmpty()) return null;
         return brandMaterialRepository
@@ -115,7 +115,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public void createBrandMaterialByImportExcelData(MultipartFile file, UUID brandID) {
+    public void createBrandMaterialByImportExcelData(MultipartFile file, String brandID) {
         if (!excelImportService.isValidExcelFile(file)) {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
@@ -430,7 +430,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     @Override
     public void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
         // Check If Brand Name is Existed
-        var brand = brandService.findBrandById(UUID.fromString(brandMaterialRequest.getBrandID()))
+        var brand = brandService.findBrandById(brandMaterialRequest.getBrandID())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandMaterialRequest.getBrandID()));
 
         // Check if Category and Material is Existed or not
@@ -441,7 +441,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
 
         // Check Whether BrandMaterial is Existed or not
         // If Existed ==> Fail to Store Brand Material because Each Brand only enter one MaterialName belong to one CategoryName
-        var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), UUID.fromString(brandMaterialRequest.getBrandID()));
+        var brandMaterialExisted = brandMaterialRepository.findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(brandMaterialRequest.getCategoryName(), brandMaterialRequest.getMaterialName(), brandMaterialRequest.getBrandID());
         if (brandMaterialExisted == null) {
             throw new ItemAlreadyExistException(MessageConstant.BRAND_MATERIAL_IS_EXISTED);
         }
@@ -464,7 +464,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public Integer getMinPriceByMaterialID(UUID materialID) {
+    public Integer getMinPriceByMaterialID(String materialID) {
         var value = brandMaterialRepository.getMinPriceByMaterialID(materialID);
         if (value == null) {
             return 0;
@@ -473,7 +473,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public Integer getMaxPriceByMaterialID(UUID materialID) {
+    public Integer getMaxPriceByMaterialID(String materialID) {
         var value = brandMaterialRepository.getMaxPriceByMaterialID(materialID);
         if (value == null) {
             return 0;
@@ -487,7 +487,7 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public Integer getBrandPriceByBrandIDAndMaterialID(UUID brandID, UUID materialID) {
+    public Integer getBrandPriceByBrandIDAndMaterialID(String brandID, String materialID) {
         return brandMaterialRepository.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
     }
 }

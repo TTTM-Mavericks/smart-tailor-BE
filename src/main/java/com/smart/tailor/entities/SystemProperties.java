@@ -1,14 +1,15 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "system_properties")
@@ -21,8 +22,7 @@ import java.util.UUID;
 public class SystemProperties extends AuditEntity implements Serializable {
     @Id
     @Column(name = "property_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID propertyID;
+    private String propertyID;
 
     @Column(name = "property_name", columnDefinition = "varchar(50)", nullable = false, unique = true)
     private String propertyName;
@@ -44,4 +44,9 @@ public class SystemProperties extends AuditEntity implements Serializable {
 
     @OneToMany(mappedBy = "systemProperties")
     private List<BrandProperties> brandProperties;
+
+    @PrePersist
+    private void prePersist() {
+        this.propertyID = Utilities.generateCustomPrimaryKey();
+    }
 }

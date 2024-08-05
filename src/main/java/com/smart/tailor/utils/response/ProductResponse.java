@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponse {
-    private UUID productID;
+    private String productID;
     private DesignResponse design;
     private BrandResponse brand;
     private String productName;

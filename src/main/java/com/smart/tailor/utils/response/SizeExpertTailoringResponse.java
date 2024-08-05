@@ -5,18 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class SizeExpertTailoringResponse {
-    private UUID expertTailoringID;
+    private String expertTailoringID;
 
     private String expertTailoringName;
 
-    private UUID sizeID;
+    private String sizeID;
 
     private String sizeName;
 

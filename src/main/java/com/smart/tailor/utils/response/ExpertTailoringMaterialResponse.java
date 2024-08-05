@@ -5,22 +5,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ExpertTailoringMaterialResponse {
-    private UUID categoryID;
+    private String categoryID;
 
     private String categoryName;
 
-    private UUID materialID;
+    private String materialID;
 
     private String materialName;
 
-    private UUID expertTailoringID;
+    private String expertTailoringID;
 
     private String expertTailoringName;
 

@@ -4,7 +4,7 @@ import com.smart.tailor.utils.request.SystemImageRequest;
 import com.smart.tailor.utils.response.SystemImageResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface SystemImageService {
     SystemImageResponse addNewSystemImage(SystemImageRequest systemImageRequest);
@@ -17,5 +17,5 @@ public interface SystemImageService {
 
     List<SystemImageResponse> getSystemImageByTypeAndIsPremium(String imageType, Boolean isPremium);
 
-    SystemImageResponse getSystemImageById(UUID systemImageId);
+    SystemImageResponse getSystemImageById(String systemImageId);
 }

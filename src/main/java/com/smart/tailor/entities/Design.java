@@ -1,14 +1,15 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "design")
@@ -21,8 +22,7 @@ import java.util.UUID;
 public class Design extends AuditEntity implements Serializable {
     @Id
     @Column(name = "design_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID designID;
+    private String designID;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
@@ -53,4 +53,9 @@ public class Design extends AuditEntity implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "design")
     private List<PartOfDesign> partOfDesignList;
+
+    @PrePersist
+    private void prePersist() {
+        this.designID = Utilities.generateCustomPrimaryKey();
+    }
 }

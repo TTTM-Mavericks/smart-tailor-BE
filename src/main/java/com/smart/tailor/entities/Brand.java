@@ -1,15 +1,14 @@
 package com.smart.tailor.entities;
 
 import com.smart.tailor.enums.BrandStatus;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "brand")
@@ -22,8 +21,7 @@ import java.util.UUID;
 public class Brand extends AuditEntity implements Serializable {
     @Id
     @Column(name = "brand_id")
-    @UuidGenerator
-    private UUID brandID;
+    private String brandID;
 
     @OneToOne
     @MapsId
@@ -77,4 +75,9 @@ public class Brand extends AuditEntity implements Serializable {
 
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BrandImage> brandImages;
+
+    @PrePersist
+    private void prePersist() {
+        this.brandID = Utilities.generateCustomPrimaryKey();
+    }
 }

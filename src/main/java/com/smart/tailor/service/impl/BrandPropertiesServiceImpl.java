@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
     private final BrandPropertiesMapper brandPropertiesMapper;
 
     @Override
-    public List<BrandPropertiesResponse> getAllByBrandID(UUID brandID) {
+    public List<BrandPropertiesResponse> getAllByBrandID(String brandID) {
         try {
             if (brandID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
@@ -47,7 +47,7 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
     }
 
     @Override
-    public BrandPropertiesResponse getByID(UUID propertyID) {
+    public BrandPropertiesResponse getByID(String propertyID) {
         try {
             if (propertyID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
@@ -66,14 +66,14 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
     @Override
     public BrandPropertiesResponse addNew(BrandPropertiesRequest brandRequest) throws Exception {
         try {
-            UUID brandID = UUID.fromString(brandRequest.getBrandID());
+            String brandID = brandRequest.getBrandID();
 
             var brand = brandService.getBrandById(brandID);
             if (brand.isEmpty()) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
             }
 
-            UUID systemPropertyID = UUID.fromString(brandRequest.getSystemPropertyID());
+            String systemPropertyID = brandRequest.getSystemPropertyID();
             var systemProperty = systemService.getObjectByID(systemPropertyID);
             if (systemProperty.isEmpty()) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_SYSTEM_PROPERTY);
@@ -101,7 +101,7 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
     }
 
     @Override
-    public BrandPropertiesResponse getByBrandIDAndPropertyID(UUID brandID, UUID propertyID) {
+    public BrandPropertiesResponse getByBrandIDAndPropertyID(String brandID, String propertyID) {
         try {
             if (brandID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);

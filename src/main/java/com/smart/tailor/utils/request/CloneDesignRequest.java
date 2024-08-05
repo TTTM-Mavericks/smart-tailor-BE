@@ -1,6 +1,5 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidStringUUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,12 +17,10 @@ import java.util.List;
 public class CloneDesignRequest {
     @NotBlank(message = "userID can not be blank")
     @NotNull(message = "userID can not be null")
-    @ValidStringUUID(message = "userID is invalid of type UUID")
     private String userID;
 
     @NotBlank(message = "designID can not be blank")
     @NotNull(message = "designID can not be null")
-    @ValidStringUUID(message = "designID is invalid of type UUID")
     private String designID;
 
     @Valid

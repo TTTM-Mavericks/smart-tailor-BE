@@ -5,14 +5,14 @@ import com.smart.tailor.utils.request.BrandLaborQuantityRequest;
 import com.smart.tailor.utils.response.BrandLaborQuantityResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface BrandLaborQuantityService {
     void createBrandLaborQuantity(BrandLaborQuantityListRequest brandLaborQuantityListRequest);
 
-    List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(UUID brandID);
+    List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(String brandID);
 
-    void updateBrandLaborQuantity(UUID brandID, BrandLaborQuantityRequest brandLaborQuantityListRequest);
+    void updateBrandLaborQuantity(String brandID, BrandLaborQuantityRequest brandLaborQuantityListRequest);
 
-    BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(UUID brandID, Integer brandQuantity);
+    BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(String brandID, Integer brandQuantity);
 }

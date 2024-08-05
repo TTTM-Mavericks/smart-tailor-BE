@@ -73,12 +73,12 @@ public class PaymentServiceImpl implements PaymentService {
              * TODO
              * Validate payment request
              */
-            UUID paymentSenderID = paymentRequest.getPaymentSenderID();
+            String paymentSenderID = paymentRequest.getPaymentSenderID();
             String paymentSenderName = paymentRequest.getPaymentSenderName();
             String paymentSenderBankCode = paymentRequest.getPaymentSenderBankCode();
             String paymentSenderBankNumber = paymentRequest.getPaymentSenderBankNumber();
 
-            UUID paymentRecipientID = paymentRequest.getPaymentRecipientID();
+            String paymentRecipientID = paymentRequest.getPaymentRecipientID();
             String paymentRecipientName = paymentRequest.getPaymentRecipientName();
             String paymentRecipientBankCode = paymentRequest.getPaymentRecipientBankCode();
             String paymentRecipientBankNumber = paymentRequest.getPaymentRecipientBankNumber();
@@ -231,7 +231,7 @@ public class PaymentServiceImpl implements PaymentService {
             if (paymentRequest.getPaymentSenderID() == null) {
                 throw new Exception(MessageConstant.MISSING_ARGUMENT);
             }
-            UUID paymentSenderID = paymentRequest.getPaymentSenderID();
+            String paymentSenderID = paymentRequest.getPaymentSenderID();
             String paymentSenderName = paymentRequest.getPaymentSenderName() != null ? paymentRequest.getPaymentSenderName() : "";
             String paymentSenderBankCode = paymentRequest.getPaymentSenderBankCode() != null ? paymentRequest.getPaymentSenderBankCode() : "";
             String paymentSenderBankNumber = paymentRequest.getPaymentSenderBankNumber() != null ? paymentRequest.getPaymentSenderBankNumber() : "";
@@ -239,7 +239,7 @@ public class PaymentServiceImpl implements PaymentService {
             if (paymentRequest.getPaymentRecipientID() == null) {
                 throw new Exception(MessageConstant.MISSING_ARGUMENT);
             }
-            UUID paymentRecipientID = paymentRequest.getPaymentRecipientID();
+            String paymentRecipientID = paymentRequest.getPaymentRecipientID();
             String paymentRecipientName = paymentRequest.getPaymentRecipientName() != null ? paymentRequest.getPaymentRecipientName() : "";
             String paymentRecipientBankCode = paymentRequest.getPaymentRecipientBankCode() != null ? paymentRequest.getPaymentRecipientBankCode() : "";
             String paymentRecipientBankNumber = paymentRequest.getPaymentRecipientBankNumber() != null ? paymentRequest.getPaymentRecipientBankNumber() : "";
@@ -369,7 +369,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse getManualPaymentByID(UUID paymentID) throws Exception {
+    public PaymentResponse getManualPaymentByID(String paymentID) throws Exception {
         try {
 
             var checkPayment = paymentRepository.findByPaymentID(paymentID);
@@ -452,7 +452,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse getPaymentByID(UUID paymentID) throws Exception {
+    public PaymentResponse getPaymentByID(String paymentID) throws Exception {
         try {
             if (paymentID == null) {
                 throw new Exception(MessageConstant.MISSING_ARGUMENT);
@@ -469,7 +469,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<Payment> findAllByOrderID(UUID orderID) {
+    public List<Payment> findAllByOrderID(String orderID) {
         return paymentRepository.findAllByOrderID(orderID);
     }
 

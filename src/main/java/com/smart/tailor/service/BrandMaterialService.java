@@ -8,24 +8,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface BrandMaterialService {
     void createBrandMaterial(BrandMaterialRequest brandMaterialRequest);
 
     List<BrandMaterialResponse> getAllBrandMaterial();
 
-    List<BrandMaterialResponse> getAllBrandMaterialByBrandID(UUID brandID);
+    List<BrandMaterialResponse> getAllBrandMaterialByBrandID(String brandID);
 
-    void createBrandMaterialByImportExcelData(MultipartFile file, UUID brandID);
+    void createBrandMaterialByImportExcelData(MultipartFile file, String brandID);
 
     void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest);
 
-    Integer getMinPriceByMaterialID(UUID materialID);
+    Integer getMinPriceByMaterialID(String materialID);
 
-    Integer getMaxPriceByMaterialID(UUID materialID);
+    Integer getMaxPriceByMaterialID(String materialID);
 
     Optional<BrandMaterial> getPriceByID(BrandMaterialKey key);
 
-    Integer getBrandPriceByBrandIDAndMaterialID(UUID brandID, UUID materialID);
+    Integer getBrandPriceByBrandIDAndMaterialID(String brandID, String materialID);
 }

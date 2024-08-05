@@ -5,8 +5,9 @@ import com.smart.tailor.utils.response.ReportResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {OrderMapper.class, ReportImageMapper.class})
+@Mapper(componentModel = "spring", uses = {OrderMapper.class, ReportImageMapper.class, UserMapper.class})
 public interface ReportMapper {
+    @Mapping(source = "report.user", target = "userResponse")
     @Mapping(source = "report.order", target = "orderResponse")
     @Mapping(source = "report.reportImageList", target = "reportImageList")
     @Mapping(source = "report.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")

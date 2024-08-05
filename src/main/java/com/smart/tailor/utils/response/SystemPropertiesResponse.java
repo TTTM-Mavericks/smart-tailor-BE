@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SystemPropertiesResponse {
-    private UUID propertyID;
+    private String propertyID;
     private String propertyName;
     private String propertyUnit;
     private String propertyDetail;

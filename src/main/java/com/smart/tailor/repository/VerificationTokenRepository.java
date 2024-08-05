@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Repository
-public interface VerificationTokenRepository extends JpaRepository<VerificationToken, UUID> {
-    Optional<VerificationToken> findByToken(UUID token);
+public interface VerificationTokenRepository extends JpaRepository<VerificationToken, String> {
+    Optional<VerificationToken> findByToken(String token);
 
     @Query(value = "select * from verification_token where user_id = ?1", nativeQuery = true)
-    VerificationToken findByUserID(UUID userID);
+    VerificationToken findByUserID(String userID);
 
     @Query(value = "select v.* from verification_token v join users u on v.user_id = u.user_id" +
             " where u.email = ?1", nativeQuery = true)
@@ -24,5 +24,5 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     @Transactional
     @Modifying
     @Query(value = "delete from verification_token v where v.user_id = ?1", nativeQuery = true)
-    void deleteVerificationTokenByUserID(UUID userID);
+    void deleteVerificationTokenByUserID(String userID);
 }

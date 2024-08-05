@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.BrandMaterialService;
 import com.smart.tailor.utils.request.BrandMaterialRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.BrandMaterialAPI.BRAND_MATERIAL)
@@ -46,7 +46,7 @@ public class BrandMaterialController {
     }
 
     @GetMapping(APIConstant.BrandMaterialAPI.GET_ALL_BRAND_MATERIAL_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getAllBrandMaterialsByBrandID(@ValidUUID @PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> getAllBrandMaterialsByBrandID( @PathVariable("brandID") String brandID) {
         ObjectNode response = objectMapper.createObjectNode();
         var materials = brandMaterialService.getAllBrandMaterialByBrandID(brandID);
         if (materials != null) {
@@ -81,7 +81,7 @@ public class BrandMaterialController {
 
     @PostMapping(APIConstant.BrandMaterialAPI.ADD_NEW_BRAND_MATERIAL_BY_EXCEL_FILE)
     public ResponseEntity<ObjectNode> addNewBrandMaterialByExcelFile(@RequestParam("file") MultipartFile file,
-                                                                     @ValidUUID @RequestParam("brandID") UUID brandID) {
+                                                                      @RequestParam("brandID") String brandID) {
         ObjectNode response = objectMapper.createObjectNode();
         brandMaterialService.createBrandMaterialByImportExcelData(file, brandID);
         response.put("status", HttpStatus.OK.value());

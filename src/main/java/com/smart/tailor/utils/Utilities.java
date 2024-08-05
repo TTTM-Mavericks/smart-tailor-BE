@@ -95,15 +95,6 @@ public class Utilities {
         return false;
     }
 
-    public static boolean isValidUUIDType(String uuid) {
-        if (uuid == null) return false;
-        try {
-            UUID.fromString(uuid);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
 
     public static boolean isValidateDate(String dateStr, String dateFormat) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
@@ -156,31 +147,31 @@ public class Utilities {
         return Base64.getEncoder().encode(bytesToEncode);
     }
 
-    public static int convertUUIDToInt(String uuidStr) {
-        if (uuidStr.equals("null")) {
-            return 000000;
-        }
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        byte[] hash = md.digest(uuidStr.getBytes(StandardCharsets.UTF_8));
-        BigInteger number = new BigInteger(1, hash);
-        int intValue = number.mod(BigInteger.valueOf(1000000)).intValue();
-
-        // Kiểm tra xung đột và tạo lại nếu cần
-        while (usedNumbers.contains(intValue)) {
-            uuidStr = UUID.randomUUID().toString();
-            hash = md.digest(uuidStr.getBytes(StandardCharsets.UTF_8));
-            number = new BigInteger(1, hash);
-            intValue = number.mod(BigInteger.valueOf(1000000)).intValue();
-        }
-
-        usedNumbers.add(intValue);
-        return intValue;
-    }
+//    public static int convertStringToInt(String StringStr) {
+//        if (StringStr.equals("null")) {
+//            return 000000;
+//        }
+//        MessageDigest md = null;
+//        try {
+//            md = MessageDigest.getInstance("MD5");
+//        } catch (NoSuchAlgorithmException e) {
+//            throw new RuntimeException(e);
+//        }
+//        byte[] hash = md.digest(StringStr.getBytes(StandardCharsets.UTF_8));
+//        BigInteger number = new BigInteger(1, hash);
+//        int intValue = number.mod(BigInteger.valueOf(1000000)).intValue();
+//
+//        // Kiểm tra xung đột và tạo lại nếu cần
+//        while (usedNumbers.contains(intValue)) {
+//            StringStr = Utilities.generateCustomPrimaryKey().toString();
+//            hash = md.digest(StringStr.getBytes(StandardCharsets.UTF_8));
+//            number = new BigInteger(1, hash);
+//            intValue = number.mod(BigInteger.valueOf(1000000)).intValue();
+//        }
+//
+//        usedNumbers.add(intValue);
+//        return intValue;
+//    }
 
     public static String convertLocalDateTimeToString(LocalDateTime localDateTime) {
         if (localDateTime == null) return null;
@@ -195,5 +186,58 @@ public class Utilities {
         } else {
             return (int) Math.ceil(value);
         }
+    }
+
+    public static String generateCustomPrimaryKey(){
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        Random random = new Random();
+        StringBuilder customerPrimaryKey = new StringBuilder();
+
+        // Get current time and microseconds
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmssSSSSSS");
+        String timeString = now.format(formatter);
+
+        // Generate and append components
+        customerPrimaryKey.append(generateRandomChars(chars, 2, random));
+        customerPrimaryKey.append(timeString.substring(0, 2)); // HH
+        customerPrimaryKey.append(generateRandomChars(chars, 2, random));
+        customerPrimaryKey.append(timeString.substring(2, 4)); // mm
+        customerPrimaryKey.append(generateRandomChars(chars, 2, random));
+        customerPrimaryKey.append(timeString.substring(4, 6)); // ss
+        customerPrimaryKey.append(selectRandomMicroChars(timeString.substring(6, 12), random));
+
+        return customerPrimaryKey.toString();
+    }
+
+    private static String generateRandomChars(String chars, int length, Random random) {
+        StringBuilder result = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            result.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return result.toString();
+    }
+
+    private static String selectRandomMicroChars(String microseconds, Random random) {
+        char randChar1 = microseconds.charAt(random.nextInt(6));
+        char randChar2;
+        do {
+            randChar2 = microseconds.charAt(random.nextInt(6));
+        } while (randChar2 == randChar1);
+        return "" + randChar1 + randChar2;
+    }
+
+    public static boolean isValidCustomKey(String value){
+        Pattern pattern = Pattern.compile(
+                "^[a-zA-Z0-9]{2}" +     // 2 ký tự ngẫu nhiên từ chars
+                        "\\d{2}" +              // HH
+                        "[a-zA-Z0-9]{2}" +      // 2 ký tự ngẫu nhiên từ chars
+                        "[0-5][0-9]" +          // mm (00-59)
+                        "[a-zA-Z0-9]{2}" +      // 2 ký tự ngẫu nhiên từ chars
+                        "[0-5][0-9]" +          // ss (00-59)
+                        "[0-9]{2}" +            // 2 ký tự từ microseconds, bất kỳ
+                        "$"
+        );
+        return pattern.matcher(value).matches();
     }
 }

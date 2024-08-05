@@ -1,12 +1,10 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
-
 import java.io.Serializable;
-import java.util.UUID;
 
 @Entity
 @Table(name = "brand_image")
@@ -18,8 +16,7 @@ import java.util.UUID;
 public class BrandImage implements Serializable {
     @Id
     @Column(name = "image_id")
-    @UuidGenerator
-    private UUID imageID;
+    private String imageID;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", nullable = false)
@@ -33,4 +30,9 @@ public class BrandImage implements Serializable {
     private String imageDescription;
 
     private Boolean status;
+
+    @PrePersist
+    private void prePersist() {
+        this.imageID = Utilities.generateCustomPrimaryKey();
+    }
 }

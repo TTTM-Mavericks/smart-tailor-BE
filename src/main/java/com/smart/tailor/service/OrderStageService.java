@@ -5,14 +5,14 @@ import com.smart.tailor.utils.request.OrderStageRequest;
 import com.smart.tailor.utils.response.OrderStageResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface OrderStageService {
     OrderStageResponse createOrderStage(OrderStageRequest orderStageRequest);
 
-    List<OrderStageResponse> getOrderStageByOrderID(UUID orderID);
+    List<OrderStageResponse> getOrderStageByOrderID(String orderID);
 
-    OrderStage getOrderStageByID(UUID stageID);
+    OrderStage getOrderStageByID(String stageID);
 
     void updateStage(OrderStage orderStage);
 }

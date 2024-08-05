@@ -5,14 +5,14 @@ import com.smart.tailor.entities.VerificationToken;
 import com.smart.tailor.enums.TypeOfVerification;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface VerificationTokenService {
-    Optional<VerificationToken> findByToken(UUID token);
+    Optional<VerificationToken> findByToken(String token);
 
-    VerificationToken findByUserID(UUID userID);
+    VerificationToken findByUserID(String userID);
 
-    void saveUserVerificationToken(User user, UUID token, TypeOfVerification typeOfVerification);
+    void saveUserVerificationToken(User user, String token, TypeOfVerification typeOfVerification);
 
     VerificationToken generateNewVerificationToken(String userEmail);
 
@@ -20,5 +20,5 @@ public interface VerificationTokenService {
 
     void enableVerificationToken(VerificationToken verificationToken);
 
-    void deleteVerificationTokenByUserID(UUID userID);
+    void deleteVerificationTokenByUserID(String userID);
 }

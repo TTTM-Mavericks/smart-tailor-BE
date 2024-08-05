@@ -37,7 +37,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     private final ExcelImportService excelImportService;
 
     @Override
-    public Optional<ExpertTailoring> getExpertTailoringByID(UUID expectID) throws CustomExeption {
+    public Optional<ExpertTailoring> getExpertTailoringByID(String expectID) throws CustomExeption {
         try {
             if (expectID == null) {
                 throw new CustomExeption(ErrorConstant.MISSING_ARGUMENT);
@@ -167,7 +167,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     }
 
     @Override
-    public ExpertTailoringResponse findByExpertTailoringID(UUID expertTailoringID) {
+    public ExpertTailoringResponse findByExpertTailoringID(String expertTailoringID) {
         var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID);
         if (expertTailoring.isPresent()) {
             return expertTailoringMapper.mapperToExpertTailoringResponse(expertTailoring.get());
@@ -177,7 +177,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
     @Transactional
     @Override
-    public void updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest) {
+    public void updateExpertTailoring(String expertTailoringID, ExpertTailoringRequest expertTailoringRequest) {
         var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
@@ -201,7 +201,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
 
     @Transactional
     @Override
-    public void updateStatusExpertTailoring(UUID expertTailoringID) {
+    public void updateStatusExpertTailoring(String expertTailoringID) {
         var expertTailoring = expertTailoringRepository.findByExpertTailoringID(expertTailoringID)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
@@ -210,7 +210,7 @@ public class ExpertTailoringServiceImpl implements ExpertTailoringService {
     }
 
     @Override
-    public Optional<ExpertTailoring> findExpertTailoringByID(UUID expertTailoringID) {
+    public Optional<ExpertTailoring> findExpertTailoringByID(String expertTailoringID) {
         return expertTailoringRepository.findById(expertTailoringID);
     }
 }

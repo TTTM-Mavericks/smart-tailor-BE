@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -202,7 +202,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public String verifyUser(UUID token) {
+    public String verifyUser(String token) {
         // Check token is existed or not
         var verificationTokenOptional = verificationTokenService.findByToken(token);
         if (verificationTokenOptional.isEmpty()) {
@@ -236,7 +236,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (user == null) {
             return null;
         }
-        var token = UUID.randomUUID();
+        var token = Utilities.generateCustomPrimaryKey();
         verificationTokenService.saveUserVerificationToken(user, token, TypeOfVerification.FORGOT_PASSWORD);
         return user;
     }
@@ -247,7 +247,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (user == null) {
             return null;
         }
-        var token = UUID.randomUUID();
+        var token = Utilities.generateCustomPrimaryKey();
         verificationTokenService.saveUserVerificationToken(user, token, TypeOfVerification.CHANGE_PASSWORD);
         return user;
     }

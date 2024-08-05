@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class DesignDetailSize {
-    private UUID brandId;
+    private String brandId;
     private Integer quantity;
     private String sizeID;
 }

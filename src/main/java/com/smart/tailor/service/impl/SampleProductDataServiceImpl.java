@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -33,9 +33,9 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     @Transactional
     @Override
     public void addNewSampleProductData(SampleProductDataRequest sampleProductDataRequest) {
-        UUID subOrderID = UUID.fromString(sampleProductDataRequest.getOrderID());
-        UUID stageID = UUID.fromString(sampleProductDataRequest.getOrderStageID());
-        UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
+        String subOrderID = sampleProductDataRequest.getOrderID();
+        String stageID = sampleProductDataRequest.getOrderStageID();
+        String brandID = sampleProductDataRequest.getBrandID();
 
         var orderStage = stageService.getOrderStageByID(stageID);
         var order = orderService.getOrderById(subOrderID)
@@ -69,10 +69,10 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
 
     @Transactional
     @Override
-    public void updateSampleProductData(UUID sampleModelID, SampleProductDataRequest sampleProductDataRequest) {
-        UUID stageID = UUID.fromString(sampleProductDataRequest.getOrderStageID());
-        UUID orderID = UUID.fromString(sampleProductDataRequest.getOrderID());
-        UUID brandID = UUID.fromString(sampleProductDataRequest.getBrandID());
+    public void updateSampleProductData(String sampleModelID, SampleProductDataRequest sampleProductDataRequest) {
+        String stageID = sampleProductDataRequest.getOrderStageID();
+        String orderID = sampleProductDataRequest.getOrderID();
+        String brandID = sampleProductDataRequest.getBrandID();
 
         var sampleProductData = sampleProductDataRepository.findById(sampleModelID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Sample Product Data with SampleModelID: " + sampleModelID));
@@ -110,7 +110,7 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     }
 
     @Override
-    public SampleProductDataResponse getSampleProductDataByID(UUID sampleModelID) {
+    public SampleProductDataResponse getSampleProductDataByID(String sampleModelID) {
         return sampleProductDataRepository
                 .findById(sampleModelID)
                 .map(sampleProductDataMapper::mapperToSampleProductDataResponse)
@@ -118,7 +118,7 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     }
 
     @Override
-    public List<SampleProductDataResponse> getSampleProductDataByParentOrderID(UUID orderID) {
+    public List<SampleProductDataResponse> getSampleProductDataByParentOrderID(String orderID) {
         return orderService
                 .getSubOrderByParentID(orderID)
                 .stream()
@@ -128,7 +128,7 @@ public class SampleProductDataServiceImpl implements SampleProductDataService {
     }
 
     @Override
-    public List<SampleProductDataResponse> getSampleProductDataByParentOrderIDAndStageID(UUID orderID, UUID stageID) {
+    public List<SampleProductDataResponse> getSampleProductDataByParentOrderIDAndStageID(String orderID, String stageID) {
         var order = orderService.getOrderById(orderID).orElseThrow(() -> new ItemNotFoundException("Can not found order"));
         if (order.getOrderType().equals("PARENT_ORDER")) {
             var stage = stageService.getOrderStageByID(stageID);

@@ -4,14 +4,15 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.smart.tailor.enums.PrintType;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "item_mask")
@@ -25,8 +26,7 @@ import java.util.UUID;
 public class ItemMask extends AuditEntity implements Serializable {
     @Id
     @Column(name = "item_mask_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID itemMaskID;
+    private String itemMaskID;
 
     @ManyToOne
     @JoinColumn(name = "part_of_design_id", referencedColumnName = "part_of_design_id")
@@ -84,4 +84,9 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "print_type")
     private PrintType printType;
+
+    @PrePersist
+    private void prePersist() {
+        this.itemMaskID = Utilities.generateCustomPrimaryKey();
+    }
 }

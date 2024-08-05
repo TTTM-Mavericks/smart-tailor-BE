@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class BrandExpertTailoringServiceImpl implements BrandExpertTailoringServ
     private final Logger logger = LoggerFactory.getLogger(BrandExpertTailoringServiceImpl.class);
 
     @Override
-    public Boolean addExpertTailoringForBrand(UUID brandID, UUID expertTailoringID) throws Exception {
+    public Boolean addExpertTailoringForBrand(String brandID, String expertTailoringID) throws Exception {
         try {
             if (brandID == null || expertTailoringID == null) {
                 throw new CustomExeption(ErrorConstant.MISSING_ARGUMENT);

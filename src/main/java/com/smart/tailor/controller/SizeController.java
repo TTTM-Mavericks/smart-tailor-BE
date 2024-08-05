@@ -7,7 +7,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.SizeService;
 import com.smart.tailor.utils.request.ListSizeRequest;
 import com.smart.tailor.utils.request.SizeRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.SizeAPI.SIZE)
@@ -56,7 +56,7 @@ public class SizeController {
     }
 
     @PutMapping(APIConstant.SizeAPI.UPDATE_SIZE + "/{sizeID}")
-    public ResponseEntity<ObjectNode> updateSize(@ValidUUID @PathVariable("sizeID") UUID sizeID,
+    public ResponseEntity<ObjectNode> updateSize( @PathVariable("sizeID") String sizeID,
                                                  @Valid @RequestBody SizeRequest sizeRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();

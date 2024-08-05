@@ -1,13 +1,14 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "system_image")
@@ -19,9 +20,8 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class SystemImage extends AuditEntity implements Serializable {
     @Id
-    @UuidGenerator
     @Column(name = "image_id")
-    private UUID imageID;
+    private String imageID;
 
     @Column(name = "image_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String imageName;
@@ -37,4 +37,9 @@ public class SystemImage extends AuditEntity implements Serializable {
 
     @Column(name = "is_premium")
     private Boolean isPremium;
+
+    @PrePersist
+    private void prePersist() {
+        this.imageID = Utilities.generateCustomPrimaryKey();
+    }
 }

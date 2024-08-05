@@ -25,7 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @Slf4j
@@ -48,7 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Optional<Customer> findById(UUID customerID) {
+    public Optional<Customer> findById(String customerID) {
         return customerRepository.findById(customerID);
     }
 
@@ -158,7 +158,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponse getCustomerByUserID(UUID userID) {
+    public CustomerResponse getCustomerByUserID(String userID) {
         Customer customer = customerRepository.findByCustomerID(userID);
         return mapperToCustomerResponse(customer);
     }

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +71,7 @@ public class SystemPropertiesServiceImpl implements SystemPropertiesService {
     }
 
     @Override
-    public SystemPropertiesResponse getByID(UUID propertyID) {
+    public SystemPropertiesResponse getByID(String propertyID) {
         try {
             var property = systemRepository.findById(propertyID);
             if (property == null) {
@@ -97,7 +97,7 @@ public class SystemPropertiesServiceImpl implements SystemPropertiesService {
     }
 
     @Override
-    public Optional<SystemProperties> getObjectByID(UUID propertyID) {
+    public Optional<SystemProperties> getObjectByID(String propertyID) {
         return systemRepository.findById(propertyID);
     }
 

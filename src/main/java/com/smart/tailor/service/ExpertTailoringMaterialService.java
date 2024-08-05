@@ -9,18 +9,18 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface ExpertTailoringMaterialService {
     void createExpertTailoringMaterial(ExpertTailoringMaterialListRequest expertTailoringMaterialListRequest);
 
-    void changeStatusExpertTailoringMaterial(UUID expertTailoring, UUID materialID);
+    void changeStatusExpertTailoringMaterial(String expertTailoring, String materialID);
 
-    Optional<ExpertTailoringMaterial> findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(UUID expertTailoringID, UUID materialID);
+    Optional<ExpertTailoringMaterial> findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(String expertTailoringID, String materialID);
 
     List<ExpertTailoringMaterialResponse> findAllExpertTailoringMaterial();
 
-    List<ExpertTailoringMaterialResponse> findAllActiveExpertTailoringMaterialByExpertTailoringID(UUID expertTailoringID);
+    List<ExpertTailoringMaterialResponse> findAllActiveExpertTailoringMaterialByExpertTailoringID(String expertTailoringID);
 
     List<ExpertTailoringMaterialResponse> findAllActiveExpertTailoringMaterialByExpertTailoringName(String expertTailoringName);
 

@@ -7,7 +7,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.LaborQuantityService;
 import com.smart.tailor.utils.request.LaborQuantityRequest;
 import com.smart.tailor.utils.request.LaborQuantityRequestList;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.LaborQuantityAPI.LABOR_QUANTITY)
@@ -56,7 +56,7 @@ public class LaborQuantityController {
     }
 
     @PutMapping(APIConstant.LaborQuantityAPI.UPDATE_LABOR_QUANTITY + "/{laborQuantityID}")
-    public ResponseEntity<ObjectNode> updateLaborQuantity(@ValidUUID @PathVariable("laborQuantityID") UUID laborQuantityID,
+    public ResponseEntity<ObjectNode> updateLaborQuantity( @PathVariable("laborQuantityID") String laborQuantityID,
                                                           @Valid @RequestBody LaborQuantityRequest laborQuantityRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();

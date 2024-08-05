@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ItemMaskService;
 import com.smart.tailor.service.PartOfDesignService;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.ItemMaskAPI.ITEM_MASK)
@@ -32,7 +32,7 @@ public class ItemMaskController {
     private final ObjectMapper objectMapper;
 
     @GetMapping(APIConstant.ItemMaskAPI.GET_ALL_ITEM_MASK_BY_PART_OF_DESIGN_ID + "/{partOfDesignID}")
-    public ResponseEntity<ObjectNode> getAllItemMaskByPartOfDesignID(@ValidUUID @PathVariable("partOfDesignID") UUID partOfDesignID) {
+    public ResponseEntity<ObjectNode> getAllItemMaskByPartOfDesignID( @PathVariable("partOfDesignID") String partOfDesignID) {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponses = itemMaskService.getListItemMaskByPartOfDesignID(partOfDesignID);
         if (itemMaskResponses.isEmpty()) {
@@ -63,7 +63,7 @@ public class ItemMaskController {
     }
 
     @GetMapping(APIConstant.ItemMaskAPI.GET_ITEM_MASK_BY_ID + "/{itemMaskID}")
-    public ResponseEntity<ObjectNode> getDesignByID(@ValidUUID @PathVariable("itemMaskID") UUID itemMaskID) {
+    public ResponseEntity<ObjectNode> getDesignByID( @PathVariable("itemMaskID") String itemMaskID) {
         ObjectNode response = objectMapper.createObjectNode();
         var itemMaskResponse = itemMaskService.getItemMaskByItemMaskID(itemMaskID);
         if (itemMaskResponse == null) {
