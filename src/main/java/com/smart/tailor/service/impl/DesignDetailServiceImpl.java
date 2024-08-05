@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -316,32 +317,37 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 brand = designDetail.getBrand();
                 var designDetailQuantity = BigDecimal.valueOf(designDetail.getQuantity());
                 var size = designDetail.getSize();
-
+                logger.info("Brand ID {} Brand Email {} Brand Total Quantity {}", brand.getBrandID(), brand.getUser().getEmail(), totalQuantityOfSubOrder);
                 var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
                         expertTailoring.getExpertTailoringID(),
                         size.getSizeID()
                 );
                 var ratio = BigDecimal.valueOf(sizeExpertTailoring.getRatio());
-
+                logger.info("Size Name {} Ratio {}", sizeExpertTailoring.getSizeName(), sizeExpertTailoring.getRatio());
                 BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
                 for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
                     totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio));
                 }
+                logger.info("Part of design price for sub-order ID {}", totalPricePartOfDesignOfSubOrder);
 
                 BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
                 for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
                     totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID()));
                 }
+                logger.info("Item Mask price for sub-order ID {}", totalPriceItemMaskOfSubOrder);
 
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
 
                 BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
+                logger.info("Brand Labor Cost Per Quantity {}", brandLaborCostPerQuantity);
 
                 brandPriceDeposit = brandPriceDeposit.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).multiply(designDetailQuantity));
                 brandPriceLaborQuantity = brandPriceLaborQuantity.add(brandLaborCostPerQuantity.multiply(designDetailQuantity));
                 customerPriceDeposit = customerPriceDeposit.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).multiply(designDetailQuantity));
                 customerPriceLaborQuantity = customerPriceLaborQuantity.add(brandLaborCostPerQuantity.multiply(designDetailQuantity));
                 totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
+
+                logger.info("Total price for each sub-order ID {}: {}", subOrder.getOrderID(), totalPriceOfEachSubOrder);
             }
             BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
                     .builder()
@@ -367,22 +373,43 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
 
     private BigDecimal calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, String brandID, BigDecimal ratio) {
+        logger.info("Before Width: {} Height: {} ratio: {} Material Name: {}", partInfo.getWidth(), partInfo.getHeight(), ratio, partInfo.getMaterialName());
+
         BigDecimal width = BigDecimal.valueOf(partInfo.getWidth()).multiply(ratio); // in Centimeter
         BigDecimal height = BigDecimal.valueOf(partInfo.getHeight()).multiply(ratio); // in Centimeter
+
         String materialID = partInfo.getMaterialID();
         BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
-        BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), BigDecimal.ROUND_CEILING);
-        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, BigDecimal.ROUND_CEILING);
+
+        logger.info("After Apply Ratio Width: {} Height: {}  Brand MaterialPrice: {}", width, height, brandPriceMaterial);
+
+        // Correct calculation
+        BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Keeping 10 decimal places for precision
+        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, RoundingMode.CEILING); // Rounding up to nearest whole number
+
+        logger.info("The PartOfDesign Material Price {}", price);
         return price;
     }
 
     private BigDecimal calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, String brandID) {
+        logger.info("Before ScaleX: {} ScaleY: {}  Material Name: {}", itemMaskInfo.getScaleX(), itemMaskInfo.getScaleY(), itemMaskInfo.getMaterialName());
+
+        // Convert scales from pixels to centimeters
         BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(PIXEL_TO_CENTIMETER);
         BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(PIXEL_TO_CENTIMETER);
+
         String materialID = itemMaskInfo.getMaterialID();
         BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
-        BigDecimal area = scaleX_Centimeter.multiply(scaleY_Centimeter).divide(BigDecimal.valueOf(10000), BigDecimal.ROUND_CEILING);
-        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, BigDecimal.ROUND_CEILING);
+
+        logger.info("ScaleX: {} ScaleY: {}  Brand MaterialPrice: {}", scaleX_Centimeter, scaleY_Centimeter, brandPriceMaterial);
+
+        // Calculate area in square meters
+        BigDecimal area = scaleX_Centimeter.multiply(scaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
+
+        // Calculate price, rounding up to the nearest whole number
+        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, RoundingMode.CEILING);
+
+        logger.info("The ItemMask Material Price {}", price);
         return price;
     }
 }

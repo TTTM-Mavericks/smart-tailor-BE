@@ -41,7 +41,10 @@ VALUES (GenerateCustomKeyString(), current_timestamp, null,
         'TIME_BEFORE_ACCOUNT_DELETION', 'NUMBER', true, 'INT','12'),
        (GenerateCustomKeyString(), current_timestamp, null,
         'The percentage range within which the price for Material can vary. Prices outside this range will not be accepted for Material pricing.',
-        'PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL', 'NUMBER', true, 'FLOAT', '0.07');
+        'PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL', 'NUMBER', true, 'FLOAT', '0.07'),
+        (GenerateCustomKeyString(), current_timestamp, null,
+        'The period within which customers can verify their email address.', 'EMAIL_VERIFICATION_TIME', 'DURATION', true, 'MINUTE',
+        '30');
 
 -- INSERT INTO SYSTEM IMAGE
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date, last_modified_date)
@@ -316,11 +319,11 @@ VALUES (GenerateCustomKeyString(), 'S', true, current_timestamp, null),
 -- INSERT INTO LABOR QUANTITY
 INSERT INTO labor_quantity (labor_quantity_id, labor_quantity_min_quantity, labor_quantity_max_quantity,
                             labor_quantity_min_price, labor_quantity_max_price, status, create_date, last_modified_date)
-VALUES (GenerateCustomKeyString(), 1, 100, 50000, 80000, true, NOW(), NULL),
-       (GenerateCustomKeyString(), 101, 500, 45000, 75000, true, NOW(), NULL),
-       (GenerateCustomKeyString(), 501, 1000, 40000, 70000, true, NOW(), NULL),
-       (GenerateCustomKeyString(), 1001, 2000, 35000, 65000, true, NOW(), NULL),
-       (GenerateCustomKeyString(), 2001, 999999, 30000, 60000, true, NOW(), NULL);
+VALUES (GenerateCustomKeyString(), 1, 100, 5000, 8000, true, NOW(), NULL),
+       (GenerateCustomKeyString(), 101, 500, 4500, 7500, true, NOW(), NULL),
+       (GenerateCustomKeyString(), 501, 1000, 4000, 7000, true, NOW(), NULL),
+       (GenerateCustomKeyString(), 1001, 2000, 3500, 6500, true, NOW(), NULL),
+       (GenerateCustomKeyString(), 2001, 999999, 3000, 6000, true, NOW(), NULL);
 
 
 -- INSERT INTO USERS with password Aa@123456
@@ -672,35 +675,35 @@ values
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 65469, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 6546, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 65242, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 6524, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 61469, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 6146, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 42521, true,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 4251, true,
  current_timestamp, null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tunmse161130@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 39240, true,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 3924, true,
  current_timestamp, null),
 
 -- Brand Labor Quantity with Email tammtse161087@fpt.edu.vn
@@ -708,35 +711,35 @@ values
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 61301, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 6130, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 58891, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 5889, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 56075, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 5607, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 50651, true,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 5065, true,
  current_timestamp, null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'tammtse161087@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 48904, true,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 4890, true,
  current_timestamp, null),
 
 -- Brand Labor Quantity with Email truongnhlse160191@fpt.edu.vn
@@ -744,35 +747,35 @@ values
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 62686, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1), 6268, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 48843, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 101), 4884, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 48436, true, current_timestamp,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 501), 4843, true, current_timestamp,
  null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 39240, true,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 1001), 3924, true,
  current_timestamp, null),
 
 ((SELECT b.brand_id
   FROM users u
            JOIN brand b on u.user_id = b.brand_id
   WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 36038, true,
+ (SELECT labor_quantity_id from labor_quantity WHERE labor_quantity_min_quantity = 2001), 3603, true,
  current_timestamp, null);
 
 -- INSERT INTO BRAND MATERIAL
