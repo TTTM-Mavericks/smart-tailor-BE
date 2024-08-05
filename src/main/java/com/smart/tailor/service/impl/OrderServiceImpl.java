@@ -720,7 +720,6 @@ public class OrderServiceImpl implements OrderService {
                     detail.setOrder(parentOrder);
                     detail.setBrand(null);
                     detail.setDetailStatus(false);
-                    orderRepository.save(parentOrder);
                     detailRepository.save(detail);
                 }
                 existedOrder.setDetailList(null);
