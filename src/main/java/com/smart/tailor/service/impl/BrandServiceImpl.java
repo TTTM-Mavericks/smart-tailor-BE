@@ -75,6 +75,7 @@ public class BrandServiceImpl implements BrandService {
                         .numberOfRatings(1)
                         .totalRatingScore(1.0f)
                         .numberOfViolations(0)
+                        .taxCode(brandRequest.getTaxCode())
                         .build()
         );
 
