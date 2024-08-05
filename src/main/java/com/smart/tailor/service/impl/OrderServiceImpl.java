@@ -6,6 +6,7 @@ import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
+import com.smart.tailor.event.CreateOrderEvent;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.DesignDetailMapper;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +50,7 @@ public class OrderServiceImpl implements OrderService {
     private final BrandPropertiesService brandPropertiesService;
     private final EmployeeService employeeService;
     private final OrderStageService stageService;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final MailService mailService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -664,7 +667,10 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponse> getSubOrderByParentID(UUID parentOrderID) {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID))
+                .filter(order -> order.getParentOrder() != null
+                        && order.getParentOrder().getOrderID().equals(parentOrderID)
+                        && !order.getOrderStatus().equals(OrderStatus.CANCEL)
+                )
                 .map(this::safeMapToOrderResponse)
                 .toList();
     }
@@ -695,41 +701,68 @@ public class OrderServiceImpl implements OrderService {
 
         var existedOrder = order.get();
         existedOrder.setOrderStatus(OrderStatus.valueOf(orderRequest.getStatus()));
-        if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING.name())) {
-            existedOrder.setProductionStartDate(LocalDateTime.now());
-        } else {
-            if (orderRequest.getStatus().equals(OrderStatus.COMPLETED.name())) {
-                existedOrder.setProductionCompletionDate(LocalDateTime.now());
+
+        if (existedOrder.getOrderStatus().equals(OrderStatus.CANCEL)) {
+            if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
+                var subOrderList = getSubOrderByParentID(existedOrder.getOrderID());
+                for (var subOrderResponse : subOrderList) {
+                    var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                    subOrder.setOrderStatus(OrderStatus.CANCEL);
+                    orderRepository.save(subOrder);
+                }
             } else {
-                if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name())
-                        || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
-                    var stage = stageService.getOrderStageByID(
-                            UUID.fromString(
-                                    stageService.getOrderStageByOrderID(
-                                                    existedOrder.getParentOrder().getOrderID()
-                                            )
-                                            .stream()
-                                            .filter(
-                                                    s -> s.getStage().equals(OrderStatus.PROCESSING)
-                                            )
-                                            .findFirst()
-                                            .get().getStageId()
-                            )
-                    );
-                    var subStage = stageService.getOrderStageByID(
-                            UUID.fromString(
-                                    stageService.getOrderStageByOrderID(existedOrder.getOrderID())
-                                            .stream()
-                                            .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
-                                            .findFirst()
-                                            .get().getStageId()
-                            )
-                    );
-                    if (stage != null) {
-                        stage.setCurrentQuantity(
-                                stage.getCurrentQuantity() + subStage.getCurrentQuantity()
+                var parentOrder = getOrderById(existedOrder.getParentOrder().getOrderID()).get();
+                parentOrder.setOrderStatus(OrderStatus.PENDING);
+                orderRepository.save(parentOrder);
+
+                var detailList = existedOrder.getDetailList();
+                for (var detail : detailList) {
+                    detail.setOrder(parentOrder);
+                    detail.setBrand(null);
+                    detail.setDetailStatus(false);
+                    detailRepository.save(detail);
+                }
+                existedOrder.setDetailList(null);
+                var orderResponse = safeMapToOrderResponse(parentOrder);
+                applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
+            }
+        } else {
+            if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING.name())) {
+                existedOrder.setProductionStartDate(LocalDateTime.now());
+            } else {
+                if (orderRequest.getStatus().equals(OrderStatus.COMPLETED.name())) {
+                    existedOrder.setProductionCompletionDate(LocalDateTime.now());
+                } else {
+                    if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name())
+                            || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
+                        var stage = stageService.getOrderStageByID(
+                                UUID.fromString(
+                                        stageService.getOrderStageByOrderID(
+                                                        existedOrder.getParentOrder().getOrderID()
+                                                )
+                                                .stream()
+                                                .filter(
+                                                        s -> s.getStage().equals(OrderStatus.PROCESSING)
+                                                )
+                                                .findFirst()
+                                                .get().getStageId()
+                                )
                         );
-                        stageService.updateStage(stage);
+                        var subStage = stageService.getOrderStageByID(
+                                UUID.fromString(
+                                        stageService.getOrderStageByOrderID(existedOrder.getOrderID())
+                                                .stream()
+                                                .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
+                                                .findFirst()
+                                                .get().getStageId()
+                                )
+                        );
+                        if (stage != null) {
+                            stage.setCurrentQuantity(
+                                    stage.getCurrentQuantity() + subStage.getCurrentQuantity()
+                            );
+                            stageService.updateStage(stage);
+                        }
                     }
                 }
             }
@@ -742,7 +775,6 @@ public class OrderServiceImpl implements OrderService {
                 stageService.updateStage(stage);
             }
         }
-
         var updatedOrder = orderRepository.save(existedOrder);
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
