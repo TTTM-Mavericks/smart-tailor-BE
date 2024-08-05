@@ -43,25 +43,25 @@ public class ReportServiceImpl implements ReportService {
         var order = orderService.getOrderById(orderID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
 
-        var isValidOrderByCustomerID = orderService.getOrderByUserID(user.getUserID())
-                .stream()
-                .filter(orderCustomResponse -> orderCustomResponse.getOrderID().equals(orderID))
-                .findFirst();
-
-        var isValidOrderByBrandID = orderService.getOrderByBrandID(user.getUserID())
-                .stream()
-                .filter(orderCustomResponse -> orderCustomResponse.getOrderID().equals(orderID))
-                .findFirst();
-
-        var isValidOrderForEmployee = order
-                .getEmployee()
-                .getEmployeeID()
-                .equals(orderID);
-
-
-        if(isValidOrderByCustomerID.isEmpty() && isValidOrderByBrandID.isEmpty() && !isValidOrderForEmployee){
-            throw new ItemNotFoundException("Can not find Order with UserID: " + user.getUserID() + " to Report");
-        }
+//        var isValidOrderByCustomerID = orderService.getOrderByUserID(user.getUserID())
+//                .stream()
+//                .filter(orderCustomResponse -> orderCustomResponse.getOrderID().equals(orderID))
+//                .findFirst();
+//
+//        var isValidOrderByBrandID = orderService.getOrderByBrandID(user.getUserID())
+//                .stream()
+//                .filter(orderCustomResponse -> orderCustomResponse.getOrderID().equals(orderID))
+//                .findFirst();
+//
+//        var isValidOrderForEmployee = order
+//                .getEmployee()
+//                .getEmployeeID()
+//                .equals(orderID);
+//
+//
+//        if(isValidOrderByCustomerID.isEmpty() && isValidOrderByBrandID.isEmpty() && !isValidOrderForEmployee){
+//            throw new ItemNotFoundException("Can not find Order with UserID: " + user.getUserID() + " to Report");
+//        }
 
         var saveReport = reportRepository.save(
                 Report
