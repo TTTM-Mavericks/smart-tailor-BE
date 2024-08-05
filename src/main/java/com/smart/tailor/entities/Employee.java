@@ -40,8 +40,8 @@ public class Employee extends AuditEntity implements Serializable {
     @Column(name = "fail_task")
     private Integer failTask = 0;
 
-    @PrePersist
-    private void prePersist() {
-        this.employeeID = Utilities.generateCustomPrimaryKey();
-    }
+//    @PrePersist
+//    private void prePersist() {
+//        this.employeeID = Utilities.generateCustomPrimaryKey();
+//    }
 }

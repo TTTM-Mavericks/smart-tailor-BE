@@ -75,9 +75,9 @@ public class Brand extends AuditEntity implements Serializable {
 
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BrandImage> brandImages;
-
-    @PrePersist
-    private void prePersist() {
-        this.brandID = Utilities.generateCustomPrimaryKey();
-    }
+//
+//    @PrePersist
+//    private void prePersist() {
+//        this.brandID = Utilities.generateCustomPrimaryKey();
+//    }
 }
