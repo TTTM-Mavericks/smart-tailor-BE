@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant.SampleProductDataAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.SampleProductDataService;
 import com.smart.tailor.utils.request.SampleProductDataRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class SampleProductDataController {
     }
 
     @PutMapping(SampleProductDataAPI.UPDATE_SAMPLE_PRODUCT_DATA + "/{sampleModelID}")
-    public ResponseEntity<ObjectNode> updateSampleProductData(@ValidUUID @PathVariable("sampleModelID") UUID sampleModelID,
+    public ResponseEntity<ObjectNode> updateSampleProductData( @PathVariable("sampleModelID") String sampleModelID,
                                                               @Valid @RequestBody SampleProductDataRequest sampleData) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
@@ -45,7 +45,7 @@ public class SampleProductDataController {
     }
 
     @GetMapping(SampleProductDataAPI.GET_SAMPLE_PRODUCT_DATA_BY_PARENT_ORDER_ID + "/{parentOrderID}")
-    public ResponseEntity<ObjectNode> getSampleProductDataByParentOrderID(@ValidUUID @PathVariable("parentOrderID") UUID parentOrderID) {
+    public ResponseEntity<ObjectNode> getSampleProductDataByParentOrderID( @PathVariable("parentOrderID") String parentOrderID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var sampleProductDataResponses = dataService.getSampleProductDataByParentOrderID(parentOrderID);
@@ -61,7 +61,7 @@ public class SampleProductDataController {
     }
 
     @GetMapping(SampleProductDataAPI.GET_SAMPLE_PRODUCT_DATA_BY_PARENT_ORDER_ID + "/{parentOrderID}/{stageID}")
-    public ResponseEntity<ObjectNode> getSampleProductDataByParentOrderIDAndStageID(@ValidUUID @PathVariable("parentOrderID") UUID parentOrderID, @ValidUUID @PathVariable("stageID") UUID stageID) {
+    public ResponseEntity<ObjectNode> getSampleProductDataByParentOrderIDAndStageID( @PathVariable("parentOrderID") String parentOrderID,  @PathVariable("stageID") String stageID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var sampleProductDataResponses = dataService.getSampleProductDataByParentOrderIDAndStageID(parentOrderID, stageID);
@@ -77,7 +77,7 @@ public class SampleProductDataController {
     }
 
     @GetMapping(SampleProductDataAPI.GET_SAMPLE_PRODUCT_DATA_BY_ID + "/{sampleModelID}")
-    public ResponseEntity<ObjectNode> getSampleProductDataByID(@ValidUUID @PathVariable("sampleModelID") UUID sampleModelID) {
+    public ResponseEntity<ObjectNode> getSampleProductDataByID( @PathVariable("sampleModelID") String sampleModelID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var sampleProductDataResponses = dataService.getSampleProductDataByID(sampleModelID);

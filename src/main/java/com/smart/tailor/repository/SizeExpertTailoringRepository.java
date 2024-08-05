@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Repository
 public interface SizeExpertTailoringRepository extends JpaRepository<SizeExpertTailoring, SizeExpertTailoringKey> {
-    Optional<SizeExpertTailoring> findSizeExpertTailoringByExpertTailoringExpertTailoringIDAndSizeSizeID(UUID expertTailoringID, UUID sizeID);
+    Optional<SizeExpertTailoring> findSizeExpertTailoringByExpertTailoringExpertTailoringIDAndSizeSizeID(String expertTailoringID, String sizeID);
 
     boolean existsByExpertTailoringExpertTailoringNameAndSizeSizeNameAndRatio(
             String expertTailoringName,

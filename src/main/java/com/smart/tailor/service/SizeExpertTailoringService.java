@@ -7,16 +7,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
+
 
 public interface SizeExpertTailoringService {
     void createSizeExpertTailoring(SizeExpertTailoringRequest sizeExpertTailoringRequest);
 
     List<SizeExpertTailoringResponse> findAllSizeExpertTailoring();
 
-    List<SizeExpertTailoringResponse> findAllSizeExpertTailoringID(UUID expertTailoringID);
+    List<SizeExpertTailoringResponse> findAllSizeExpertTailoringID(String expertTailoringID);
 
-    SizeExpertTailoringResponse findSizeExpertTailoringByExpertTailoringIDAndSizeID(UUID expertTailoringID, UUID sizeID);
+    SizeExpertTailoringResponse findSizeExpertTailoringByExpertTailoringIDAndSizeID(String expertTailoringID, String sizeID);
 
     void updateSizeExpertTailoring(SizeExpertTailoringRequest sizeExpertTailoringRequest);
 

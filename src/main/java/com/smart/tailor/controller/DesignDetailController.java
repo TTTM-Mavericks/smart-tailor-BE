@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant.DesignDetailAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.DesignDetailService;
 import com.smart.tailor.utils.request.DesignDetailRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(DesignDetailAPI.DESIGN_DETAIL)
@@ -37,7 +37,7 @@ public class DesignDetailController {
     }
 
     @GetMapping(DesignDetailAPI.GET_ALL_DESIGN_DETAIL_BY_ORDER_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getAllDesignDetailByDesignID(@ValidUUID @PathVariable("orderID") UUID orderID) {
+    public ResponseEntity<ObjectNode> getAllDesignDetailByDesignID( @PathVariable("orderID") String orderID) {
         var designDetailResponseList = designDetailService.findAllByOrderID(orderID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
@@ -47,7 +47,7 @@ public class DesignDetailController {
     }
 
     @GetMapping(DesignDetailAPI.GET_DESIGN_DETAIL_BY_ID + "/{detailID}")
-    public ResponseEntity<ObjectNode> getDesignDetailByDesignID(@ValidUUID @PathVariable("detailID") UUID detailID) {
+    public ResponseEntity<ObjectNode> getDesignDetailByDesignID( @PathVariable("detailID") String detailID) {
         var designDetailResponseList = designDetailService.findByID(detailID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
@@ -57,7 +57,7 @@ public class DesignDetailController {
     }
 
     @GetMapping(DesignDetailAPI.CALCULATE_TOTAL_PRICE_BY_PARENT_ORDER_ID + "/{parentOrderID}")
-    public ResponseEntity<ObjectNode> calculateTotalPriceForSpecificOrder(@ValidUUID @PathVariable("parentOrderID") UUID parentOrderID) throws Exception {
+    public ResponseEntity<ObjectNode> calculateTotalPriceForSpecificOrder( @PathVariable("parentOrderID") String parentOrderID) throws Exception {
         var totalPrice = designDetailService.calculateTotalPriceForSpecificOrder(parentOrderID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());

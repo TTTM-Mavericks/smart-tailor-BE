@@ -1,6 +1,6 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidStringUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,11 +15,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BrandPropertiesRequest {
     @NotNull(message = "Brand ID is required")
-    @ValidStringUUID(message = "Brand ID must be a valid UUID")
     private String brandID;
 
     @NotNull(message = "System Property ID is required")
-    @ValidStringUUID(message = "System Property ID must be a valid UUID")
     private String systemPropertyID;
 
     @NotBlank(message = "Brand Property Value is required")

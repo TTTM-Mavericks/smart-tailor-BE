@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -95,7 +95,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse findCategoryByID(UUID categoryID) {
+    public CategoryResponse findCategoryByID(String categoryID) {
         var categoryOptional = categoryRepository.findByCategoryID(categoryID);
         if (categoryOptional.isPresent()) {
             return categoryMapper.mapperToCategoryResponse(categoryOptional.get());
@@ -107,7 +107,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void updateCategory(CategoryRequest categoryRequest) {
         // Check Category ID is Existed or not
-        var categoryResponse = categoryRepository.findByCategoryID(UUID.fromString(categoryRequest.getCategoryID()))
+        var categoryResponse = categoryRepository.findByCategoryID(categoryRequest.getCategoryID())
                 .orElseThrow(() -> new ItemNotFoundException("Can Not Find Category with CategoryID: " + categoryRequest.getCategoryID()));
 
         // Check Category Name is Existed or not
@@ -131,13 +131,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Optional<Category> findCategoryOptionalByID(UUID categoryID) {
+    public Optional<Category> findCategoryOptionalByID(String categoryID) {
         return categoryRepository.findById(categoryID);
     }
 
     @Transactional
     @Override
-    public void changeStatusCategory(UUID categoryID) {
+    public void changeStatusCategory(String categoryID) {
         // Check Category ID is Existed or not
         var categoryResponse = categoryRepository.findByCategoryID(categoryID)
                 .orElseThrow(() -> new ItemNotFoundException("Can Not Find Category with CategoryID: " + categoryID));

@@ -90,7 +90,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
     }
 
     @Override
-    public List<SizeExpertTailoringResponse> findAllSizeExpertTailoringID(UUID expectTailoringID) {
+    public List<SizeExpertTailoringResponse> findAllSizeExpertTailoringID(String expectTailoringID) {
         return sizeExpertTailoringRepository
                 .findAll()
                 .stream()
@@ -102,7 +102,7 @@ public class SizeExpertTailoringServiceImpl implements SizeExpertTailoringServic
     }
 
     @Override
-    public SizeExpertTailoringResponse findSizeExpertTailoringByExpertTailoringIDAndSizeID(UUID expertTailoringID, UUID sizeID) {
+    public SizeExpertTailoringResponse findSizeExpertTailoringByExpertTailoringIDAndSizeID(String expertTailoringID, String sizeID) {
         return sizeExpertTailoringRepository
                 .findSizeExpertTailoringByExpertTailoringExpertTailoringIDAndSizeSizeID(expertTailoringID, sizeID)
                 .map(sizeExpertTailoringMapper::mapperToSizeExpertTailoringResponse)

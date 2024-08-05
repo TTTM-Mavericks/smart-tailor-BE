@@ -4,16 +4,16 @@ import com.smart.tailor.utils.request.ReportRequest;
 import com.smart.tailor.utils.response.ReportResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface ReportService {
     void createReport(ReportRequest reportRequest) throws Exception;
 
     List<ReportResponse> getAllReport();
 
-    List<ReportResponse> getAllReportByOrderID(UUID orderID);
+    List<ReportResponse> getAllReportByOrderID(String orderID);
 
-    List<ReportResponse> getAllReportByUserID(UUID userID) throws Exception;
+    List<ReportResponse> getAllReportByUserID(String userID) throws Exception;
 
-    List<ReportResponse> getAllReportByBrandID(UUID brandID) throws Exception;
+    List<ReportResponse> getAllReportByBrandID(String brandID) throws Exception;
 }

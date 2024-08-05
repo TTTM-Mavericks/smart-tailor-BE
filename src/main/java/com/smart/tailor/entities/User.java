@@ -3,10 +3,11 @@ package com.smart.tailor.entities;
 
 import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +18,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+
 
 
 @Entity
@@ -31,8 +32,7 @@ import java.util.UUID;
 public class User extends AuditEntity implements Serializable, OAuth2User, UserDetails {
     @Id
     @Column(name = "user_id")
-    @UuidGenerator
-    private UUID userID;
+    private String userID;
 
     @Column(columnDefinition = "varchar(255)")
     private String email;
@@ -109,5 +109,10 @@ public class User extends AuditEntity implements Serializable, OAuth2User, UserD
     @Override
     public String getName() {
         return fullName;
+    }
+
+    @PrePersist
+    private void prePersist() {
+        this.userID = Utilities.generateCustomPrimaryKey();
     }
 }

@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
             if (!Utilities.isStringNotNullOrEmpty(orderRequest.getDesignID().toString())) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
             }
-            UUID designID = orderRequest.getDesignID();
+            String designID = orderRequest.getDesignID();
 
             DesignResponse designResponse = designService.getDesignResponseByID(designID);
             if (designResponse == null) {
@@ -160,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getParentOrderByDesignID(UUID designID) throws Exception {
+    public List<OrderResponse> getParentOrderByDesignID(String designID) throws Exception {
         List<Order> orderList = orderRepository.findParentOrderByDesignID(designID);
         List<OrderResponse> orderResponse = new ArrayList<>();
         for (Order order : orderList) {
@@ -172,7 +172,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateOrderStatus(UUID orderID, String orderStatus) {
+    public void updateOrderStatus(String orderID, String orderStatus) {
         var order = getOrderById(orderID).isPresent() ? getOrderById(orderID).get() : null;
         if (order == null) {
             throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND);
@@ -220,7 +220,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception {
+    public OrderCustomResponse getOrderByOrderID(String orderID) throws Exception {
         try {
 
             var order = orderRepository.findById(orderID).isPresent() ? orderRepository.findById(orderID).get() : null;
@@ -609,7 +609,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderCustomResponse getOrderDetailByOrderID(UUID orderID) throws Exception {
+    public OrderCustomResponse getOrderDetailByOrderID(String orderID) throws Exception {
         try {
             var response = getOrderByOrderID(orderID);
 
@@ -631,12 +631,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<Order> getOrderById(UUID orderID) {
+    public Optional<Order> getOrderById(String orderID) {
         return orderRepository.findById(orderID);
     }
 
     @Override
-    public List<OrderCustomResponse> getOrderByBrandID(UUID brandID) throws Exception {
+    public List<OrderCustomResponse> getOrderByBrandID(String brandID) throws Exception {
         var listOrder = orderRepository.findOrderByBrandID(brandID);
         List<OrderCustomResponse> responseList = new ArrayList<>();
         for (Order o : listOrder) {
@@ -646,12 +646,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrderByDesignID(UUID designID) {
+    public List<OrderResponse> getOrderByDesignID(String designID) {
         return orderRepository.findParentOrderByDesignID(designID).stream().map(this::safeMapToOrderResponse).toList();
     }
 
     @Override
-    public List<OrderCustomResponse> getOrderByUserID(UUID userID) throws Exception {
+    public List<OrderCustomResponse> getOrderByUserID(String userID) throws Exception {
         var orderList = orderRepository.findParentOrderByUserID(userID);
         List<OrderCustomResponse> responseList = new ArrayList<>();
         for (Order o : orderList) {
@@ -661,7 +661,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getSubOrderByParentID(UUID parentOrderID) {
+    public List<OrderResponse> getSubOrderByParentID(String parentOrderID) {
         return orderRepository.findAll()
                 .stream()
                 .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID))
@@ -687,7 +687,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) throws Exception {
-        UUID orderID = UUID.fromString(orderRequest.getOrderID());
+        String orderID = orderRequest.getOrderID();
         var order = getOrderById(orderID);
         if (order.isEmpty()) {
             throw new ItemNotFoundException("Can not find Order with OrderID: " + orderID);
@@ -704,7 +704,7 @@ public class OrderServiceImpl implements OrderService {
                 if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name())
                         || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
                     var stage = stageService.getOrderStageByID(
-                            UUID.fromString(
+                           (
                                     stageService.getOrderStageByOrderID(
                                                     existedOrder.getParentOrder().getOrderID()
                                             )
@@ -717,7 +717,7 @@ public class OrderServiceImpl implements OrderService {
                             )
                     );
                     var subStage = stageService.getOrderStageByID(
-                            UUID.fromString(
+                            (
                                     stageService.getOrderStageByOrderID(existedOrder.getOrderID())
                                             .stream()
                                             .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
@@ -737,7 +737,7 @@ public class OrderServiceImpl implements OrderService {
         var stageResponseList = stageService.getOrderStageByOrderID(orderID);
         for (var stageResponse : stageResponseList) {
             if (stageResponse.getStage().equals(OrderStatus.valueOf(orderRequest.getStatus()))) {
-                var stage = stageService.getOrderStageByID(UUID.fromString(stageResponse.getStageId()));
+                var stage = stageService.getOrderStageByID(stageResponse.getStageId());
                 stage.setStatus(true);
                 stageService.updateStage(stage);
             }
@@ -759,9 +759,9 @@ public class OrderServiceImpl implements OrderService {
                 return null;
             }
 
-            UUID brandID = orderPickingRequest.getBrandID();
-            UUID basedOrderID = orderPickingRequest.getOrderID();
-            List<UUID> detailList = orderPickingRequest.getDetailList();
+            String brandID = orderPickingRequest.getBrandID();
+            String basedOrderID = orderPickingRequest.getOrderID();
+            List<String> detailList = orderPickingRequest.getDetailList();
 
             /**
              * TODO
@@ -781,7 +781,7 @@ public class OrderServiceImpl implements OrderService {
             var basedOrder = checkBasedOrder.get();
 
             Design baseDesign = null;
-            for (UUID detailID : detailList) {
+            for (String detailID : detailList) {
                 var checkDetail = detailRepository.getDesignDetailByDesignDetailID(detailID);
                 if (checkDetail.isEmpty()) {
                     throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_DETAIL + " with detailID: " + detailID);
@@ -828,7 +828,7 @@ public class OrderServiceImpl implements OrderService {
                 logger.info("Existed Order is updating...");
                 var orderResponse = existedBrandOrder.getOrder();
                 List<DesignDetail> detailResponse = new ArrayList<>();
-                for (UUID detailID : detailList) {
+                for (String detailID : detailList) {
                     var detail = detailRepository.getDesignDetailByDesignDetailID(detailID).get();
                     detail.setOrder(orderResponse);
                     detail.setBrand(existedBrand);
@@ -886,7 +886,7 @@ public class OrderServiceImpl implements OrderService {
                 );
                 var orderResponse = getOrderById(createdOrder.getOrderID()).get();
                 List<DesignDetail> detailResponse = new ArrayList<>();
-                for (UUID detailID : detailList) {
+                for (String detailID : detailList) {
                     detail = detailRepository.getDesignDetailByDesignDetailID(detailID).get();
                     detail.setOrder(orderResponse);
                     detail.setBrand(existedBrand);
@@ -985,13 +985,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getOrderByDetailID(UUID detailID) {
+    public Order getOrderByDetailID(String detailID) {
         return orderRepository.getOrderByDetailID(detailID);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Boolean isOrderCompletelyPicked(UUID orderID) {
+    public Boolean isOrderCompletelyPicked(String orderID) {
         try {
             logger.info("Inside method isOrderCompletelyPicked");
             var order = orderRepository.findById(orderID).get();
@@ -1009,7 +1009,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public Boolean isOrderExpireTime(UUID orderID) {
+    public Boolean isOrderExpireTime(String orderID) {
         var systemPropertiesExpirationTime = systemPropertiesService.getByName("MATCHING_TIME");
         var order = orderRepository.findById(orderID).get();
         logger.info("Inside Method isOrderExpireTime with orderID {}", orderID);
@@ -1033,7 +1033,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<String> filterBrandForSpecificOrderBaseOnDesign(UUID designID) {
+    public List<String> filterBrandForSpecificOrderBaseOnDesign(String designID) {
         logger.info("DesignID {}", designID);
         var designResponse = designService.getDesignByID(designID);
         if (designResponse == null) {
@@ -1048,7 +1048,7 @@ public class OrderServiceImpl implements OrderService {
 
 
         // Get all material IDs of the design
-        Set<UUID> designMaterialIDs = new HashSet<>();
+        Set<String> designMaterialIDs = new HashSet<>();
         designResponse.getPartOfDesignList().forEach(partOfDesign -> {
             var materialPartOfDesign = partOfDesign.getMaterial();
             if (materialPartOfDesign != null) {
@@ -1081,7 +1081,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void confirmOrder(UUID orderID) {
+    public void confirmOrder(String orderID) {
         try {
             var checkOrder = getOrderById(orderID);
             if (checkOrder.isEmpty()) {
@@ -1139,7 +1139,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderStageResponse> getOrderStageByOrderID(UUID orderID) {
+    public List<OrderStageResponse> getOrderStageByOrderID(String orderID) {
         return stageService.getOrderStageByOrderID(orderID);
     }
 
@@ -1163,10 +1163,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public void ratingOrder(RatingOrderRequest ratingOrderRequest) {
-        var user = userService.getUserByUserID(UUID.fromString(ratingOrderRequest.getUserID()))
+        var user = userService.getUserByUserID(ratingOrderRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find User with UserID: " + ratingOrderRequest.getUserID()));
 
-        var parentOrder = orderRepository.findById(UUID.fromString(ratingOrderRequest.getParentOrderID()))
+        var parentOrder = orderRepository.findById(ratingOrderRequest.getParentOrderID())
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Order with OrderID: " + ratingOrderRequest.getParentOrderID()));
 
         var orderRating = ratingOrderRequest.getRating();
@@ -1257,7 +1257,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public OrderTimeLineResponse getOrderTimeLineByParentOrderID(UUID parentOrderID) {
+    public OrderTimeLineResponse getOrderTimeLineByParentOrderID(String parentOrderID) {
         var parentOrder = orderRepository.findById(parentOrderID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Order with Parent Order ID: " + parentOrderID));
 

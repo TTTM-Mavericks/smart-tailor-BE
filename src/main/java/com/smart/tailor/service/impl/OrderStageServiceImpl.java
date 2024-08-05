@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @RequiredArgsConstructor
 @Service
@@ -29,7 +29,7 @@ public class OrderStageServiceImpl implements OrderStageService {
                 throw new RuntimeException(MessageConstant.MISSING_ARGUMENT);
             }
 
-            UUID orderID = orderStageRequest.getOrderID() != null ? orderStageRequest.getOrderID() : null;
+            String orderID = orderStageRequest.getOrderID() != null ? orderStageRequest.getOrderID() : null;
             if (orderID == null) {
                 throw new RuntimeException(MessageConstant.MISSING_ARGUMENT);
             }
@@ -70,7 +70,7 @@ public class OrderStageServiceImpl implements OrderStageService {
     }
 
     @Override
-    public List<OrderStageResponse> getOrderStageByOrderID(UUID orderID) {
+    public List<OrderStageResponse> getOrderStageByOrderID(String orderID) {
         return orderStageRepository.findAll()
                 .stream()
                 .filter(stage -> stage.getOrder().getOrderID().equals(orderID))
@@ -79,7 +79,7 @@ public class OrderStageServiceImpl implements OrderStageService {
     }
 
     @Override
-    public OrderStage getOrderStageByID(UUID stageID) {
+    public OrderStage getOrderStageByID(String stageID) {
         return orderStageRepository.findById(stageID).orElse(null);
     }
 

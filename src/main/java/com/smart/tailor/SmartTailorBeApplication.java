@@ -5,6 +5,7 @@ import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.repository.UserRepository;
 import com.smart.tailor.service.RoleService;
+import com.smart.tailor.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -24,9 +25,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Random;
 
 @SpringBootApplication
 @EnableJpaAuditing()
@@ -37,151 +35,63 @@ public class SmartTailorBeApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SmartTailorBeApplication.class, args);
-        // Tạo 6 ký tự ngẫu nhiên từ a-z và A-Z
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        StringBuilder randomChars = new StringBuilder(6);
-        Random random = new Random();
-        for (int i = 0; i < 6; i++) {
-            randomChars.append(chars.charAt(random.nextInt(chars.length())));
-        }
-
-        // Lấy thời gian hiện tại và định dạng theo HH:mm:ss
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        String timeString = now.format(formatter);
-        String[] timeParts = timeString.split(":");
-        String HH = timeParts[0];
-        String mm = timeParts[1];
-        String ss = timeParts[2];
-
-        // Trộn các ký tự và số theo mẫu
-        StringBuilder result = new StringBuilder(12);
-        result.append(randomChars.substring(0, 2));
-        result.append(HH);
-        result.append(randomChars.substring(2, 4));
-        result.append("@");
-        result.append(mm);
-        result.append(randomChars.substring(4, 6));
-        result.append(ss);
-
-        logger.info("The result Random String {}", result.toString());
     }
 
-    @Order(value = 1)
-    @Bean
-    public CommandLineRunner runScript(DataSource dataSource) throws Exception {
-        return args -> {
-            try (Connection connection = dataSource.getConnection()) {
-                if (!isSchemaAlreadyInitialized(connection)) {
-                    ScriptUtils.executeSqlScript(connection, new ClassPathResource("smartTailorScript.sql"));
-                    System.out.println("SCRIPT IS RUNNING");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        };
-    }
-
-    private boolean isSchemaAlreadyInitialized(Connection connection) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            // Kiểm tra sự tồn tại của bảng schema_version
-            ResultSet resultSet = statement.executeQuery(
-                    "SELECT COUNT(*) " +
-                            "FROM smart_tailor_be.roles");
-            if (resultSet.next()) {
-                int count = resultSet.getInt(1);
-                return count > 0;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    @Order(value = 2)
-    @Bean
-    public CommandLineRunner createBasicAccount(RoleService roleService,
-                                                UserRepository userRepository,
-                                                PasswordEncoder passwordEncoder) {
-        return args -> {
-            if (userRepository.findAll().size() == 0) {
-                User admin = userRepository.save(User.builder()
-                        .email("smarttailor.ad@gmail.com")
-                        .password(passwordEncoder.encode("Aa@123456admin"))
-                        .phoneNumber("0816468777")
-                        .userStatus(UserStatus.ACTIVE)
-                        .provider(Provider.LOCAL)
-                        .roles(roleService.findRoleByRoleName("ADMIN").get())
-                        .build()
-                );
-
-                User manager = userRepository.save(User.builder()
-                        .email("smarttailor.ma@gmail.com")
-                        .password(passwordEncoder.encode("Aa@123456manager"))
-                        .phoneNumber("0877656849")
-                        .userStatus(UserStatus.ACTIVE)
-                        .provider(Provider.LOCAL)
-                        .roles(roleService.findRoleByRoleName("MANAGER").get())
-                        .build()
-                );
-            }
-        };
-    }
+//    @Order(value = 1)
+//    @Bean
+//    public CommandLineRunner runScript(DataSource dataSource) throws Exception {
+//        return args -> {
+//            try (Connection connection = dataSource.getConnection()) {
+//                if (!isSchemaAlreadyInitialized(connection)) {
+//                    ScriptUtils.executeSqlScript(connection, new ClassPathResource("smartTailorScript.sql"));
+//                    System.out.println("SCRIPT IS RUNNING");
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        };
+//    }
+//
+//    private boolean isSchemaAlreadyInitialized(Connection connection) throws SQLException {
+//        try (Statement statement = connection.createStatement()) {
+//            // Kiểm tra sự tồn tại của bảng schema_version
+//            ResultSet resultSet = statement.executeQuery(
+//                    "SELECT COUNT(*) " +
+//                            "FROM smart_tailor_be.roles");
+//            if (resultSet.next()) {
+//                int count = resultSet.getInt(1);
+//                return count > 0;
+//            } else {
+//                return false;
+//            }
+//        }
+//    }
 
 //    @Order(value = 2)
 //    @Bean
-//    public CommandLineRunner createSampleBrand(UserRepository userRepository,
-//                                               BrandRepository brandRepository,
-//                                               PasswordEncoder passwordEncoder,
-//                                               RoleRepository roleRepository,
-//                                               ExpertTailoringRepository expertTailoringRepository,
-//                                               BrandExpertTailoringRepository brandExpertTailoringRepository) {
+//    public CommandLineRunner createBasicAccount(RoleService roleService,
+//                                                UserRepository userRepository,
+//                                                PasswordEncoder passwordEncoder) {
 //        return args -> {
-//            if (brandRepository.findAll().size() == 0) {
-//                User brandSample1 = userRepository.save(User.builder()
-//                        .email("lalisa@example.com")
-//                        .password(passwordEncoder.encode("HASH_PASSWORD"))
-//                        .phoneNumber(Utilities.generateRandomNumber())
+//            if (userRepository.findAll().size() == 0) {
+//                User admin = userRepository.save(User.builder()
+//                        .email("smarttailor.ad@gmail.com")
+//                        .password(passwordEncoder.encode("Aa@123456admin"))
+//                        .phoneNumber("0816468777")
 //                        .userStatus(UserStatus.ACTIVE)
 //                        .provider(Provider.LOCAL)
-//                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
+//                        .roles(roleService.findRoleByRoleName("ADMIN").get())
 //                        .build()
 //                );
 //
-//                User brandSample2 = userRepository.save(User.builder()
-//                        .email("goyounjung@example.com")
-//                        .password(passwordEncoder.encode("HASH_PASSWORD"))
-//                        .phoneNumber(Utilities.generateRandomNumber())
+//                User manager = userRepository.save(User.builder()
+//                        .email("smarttailor.ma@gmail.com")
+//                        .password(passwordEncoder.encode("Aa@123456manager"))
+//                        .phoneNumber("0877656849")
 //                        .userStatus(UserStatus.ACTIVE)
 //                        .provider(Provider.LOCAL)
-//                        .roles(roleRepository.findByRoleName("BRAND").orElse(null))
+//                        .roles(roleService.findRoleByRoleName("MANAGER").get())
 //                        .build()
-//                );
-//
-////                User customerSample1 = userRepository.save(User.builder()
-////                        .email("customersample1@example.com")
-////                        .password(passwordEncoder.encode("HASH_PASSWORD"))
-////                        .phoneNumber(Utilities.generateRandomNumber())
-////                        .userStatus(UserStatus.ACTIVE)
-////                        .provider(Provider.LOCAL)
-////                        .roles(roleRepository.findByRoleName("CUSTOMER").orElse(null))
-////                        .build()
-////                );
-//
-//                brandRepository.createShortBrand(brandSample1.getUserID(), "LA LA LISA BRAND", BrandStatus.ACCEPT.name());
-//                brandRepository.createShortBrand(brandSample2.getUserID(), "GO YOUN JUNG BRAND", BrandStatus.ACCEPT.name());
-//
-//                var brandLALALISA = brandRepository.findBrandByBrandName("LA LA LISA BRAND");
-//                var brandGOYOUNJUNG = brandRepository.findBrandByBrandName("GO YOUN JUNG BRAND");
-//                var sewExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("shirtModel").get();
-//                var embroiderExpertTailoring = expertTailoringRepository.findByExpertTailoringNameIgnoreCase("hoodieModel").get();
-//                brandExpertTailoringRepository.createShortBrandExpertTailoring(
-//                        brandLALALISA.get().getBrandID(),
-//                        sewExpertTailoring.getExpertTailoringID()
-//                );
-//
-//                brandExpertTailoringRepository.createShortBrandExpertTailoring(
-//                        brandGOYOUNJUNG.get().getBrandID(),
-//                        embroiderExpertTailoring.getExpertTailoringID()
 //                );
 //            }
 //        };

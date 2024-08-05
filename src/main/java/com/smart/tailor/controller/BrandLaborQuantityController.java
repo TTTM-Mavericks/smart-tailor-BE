@@ -7,7 +7,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.BrandLaborQuantityService;
 import com.smart.tailor.utils.request.BrandLaborQuantityListRequest;
 import com.smart.tailor.utils.request.BrandLaborQuantityRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.BrandLaborQuantityAPI.BRAND_LABOR_QUANTITY)
@@ -30,7 +30,7 @@ public class BrandLaborQuantityController {
     private final Logger logger = LoggerFactory.getLogger(BrandLaborQuantityController.class);
 
     @GetMapping(APIConstant.BrandLaborQuantityAPI.GET_ALL_BRAND_LABOR_QUANTITY_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getAllLaborQuantityByBrandID(@ValidUUID @PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> getAllLaborQuantityByBrandID( @PathVariable("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var brandLaborQuantityResponses = brandLaborQuantityService.findBrandLaborQuantityByBrandID(brandID);
@@ -56,7 +56,7 @@ public class BrandLaborQuantityController {
     }
 
     @PutMapping(APIConstant.BrandLaborQuantityAPI.UPDATE_BRAND_LABOR_QUANTITY + "/{brandID}")
-    public ResponseEntity<ObjectNode> updateLaborQuantity(@ValidUUID @PathVariable("brandID") UUID brandID,
+    public ResponseEntity<ObjectNode> updateLaborQuantity( @PathVariable("brandID") String brandID,
                                                           @Valid @RequestBody BrandLaborQuantityRequest brandLaborQuantityRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();

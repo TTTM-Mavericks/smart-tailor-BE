@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -117,11 +117,11 @@ public class ItemMaskServiceImpl implements ItemMaskService {
 
             Material material = null;
             if (Utilities.isStringNotNullOrEmpty(itemMaskRequest.getMaterialID())) {
-                if (!Utilities.isValidUUIDType(itemMaskRequest.getMaterialID())) {
-                    throw new BadRequestException("Invalid Type UUID of MaterialID: " + itemMaskRequest.getMaterialID());
+                if (!Utilities.isValidCustomKey(itemMaskRequest.getMaterialID())) {
+                    throw new BadRequestException("Invalid Type String of MaterialID: " + itemMaskRequest.getMaterialID());
                 }
 
-                material = materialService.findMaterialByID(UUID.fromString(itemMaskRequest.getMaterialID()))
+                material = materialService.findMaterialByID(itemMaskRequest.getMaterialID())
                         .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + itemMaskRequest.getMaterialID()));
 
                 itemMask.setMaterial(material);
@@ -134,7 +134,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
     }
 
     @Override
-    public List<ItemMaskResponse> getListItemMaskByPartOfDesignID(UUID partOfDesignID) {
+    public List<ItemMaskResponse> getListItemMaskByPartOfDesignID(String partOfDesignID) {
         return itemMaskRepository
                 .findAll()
                 .stream()
@@ -144,7 +144,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
     }
 
     @Override
-    public ItemMaskResponse getItemMaskByItemMaskID(UUID itemMaskID) {
+    public ItemMaskResponse getItemMaskByItemMaskID(String itemMaskID) {
         var itemMask = itemMaskRepository.findById(itemMaskID);
         if (itemMask.isPresent()) {
             return itemMaskMapper.mapperToItemMaskResponse(itemMask.get());
@@ -163,13 +163,13 @@ public class ItemMaskServiceImpl implements ItemMaskService {
 
     @Transactional
     @Override
-    public void deleteItemMaskByPartOfDesignID(UUID partOfDesignID) {
+    public void deleteItemMaskByPartOfDesignID(String partOfDesignID) {
         itemMaskRepository.deleteItemMaskByPartOfDesignID(partOfDesignID);
     }
 
     @Transactional
     @Override
-    public void deleteItemMaskByDesignID(UUID designID) {
+    public void deleteItemMaskByDesignID(String designID) {
         itemMaskRepository.deleteItemMaskByDesignID(designID);
     }
 }

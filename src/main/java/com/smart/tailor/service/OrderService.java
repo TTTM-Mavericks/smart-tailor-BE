@@ -12,28 +12,28 @@ import com.smart.tailor.utils.response.OrderTimeLineResponse;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface OrderService {
     OrderResponse createOrder(OrderRequest orderRequest) throws Exception;
 
-    List<OrderResponse> getParentOrderByDesignID(UUID designID) throws Exception;
+    List<OrderResponse> getParentOrderByDesignID(String designID) throws Exception;
 
-    void updateOrderStatus(UUID orderID, String orderStatus);
+    void updateOrderStatus(String orderID, String orderStatus);
 
-    OrderCustomResponse getOrderByOrderID(UUID orderID) throws Exception;
+    OrderCustomResponse getOrderByOrderID(String orderID) throws Exception;
 
-    OrderCustomResponse getOrderDetailByOrderID(UUID orderID) throws Exception;
+    OrderCustomResponse getOrderDetailByOrderID(String orderID) throws Exception;
 
-    Optional<Order> getOrderById(UUID orderID);
+    Optional<Order> getOrderById(String orderID);
 
-    List<OrderCustomResponse> getOrderByBrandID(UUID brandID) throws Exception;
+    List<OrderCustomResponse> getOrderByBrandID(String brandID) throws Exception;
 
-    List<OrderResponse> getOrderByDesignID(UUID designID);
+    List<OrderResponse> getOrderByDesignID(String designID);
 
-    List<OrderCustomResponse> getOrderByUserID(UUID userID) throws Exception;
+    List<OrderCustomResponse> getOrderByUserID(String userID) throws Exception;
 
-    List<OrderResponse> getSubOrderByParentID(UUID parentOrderID);
+    List<OrderResponse> getSubOrderByParentID(String parentOrderID);
 
     List<OrderResponse> getAllOrder();
 
@@ -43,21 +43,21 @@ public interface OrderService {
 
     OrderResponse brandPickOrder(OrderPickingRequest orderPickingRequest) throws Exception;
 
-    Order getOrderByDetailID(UUID detailID);
+    Order getOrderByDetailID(String detailID);
 
-    Boolean isOrderCompletelyPicked(UUID orderID);
+    Boolean isOrderCompletelyPicked(String orderID);
 
-    Boolean isOrderExpireTime(UUID orderID);
+    Boolean isOrderExpireTime(String orderID);
 
     List<OrderResponse> getAllParentOrder();
 
-    List<String> filterBrandForSpecificOrderBaseOnDesign(UUID designID);
+    List<String> filterBrandForSpecificOrderBaseOnDesign(String designID);
 
-    void confirmOrder(UUID orderID);
+    void confirmOrder(String orderID);
 
-    List<OrderStageResponse> getOrderStageByOrderID(UUID orderID);
+    List<OrderStageResponse> getOrderStageByOrderID(String orderID);
 
     void ratingOrder(RatingOrderRequest ratingOrderRequest);
 
-    OrderTimeLineResponse getOrderTimeLineByParentOrderID(UUID parentOrderID);
+    OrderTimeLineResponse getOrderTimeLineByParentOrderID(String parentOrderID);
 }

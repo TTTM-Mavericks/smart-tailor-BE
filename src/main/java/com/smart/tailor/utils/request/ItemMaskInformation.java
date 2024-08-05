@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class ItemMaskInformation {
 
     private Float scaleY;
 
-    private UUID materialID;
+    private String materialID;
 
     private String materialName;
 }

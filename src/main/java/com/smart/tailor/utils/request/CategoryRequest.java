@@ -1,6 +1,6 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidStringUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CategoryRequest {
     @NotBlank(message = "Category ID is required")
-    @ValidStringUUID(message = "Category ID must be a valid UUID")
     private String categoryID;
 
     @NotBlank(message = "Category Name is required")

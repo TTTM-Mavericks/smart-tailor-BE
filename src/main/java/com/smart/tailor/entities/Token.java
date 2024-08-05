@@ -1,14 +1,15 @@
 package com.smart.tailor.entities;
 
 import com.smart.tailor.enums.TokenType;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
@@ -19,11 +20,9 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Token extends AuditEntity implements Serializable {
-
     @Id
     @Column(name = "token_id", nullable = false, unique = true)
-    @UuidGenerator
-    private UUID tokenID;
+    private String tokenID;
 
     @Column(name = "expired", nullable = false, unique = false)
     private boolean expired;
@@ -41,4 +40,9 @@ public class Token extends AuditEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
+
+    @PrePersist
+    private void prePersist() {
+        this.tokenID = Utilities.generateCustomPrimaryKey();
+    }
 }

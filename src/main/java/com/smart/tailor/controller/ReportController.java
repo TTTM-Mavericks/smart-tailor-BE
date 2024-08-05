@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ReportService;
 import com.smart.tailor.utils.request.ReportRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.ReportAPI.REPORT)
@@ -45,7 +45,7 @@ public class ReportController {
     }
 
     @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_ORDER_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getAllReportByOrderID(@ValidUUID @PathVariable("orderID") UUID orderID) {
+    public ResponseEntity<ObjectNode> getAllReportByOrderID( @PathVariable("orderID") String orderID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var reportResponses = reportService.getAllReportByOrderID(orderID);
@@ -61,7 +61,7 @@ public class ReportController {
     }
 
     @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_USER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getAllReportByUserID(@ValidUUID @PathVariable("userID") UUID userID) throws Exception {
+    public ResponseEntity<ObjectNode> getAllReportByUserID( @PathVariable("userID") String userID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var reportResponses = reportService.getAllReportByUserID(userID);
@@ -77,7 +77,7 @@ public class ReportController {
     }
 
     @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getAllReportByBrandID(@ValidUUID @PathVariable("brandID") UUID brandID) throws Exception {
+    public ResponseEntity<ObjectNode> getAllReportByBrandID( @PathVariable("brandID") String brandID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var reportResponses = reportService.getAllReportByBrandID(brandID);

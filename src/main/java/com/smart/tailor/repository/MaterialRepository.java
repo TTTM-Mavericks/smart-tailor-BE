@@ -7,18 +7,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Repository
-public interface MaterialRepository extends JpaRepository<Material, UUID> {
-    Optional<Material> findByMaterialID(UUID materialID);
+public interface MaterialRepository extends JpaRepository<Material, String> {
+    Optional<Material> findByMaterialID(String materialID);
 
     Optional<Material> findByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCase(String materialName, String categoryName);
 
     Optional<Material> findByMaterialName(String materialName);
 
     @Query(value = "select * from material where category_id = ?1", nativeQuery = true)
-    List<Material> findListMaterialByCategoryID(UUID materialID);
+    List<Material> findListMaterialByCategoryID(String materialID);
 
     @Query(value = "select m.* from material m join category c on m.category_id = c.category_id where c.category_name like ?1", nativeQuery = true)
     List<Material> findListMaterialByCategoryName(String categoryName);
@@ -27,13 +27,13 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
             "join expert_tailoring_material etm on m.material_id = etm.material_id " +
             "join expert_tailoring et on et.expert_tailoring_id = etm.expert_tailoring_id " +
             "where et.expert_tailoring_id = ?1 && c.category_id = ?2 && etm.status = true", nativeQuery = true)
-    List<Material> findAllMaterialByExpertTailoringIDAndCategoryID(UUID expertTailoringID, UUID categoryID);
+    List<Material> findAllMaterialByExpertTailoringIDAndCategoryID(String expertTailoringID, String categoryID);
 
     @Query(value = "SELECT MIN(bm.brand_price) FROM brand_material bm join material m on m.material_id = bm.material_id where m.material_id = ?1", nativeQuery = true)
-    Integer getMinPriceByMaterialID(UUID materialID);
+    Integer getMinPriceByMaterialID(String materialID);
 
     @Query(value = "SELECT MAX(bm.brand_price) FROM brand_material bm join material m on m.material_id = bm.material_id where m.material_id = ?1", nativeQuery = true)
-    Integer getMaxPriceByMaterialID(UUID materialID);
+    Integer getMaxPriceByMaterialID(String materialID);
 
     boolean existsByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCaseAndHsCodeAndUnitIgnoreCaseAndBasePrice(
             String materialName,
@@ -47,6 +47,6 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
             "join expert_tailoring_material etm on m.material_id = etm.material_id " +
             "join expert_tailoring et on et.expert_tailoring_id = etm.expert_tailoring_id " +
             "where et.expert_tailoring_id = ?1 && c.category_name = ?2 && etm.status = true", nativeQuery = true)
-    List<Material> findMaterialsByExpertTailoringIDAndCategoryName(UUID expertTailoringID, String categoryName);
+    List<Material> findMaterialsByExpertTailoringIDAndCategoryName(String expertTailoringID, String categoryName);
 
 }

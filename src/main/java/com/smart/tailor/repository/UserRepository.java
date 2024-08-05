@@ -10,10 +10,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String email);
 
     @Query(value = "select u.* from users u where u.email = ?1", nativeQuery = true)
@@ -29,5 +29,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Transactional
     @Modifying
     @Query(value = "delete from users u where u.user_id = ?1", nativeQuery = true)
-    void deleteUserByUserID(UUID userID);
+    void deleteUserByUserID(String userID);
 }

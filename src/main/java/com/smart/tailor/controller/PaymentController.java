@@ -7,7 +7,7 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.utils.request.PaymentRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -27,7 +27,7 @@ public class PaymentController {
     private final PayOSService payOSService;
 
     @GetMapping(PaymentAPI.PAYMENT_INFO + "/{paymentID}")
-    ResponseEntity<ObjectNode> getPaymentInfo(@ValidUUID @PathVariable("paymentID") UUID paymentID) throws Exception {
+    ResponseEntity<ObjectNode> getPaymentInfo( @PathVariable("paymentID") String paymentID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();
@@ -43,7 +43,7 @@ public class PaymentController {
     }
 
     @GetMapping(PaymentAPI.CONFIRM_PAYMENT + "/{paymentID}")
-    ResponseEntity<ObjectNode> confirmPayment(@ValidUUID @PathVariable("paymentID") Integer paymentID) throws Exception {
+    ResponseEntity<ObjectNode> confirmPayment( @PathVariable("paymentID") Integer paymentID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();
@@ -74,7 +74,7 @@ public class PaymentController {
     }
 
     @GetMapping(PaymentAPI.MANUAL_PAYMENT_INFO + "/{paymentID}")
-    ResponseEntity<ObjectNode> getManualPaymentByID(@ValidUUID @PathVariable("paymentID") UUID paymentID) throws Exception {
+    ResponseEntity<ObjectNode> getManualPaymentByID( @PathVariable("paymentID") String paymentID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();

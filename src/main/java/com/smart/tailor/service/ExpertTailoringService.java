@@ -10,10 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface ExpertTailoringService {
-    Optional<ExpertTailoring> getExpertTailoringByID(UUID expectID) throws CustomExeption;
+    Optional<ExpertTailoring> getExpertTailoringByID(String expectID) throws CustomExeption;
 
     void createExpertTailoring(ExpertTailoringRequest expertTailoringRequest);
 
@@ -31,11 +31,11 @@ public interface ExpertTailoringService {
 
     void generateSampleExpertTailoringByExportExcel(HttpServletResponse response) throws IOException;
 
-    ExpertTailoringResponse findByExpertTailoringID(UUID expertTailoringID);
+    ExpertTailoringResponse findByExpertTailoringID(String expertTailoringID);
 
-    void updateExpertTailoring(UUID expertTailoringID, ExpertTailoringRequest expertTailoringRequest);
+    void updateExpertTailoring(String expertTailoringID, ExpertTailoringRequest expertTailoringRequest);
 
-    void updateStatusExpertTailoring(UUID expertTailoringID);
+    void updateStatusExpertTailoring(String expertTailoringID);
 
-    Optional<ExpertTailoring> findExpertTailoringByID(UUID expertTailoringID);
+    Optional<ExpertTailoring> findExpertTailoringByID(String expertTailoringID);
 }

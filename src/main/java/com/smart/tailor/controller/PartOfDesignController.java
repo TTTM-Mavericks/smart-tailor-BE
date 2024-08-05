@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.PartOfDesignService;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.PartOfDesignAPI.PART_OF_DESIGN)
@@ -31,7 +31,7 @@ public class PartOfDesignController {
     private final ObjectMapper objectMapper;
 
     @GetMapping(APIConstant.PartOfDesignAPI.GET_ALL_PART_OF_DESIGN_BY_DESIGN_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> getAllPartOfDesignByDesignID(@ValidUUID @PathVariable("designID") UUID designID) {
+    public ResponseEntity<ObjectNode> getAllPartOfDesignByDesignID( @PathVariable("designID") String designID) {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponses = partOfDesignService.getListPartOfDesignByDesignID(designID);
         if (partOfDesignResponses.isEmpty()) {
@@ -62,7 +62,7 @@ public class PartOfDesignController {
     }
 
     @GetMapping(APIConstant.PartOfDesignAPI.GET_PART_OF_DESIGN_BY_ID + "/{partOfDesignID}")
-    public ResponseEntity<ObjectNode> getDesignByID(@ValidUUID @PathVariable("partOfDesignID") UUID partOfDesignID) {
+    public ResponseEntity<ObjectNode> getDesignByID( @PathVariable("partOfDesignID") String partOfDesignID) {
         ObjectNode response = objectMapper.createObjectNode();
         var partOfDesignResponse = partOfDesignService.getPartOfDesignByPartOfDesignID(partOfDesignID);
         if (partOfDesignResponse == null) {

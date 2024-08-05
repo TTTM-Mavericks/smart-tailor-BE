@@ -8,7 +8,6 @@ import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.service.DesignService;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
-import com.smart.tailor.validate.ValidUUID;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.DesignAPI.DESIGN)
@@ -42,7 +41,7 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_USER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getAllDesignByUserID(@ValidUUID @PathVariable("userID") UUID userID) {
+    public ResponseEntity<ObjectNode> getAllDesignByUserID( @PathVariable("userID") String userID) {
         var designResponseList = designService.getAllDesignByUserID(userID);
         ObjectNode response = objectMapper.createObjectNode();
         if (designResponseList.isEmpty()) {
@@ -73,7 +72,7 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_DESIGN_BY_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> getDesignByID(@ValidUUID @PathVariable("designID") UUID designID) {
+    public ResponseEntity<ObjectNode> getDesignByID( @PathVariable("designID") String designID) {
         var design = designService.getDesignResponseByID(designID);
         ObjectNode response = objectMapper.createObjectNode();
         if (design == null) {
@@ -88,7 +87,7 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_CUSTOMER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getAllDesignByCustomerID(@ValidUUID @PathVariable("userID") UUID userID) {
+    public ResponseEntity<ObjectNode> getAllDesignByCustomerID( @PathVariable("userID") String userID) {
         var apiResponse = designService.getAllDesignByUserIDAndRoleName(userID, RoleType.CUSTOMER.name());
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", apiResponse.getStatus());
@@ -98,7 +97,7 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getAllDesignByBrandID(@ValidUUID @PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> getAllDesignByBrandID( @PathVariable("brandID") String brandID) {
         var apiResponse = designService.getAllDesignByUserIDAndRoleName(brandID, RoleType.BRAND.name());
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", apiResponse.getStatus());
@@ -108,7 +107,7 @@ public class DesignController {
     }
 
     @PutMapping(APIConstant.DesignAPI.UPDATE_PUBLIC_STATUS_BY_DESIGN_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> updatePublicStatusByDesignID(@ValidUUID @PathVariable("designID") UUID designID) {
+    public ResponseEntity<ObjectNode> updatePublicStatusByDesignID( @PathVariable("designID") String designID) {
         designService.updatePublicStatusDesign(designID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
@@ -126,7 +125,7 @@ public class DesignController {
     }
 
     @PutMapping(APIConstant.DesignAPI.UPDATE_DESIGN + "/{designID}")
-    public ResponseEntity<ObjectNode> updateDesign(@ValidUUID @PathVariable("designID") UUID designID,
+    public ResponseEntity<ObjectNode> updateDesign( @PathVariable("designID") String designID,
                                                    @Valid @RequestBody DesignRequest designRequest) {
         ObjectNode response = objectMapper.createObjectNode();
         var apiResponse = designService.updateDesign(designID, designRequest);

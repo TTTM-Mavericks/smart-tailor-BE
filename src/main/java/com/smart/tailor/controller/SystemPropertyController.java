@@ -6,14 +6,14 @@ import com.smart.tailor.constant.APIConstant.SystemPropertyAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.SystemPropertiesService;
 import com.smart.tailor.utils.request.SystemPropertiesRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -45,7 +45,7 @@ public class SystemPropertyController {
     }
 
     @GetMapping(SystemPropertyAPI.GET_SYSTEM_PROPERTY + "/{systemID}")
-    public ResponseEntity<ObjectNode> getByID(@ValidUUID @PathVariable("systemID") UUID systemID) {
+    public ResponseEntity<ObjectNode> getByID( @PathVariable("systemID") String systemID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var data = systemService.getByID(systemID);

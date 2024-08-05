@@ -8,13 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Repository
-public interface PaymentRepository extends JpaRepository<Payment, UUID> {
-    Optional<Payment> findByPaymentID(UUID paymentID);
+public interface PaymentRepository extends JpaRepository<Payment, String> {
+    Optional<Payment> findByPaymentID(String paymentID);
 
     @Transactional
     @Query(nativeQuery = true, value = "SELECT DISTINCT p.* FROM payment p  WHERE p.order_id = ?1")
-    List<Payment> findAllByOrderID(UUID orderID);
+    List<Payment> findAllByOrderID(String orderID);
 }

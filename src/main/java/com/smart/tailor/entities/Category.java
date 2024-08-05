@@ -1,13 +1,14 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "category")
@@ -20,11 +21,15 @@ import java.util.UUID;
 public class Category extends AuditEntity implements Serializable {
     @Id
     @Column(name = "category_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID categoryID;
+    private String categoryID;
 
     @Column(name = "category_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String categoryName;
 
     private Boolean status;
+
+    @PrePersist
+    private void prePersist() {
+        this.categoryID = Utilities.generateCustomPrimaryKey();
+    }
 }

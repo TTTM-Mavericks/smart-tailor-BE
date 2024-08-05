@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ExpertTailoringService;
 import com.smart.tailor.utils.request.ExpertTailoringRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.ExpertTailoringAPI.EXPERT_TAILORING)
@@ -122,7 +122,7 @@ public class ExpertTailoringController {
     }
 
     @GetMapping(APIConstant.ExpertTailoringAPI.GET_EXPERT_TAILORING_BY_ID + "/{expertTailoringID}")
-    public ResponseEntity<ObjectNode> getExpertTailoringByID(@ValidUUID @PathVariable("expertTailoringID") UUID expertTailoringID) {
+    public ResponseEntity<ObjectNode> getExpertTailoringByID( @PathVariable("expertTailoringID") String expertTailoringID) {
         ObjectNode response = objectMapper.createObjectNode();
         var materials = expertTailoringService.findByExpertTailoringID(expertTailoringID);
         if (materials != null) {
@@ -137,7 +137,7 @@ public class ExpertTailoringController {
     }
 
     @PutMapping(APIConstant.ExpertTailoringAPI.UPDATE_STATUS_EXPERT_TAILORING + "/{expertTailoringID}")
-    public ResponseEntity<ObjectNode> changeStatusExpertTailoring(@ValidUUID @PathVariable("expertTailoringID") UUID expertTailoringID) {
+    public ResponseEntity<ObjectNode> changeStatusExpertTailoring( @PathVariable("expertTailoringID") String expertTailoringID) {
         ObjectNode response = objectMapper.createObjectNode();
         expertTailoringService.updateStatusExpertTailoring(expertTailoringID);
         response.put("status", HttpStatus.OK.value());
@@ -146,7 +146,7 @@ public class ExpertTailoringController {
     }
 
     @PutMapping(APIConstant.ExpertTailoringAPI.UPDATE_EXPERT_TAILORING + "/{expertTailoringID}")
-    public ResponseEntity<ObjectNode> updateExpertTailoring(@ValidUUID @PathVariable("expertTailoringID") UUID expertTailoringID,
+    public ResponseEntity<ObjectNode> updateExpertTailoring( @PathVariable("expertTailoringID") String expertTailoringID,
                                                             @Valid @RequestBody ExpertTailoringRequest expertTailoringRequest) {
         ObjectNode response = objectMapper.createObjectNode();
         expertTailoringService.updateExpertTailoring(expertTailoringID, expertTailoringRequest);

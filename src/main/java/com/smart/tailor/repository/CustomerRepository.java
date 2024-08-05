@@ -8,15 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
-import java.util.UUID;
+
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, UUID> {
+public interface CustomerRepository extends JpaRepository<Customer, String> {
     @Modifying
     @Transactional
     @Query(value = "INSERT INTO Customer (customer_id, gender, date_of_birth, address, province, district, ward, number_of_violations, create_date, last_modified_date) " +
             "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 0, CURRENT_TIMESTAMP, NULL)", nativeQuery = true)
-    void createCustomer(UUID customerID, Boolean gender, Date dateOfBirth, String address,
+    void createCustomer(String customerID, Boolean gender, Date dateOfBirth, String address,
                         String province, String district, String ward);
 
     @Modifying
@@ -26,8 +26,8 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
             "ward = ?6, last_modified_date = CURRENT_TIMESTAMP " +
             "WHERE customer_id = ?7", nativeQuery = true)
     void updateCustomer(Boolean gender, Date dateOfBirth, String address,
-                        String province, String district, String ward, UUID customerID);
+                        String province, String district, String ward, String customerID);
 
     @Query(value = "select * from customer where customer_id = ?1", nativeQuery = true)
-    Customer findByCustomerID(UUID customerID);
+    Customer findByCustomerID(String customerID);
 }

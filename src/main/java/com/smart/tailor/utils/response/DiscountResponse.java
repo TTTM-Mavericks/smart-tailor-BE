@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class DiscountResponse {
-    private UUID discountID;
+    private String discountID;
     private String discountName;
     private Double discountPercent;
     private Integer quantity;

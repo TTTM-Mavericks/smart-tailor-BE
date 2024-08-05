@@ -8,19 +8,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentRequest {
-    private UUID paymentSenderID;
+    private String paymentSenderID;
     private String paymentSenderName;
     private String paymentSenderBankCode;
     private String paymentSenderBankNumber;
 
-    private UUID paymentRecipientID;
+    private String paymentRecipientID;
     private String paymentRecipientName;
     private String paymentRecipientBankCode;
     private String paymentRecipientBankNumber;
@@ -29,6 +29,6 @@ public class PaymentRequest {
     private PaymentMethod paymentMethod;
     private PaymentType paymentType;
 
-    private UUID orderID;
+    private String orderID;
     private List<PayOSItem> itemList;
 }

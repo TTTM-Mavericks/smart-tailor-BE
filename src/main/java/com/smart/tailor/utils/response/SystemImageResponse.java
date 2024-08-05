@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SystemImageResponse {
-    private UUID imageID;
+    private String imageID;
     private String imageName;
     private String imageURL;
     private Boolean imageStatus;

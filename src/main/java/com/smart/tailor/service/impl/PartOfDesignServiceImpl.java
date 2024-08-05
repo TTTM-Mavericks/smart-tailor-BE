@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -73,11 +73,11 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
             Material material = null;
             if (Utilities.isStringNotNullOrEmpty(partOfDesignRequest.getMaterialID())) {
-                if (!Utilities.isValidUUIDType(partOfDesignRequest.getMaterialID())) {
-                    throw new BadRequestException("Invalid Type UUID of MaterialID: " + partOfDesignRequest.getMaterialID());
+                if (!Utilities.isValidCustomKey(partOfDesignRequest.getMaterialID())) {
+                    throw new BadRequestException("Invalid Type String of MaterialID: " + partOfDesignRequest.getMaterialID());
                 }
 
-                material = materialService.findMaterialByID(UUID.fromString(partOfDesignRequest.getMaterialID())).
+                material = materialService.findMaterialByID(partOfDesignRequest.getMaterialID()).
                         orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + partOfDesignRequest.getMaterialID()));
 
                 partOfDesign.setMaterial(material);
@@ -113,7 +113,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     }
 
     @Override
-    public List<PartOfDesignResponse> getListPartOfDesignByDesignID(UUID designID) {
+    public List<PartOfDesignResponse> getListPartOfDesignByDesignID(String designID) {
         return partOfDesignRepository
                 .findAll()
                 .stream()
@@ -123,7 +123,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     }
 
     @Override
-    public PartOfDesignResponse getPartOfDesignByPartOfDesignID(UUID partOfDesignID) {
+    public PartOfDesignResponse getPartOfDesignByPartOfDesignID(String partOfDesignID) {
         var partOfDesign = partOfDesignRepository.findById(partOfDesignID);
         if (partOfDesign.isPresent()) {
             return partOfDesignMapper.mapperToPartOfDesignResponse(partOfDesign.get());
@@ -142,7 +142,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
     @Transactional
     @Override
-    public void deletePartOfDesignByDesignID(UUID designID) {
+    public void deletePartOfDesignByDesignID(String designID) {
         itemMaskService.deleteItemMaskByDesignID(designID);
         partOfDesignRepository.deletePartOfDesignByDesignID(designID);
     }

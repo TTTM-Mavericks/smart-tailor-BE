@@ -1,6 +1,6 @@
 package com.smart.tailor.utils.request;
 
-import com.smart.tailor.validate.ValidStringUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,15 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SampleProductDataRequest {
     @NotBlank(message = "Order Stage ID is required")
-    @ValidStringUUID(message = "Order Stage ID must be a valid UUID")
     private String orderStageID;
 
     @NotBlank(message = "Order ID is required")
-    @ValidStringUUID(message = "Order ID must be a valid UUID")
     private String orderID;
 
     @NotBlank(message = "Brand ID is required")
-    @ValidStringUUID(message = "Brand ID must be a valid UUID")
     private String brandID;
 
     private String description;

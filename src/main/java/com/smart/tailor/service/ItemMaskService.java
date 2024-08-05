@@ -6,18 +6,18 @@ import com.smart.tailor.utils.request.ItemMaskRequest;
 import com.smart.tailor.utils.response.ItemMaskResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface ItemMaskService {
     List<ItemMask> createItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList);
 
-    List<ItemMaskResponse> getListItemMaskByPartOfDesignID(UUID partOfDesignID);
+    List<ItemMaskResponse> getListItemMaskByPartOfDesignID(String partOfDesignID);
 
-    ItemMaskResponse getItemMaskByItemMaskID(UUID itemMaskID);
+    ItemMaskResponse getItemMaskByItemMaskID(String itemMaskID);
 
     List<ItemMaskResponse> getAllItemMask();
 
-    void deleteItemMaskByPartOfDesignID(UUID partOfDesignID);
+    void deleteItemMaskByPartOfDesignID(String partOfDesignID);
 
-    void deleteItemMaskByDesignID(UUID designID);
+    void deleteItemMaskByDesignID(String designID);
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -29,12 +29,12 @@ public class BrandImageServiceImpl implements BrandImageService {
     }
 
     @Override
-    public Optional<BrandImage> getBrandImageById(UUID imageId) {
+    public Optional<BrandImage> getBrandImageById(String imageId) {
         return brandImageRepository.findById(imageId);
     }
 
     @Override
-    public void deleteBrandImageById(UUID imageId) {
+    public void deleteBrandImageById(String imageId) {
         brandImageRepository.deleteById(imageId);
     }
 
@@ -44,7 +44,7 @@ public class BrandImageServiceImpl implements BrandImageService {
     }
 
     @Override
-    public void updateBrandImageStatusById(UUID imageId) {
+    public void updateBrandImageStatusById(String imageId) {
         var image = brandImageRepository.findById(imageId)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Image with ImageID: " + imageId));
         image.setStatus(!image.getStatus());

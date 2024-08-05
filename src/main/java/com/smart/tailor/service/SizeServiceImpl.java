@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +82,7 @@ public class SizeServiceImpl implements SizeService {
 
     @Transactional
     @Override
-    public void updateSize(UUID sizeID, SizeRequest sizeRequest) {
+    public void updateSize(String sizeID, SizeRequest sizeRequest) {
         var currentSize = sizeRepository.findById(sizeID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find any Size with SizeID: " + sizeID));
 
@@ -108,7 +108,7 @@ public class SizeServiceImpl implements SizeService {
     }
 
     @Override
-    public Optional<Size> findByID(UUID sizeID) {
+    public Optional<Size> findByID(String sizeID) {
         return sizeRepository.findById(sizeID);
     }
 }

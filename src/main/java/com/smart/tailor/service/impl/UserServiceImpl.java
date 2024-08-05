@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -114,8 +114,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserByUserID(UUID uuid) {
-        return userRepository.findById(uuid);
+    public Optional<User> getUserByUserID(String String) {
+        return userRepository.findById(String);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUnverifiedUser(UUID userID) {
+    public void deleteUnverifiedUser(String userID) {
         verificationTokenService.deleteVerificationTokenByUserID(userID);
         tokenService.deleteTokenByUserID(userID);
         userRepository.deleteUserByUserID(userID);

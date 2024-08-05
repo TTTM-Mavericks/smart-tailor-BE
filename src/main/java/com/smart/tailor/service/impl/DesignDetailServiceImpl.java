@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +50,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
     @Transactional(readOnly = true)
     @Override
-    public DesignDetailCustomResponse findAllByOrderID(UUID orderID) {
+    public DesignDetailCustomResponse findAllByOrderID(String orderID) {
         try {
             if (orderID == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
@@ -83,7 +83,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     }
 
     @Override
-    public DesignDetailResponse findByID(UUID orderID) {
+    public DesignDetailResponse findByID(String orderID) {
         return designDetailMapper.mapperToDesignDetailResponse(
                 designDetailRepository.getDesignDetailByDesignDetailID(orderID).get()
         );
@@ -100,7 +100,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             if (designDetailRequest.getDesignId() == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designId");
             }
-            UUID designId = designDetailRequest.getDesignId();
+            String designId = designDetailRequest.getDesignId();
             Design design = designService.getDesignByID(designId);
             if (design == null) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
@@ -151,7 +151,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 if (sizeRequest.getSizeID() == null) {
                     throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " at [" + index + "]: sizeID");
                 }
-                var size = sizeService.findByID(UUID.fromString(sizeRequest.getSizeID()))
+                var size = sizeService.findByID(sizeRequest.getSizeID())
                         .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE));
 
                 if (sizeRequest.getQuantity() == null) {
@@ -191,7 +191,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 if (sizeRequest.getSizeID() == null) {
                     throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + " at [" + index + "]: sizeID");
                 }
-                var size = sizeService.findByID(UUID.fromString(sizeRequest.getSizeID()))
+                var size = sizeService.findByID(sizeRequest.getSizeID())
                         .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_SIZE));
 
                 if (sizeRequest.getQuantity() == null) {
@@ -251,22 +251,22 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     }
 
     @Override
-    public Optional<DesignDetail> getDesignDetailObjectByID(UUID detailID) {
+    public Optional<DesignDetail> getDesignDetailObjectByID(String detailID) {
         return designDetailRepository.findById(detailID);
     }
 
     @Override
-    public DesignDetail getDetailOfOrderBaseOnBrandID(UUID orderID, UUID brandID) {
+    public DesignDetail getDetailOfOrderBaseOnBrandID(String orderID, String brandID) {
         return designDetailRepository.getDetailOfOrderBaseOnBrandID(orderID, brandID);
     }
 
     @Override
-    public List<DesignDetail> getDesignDetailBySubOrderID(UUID subOrderID) {
+    public List<DesignDetail> getDesignDetailBySubOrderID(String subOrderID) {
         return designDetailRepository.getDesignDetailBySubOrderID(subOrderID);
     }
 
     @Override
-    public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(UUID parentOrderID) throws Exception {
+    public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
         var orderCustomResponse = orderService.getOrderByOrderID(parentOrderID);
         var listSubOrders = orderService.getSubOrderByParentID(parentOrderID);
         var designResponse = orderCustomResponse.getDesignResponse();
@@ -366,20 +366,20 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     }
 
 
-    private BigDecimal calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, UUID brandID, BigDecimal ratio) {
+    private BigDecimal calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, String brandID, BigDecimal ratio) {
         BigDecimal width = BigDecimal.valueOf(partInfo.getWidth()).multiply(ratio); // in Centimeter
         BigDecimal height = BigDecimal.valueOf(partInfo.getHeight()).multiply(ratio); // in Centimeter
-        UUID materialID = partInfo.getMaterialID();
+        String materialID = partInfo.getMaterialID();
         BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
         BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), BigDecimal.ROUND_CEILING);
         BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, BigDecimal.ROUND_CEILING);
         return price;
     }
 
-    private BigDecimal calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, UUID brandID) {
+    private BigDecimal calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, String brandID) {
         BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(PIXEL_TO_CENTIMETER);
         BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(PIXEL_TO_CENTIMETER);
-        UUID materialID = itemMaskInfo.getMaterialID();
+        String materialID = itemMaskInfo.getMaterialID();
         BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
         BigDecimal area = scaleX_Centimeter.multiply(scaleY_Centimeter).divide(BigDecimal.valueOf(10000), BigDecimal.ROUND_CEILING);
         BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, BigDecimal.ROUND_CEILING);

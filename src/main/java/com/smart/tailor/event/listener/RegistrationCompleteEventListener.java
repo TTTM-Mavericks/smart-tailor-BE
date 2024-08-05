@@ -5,6 +5,7 @@ import com.smart.tailor.entities.User;
 import com.smart.tailor.event.RegistrationCompleteEvent;
 import com.smart.tailor.service.MailService;
 import com.smart.tailor.service.VerificationTokenService;
+import com.smart.tailor.utils.Utilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+
 
 @Slf4j
 @Component
@@ -25,7 +26,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
     @Override
     public void onApplicationEvent(RegistrationCompleteEvent event) {
         var registeredUser = event.getUser();
-        UUID verificationToken = UUID.randomUUID();
+        String verificationToken = Utilities.generateCustomPrimaryKey();
         var typeOfVerification = event.getTypeOfVerification();
 
         verificationTokenService.saveUserVerificationToken(registeredUser, verificationToken, typeOfVerification);

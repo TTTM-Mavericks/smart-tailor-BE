@@ -1,15 +1,16 @@
 package com.smart.tailor.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "report")
@@ -22,8 +23,7 @@ import java.util.UUID;
 public class Report extends AuditEntity implements Serializable {
     @Id
     @Column(name = "report_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID reportID;
+    private String reportID;
 
     @Column(name = "type_of_report", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String typeOfReport;
@@ -41,4 +41,9 @@ public class Report extends AuditEntity implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "report")
     @JsonManagedReference
     private List<ReportImage> reportImageList;
+
+    @PrePersist
+    private void prePersist() {
+        this.reportID = Utilities.generateCustomPrimaryKey();
+    }
 }

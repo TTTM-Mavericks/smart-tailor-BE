@@ -2,7 +2,7 @@ package com.smart.tailor.utils.request;
 
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.validate.ValidEnumValue;
-import com.smart.tailor.validate.ValidStringUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderStatusUpdateRequest {
     @NotBlank(message = "Order ID is required")
-    @ValidStringUUID(message = "Order ID must be a valid UUID")
     private String orderID;
 
     @NotBlank(message = "Status is required")

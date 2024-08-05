@@ -6,7 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Embeddable
 @AllArgsConstructor
@@ -16,8 +16,8 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SizeExpertTailoringKey implements Serializable {
     @Column(name = "expert_tailoring_id", nullable = false)
-    private UUID expertTailoringID;
+    private String expertTailoringID;
 
     @Column(name = "size_id", nullable = false)
-    private UUID sizeID;
+    private String sizeID;
 }

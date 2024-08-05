@@ -6,16 +6,16 @@ import com.smart.tailor.utils.request.PartOfDesignRequest;
 import com.smart.tailor.utils.response.PartOfDesignResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface PartOfDesignService {
     List<PartOfDesign> createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList);
 
-    List<PartOfDesignResponse> getListPartOfDesignByDesignID(UUID designID);
+    List<PartOfDesignResponse> getListPartOfDesignByDesignID(String designID);
 
-    PartOfDesignResponse getPartOfDesignByPartOfDesignID(UUID partOfDesignID);
+    PartOfDesignResponse getPartOfDesignByPartOfDesignID(String partOfDesignID);
 
     List<PartOfDesignResponse> getAllPartOfDesign();
 
-    void deletePartOfDesignByDesignID(UUID designID);
+    void deletePartOfDesignByDesignID(String designID);
 }

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +34,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public void createReport(ReportRequest reportRequest) throws Exception {
-        UUID orderID = UUID.fromString(reportRequest.getOrderID());
+        String orderID = reportRequest.getOrderID();
         var order = orderService.getOrderById(orderID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
 
@@ -65,7 +65,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportResponse> getAllReportByOrderID(UUID orderID) {
+    public List<ReportResponse> getAllReportByOrderID(String orderID) {
         return reportRepository
                 .findAll()
                 .stream()
@@ -75,7 +75,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportResponse> getAllReportByUserID(UUID userID) throws Exception {
+    public List<ReportResponse> getAllReportByUserID(String userID) throws Exception {
         return orderService
                 .getOrderByUserID(userID)
                 .stream()
@@ -84,7 +84,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportResponse> getAllReportByBrandID(UUID brandID) throws Exception {
+    public List<ReportResponse> getAllReportByBrandID(String brandID) throws Exception {
         return orderService
                 .getOrderByBrandID(brandID)
                 .stream()

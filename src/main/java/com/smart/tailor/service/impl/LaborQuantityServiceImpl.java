@@ -105,7 +105,7 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
 
     @Transactional
     @Override
-    public void updateLaborQuantity(UUID laborQuantityID, LaborQuantityRequest laborQuantityRequest) {
+    public void updateLaborQuantity(String laborQuantityID, LaborQuantityRequest laborQuantityRequest) {
         Integer laborQuantityMinQuantity = laborQuantityRequest.getLaborQuantityMinQuantity();
         Integer laborQuantityMaxQuantity = laborQuantityRequest.getLaborQuantityMaxQuantity();
         Integer laborQuantityMinPrice = laborQuantityRequest.getLaborQuantityMinPrice();
@@ -150,7 +150,7 @@ public class LaborQuantityServiceImpl implements LaborQuantityService {
     }
 
     @Override
-    public Optional<LaborQuantity> findByID(UUID laborQuantityID) {
+    public Optional<LaborQuantity> findByID(String laborQuantityID) {
         return laborQuantityRepository.findById(laborQuantityID);
     }
 }

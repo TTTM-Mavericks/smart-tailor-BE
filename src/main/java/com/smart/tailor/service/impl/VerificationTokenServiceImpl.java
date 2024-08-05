@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -21,17 +21,17 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final VerificationTokenRepository verificationTokenRepository;
 
     @Override
-    public Optional<VerificationToken> findByToken(UUID token) {
+    public Optional<VerificationToken> findByToken(String token) {
         return verificationTokenRepository.findByToken(token);
     }
 
     @Override
-    public VerificationToken findByUserID(UUID userID) {
+    public VerificationToken findByUserID(String userID) {
         return verificationTokenRepository.findByUserID(userID);
     }
 
     @Override
-    public void saveUserVerificationToken(User user, UUID token, TypeOfVerification typeOfVerification) {
+    public void saveUserVerificationToken(User user, String token, TypeOfVerification typeOfVerification) {
         LocalDateTime localDateTime = LocalDateTime.now();
         VerificationToken existedVerificationToken = findByUserID(user.getUserID());
         if (existedVerificationToken == null) {
@@ -58,7 +58,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     public VerificationToken generateNewVerificationToken(String userEmail) {
         var verificationToken = findVerificationTokenByUserEmail(userEmail);
         if (verificationToken != null) {
-            verificationToken.setToken(UUID.randomUUID());
+            verificationToken.setToken(Utilities.generateCustomPrimaryKey());
             verificationToken.setExpirationDateTime(LocalDateTime.now().plusMinutes(1));
             verificationToken.setEnabled(false);
             return verificationTokenRepository.save(verificationToken);
@@ -84,7 +84,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Override
-    public void deleteVerificationTokenByUserID(UUID userID) {
+    public void deleteVerificationTokenByUserID(String userID) {
         verificationTokenRepository.deleteVerificationTokenByUserID(userID);
     }
 }

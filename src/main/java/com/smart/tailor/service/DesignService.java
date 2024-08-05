@@ -7,28 +7,28 @@ import com.smart.tailor.utils.response.APIResponse;
 import com.smart.tailor.utils.response.DesignResponse;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface DesignService {
     APIResponse addNewDesign(DesignRequest designRequest);
 
-    Design getDesignByID(UUID designID);
+    Design getDesignByID(String designID);
 
-    DesignResponse getDesignByOrderID(UUID orderID);
+    DesignResponse getDesignByOrderID(String orderID);
 
-    Design getDesignObjectByOrderID(UUID orderID);
+    Design getDesignObjectByOrderID(String orderID);
 
-    DesignResponse getDesignResponseByID(UUID designID);
+    DesignResponse getDesignResponseByID(String designID);
 
-    List<DesignResponse> getAllDesignByUserID(UUID userID);
+    List<DesignResponse> getAllDesignByUserID(String userID);
 
     List<DesignResponse> getAllDesign();
 
-    APIResponse getAllDesignByUserIDAndRoleName(UUID userID, String roleName);
+    APIResponse getAllDesignByUserIDAndRoleName(String userID, String roleName);
 
-    void updatePublicStatusDesign(UUID designID);
+    void updatePublicStatusDesign(String designID);
 
     void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest);
 
-    APIResponse updateDesign(UUID designID, DesignRequest designRequest);
+    APIResponse updateDesign(String designID, DesignRequest designRequest);
 }

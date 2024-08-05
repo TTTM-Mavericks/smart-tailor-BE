@@ -9,12 +9,12 @@ import com.smart.tailor.utils.response.OrderDetailPriceResponse;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface DesignDetailService {
-    DesignDetailCustomResponse findAllByOrderID(UUID orderID);
+    DesignDetailCustomResponse findAllByOrderID(String orderID);
 
-    DesignDetailResponse findByID(UUID orderID);
+    DesignDetailResponse findByID(String orderID);
 
     APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
 
@@ -22,11 +22,11 @@ public interface DesignDetailService {
 
     DesignDetail updateDetailByID(DesignDetail designDetail);
 
-    Optional<DesignDetail> getDesignDetailObjectByID(UUID detailID);
+    Optional<DesignDetail> getDesignDetailObjectByID(String detailID);
 
-    DesignDetail getDetailOfOrderBaseOnBrandID(UUID orderID, UUID brandID);
+    DesignDetail getDetailOfOrderBaseOnBrandID(String orderID, String brandID);
 
-    List<DesignDetail> getDesignDetailBySubOrderID(UUID subOrderID);
+    List<DesignDetail> getDesignDetailBySubOrderID(String subOrderID);
 
-    OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(UUID parentOrderID) throws Exception;
+    OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception;
 }

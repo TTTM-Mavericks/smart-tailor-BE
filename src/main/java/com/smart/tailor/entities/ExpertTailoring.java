@@ -1,13 +1,14 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "expert_tailoring")
@@ -20,8 +21,7 @@ import java.util.UUID;
 public class ExpertTailoring extends AuditEntity implements Serializable {
     @Id
     @Column(name = "expert_tailoring_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID expertTailoringID;
+    private String expertTailoringID;
 
     @Column(name = "expert_tailoring_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String expertTailoringName;
@@ -35,4 +35,9 @@ public class ExpertTailoring extends AuditEntity implements Serializable {
     private String modelImageUrl;
 
     private Boolean status;
+
+    @PrePersist
+    private void prePersist() {
+        this.expertTailoringID = Utilities.generateCustomPrimaryKey();
+    }
 }

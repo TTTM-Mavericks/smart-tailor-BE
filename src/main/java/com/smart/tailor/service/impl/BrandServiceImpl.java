@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class BrandServiceImpl implements BrandService {
     private final Logger logger = LoggerFactory.getLogger(BrandServiceImpl.class);
 
     @Override
-    public Optional<Brand> getBrandById(UUID brandId) {
+    public Optional<Brand> getBrandById(String brandId) {
         if (brandId == null || brandId.toString().isEmpty()) {
             throw new IllegalArgumentException(MessageConstant.MISSING_ARGUMENT);
         }
@@ -50,7 +50,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Brand saveBrand(UUID brandID, BrandRequest brandRequest) {
+    public Brand saveBrand(String brandID, BrandRequest brandRequest) {
         var user = userService.getUserByUserID(brandID)
                 .orElseThrow(() -> new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND));
 
@@ -111,17 +111,17 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public Optional<Brand> findBrandById(UUID brandID) {
+    public Optional<Brand> findBrandById(String brandID) {
         return brandRepository.findById(brandID);
     }
 
     @Override
-    public List<Brand> findAllBrandByExpertTailoringID(UUID expertTailoringID) {
+    public List<Brand> findAllBrandByExpertTailoringID(String expertTailoringID) {
         return brandRepository.findAllBrandByExpertTailoringID(expertTailoringID);
     }
 
     @Override
-    public void ratingBrand(UUID brandID, Integer numberOfRating, Float ratingScore) {
+    public void ratingBrand(String brandID, Integer numberOfRating, Float ratingScore) {
         logger.info("Inside Rating Brand");
         var brand = findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
@@ -138,21 +138,21 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public BrandResponse findBrandInformationByBrandID(UUID brandID) {
+    public BrandResponse findBrandInformationByBrandID(String brandID) {
         var brand = findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
         return brandMapper.mapperToBrandResponse(brand);
     }
 
     @Override
-    public List<BrandImage> getBrandImage(UUID brandID) {
+    public List<BrandImage> getBrandImage(String brandID) {
         var brand = findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
         return brandImageService.getBrandImagesByBrand(brand);
     }
 
     @Override
-    public boolean changeBrandImageStatus(UUID imageId) {
+    public boolean changeBrandImageStatus(String imageId) {
         try {
             brandImageService.updateBrandImageStatusById(imageId);
             return true;

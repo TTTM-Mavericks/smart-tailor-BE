@@ -1,7 +1,7 @@
 package com.smart.tailor.utils.request;
 
 import com.smart.tailor.validate.ValidColor;
-import com.smart.tailor.validate.ValidStringUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -17,11 +17,9 @@ import java.util.List;
 @Builder
 public class DesignRequest {
     @NotBlank(message = "User ID is required")
-    @ValidStringUUID(message = "User ID must be a valid UUID")
     private String userID;
 
     @NotBlank(message = "Expert Tailoring ID is required")
-    @ValidStringUUID(message = "Expert Tailoring ID must be a valid UUID")
     private String expertTailoringID;
 
     @NotBlank(message = "Title Design is required")

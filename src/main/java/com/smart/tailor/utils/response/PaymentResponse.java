@@ -7,21 +7,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentResponse {
-    private UUID paymentID;
+    private String paymentID;
 
-    private UUID paymentSenderID;
+    private String paymentSenderID;
     private String paymentSenderName;
     private String paymentSenderBankCode;
     private String paymentSenderBankNumber;
 
-    private UUID paymentRecipientID;
+    private String paymentRecipientID;
     private String paymentRecipientName;
     private String paymentRecipientBankCode;
     private String paymentRecipientBankNumber;
@@ -31,7 +31,7 @@ public class PaymentResponse {
     private Boolean paymentStatus;
     private PaymentType paymentType;
 
-    private UUID orderID;
+    private String orderID;
     private String paymentURl;
     private PayOSResponse payOSResponse;
 

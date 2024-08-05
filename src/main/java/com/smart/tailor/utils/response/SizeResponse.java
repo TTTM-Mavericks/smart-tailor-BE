@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class SizeResponse {
-    private UUID sizeID;
+    private String sizeID;
 
     private String sizeName;
 

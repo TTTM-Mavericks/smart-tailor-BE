@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -45,10 +45,10 @@ public class DesignServiceImpl implements DesignService {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
 
-        var user = userService.getUserByUserID(UUID.fromString(designRequest.getUserID()))
+        var user = userService.getUserByUserID(designRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
-        var expertTailoringResponse = expertTailoringService.findExpertTailoringByID(UUID.fromString(designRequest.getExpertTailoringID()))
+        var expertTailoringResponse = expertTailoringService.findExpertTailoringByID(designRequest.getExpertTailoringID())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
@@ -106,22 +106,22 @@ public class DesignServiceImpl implements DesignService {
     }
 
     @Override
-    public Design getDesignByID(UUID designID) {
+    public Design getDesignByID(String designID) {
         return designRepository.findById(designID).orElse(null);
     }
 
     @Override
-    public DesignResponse getDesignByOrderID(UUID orderID) {
+    public DesignResponse getDesignByOrderID(String orderID) {
         return designMapper.mapperToDesignResponse(designRepository.findByOrderID(orderID));
     }
 
     @Override
-    public Design getDesignObjectByOrderID(UUID orderID) {
+    public Design getDesignObjectByOrderID(String orderID) {
         return designRepository.findByOrderID(orderID);
     }
 
     @Override
-    public List<DesignResponse> getAllDesignByUserID(UUID userID) {
+    public List<DesignResponse> getAllDesignByUserID(String userID) {
         return designRepository
                 .findAll()
                 .stream()
@@ -132,7 +132,7 @@ public class DesignServiceImpl implements DesignService {
 
     @Transactional(readOnly = true)
     @Override
-    public DesignResponse getDesignResponseByID(UUID designID) {
+    public DesignResponse getDesignResponseByID(String designID) {
         var designOptional = designRepository.findById(designID);
         if (designOptional.isPresent()) {
             DesignResponse designResponse = designMapper.mapperToDesignResponse(designOptional.get());
@@ -216,7 +216,7 @@ public class DesignServiceImpl implements DesignService {
     }
 
     @Override
-    public APIResponse getAllDesignByUserIDAndRoleName(UUID userID, String roleName) {
+    public APIResponse getAllDesignByUserIDAndRoleName(String userID, String roleName) {
         if (!Utilities.isStringNotNullOrEmpty(roleName)) {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " roleName");
         }
@@ -253,7 +253,7 @@ public class DesignServiceImpl implements DesignService {
 
 
     @Override
-    public void updatePublicStatusDesign(UUID designID) {
+    public void updatePublicStatusDesign(String designID) {
         var designExisted = designRepository.findById(designID)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN));
 
@@ -264,10 +264,10 @@ public class DesignServiceImpl implements DesignService {
     @Transactional
     @Override
     public void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest) {
-        var user = userService.getUserByUserID(UUID.fromString(cloneDesignRequest.getUserID()))
+        var user = userService.getUserByUserID(cloneDesignRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
-        var brandDesign = designRepository.findById(UUID.fromString(cloneDesignRequest.getDesignID()))
+        var brandDesign = designRepository.findById(cloneDesignRequest.getDesignID())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN_BY_BRAND_ID));
 
 
@@ -309,15 +309,15 @@ public class DesignServiceImpl implements DesignService {
 
     @Transactional
     @Override
-    public APIResponse updateDesign(UUID designID, DesignRequest designRequest) {
+    public APIResponse updateDesign(String designID, DesignRequest designRequest) {
         if (!Utilities.isValidBoolean(designRequest.getPublicStatus())) {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
 
-        var user = userService.getUserByUserID(UUID.fromString(designRequest.getUserID()))
+        var user = userService.getUserByUserID(designRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
-        var expertTailoringResponse = expertTailoringService.findExpertTailoringByID(UUID.fromString(designRequest.getExpertTailoringID()))
+        var expertTailoringResponse = expertTailoringService.findExpertTailoringByID(designRequest.getExpertTailoringID())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_EXPERT_TAILORING));
 
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);

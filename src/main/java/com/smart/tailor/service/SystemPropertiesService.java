@@ -6,18 +6,18 @@ import com.smart.tailor.utils.response.SystemPropertiesResponse;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface SystemPropertiesService {
     SystemPropertiesResponse addNewSystemProperty(SystemPropertiesRequest systemProperties);
 
     List<SystemPropertiesResponse> getAllByPropertyType(String propertyType);
 
-    SystemPropertiesResponse getByID(UUID propertyID);
+    SystemPropertiesResponse getByID(String propertyID);
 
     SystemPropertiesResponse getByName(String propertyName);
 
-    Optional<SystemProperties> getObjectByID(UUID propertyID);
+    Optional<SystemProperties> getObjectByID(String propertyID);
 
     List<SystemPropertiesResponse> getAll();
 }

@@ -9,7 +9,7 @@ import com.smart.tailor.utils.response.UserResponse;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface UserService {
     Optional<User> getUserDetailByEmail(String email);
@@ -30,11 +30,11 @@ public interface UserService {
 
     User updateUserProfile(UserRequest userRequest);
 
-    Optional<User> getUserByUserID(UUID uuid);
+    Optional<User> getUserByUserID(String String);
 
     List<UserResponse> findAllUserByRoleName(RoleType roleType);
 
     List<User> findAllUnverifiedUser();
 
-    void deleteUnverifiedUser(UUID userID);
+    void deleteUnverifiedUser(String userID);
 }

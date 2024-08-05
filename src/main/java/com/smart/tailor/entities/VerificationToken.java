@@ -1,14 +1,15 @@
 package com.smart.tailor.entities;
 
 import com.smart.tailor.enums.TypeOfVerification;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "verification_token")
@@ -20,10 +21,9 @@ import java.util.UUID;
 public class VerificationToken implements Serializable {
     @Id
     @Column(name = "verification_token_id")
-    @UuidGenerator
-    private UUID verificationTokenID;
+    private String verificationTokenID;
 
-    private UUID token;
+    private String token;
 
     private LocalDateTime expirationDateTime;
 
@@ -35,4 +35,9 @@ public class VerificationToken implements Serializable {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
+
+    @PrePersist
+    private void prePersist() {
+        this.verificationTokenID = Utilities.generateCustomPrimaryKey();
+    }
 }

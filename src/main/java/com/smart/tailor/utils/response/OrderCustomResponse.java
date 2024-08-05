@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Data
 @Builder
@@ -15,8 +15,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderCustomResponse {
     private DesignResponse designResponse;
-    private UUID orderID;
-    private UUID parentOrderID;
+    private String orderID;
+    private String parentOrderID;
     private Integer quantity;
     private Float rating;
     private OrderStatus orderStatus;

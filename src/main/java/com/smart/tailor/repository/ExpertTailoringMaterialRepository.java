@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Repository
 public interface ExpertTailoringMaterialRepository extends JpaRepository<ExpertTailoringMaterial, ExpertTailoringMaterialKey> {
-    Optional<ExpertTailoringMaterial> findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(UUID expertTailoringID, UUID materialID);
+    Optional<ExpertTailoringMaterial> findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(String expertTailoringID, String materialID);
 }

@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderPickingRequest {
-    private UUID brandID;
-    private UUID orderID;
-    private List<UUID> detailList;
+    private String brandID;
+    private String orderID;
+    private List<String> detailList;
 }

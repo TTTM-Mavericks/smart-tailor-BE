@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.ExpertTailoringMaterialService;
 import com.smart.tailor.utils.request.ExpertTailoringMaterialListRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(APIConstant.ExpertTailoringMaterialAPI.EXPERT_TAILORING_MATERIAL)
@@ -32,7 +32,7 @@ public class ExpertTailoringMaterialController {
     private final Logger logger = LoggerFactory.getLogger(ExpertTailoringMaterialController.class);
 
     @GetMapping(APIConstant.ExpertTailoringMaterialAPI.GET_ALL_EXPERT_TAILORING_MATERIAL_BY_EXPERT_TAILORING_ID + "/{expertTailoringID}")
-    public ResponseEntity<ObjectNode> getAllExpertTailoringMaterialByExpertTailoringID(@ValidUUID @PathVariable("expertTailoringID") UUID expertTailoringID) {
+    public ResponseEntity<ObjectNode> getAllExpertTailoringMaterialByExpertTailoringID( @PathVariable("expertTailoringID") String expertTailoringID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var expertTailoringMaterialResponses = expertTailoringMaterialService.findAllActiveExpertTailoringMaterialByExpertTailoringID(expertTailoringID);
@@ -90,8 +90,8 @@ public class ExpertTailoringMaterialController {
     }
 
     @PutMapping(APIConstant.ExpertTailoringMaterialAPI.CHANGE_STATUS_EXPERT_TAILORING_MATERIAL)
-    public ResponseEntity<ObjectNode> changeStatusExpertTailoringMaterial(@ValidUUID @RequestParam("expertTailoringID") UUID expertTailoringID,
-                                                                          @ValidUUID @RequestParam("materialID") UUID materialID) {
+    public ResponseEntity<ObjectNode> changeStatusExpertTailoringMaterial( @RequestParam("expertTailoringID") String expertTailoringID,
+                                                                           @RequestParam("materialID") String materialID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         expertTailoringMaterialService.changeStatusExpertTailoringMaterial(expertTailoringID, materialID);

@@ -2,17 +2,18 @@ package com.smart.tailor.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.smart.tailor.enums.OrderStatus;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "orders")
@@ -23,11 +24,9 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Order extends AuditEntity implements Serializable {
-
     @Id
     @Column(name = "order_id", nullable = false, unique = true)
-    @UuidGenerator
-    private UUID orderID;
+    private String orderID;
 
     @ManyToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
@@ -115,5 +114,10 @@ public class Order extends AuditEntity implements Serializable {
                 ", productionStartDate=" + productionStartDate +
                 ", productionCompletionDate=" + productionCompletionDate +
                 '}';
+    }
+
+    @PrePersist
+    private void prePersist() {
+        this.orderID = Utilities.generateCustomPrimaryKey();
     }
 }

@@ -103,13 +103,13 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
     }
 
     @Override
-    public Optional<ExpertTailoringMaterial> findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(UUID expertTailoringID, UUID materialID) {
+    public Optional<ExpertTailoringMaterial> findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(String expertTailoringID, String materialID) {
         return expertTailoringMaterialRepository.findByExpertTailoringExpertTailoringIDAndMaterialMaterialID(expertTailoringID, materialID);
     }
 
     @Transactional
     @Override
-    public void changeStatusExpertTailoringMaterial(UUID expertTailoringID, UUID materialID) {
+    public void changeStatusExpertTailoringMaterial(String expertTailoringID, String materialID) {
         var material = materialService.findMaterialByID(materialID)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_MATERIAL));
 
@@ -134,7 +134,7 @@ public class ExpertTailoringMaterialServiceImpl implements ExpertTailoringMateri
     }
 
     @Override
-    public List<ExpertTailoringMaterialResponse> findAllActiveExpertTailoringMaterialByExpertTailoringID(UUID expertTailoringID) {
+    public List<ExpertTailoringMaterialResponse> findAllActiveExpertTailoringMaterialByExpertTailoringID(String expertTailoringID) {
         return expertTailoringMaterialRepository
                 .findAll()
                 .stream()

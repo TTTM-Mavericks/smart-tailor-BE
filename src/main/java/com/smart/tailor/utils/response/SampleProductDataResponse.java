@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @Builder
@@ -15,10 +15,10 @@ import java.util.UUID;
 public class SampleProductDataResponse {
     OrderStatus stage;
     Boolean status;
-    private UUID sampleModelID;
-    private UUID orderID;
-    private UUID orderStageID;
-    private UUID brandID;
+    private String sampleModelID;
+    private String orderID;
+    private String orderStageID;
+    private String brandID;
     private String brandName;
     private String description;
 

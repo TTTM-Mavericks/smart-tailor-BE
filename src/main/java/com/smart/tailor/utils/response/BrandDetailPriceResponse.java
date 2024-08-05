@@ -5,16 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class BrandDetailPriceResponse {
-    private UUID brandID;
+    private String brandID;
 
-    private UUID subOrderID;
+    private String subOrderID;
 
     private String brandPriceDeposit;
 

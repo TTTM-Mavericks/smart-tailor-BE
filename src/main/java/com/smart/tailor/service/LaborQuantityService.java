@@ -7,14 +7,14 @@ import com.smart.tailor.utils.response.LaborQuantityResponse;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface LaborQuantityService {
     void createLaborQuantity(LaborQuantityRequestList laborQuantityRequestList);
 
     List<LaborQuantityResponse> findAllLaborQuantity();
 
-    void updateLaborQuantity(UUID laborQuantityID, LaborQuantityRequest laborQuantityRequest);
+    void updateLaborQuantity(String laborQuantityID, LaborQuantityRequest laborQuantityRequest);
 
-    Optional<LaborQuantity> findByID(UUID laborQuantityID);
+    Optional<LaborQuantity> findByID(String laborQuantityID);
 }

@@ -7,23 +7,23 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Repository
-public interface DesignDetailRepository extends JpaRepository<DesignDetail, UUID> {
+public interface DesignDetailRepository extends JpaRepository<DesignDetail, String> {
     @Query(nativeQuery = true, value = "SELECT DISTINCT d.* FROM design_detail d JOIN orders o ON d.order_id = o.order_id WHERE o.parent_order_id = ?1 Or o.order_id = ?1")
-    List<DesignDetail> findAllByOrderID(UUID orderID);
+    List<DesignDetail> findAllByOrderID(String orderID);
 
     @Query(nativeQuery = true, value = "SELECT DISTINCT d.* FROM design_detail d JOIN orders o ON d.order_id = o.order_id WHERE o.order_id = ?1")
-    List<DesignDetail> findAllBySubOrderID(UUID orderID);
+    List<DesignDetail> findAllBySubOrderID(String orderID);
 
-    DesignDetail findDesignDetailByDesignDesignIDAndSizeSizeID(UUID designID, UUID sizeID);
+    DesignDetail findDesignDetailByDesignDesignIDAndSizeSizeID(String designID, String sizeID);
 
     @Query(nativeQuery = true, value = "SELECT d.* FROM design_detail d JOIN orders o ON d.order_id = o.order_id WHERE o.order_type = 'SUB_ORDER' AND o.order_id = ?1 AND d.brand_id = ?2")
-    DesignDetail getDetailOfOrderBaseOnBrandID(UUID orderID, UUID brandID);
+    DesignDetail getDetailOfOrderBaseOnBrandID(String orderID, String brandID);
 
-    Optional<DesignDetail> getDesignDetailByDesignDetailID(UUID designDetailID);
+    Optional<DesignDetail> getDesignDetailByDesignDetailID(String designDetailID);
 
     @Query(nativeQuery = true, value = "SELECT d.* FROM design_detail d JOIN orders o ON d.order_id = o.order_id WHERE o.order_id = ?1")
-    List<DesignDetail> getDesignDetailBySubOrderID(UUID subOrderID);
+    List<DesignDetail> getDesignDetailBySubOrderID(String subOrderID);
 }

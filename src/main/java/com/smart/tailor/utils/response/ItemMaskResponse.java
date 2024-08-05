@@ -6,14 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ItemMaskResponse {
-    private UUID itemMaskID;
+    private String itemMaskID;
 
     private String itemMaskName;
 

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +38,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     @Override
     public void createBrandLaborQuantity(BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
         List<ErrorDetail> errorDetails = new ArrayList<>();
-        UUID brandID = UUID.fromString(brandLaborQuantityListRequest.getBrandID());
+        String brandID = brandLaborQuantityListRequest.getBrandID();
         var brandExisted = brandService.findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with brandID: " + brandID));
 
@@ -46,7 +46,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
 
         for (BrandLaborQuantityRequest brandLaborQuantityRequest : brandLaborQuantityRequests) {
             List<String> errors = new ArrayList<>();
-            var laborQuantityID = UUID.fromString(brandLaborQuantityRequest.getLaborQuantityID());
+            var laborQuantityID = brandLaborQuantityRequest.getLaborQuantityID();
             var laborQuantity = laborQuantityService.findByID(laborQuantityID).orElse(null);
             if (laborQuantity == null) {
                 errorDetails.add(new ErrorDetail("Can not find Labor Quantity with LaborQuantityID: " + laborQuantityID));
@@ -93,7 +93,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     }
 
     @Override
-    public List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(UUID brandID) {
+    public List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(String brandID) {
         return brandLaborQuantityRepository
                 .findAll()
                 .stream()
@@ -104,11 +104,11 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
 
     @Transactional
     @Override
-    public void updateBrandLaborQuantity(UUID brandID, BrandLaborQuantityRequest brandLaborQuantityRequest) {
+    public void updateBrandLaborQuantity(String brandID, BrandLaborQuantityRequest brandLaborQuantityRequest) {
         var brandExisted = brandService.findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
 
-        var laborQuantityID = UUID.fromString(brandLaborQuantityRequest.getLaborQuantityID());
+        var laborQuantityID = brandLaborQuantityRequest.getLaborQuantityID();
         var laborQuantity = laborQuantityService.findByID(laborQuantityID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find LaborQuantity with LaborQuantityID: " + laborQuantityID));
 
@@ -143,7 +143,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     }
 
     @Override
-    public BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(UUID brandID, Integer brandQuantity) {
+    public BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(String brandID, Integer brandQuantity) {
         return brandLaborQuantityMapper.mapToLaborQuantityResponse(
                 brandLaborQuantityRepository.findLaborQuantityByBrandIDAndBrandQuantity(brandID, brandQuantity)
         );

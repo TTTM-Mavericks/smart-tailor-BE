@@ -5,18 +5,18 @@ import com.smart.tailor.entities.BrandImage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public interface BrandImageService {
     BrandImage saveBrandImage(BrandImage brandImage);
 
     List<BrandImage> saveAllBrandImages(List<BrandImage> brandImages);
 
-    Optional<BrandImage> getBrandImageById(UUID imageId);
+    Optional<BrandImage> getBrandImageById(String imageId);
 
-    void deleteBrandImageById(UUID imageId);
+    void deleteBrandImageById(String imageId);
 
     List<BrandImage> getBrandImagesByBrand(Brand brand);
 
-    void updateBrandImageStatusById(UUID imageId);
+    void updateBrandImageStatusById(String imageId);
 }

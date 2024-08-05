@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+
 
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class BrandExpertTailoringRequest {
-    private UUID brand_id;
-    private UUID expert_tailoring_id;
+    private String brand_id;
+    private String expert_tailoring_id;
 }

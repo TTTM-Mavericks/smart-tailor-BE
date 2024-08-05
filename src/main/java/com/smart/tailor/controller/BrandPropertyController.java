@@ -6,14 +6,14 @@ import com.smart.tailor.constant.APIConstant.BrandPropertyAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.BrandPropertiesService;
 import com.smart.tailor.utils.request.BrandPropertiesRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -34,7 +34,7 @@ public class BrandPropertyController {
     }
 
     @GetMapping(BrandPropertyAPI.GET_ALL_BRAND_PROPERTY_BY_BRAND_ID)
-    public ResponseEntity<ObjectNode> getAllByBrandID(@RequestParam("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> getAllByBrandID(@RequestParam("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var data = brandPropertiesService.getAllByBrandID(brandID);
@@ -45,7 +45,7 @@ public class BrandPropertyController {
     }
 
     @GetMapping(BrandPropertyAPI.GET_BRAND_PROPERTY + "/{systemID}")
-    public ResponseEntity<ObjectNode> getByID(@ValidUUID @PathVariable("systemID") UUID systemID) {
+    public ResponseEntity<ObjectNode> getByID( @PathVariable("systemID") String systemID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var data = brandPropertiesService.getByID(systemID);

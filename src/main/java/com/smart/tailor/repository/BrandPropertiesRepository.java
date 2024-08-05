@@ -5,11 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Repository
-public interface BrandPropertiesRepository extends JpaRepository<BrandProperties, UUID> {
-    List<BrandProperties> getAllByBrand_BrandID(UUID brandID);
+public interface BrandPropertiesRepository extends JpaRepository<BrandProperties, String> {
+    List<BrandProperties> getAllByBrand_BrandID(String brandID);
 
-    BrandProperties findByBrand_BrandIDAndSystemPropertiesPropertyID(UUID brandID, UUID propertyID);
+    BrandProperties findByBrand_BrandIDAndSystemPropertiesPropertyID(String brandID, String propertyID);
 }

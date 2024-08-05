@@ -1,13 +1,14 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "employee")
@@ -20,8 +21,7 @@ import java.util.UUID;
 public class Employee extends AuditEntity implements Serializable {
     @Id
     @Column(name = "employee_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID employeeID;
+    private String employeeID;
 
     @OneToOne
     @MapsId
@@ -39,4 +39,9 @@ public class Employee extends AuditEntity implements Serializable {
 
     @Column(name = "fail_task")
     private Integer failTask = 0;
+
+    @PrePersist
+    private void prePersist() {
+        this.employeeID = Utilities.generateCustomPrimaryKey();
+    }
 }

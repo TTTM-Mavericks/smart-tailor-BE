@@ -19,7 +19,7 @@ import com.smart.tailor.utils.request.BrandExpertTailoringRequest;
 import com.smart.tailor.utils.request.BrandRequest;
 import com.smart.tailor.utils.request.NotificationRequest;
 import com.smart.tailor.utils.request.UserRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(BrandAPI.BRAND)
@@ -47,7 +47,7 @@ public class BrandController {
     private final NotificationService notificationService;
 
     @GetMapping(BrandAPI.GET_BRAND + "/{id}")
-    public ResponseEntity<ObjectNode> getBrandById(@PathVariable("id") UUID id) {
+    public ResponseEntity<ObjectNode> getBrandById(@PathVariable("id") String id) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
@@ -75,7 +75,7 @@ public class BrandController {
     }
 
     @PostMapping(BrandAPI.UPLOAD_BRAND_INFOR + "/{brandID}")
-    public ResponseEntity<ObjectNode> uploadBrandInfor(@PathVariable("brandID") UUID brandID, @RequestBody BrandRequest brandRequest) {
+    public ResponseEntity<ObjectNode> uploadBrandInfor(@PathVariable("brandID") String brandID, @RequestBody BrandRequest brandRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -114,7 +114,7 @@ public class BrandController {
     }
 
     @GetMapping(BrandAPI.GET_BRAND_REGISTRATION_PAYMENT + "/{brandID}")
-    public ResponseEntity<ObjectNode> getBrandRegistrationPayment(@PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> getBrandRegistrationPayment(@PathVariable("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
@@ -261,7 +261,7 @@ public class BrandController {
 
     //    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
     @GetMapping(BrandAPI.ACCEPT_BRAND + "/{brandID}")
-    public ResponseEntity<ObjectNode> acceptBrand(@PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> acceptBrand(@PathVariable("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
@@ -290,7 +290,7 @@ public class BrandController {
 
     //    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
     @GetMapping(BrandAPI.REJECT_BRAND + "/{brandID}")
-    public ResponseEntity<ObjectNode> rejectBrand(@PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> rejectBrand(@PathVariable("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
@@ -318,7 +318,7 @@ public class BrandController {
     }
 
     @GetMapping(BrandAPI.GET_BRAND_INFORMATION_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> findBrandInformationByBrandID(@ValidUUID @PathVariable("brandID") UUID brandID) {
+    public ResponseEntity<ObjectNode> findBrandInformationByBrandID( @PathVariable("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         try {
@@ -342,7 +342,7 @@ public class BrandController {
 
     @PutMapping(BrandAPI.CHANGE_IMAGE_STATUS + "/{imageId}")
     public ResponseEntity<ObjectNode> changeImageStatus(
-            @PathVariable("imageId") UUID imageId) {
+            @PathVariable("imageId") String imageId) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();

@@ -6,7 +6,7 @@ import com.smart.tailor.constant.APIConstant.SystemImageAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.SystemImageService;
 import com.smart.tailor.utils.request.SystemImageRequest;
-import com.smart.tailor.validate.ValidUUID;
+import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping(SystemImageAPI.SYSTEM_IMAGE)
@@ -41,7 +41,7 @@ public class SystemImageController {
     }
 
     @GetMapping(SystemImageAPI.GET_ALL_SYSTEM_IMAGE_BY_ID + "/{systemImageID}")
-    public ResponseEntity<ObjectNode> getSystemImageById(@ValidUUID @PathVariable("systemImageID") UUID systemImageID) {
+    public ResponseEntity<ObjectNode> getSystemImageById( @PathVariable("systemImageID") String systemImageID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var systemImageList = systemImageService.getSystemImageById(systemImageID);

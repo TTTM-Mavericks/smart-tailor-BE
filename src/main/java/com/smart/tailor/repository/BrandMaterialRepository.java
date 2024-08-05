@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
+
 
 @Repository
 public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, BrandMaterialKey> {
     @Modifying
     @Transactional
     @Query(value = "update brand_material set brand_price = ?1, last_modified_date = current_timestamp where brand_id = ?2 and material_id = ?3", nativeQuery = true)
-    void updateBrandMaterial(Integer brandPrice, UUID brandID, UUID materialID);
+    void updateBrandMaterial(Integer brandPrice, String brandID, String materialID);
 
     @Query(
             value = "select bm.* from brand_material bm join brand b on bm.brand_id = b.brand_id " +
@@ -23,13 +23,13 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
                     "join category c on c.category_id = m.category_id " +
                     "where c.category_name = ?1 && m.material_name = ?2 && b.brand_id = ?3", nativeQuery = true
     )
-    BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(String categoryName, String materialName, UUID brandID);
+    BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandID(String categoryName, String materialName, String brandID);
 
     @Query(value = "SELECT MIN(brand_price) FROM brand_material where material_id = ?1", nativeQuery = true)
-    Integer getMinPriceByMaterialID(UUID materialID);
+    Integer getMinPriceByMaterialID(String materialID);
 
     @Query(value = "SELECT MAX(brand_price) FROM brand_material where material_id =?1", nativeQuery = true)
-    Integer getMaxPriceByMaterialID(UUID materialID);
+    Integer getMaxPriceByMaterialID(String materialID);
 
     @Query(
             value = "select bm.* from brand_material bm join brand b on bm.brand_id = b.brand_id " +
@@ -43,5 +43,5 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
             String unit, Integer basePrice, Integer brandPrice);
 
     @Query(value = "SELECT brand_price FROM brand_material where brand_id = ?1 && material_id = ?2", nativeQuery = true)
-    Integer getBrandPriceByBrandIDAndMaterialID(UUID brandID, UUID materialID);
+    Integer getBrandPriceByBrandIDAndMaterialID(String brandID, String materialID);
 }

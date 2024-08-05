@@ -1,13 +1,14 @@
 package com.smart.tailor.entities;
 
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "size")
@@ -20,11 +21,15 @@ import java.util.UUID;
 public class Size extends AuditEntity implements Serializable {
     @Id
     @Column(name = "size_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID sizeID;
+    private String sizeID;
 
     @Column(name = "size_name", columnDefinition = "varchar(5)")
     private String sizeName;
 
     private Boolean status;
+
+    @PrePersist
+    private void prePersist() {
+        this.sizeID = Utilities.generateCustomPrimaryKey();
+    }
 }

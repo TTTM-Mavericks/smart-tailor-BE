@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public List<Token> findAllValidTokenByUser(UUID userID) {
+    public List<Token> findAllValidTokenByUser(String userID) {
         return tokenRepository.findAllValidTokenByUser(userID);
     }
 
@@ -48,7 +48,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void deleteTokenByUserID(UUID userID) {
+    public void deleteTokenByUserID(String userID) {
         tokenRepository.deleteTokenByUserID(userID);
     }
 }

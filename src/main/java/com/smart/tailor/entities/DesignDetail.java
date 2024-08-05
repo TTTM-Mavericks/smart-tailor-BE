@@ -2,14 +2,15 @@ package com.smart.tailor.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 @Entity
 @Table(name = "design_detail")
@@ -22,8 +23,7 @@ import java.util.UUID;
 public class DesignDetail extends AuditEntity implements Serializable {
     @Id
     @Column(name = "design_detail_id", unique = true, nullable = false)
-    @UuidGenerator
-    private UUID designDetailID;
+    private String designDetailID;
 
     @ManyToOne
     @JoinColumn(name = "design_id", referencedColumnName = "design_id", unique = false, nullable = false)
@@ -45,4 +45,9 @@ public class DesignDetail extends AuditEntity implements Serializable {
     private Integer quantity;
 
     private Boolean detailStatus;
+
+    @PrePersist
+    private void prePersist() {
+        this.designDetailID = Utilities.generateCustomPrimaryKey();
+    }
 }
