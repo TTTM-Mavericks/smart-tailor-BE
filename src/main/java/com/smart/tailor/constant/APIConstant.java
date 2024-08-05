@@ -44,6 +44,7 @@ public class APIConstant {
         public static final String REJECT_BRAND = "/reject-brand";
         public static final String GET_BRAND_INFORMATION_BY_BRAND_ID = "/get-brand-information-by-brand-id";
         public static final String CHANGE_IMAGE_STATUS = "/change-image-status";
+        public static final String GET_ALL_BRAND_INFORMATION = "/get-all-brand-information";
     }
 
     /**

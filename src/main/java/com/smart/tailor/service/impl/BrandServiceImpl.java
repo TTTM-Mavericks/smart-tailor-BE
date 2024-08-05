@@ -146,6 +146,15 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public List<BrandResponse> getAllBrandInformation() {
+        return brandRepository
+                .findAll()
+                .stream()
+                .map(brandMapper::mapperToBrandResponse)
+                .toList();
+    }
+
+    @Override
     public List<BrandImage> getBrandImage(String brandID) {
         var brand = findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));

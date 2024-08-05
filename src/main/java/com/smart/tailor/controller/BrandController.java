@@ -364,4 +364,27 @@ public class BrandController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @GetMapping(BrandAPI.GET_ALL_BRAND_INFORMATION)
+    public ResponseEntity<ObjectNode> getAllBrandInformation() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            var brandResponseList = brandService.getAllBrandInformation();
+            if (brandResponseList.isEmpty()) {
+                response.put("status", 200);
+                response.put("message", MessageConstant.CAN_NOT_FIND_BRAND);
+                return ResponseEntity.ok(response);
+            }
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_BRAND_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(brandResponseList));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("status", -1);
+            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET BRAND BY ID. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
 }

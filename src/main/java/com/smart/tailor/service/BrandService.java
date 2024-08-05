@@ -26,6 +26,8 @@ public interface BrandService {
 
     BrandResponse findBrandInformationByBrandID(String brandID);
 
+    List<BrandResponse> getAllBrandInformation();
+
     List<BrandImage> getBrandImage(String brandID);
 
     boolean changeBrandImageStatus(String imageId);
