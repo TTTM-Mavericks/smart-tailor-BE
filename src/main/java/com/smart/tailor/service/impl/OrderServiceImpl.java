@@ -1442,7 +1442,12 @@ public class OrderServiceImpl implements OrderService {
         try {
             var listOrder = orderRepository.findAll()
                     .stream()
-                    .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL || order.getOrderStatus() == OrderStatus.DELIVERED)
+                    .filter(
+                            order -> order.getOrderType().equals("PARENT_ORDER") &&
+                                    (order.getOrderStatus() == OrderStatus.CANCEL
+                                            ||
+                                            order.getOrderStatus() == OrderStatus.DELIVERED)
+                    )
                     .toList();
             List<FullOrderResponse> response = new ArrayList<>();
             for (Order order : listOrder) {
