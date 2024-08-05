@@ -1459,4 +1459,39 @@ public class OrderServiceImpl implements OrderService {
             throw ex;
         }
     }
+
+    @Override
+    public List<FullOrderResponse> getFullPropByBrandID(UUID brandID) throws JsonProcessingException {
+        try {
+            var listOrder = orderRepository.findAll()
+                    .stream()
+                    .filter(
+                            order -> order.getOrderType().equals("SUB_ORDER")
+                                    &&
+                                    (order.getOrderStatus() == OrderStatus.CANCEL
+                                            ||
+                                            order.getOrderStatus() == OrderStatus.COMPLETED) &&
+                                    order.getDetailList() != null
+                                    &&
+                                    !order.getDetailList().isEmpty()
+                                    &&
+                                    order.getDetailList().get(0).getBrand() != null
+                                    &&
+                                    order.getDetailList().get(0).getBrand().getBrandID().equals(brandID)
+                                    &&
+                                    order.getPaymentList() != null
+                                    &&
+                                    !order.getPaymentList().isEmpty()
+                    )
+                    .toList();
+            List<FullOrderResponse> response = new ArrayList<>();
+            for (Order order : listOrder) {
+                FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
+                response.add(fullOrderResponse);
+            }
+            return response;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
 }

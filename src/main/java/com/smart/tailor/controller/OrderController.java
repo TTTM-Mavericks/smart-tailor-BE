@@ -214,6 +214,21 @@ public class OrderController {
         }
     }
 
+    @GetMapping(OrderAPI.GET_ORDER_FULL_PROP_BY_BRAND_ID + "/{brandID}")
+    public ResponseEntity<ObjectNode> getFullPropOrderByBrandID(@PathVariable("brandID") UUID brandID) {
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+            var orderResponse = orderService.getFullPropByBrandID(brandID);
+            response.set("data", objectMapper.valueToTree(orderResponse));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            return null;
+        }
+    }
+
     @GetMapping(OrderAPI.GET_ORDER_STAGE_BY_ID + "/{orderID}")
     public ResponseEntity<ObjectNode> getOrderStageByID(@ValidUUID @PathVariable("orderID") UUID orderID) {
         try {
