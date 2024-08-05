@@ -485,26 +485,28 @@ public class OrderServiceImpl implements OrderService {
 //                                            .paymentType(PaymentType.BRAND_INVOICE)
 //                                            .build()
 //                            );
-                            var payOSResponse = paymentService.createPayOSPayment(
-                                    PaymentRequest
-                                            .builder()
-                                            .orderID(subOrder.getOrderID())
+                            if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                var payOSResponse = paymentService.createPayOSPayment(
+                                        PaymentRequest
+                                                .builder()
+                                                .orderID(subOrder.getOrderID())
 
-                                            .paymentSenderID(null)
-                                            .paymentSenderName(order.getBuyerName())
-                                            .paymentSenderBankCode("")
-                                            .paymentSenderBankNumber("")
+                                                .paymentSenderID(null)
+                                                .paymentSenderName(order.getBuyerName())
+                                                .paymentSenderBankCode("")
+                                                .paymentSenderBankNumber("")
 
-                                            .paymentRecipientID(null)
-                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                            .paymentRecipientBankCode("OCB")
-                                            .paymentRecipientBankNumber("0163100007285002")
+                                                .paymentRecipientID(null)
+                                                .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                .paymentRecipientBankCode("OCB")
+                                                .paymentRecipientBankNumber("0163100007285002")
 
-                                            .paymentType(PaymentType.BRAND_INVOICE)
-                                            .paymentAmount(subOrder.getTotalPrice())
-                                            .itemList(null)
-                                            .build()
-                            );
+                                                .paymentType(PaymentType.BRAND_INVOICE)
+                                                .paymentAmount(subOrder.getTotalPrice())
+                                                .itemList(null)
+                                                .build()
+                                );
+                            }
                         }
                     }
                     case CANCEL -> {
@@ -557,26 +559,28 @@ public class OrderServiceImpl implements OrderService {
 //                                                        .paymentType(PaymentType.BRAND_INVOICE)
 //                                                        .build()
 //                                        );
-                                        var payOSResponse = paymentService.createPayOSPayment(
-                                                PaymentRequest
-                                                        .builder()
-                                                        .orderID(subOrder.getOrderID())
+                                        if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                            var payOSResponse = paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(subOrder.getOrderID())
 
-                                                        .paymentSenderID(null)
-                                                        .paymentSenderName(order.getBuyerName())
-                                                        .paymentSenderBankCode("")
-                                                        .paymentSenderBankNumber("")
+                                                            .paymentSenderID(null)
+                                                            .paymentSenderName(order.getBuyerName())
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
 
-                                                        .paymentRecipientID(null)
-                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                        .paymentRecipientBankCode("OCB")
-                                                        .paymentRecipientBankNumber("0163100007285002")
+                                                            .paymentRecipientID(null)
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
 
-                                                        .paymentType(PaymentType.BRAND_INVOICE)
-                                                        .paymentAmount(subOrder.getTotalPrice())
-                                                        .itemList(null)
-                                                        .build()
-                                        );
+                                                            .paymentType(PaymentType.BRAND_INVOICE)
+                                                            .paymentAmount(subOrder.getTotalPrice())
+                                                            .itemList(null)
+                                                            .build()
+                                            );
+                                        }
                                         changeOrderStatus(
                                                 OrderStatusUpdateRequest
                                                         .builder()
@@ -609,26 +613,28 @@ public class OrderServiceImpl implements OrderService {
 //                                                        .paymentType(PaymentType.BRAND_INVOICE)
 //                                                        .build()
 //                                        );
-                                        var payOSResponse = paymentService.createPayOSPayment(
-                                                PaymentRequest
-                                                        .builder()
-                                                        .orderID(subOrder.getOrderID())
+                                        if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                            var payOSResponse = paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(subOrder.getOrderID())
 
-                                                        .paymentSenderID(null)
-                                                        .paymentSenderName(order.getBuyerName())
-                                                        .paymentSenderBankCode("")
-                                                        .paymentSenderBankNumber("")
+                                                            .paymentSenderID(null)
+                                                            .paymentSenderName(order.getBuyerName())
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
 
-                                                        .paymentRecipientID(null)
-                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                        .paymentRecipientBankCode("OCB")
-                                                        .paymentRecipientBankNumber("0163100007285002")
+                                                            .paymentRecipientID(null)
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
 
-                                                        .paymentType(PaymentType.BRAND_INVOICE)
-                                                        .paymentAmount(subOrder.getTotalPrice())
-                                                        .itemList(null)
-                                                        .build()
-                                        );
+                                                            .paymentType(PaymentType.BRAND_INVOICE)
+                                                            .paymentAmount(subOrder.getTotalPrice())
+                                                            .itemList(null)
+                                                            .build()
+                                            );
+                                        }
                                         changeOrderStatus(
                                                 OrderStatusUpdateRequest
                                                         .builder()
@@ -661,26 +667,28 @@ public class OrderServiceImpl implements OrderService {
 //                                                        .paymentType(PaymentType.BRAND_INVOICE)
 //                                                        .build()
 //                                        );
-                                        var payOSResponse = paymentService.createPayOSPayment(
-                                                PaymentRequest
-                                                        .builder()
-                                                        .orderID(subOrder.getOrderID())
+                                        if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                            var payOSResponse = paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(subOrder.getOrderID())
 
-                                                        .paymentSenderID(null)
-                                                        .paymentSenderName(order.getBuyerName())
-                                                        .paymentSenderBankCode("")
-                                                        .paymentSenderBankNumber("")
+                                                            .paymentSenderID(null)
+                                                            .paymentSenderName(order.getBuyerName())
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
 
-                                                        .paymentRecipientID(null)
-                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                        .paymentRecipientBankCode("OCB")
-                                                        .paymentRecipientBankNumber("0163100007285002")
+                                                            .paymentRecipientID(null)
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
 
-                                                        .paymentType(PaymentType.BRAND_INVOICE)
-                                                        .paymentAmount(subOrder.getTotalPrice())
-                                                        .itemList(null)
-                                                        .build()
-                                        );
+                                                            .paymentType(PaymentType.BRAND_INVOICE)
+                                                            .paymentAmount(subOrder.getTotalPrice())
+                                                            .itemList(null)
+                                                            .build()
+                                            );
+                                        }
                                         changeOrderStatus(
                                                 OrderStatusUpdateRequest
                                                         .builder()
@@ -1477,6 +1485,41 @@ public class OrderServiceImpl implements OrderService {
                                     (order.getOrderStatus() == OrderStatus.CANCEL
                                             ||
                                             order.getOrderStatus() == OrderStatus.DELIVERED)
+                    )
+                    .toList();
+            List<FullOrderResponse> response = new ArrayList<>();
+            for (Order order : listOrder) {
+                FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
+                response.add(fullOrderResponse);
+            }
+            return response;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public List<FullOrderResponse> getFullPropByBrandID(UUID brandID) throws JsonProcessingException {
+        try {
+            var listOrder = orderRepository.findAll()
+                    .stream()
+                    .filter(
+                            order -> order.getOrderType().equals("SUB_ORDER")
+                                    &&
+                                    (order.getOrderStatus() == OrderStatus.CANCEL
+                                            ||
+                                            order.getOrderStatus() == OrderStatus.COMPLETED) &&
+                                    order.getDetailList() != null
+                                    &&
+                                    !order.getDetailList().isEmpty()
+                                    &&
+                                    order.getDetailList().get(0).getBrand() != null
+                                    &&
+                                    order.getDetailList().get(0).getBrand().getBrandID().equals(brandID)
+                                    &&
+                                    order.getPaymentList() != null
+                                    &&
+                                    !order.getPaymentList().isEmpty()
                     )
                     .toList();
             List<FullOrderResponse> response = new ArrayList<>();

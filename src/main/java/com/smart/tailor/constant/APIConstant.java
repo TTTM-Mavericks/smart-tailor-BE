@@ -243,6 +243,7 @@ public class APIConstant {
         public static final String CREATE_ORDER = "/create-order";
         public static final String GET_ORDER_BY_ID = "/get-order-by-id";
         public static final String GET_ORDER_FULL_PROP = "/get-full-of-order";
+        public static final String GET_ORDER_FULL_PROP_BY_BRAND_ID = "/get-full-of-order-by-brand-id";
         public static final String GET_ORDER_BY_BRAND_ID = "/get-order-by-brand-id";
         public static final String GET_ORDER_BY_USER_ID = "/get-order-by-user-id";
         public static final String GET_ORDER_DETAIL_BY_ID = "/get-order-detail-by-id";
