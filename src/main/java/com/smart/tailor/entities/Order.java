@@ -86,11 +86,11 @@ public class Order extends AuditEntity implements Serializable {
     @Column(name = "product_completion_date", columnDefinition = "datetime(2)")
     private LocalDateTime productionCompletionDate;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<DesignDetail> detailList;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Payment> paymentList;
 

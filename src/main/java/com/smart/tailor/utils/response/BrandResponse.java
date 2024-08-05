@@ -44,6 +44,8 @@ public class BrandResponse {
 
     private String ward;
 
+    private String taxCode;
+
     private Integer numberOfViolations;
 
     private String createDate;

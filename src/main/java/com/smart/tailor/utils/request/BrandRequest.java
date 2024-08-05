@@ -23,6 +23,7 @@ public class BrandRequest {
     private String province;
     private String district;
     private String ward;
+    private String taxCode;
     private Float rating;
     private Integer numberOfViolations;
     private BrandStatus brandStatus;

@@ -1,14 +1,12 @@
 package com.smart.tailor.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.request.RatingOrderRequest;
-import com.smart.tailor.utils.response.OrderCustomResponse;
-import com.smart.tailor.utils.response.OrderResponse;
-import com.smart.tailor.utils.response.OrderStageResponse;
-import com.smart.tailor.utils.response.OrderTimeLineResponse;
+import com.smart.tailor.utils.response.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,4 +58,6 @@ public interface OrderService {
     void ratingOrder(RatingOrderRequest ratingOrderRequest);
 
     OrderTimeLineResponse getOrderTimeLineByParentOrderID(String parentOrderID);
+
+    List<FullOrderResponse> getFullProp() throws JsonProcessingException;
 }

@@ -68,6 +68,8 @@ public class Brand extends AuditEntity implements Serializable {
 
     private Float totalRatingScore = 1.0f;
 
+    private String taxCode;
+
     @OneToMany(mappedBy = "brand")
     private List<BrandProperties> brandProperties;
 

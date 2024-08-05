@@ -12,22 +12,22 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
-    private final SimpMessagingTemplate messagingTemplate;
+//    private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRepository notificationRepository;
     private final BrandService brandService;
 
     @Override
     public void sendGlobalNotification(NotificationRequest notificationRequest) {
-        messagingTemplate.convertAndSend("/topic/global-notifications", notificationRequest);
+//        messagingTemplate.convertAndSend("/topic/global-notifications", notificationRequest);
     }
 
     @Override
     public void sendPrivateNotification(NotificationRequest notificationRequest) throws Exception {
-        messagingTemplate.convertAndSendToUser(
-                notificationRequest.getRecipient(),
-                "/topic/private-notifications",
-                notificationRequest
-        );
+//        messagingTemplate.convertAndSendToUser(
+//                notificationRequest.getRecipient(),
+//                "/topic/private-notifications",
+//                notificationRequest
+//        );
         saveNotification(notificationRequest);
     }
 
