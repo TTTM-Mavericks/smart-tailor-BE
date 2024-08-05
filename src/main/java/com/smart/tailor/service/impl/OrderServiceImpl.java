@@ -714,16 +714,22 @@ public class OrderServiceImpl implements OrderService {
                 var parentOrder = getOrderById(existedOrder.getParentOrder().getOrderID()).get();
                 parentOrder.setOrderStatus(OrderStatus.PENDING);
                 orderRepository.save(parentOrder);
-                var orderResponse = safeMapToOrderResponse(parentOrder);
-                applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
 
                 var detailList = existedOrder.getDetailList();
+                existedOrder.setDetailList(null);
+                orderRepository.save(existedOrder);
                 for (var detail : detailList) {
                     detail.setOrder(parentOrder);
                     detail.setBrand(null);
                     detail.setDetailStatus(false);
+                    var parentDetailList = parentOrder.getDetailList();
+                    parentDetailList.add(detail);
+                    parentOrder.setDetailList(parentDetailList);
+                    orderRepository.save(parentOrder);
                     detailRepository.save(detail);
                 }
+                var orderResponse = safeMapToOrderResponse(parentOrder);
+                applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
             }
         } else {
             if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING.name())) {
