@@ -4,6 +4,7 @@ import com.smart.tailor.entities.User;
 import com.smart.tailor.entities.VerificationToken;
 import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.repository.VerificationTokenRepository;
+import com.smart.tailor.service.SystemPropertiesService;
 import com.smart.tailor.service.VerificationTokenService;
 import com.smart.tailor.utils.Utilities;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @Slf4j
 public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final VerificationTokenRepository verificationTokenRepository;
+    private final SystemPropertiesService systemPropertiesService;
 
     @Override
     public Optional<VerificationToken> findByToken(String token) {
@@ -34,6 +36,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     public void saveUserVerificationToken(User user, String token, TypeOfVerification typeOfVerification) {
         LocalDateTime localDateTime = LocalDateTime.now();
         VerificationToken existedVerificationToken = findByUserID(user.getUserID());
+        var emailVerificationTime = Integer.parseInt(systemPropertiesService.getByName("EMAIL_VERIFICATION_TIME").getPropertyValue());
         if (existedVerificationToken == null) {
             verificationTokenRepository.save(
                     VerificationToken
@@ -42,14 +45,14 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                             .user(user)
                             .typeOfVerification(typeOfVerification)
                             .isEnabled(false)
-                            .expirationDateTime(localDateTime.plusMinutes(1))
+                            .expirationDateTime(localDateTime.plusMinutes(emailVerificationTime))
                             .build()
             );
         } else {
             existedVerificationToken.setTypeOfVerification(typeOfVerification);
             existedVerificationToken.setToken(token);
             existedVerificationToken.setEnabled(false);
-            existedVerificationToken.setExpirationDateTime(localDateTime.plusMinutes(1));
+            existedVerificationToken.setExpirationDateTime(localDateTime.plusMinutes(emailVerificationTime));
             verificationTokenRepository.save(existedVerificationToken);
         }
     }
@@ -57,9 +60,10 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Override
     public VerificationToken generateNewVerificationToken(String userEmail) {
         var verificationToken = findVerificationTokenByUserEmail(userEmail);
+        var emailVerificationTime = Integer.parseInt(systemPropertiesService.getByName("EMAIL_VERIFICATION_TIME").getPropertyValue());
         if (verificationToken != null) {
             verificationToken.setToken(Utilities.generateCustomPrimaryKey());
-            verificationToken.setExpirationDateTime(LocalDateTime.now().plusMinutes(1));
+            verificationToken.setExpirationDateTime(LocalDateTime.now().plusMinutes(emailVerificationTime));
             verificationToken.setEnabled(false);
             return verificationTokenRepository.save(verificationToken);
         }
