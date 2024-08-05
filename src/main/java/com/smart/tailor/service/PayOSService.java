@@ -8,7 +8,11 @@ import com.smart.tailor.utils.response.PayOSResponse;
 public interface PayOSService {
     PayOSCreationResponse createPaymentLink(PayOSRequest paymentRequest) throws Exception;
 
+    PayOSCreationResponse createBrandPaymentLink(PayOSRequest paymentRequest) throws Exception;
+
     public PayOSResponse getPaymentInfo(Integer paymentID) throws JsonProcessingException;
+
+    public PayOSResponse getBrandPaymentInfo(Integer paymentID) throws JsonProcessingException;
 
     void confirmPayment(Integer orderCode) throws JsonProcessingException;
 }

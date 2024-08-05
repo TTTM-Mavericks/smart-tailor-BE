@@ -17,6 +17,7 @@ import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
+import com.smart.tailor.utils.response.PayOSCreationResponse;
 import com.smart.tailor.utils.response.PaymentResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -143,27 +144,43 @@ public class PaymentServiceImpl implements PaymentService {
                 String returnUrl = "";
                 String description = "";
                 var orderID = paymentRequest.getOrderID();
-
-                if (paymentType.equals(PaymentType.DEPOSIT)) {
-                    description = "DEPOSIT ORDER";
-                } else if (paymentType.equals(PaymentType.STAGE_1)) {
-                    description = "STAGE 1";
+                PayOSCreationResponse creationPayOS = null;
+                if (paymentType.equals(PaymentType.BRAND_INVOICE)) {
+                    description = "Brand Invoice";
+                    creationPayOS = payOSService.createBrandPaymentLink(
+                            PayOSRequest
+                                    .builder()
+                                    .amount(paymentAmount)
+                                    .description(description)
+                                    .buyerName("")
+                                    .buyerEmail("")
+                                    .buyerPhone("")
+                                    .buyerAddress("")
+                                    .returnUrl(clientURL + "/accountant")
+                                    .build()
+                    );
                 } else {
-                    description = "STAGE 2";
-                }
+                    if (paymentType.equals(PaymentType.DEPOSIT)) {
+                        description = "DEPOSIT ORDER";
+                    } else if (paymentType.equals(PaymentType.STAGE_1)) {
+                        description = "STAGE 1";
+                    } else {
+                        description = "STAGE 2";
+                    }
 
-                var creationPayOS = payOSService.createPaymentLink(
-                        PayOSRequest
-                                .builder()
-                                .amount(10000)
-                                .description(description)
-                                .buyerName("")
-                                .buyerEmail("")
-                                .buyerPhone("")
-                                .buyerAddress("")
-                                .returnUrl(clientURL + "/order_detail/" + orderID)
-                                .build()
-                );
+                    creationPayOS = payOSService.createPaymentLink(
+                            PayOSRequest
+                                    .builder()
+                                    .amount(paymentAmount)
+                                    .description(description)
+                                    .buyerName("")
+                                    .buyerEmail("")
+                                    .buyerPhone("")
+                                    .buyerAddress("")
+                                    .returnUrl(clientURL + "/order_detail/" + orderID)
+                                    .build()
+                    );
+                }
 
                 logger.info("CREATE PayOS SUCCESSFULLY!");
 
@@ -184,8 +201,8 @@ public class PaymentServiceImpl implements PaymentService {
 
                                 .paymentRecipient(null)
                                 .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                .paymentRecipientBankCode("MB BANK")
-                                .paymentRecipientBankNumber("0335567997")
+                                .paymentRecipientBankCode("OCB")
+                                .paymentRecipientBankNumber("0163100007285002")
 
                                 .paymentMethod(paymentMethod)
                                 .paymentAmount(paymentAmount)
@@ -459,5 +476,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Payment updatePayment(Payment payment) {
         return paymentRepository.save(payment);
+    }
+
+    @Override
+    public List<Payment> getAllPayment() {
+        return paymentRepository.findAll().stream().toList();
     }
 }

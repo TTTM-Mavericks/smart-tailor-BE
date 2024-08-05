@@ -19,4 +19,6 @@ public interface PaymentService {
     List<Payment> findAllByOrderID(UUID orderID);
 
     Payment updatePayment(Payment payment);
+
+    List<Payment> getAllPayment();
 }

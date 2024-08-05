@@ -2,6 +2,7 @@ package com.smart.tailor.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Payment;
+import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.utils.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,12 @@ class PaymentMapperImpl implements PaymentMapper {
                     .paymentStatus(payment.getPaymentStatus())
                     .paymentType(payment.getPaymentType())
                     .orderID(payment.getOrder() != null ? payment.getOrder().getOrderID() : null)
-                    .payOSResponse(payOSService.getPaymentInfo(payment.getPaymentCode()))
+                    .payOSResponse(
+                            payment.getPaymentType().equals(PaymentType.BRAND_INVOICE) ?
+                                    payOSService.getBrandPaymentInfo(payment.getPaymentCode())
+                                    :
+                                    payOSService.getPaymentInfo(payment.getPaymentCode())
+                    )
                     .createDate(payment.getCreateDate().toString())
                     .paymentURl(payment.getPaymentURl())
                     .build();

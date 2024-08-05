@@ -8,6 +8,7 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
 import com.smart.tailor.utils.response.OrderResponse;
+import com.smart.tailor.utils.response.PayOSResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,8 +110,8 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
 
                                             .paymentRecipientID(recipient.getUserID())
                                             .paymentRecipientName(recipient.getFullName())
-                                            .paymentRecipientBankCode("MB Bank")
-                                            .paymentRecipientBankNumber("0335567997")
+                                            .paymentRecipientBankCode("OCB")
+                                            .paymentRecipientBankNumber("0163100007285002")
 
                                             .paymentType(PaymentType.DEPOSIT)
                                             .paymentAmount(order.getTotalPrice())
@@ -128,6 +129,30 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                     .status(OrderStatus.CANCEL.name())
                                     .build()
                     );
+                }
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 * * * * *") // Run every minute
+    @Override
+    @Transactional
+    public void updatePayOS() throws Exception {
+        logger.info("Inside Method updatePayOS");
+        var paymentList = paymentService.getAllPayment();
+        for (Payment payment : paymentList) {
+            if (payment != null) {
+                if (payment.getPaymentType() != null) {
+                    PayOSResponse payOS = null;
+                    if (payment.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
+                        payOS = payOSService.getBrandPaymentInfo(payment.getPaymentCode());
+                    } else {
+                        payOS = payOSService.getPaymentInfo(payment.getPaymentCode());
+                    }
+                    if (payOS != null) {
+                        payment.setPaymentStatus(payOS.getData().getStatus().equals("PAID"));
+                        paymentService.updatePayment(payment);
+                    }
                 }
             }
         }

@@ -44,6 +44,14 @@ public class PayOSServiceImpl implements PayOSService {
     private String apiKey;
     @Value("${PAYOS_CHECKSUM_KEY}")
     private String checksumKey;
+
+    @Value("${BRAND_PAYOS_CLIENT_ID}")
+    private String brandClientId;
+    @Value("${BRAND_PAYOS_API_KEY}")
+    private String brandApiKey;
+    @Value("${BRAND_PAYOS_CHECKSUM_KEY}")
+    private String brandChecksumKey;
+
     @Value("${CLIENT_URL}")
     private String clientURL;
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -241,12 +249,215 @@ public class PayOSServiceImpl implements PayOSService {
     }
 
     @Override
+    public PayOSCreationResponse createBrandPaymentLink(PayOSRequest paymentRequest) throws Exception {
+        try {
+            String cancelUrl = "http://cancel";
+            Integer amount = paymentRequest.getAmount();
+
+            String currentTimeString = String.valueOf(LocalDateTime.now());
+            Integer orderCode = Integer.parseInt(currentTimeString.substring(currentTimeString.length() - 6));
+
+            String status = "PENDING";
+
+            paymentRequest.setOrderCode(orderCode);
+            String returnUrl = paymentRequest.getReturnUrl() != null ? paymentRequest.getReturnUrl() : clientURL;
+            paymentRequest.setAmount(amount);
+            paymentRequest.setReturnUrl(returnUrl);
+            paymentRequest.setCancelUrl(cancelUrl);
+            paymentRequest.setDescription(paymentRequest.getDescription());
+
+            String bodyToSignature = createSignatureOfPaymentRequest(paymentRequest, brandChecksumKey);
+            paymentRequest.setSignature(bodyToSignature);
+
+            // Tạo header
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("x-client-id", brandClientId);
+            headers.set("x-api-key", brandApiKey);
+            // Gửi yêu cầu POST
+
+            WebClient client = WebClient.create();
+            Mono<String> response = client.post()
+                    .uri(createPaymentLinkUrl)
+                    .headers(httpHeaders -> httpHeaders.putAll(headers))
+                    .body(BodyInserters.fromValue(paymentRequest))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .retryWhen(Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(2)) // Retry indefinitely with exponential backoff
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure()) // Throw error after exhaustion
+                    )
+                    .onErrorResume(error -> {
+                        // Xử lý lỗi nếu cần
+                        System.err.println("Error after retries: " + error.getMessage());
+                        return Mono.empty();
+                    });
+            String responseBody = response.block();
+            JsonNode res = objectMapper.readTree(responseBody);
+            System.out.println("ORDER CODE: " + orderCode);
+            System.out.println(res);
+            if (!Objects.equals(res.get("code").asText(), "00")) {
+                throw new Exception("Fail");
+            }
+            logger.info("Create PaymentLink Successfully");
+
+            /**
+             * GET RESPONSE
+             */
+            String code = res.get("code").asText();
+            String desc = res.get("desc").asText();
+            String signature = res.get("signature").asText();
+
+            /**
+             * GET RESPONSE.DATA
+             */
+            String bin = res.get("data").get("bin").asText();
+            String accountNumber = res.get("data").get("accountNumber").asText();
+            String accountName = res.get("data").get("accountName").asText();
+            String description = res.get("data").get("description").asText();
+            String currency = res.get("data").get("currency").asText();
+            String paymentLinkId = res.get("data").get("paymentLinkId").asText();
+            status = res.get("data").get("status").asText();
+            String checkoutUrl = res.get("data").get("checkoutUrl").asText();
+            String qrCode = res.get("data").get("qrCode").asText();
+
+            //Kiểm tra dữ liệu có đúng không
+            String paymentLinkResSignature = createSignatureFromObj(res.get("data"), brandChecksumKey);
+            if (!paymentLinkResSignature.equals(res.get("signature").asText())) {
+                throw new Exception("Signature is not compatible");
+            }
+            PayOSCreationResponseData responseData = PayOSCreationResponseData.builder()
+                    .accountNumber(accountNumber)
+                    .bin(bin)
+                    .accountName(accountName)
+                    .amount(amount)
+                    .description(description)
+                    .orderCode(orderCode)
+                    .currency(currency)
+                    .paymentLinkId(paymentLinkId)
+                    .status(status)
+                    .checkoutUrl(checkoutUrl)
+                    .qrCode(qrCode)
+                    .build();
+
+            PayOSData payOSData = PayOSData
+                    .builder()
+                    .orderCode(orderCode)
+                    .amount(amount)
+                    .status(status)
+                    .checkoutUrl(checkoutUrl)
+                    .qrCode(qrCode)
+                    .build();
+            try {
+                payOSDataService.save(payOSData);
+            } catch (Exception ex) {
+                logger.error("SOMETHING WENT WRONG!!!!!");
+                ex.printStackTrace();
+            }
+            PayOSCreationResponse payOSCreationResponse = PayOSCreationResponse
+                    .builder()
+                    .code(code)
+                    .desc(desc)
+                    .data(responseData)
+                    .signature(signature)
+                    .build();
+            return payOSCreationResponse;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
     public PayOSResponse getPaymentInfo(Integer paymentID) {
         ObjectMapper objectMapper = new ObjectMapper();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-client-id", clientId);
         headers.set("x-api-key", apiKey);
+        // Gửi yêu cầu POST
+        WebClient client = WebClient.create();
+        Mono<String> response = client.get()
+                .uri(createPaymentLinkUrl + "/" + paymentID)
+                .headers(httpHeaders -> httpHeaders.putAll(headers))
+                .retrieve()
+                .bodyToMono(String.class)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1)))  // Thử lại với độ trễ gia tăng
+                .onErrorResume(e -> {
+                    logger.error("Request failed", e);
+                    return Mono.empty();
+                });
+        String responseBody = response.block();
+        JsonNode res = null;
+        try {
+            res = objectMapper.readTree(responseBody);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (!Objects.equals(res.get("code").asText(), "00")) {
+            logger.error("GET PAYOS RESPONSE FAIL!");
+            return null;
+        }
+
+        String code = res.get("code").asText();
+        String desc = res.get("desc").asText();
+
+        String id = res.get("data").get("id").asText();
+        Integer orderCode = Integer.valueOf(res.get("data").get("orderCode").asText()); //Mã đơn hàng từ cửa hàng
+        Integer amount = Integer.valueOf(res.get("data").get("amount").asText());
+        Integer amountPaid = Integer.valueOf(res.get("data").get("amountPaid").asText());
+        Integer amountRemaining = Integer.valueOf(res.get("data").get("amountRemaining").asText());
+        String status = res.get("data").get("status").asText();
+        List<Transactions> transactions = new ArrayList<>();
+        JsonNode jsonArrayNode = res.get("data").get("transactions");
+        for (JsonNode jsonNode : jsonArrayNode) {
+            Transactions transactionsObject = objectMapper.convertValue(jsonNode, Transactions.class);
+            transactions.add(transactionsObject);
+        }
+        String createdAt = res.get("data").get("createdAt").asText();
+        String canceledAt = res.get("data").get("canceledAt").asText();
+        String cancellationReason = res.get("data").get("cancellationReason").asText();
+
+        PayOSResponseData data = PayOSResponseData
+                .builder()
+                .id(id)
+                .orderCode(orderCode)
+                .amount(amount)
+                .amountPaid(amountPaid)
+                .amountRemaining(amountRemaining)
+                .status(status)
+                .transactions(transactions)
+                .createdAt(createdAt)
+                .canceledAt(canceledAt)
+                .cancellationReason(cancellationReason)
+                .build();
+
+        String signature = res.get("signature").asText();
+
+        var checkPayOSEntity = payOSDataService.findByOrderCode(orderCode);
+        if (checkPayOSEntity.isPresent()) {
+            var payOSEntity = checkPayOSEntity.get();
+            payOSEntity.setStatus(status);
+            payOSDataService.save(payOSEntity);
+            data.setQrCode(payOSEntity.getQrCode());
+            data.setCheckoutUrl(payOSEntity.getCheckoutUrl());
+        }
+
+        PayOSResponse payOSResponse = PayOSResponse
+                .builder()
+                .code(code)
+                .data(data)
+                .signature(signature)
+                .desc(desc)
+                .build();
+        return payOSResponse;
+    }
+
+    @Override
+    public PayOSResponse getBrandPaymentInfo(Integer paymentID) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-client-id", brandClientId);
+        headers.set("x-api-key", brandApiKey);
         // Gửi yêu cầu POST
         WebClient client = WebClient.create();
         Mono<String> response = client.get()
