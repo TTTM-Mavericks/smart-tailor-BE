@@ -32,6 +32,10 @@ public class Report extends AuditEntity implements Serializable {
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = true, unique = false)
     private Order order;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = true, unique = false)
+    private User user;
+
     @Column(columnDefinition = "text")
     private String content;
 

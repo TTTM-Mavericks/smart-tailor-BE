@@ -16,6 +16,9 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ReportRequest {
+    @NotBlank(message = "User ID is required")
+    private String userID;
+
     @NotBlank(message = "Type Of Report is required")
     @Size(max = 50, message = "Type Of Report must not exceed 50 characters")
     private String typeOfReport;

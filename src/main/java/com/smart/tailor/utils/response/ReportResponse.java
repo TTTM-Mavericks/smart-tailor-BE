@@ -15,6 +15,8 @@ import java.util.List;
 public class ReportResponse {
     private String reportID;
 
+    private UserResponse userResponse;
+
     private String typeOfReport;
 
     private OrderResponse orderResponse;

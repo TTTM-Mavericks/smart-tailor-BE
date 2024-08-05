@@ -8,6 +8,7 @@ import com.smart.tailor.repository.ReportRepository;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.service.ReportImageService;
 import com.smart.tailor.service.ReportService;
+import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.ReportRequest;
 import com.smart.tailor.utils.response.ReportResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,19 +31,33 @@ public class ReportServiceImpl implements ReportService {
     private final ReportImageService reportImageService;
     private final OrderService orderService;
     private final ReportMapper reportMapper;
+    private final UserService userService;
 
     @Transactional
     @Override
     public void createReport(ReportRequest reportRequest) throws Exception {
+        var user = userService.getUserByUserID(reportRequest.getUserID())
+                .orElseThrow(() -> new ItemNotFoundException("Can not find User with UserID: " + reportRequest.getUserID()));
+
         String orderID = reportRequest.getOrderID();
         var order = orderService.getOrderById(orderID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
+
+        var isValidOrderByUserID = orderService.getOrderByUserID(user.getUserID())
+                .stream()
+                .filter(orderCustomResponse -> orderCustomResponse.getOrderID().equals(orderID))
+                .findFirst();
+
+        if(isValidOrderByUserID.isEmpty()){
+            throw new ItemNotFoundException("Can not find Order with UserID: " + user.getUserID() + " to Report");
+        }
 
         var saveReport = reportRepository.save(
                 Report
                         .builder()
                         .typeOfReport(reportRequest.getTypeOfReport())
                         .order(order)
+                        .user(user)
                         .content(reportRequest.getContent())
                         .reportStatus(true)
                         .build()
