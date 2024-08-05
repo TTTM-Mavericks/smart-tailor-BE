@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
-import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.event.CreateOrderEvent;
 import com.smart.tailor.exception.BadRequestException;
@@ -335,8 +334,8 @@ public class OrderServiceImpl implements OrderService {
 
                                                             .paymentRecipientID(null)
                                                             .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                            .paymentRecipientBankCode("MB Bank")
-                                                            .paymentRecipientBankNumber("0335567997")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
 
                                                             .paymentType(PaymentType.STAGE_1)
                                                             .paymentAmount(order.getTotalPrice())
@@ -377,8 +376,8 @@ public class OrderServiceImpl implements OrderService {
 
                                                             .paymentRecipientID(null)
                                                             .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                            .paymentRecipientBankCode("MB Bank")
-                                                            .paymentRecipientBankNumber("0335567997")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
 
                                                             .paymentType(PaymentType.STAGE_2)
                                                             .paymentAmount(order.getTotalPrice())
@@ -406,9 +405,15 @@ public class OrderServiceImpl implements OrderService {
                                             var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                                             maxDateTime = maxDateTime.isAfter(completionDate) ? maxDateTime : completionDate;
                                         }
-                                        order.setOrderStatus(OrderStatus.COMPLETED);
                                         order.setProductionCompletionDate(maxDateTime);
                                         updateOrder(order);
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(orderID))
+                                                        .status(OrderStatus.COMPLETED.name())
+                                                        .build()
+                                        );
                                         break;
                                     }
                             }
@@ -439,8 +444,8 @@ public class OrderServiceImpl implements OrderService {
 
                                                     .paymentRecipientID(null)
                                                     .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                    .paymentRecipientBankCode("MB Bank")
-                                                    .paymentRecipientBankNumber("0335567997")
+                                                    .paymentRecipientBankCode("OCB")
+                                                    .paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.COMPLETED_ORDER)
                                                     .paymentAmount(order.getTotalPrice())
@@ -463,21 +468,41 @@ public class OrderServiceImpl implements OrderService {
                         var subOrderList = getSubOrderByParentID(orderID);
                         for (var subOrderResponse : subOrderList) {
                             var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                            paymentService.createManualPayment(
+//                            paymentService.createManualPayment(
+//                                    PaymentRequest
+//                                            .builder()
+//                                            .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
+//                                            .paymentSenderName("NGUYEN VAN A")
+//                                            .paymentSenderBankCode("NCB")
+//                                            .paymentSenderBankNumber("9704198526191432198")
+//                                            .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
+//                                            .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
+//                                            .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
+//                                            .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
+//                                            .orderID(subOrder.getOrderID())
+//                                            .paymentAmount(subOrder.getTotalPrice())
+//                                            .paymentMethod(PaymentMethod.CREDIT_CARD)
+//                                            .paymentType(PaymentType.BRAND_INVOICE)
+//                                            .build()
+//                            );
+                            var payOSResponse = paymentService.createPayOSPayment(
                                     PaymentRequest
                                             .builder()
-                                            .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
-                                            .paymentSenderName("NGUYEN VAN A")
-                                            .paymentSenderBankCode("NCB")
-                                            .paymentSenderBankNumber("9704198526191432198")
-                                            .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
-                                            .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
-                                            .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
-                                            .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
                                             .orderID(subOrder.getOrderID())
-                                            .paymentAmount(subOrder.getTotalPrice())
-                                            .paymentMethod(PaymentMethod.CREDIT_CARD)
+
+                                            .paymentSenderID(null)
+                                            .paymentSenderName(order.getBuyerName())
+                                            .paymentSenderBankCode("")
+                                            .paymentSenderBankNumber("")
+
+                                            .paymentRecipientID(null)
+                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                            .paymentRecipientBankCode("OCB")
+                                            .paymentRecipientBankNumber("0163100007285002")
+
                                             .paymentType(PaymentType.BRAND_INVOICE)
+                                            .paymentAmount(subOrder.getTotalPrice())
+                                            .itemList(null)
                                             .build()
                             );
                         }
@@ -515,24 +540,50 @@ public class OrderServiceImpl implements OrderService {
                                 for (OrderResponse subOrderResponse : subOrderList) {
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                        paymentService.createManualPayment(
+//                                        paymentService.createManualPayment(
+//                                                PaymentRequest
+//                                                        .builder()
+//                                                        .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
+//                                                        .paymentSenderName("NGUYEN VAN A")
+//                                                        .paymentSenderBankCode("NCB")
+//                                                        .paymentSenderBankNumber("9704198526191432198")
+//                                                        .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
+//                                                        .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
+//                                                        .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
+//                                                        .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
+//                                                        .orderID(subOrder.getOrderID())
+//                                                        .paymentAmount(subOrder.getTotalPrice())
+//                                                        .paymentMethod(PaymentMethod.CREDIT_CARD)
+//                                                        .paymentType(PaymentType.BRAND_INVOICE)
+//                                                        .build()
+//                                        );
+                                        var payOSResponse = paymentService.createPayOSPayment(
                                                 PaymentRequest
                                                         .builder()
-                                                        .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
-                                                        .paymentSenderName("NGUYEN VAN A")
-                                                        .paymentSenderBankCode("NCB")
-                                                        .paymentSenderBankNumber("9704198526191432198")
-                                                        .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
-                                                        .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
-                                                        .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
-                                                        .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
                                                         .orderID(subOrder.getOrderID())
-                                                        .paymentAmount(subOrder.getTotalPrice())
-                                                        .paymentMethod(PaymentMethod.CREDIT_CARD)
+
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName(order.getBuyerName())
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
+
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("OCB")
+                                                        .paymentRecipientBankNumber("0163100007285002")
+
                                                         .paymentType(PaymentType.BRAND_INVOICE)
+                                                        .paymentAmount(subOrder.getTotalPrice())
+                                                        .itemList(null)
                                                         .build()
                                         );
-                                        updateOrderStatus(subOrder.getOrderID(), OrderStatus.CANCEL.name());
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(subOrder.getOrderID()))
+                                                        .status(OrderStatus.CANCEL.name())
+                                                        .build()
+                                        );
                                     }
                                 }
                             }
@@ -541,24 +592,50 @@ public class OrderServiceImpl implements OrderService {
                                 for (OrderResponse subOrderResponse : subOrderList) {
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                        paymentService.createManualPayment(
+//                                        paymentService.createManualPayment(
+//                                                PaymentRequest
+//                                                        .builder()
+//                                                        .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
+//                                                        .paymentSenderName("NGUYEN VAN A")
+//                                                        .paymentSenderBankCode("NCB")
+//                                                        .paymentSenderBankNumber("9704198526191432198")
+//                                                        .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
+//                                                        .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
+//                                                        .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
+//                                                        .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
+//                                                        .orderID(subOrder.getOrderID())
+//                                                        .paymentAmount(subOrder.getTotalPrice())
+//                                                        .paymentMethod(PaymentMethod.CREDIT_CARD)
+//                                                        .paymentType(PaymentType.BRAND_INVOICE)
+//                                                        .build()
+//                                        );
+                                        var payOSResponse = paymentService.createPayOSPayment(
                                                 PaymentRequest
                                                         .builder()
-                                                        .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
-                                                        .paymentSenderName("NGUYEN VAN A")
-                                                        .paymentSenderBankCode("NCB")
-                                                        .paymentSenderBankNumber("9704198526191432198")
-                                                        .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
-                                                        .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
-                                                        .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
-                                                        .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
                                                         .orderID(subOrder.getOrderID())
-                                                        .paymentAmount(subOrder.getTotalPrice())
-                                                        .paymentMethod(PaymentMethod.CREDIT_CARD)
+
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName(order.getBuyerName())
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
+
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("OCB")
+                                                        .paymentRecipientBankNumber("0163100007285002")
+
                                                         .paymentType(PaymentType.BRAND_INVOICE)
+                                                        .paymentAmount(subOrder.getTotalPrice())
+                                                        .itemList(null)
                                                         .build()
                                         );
-                                        updateOrderStatus(subOrder.getOrderID(), OrderStatus.CANCEL.name());
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(subOrder.getOrderID()))
+                                                        .status(OrderStatus.CANCEL.name())
+                                                        .build()
+                                        );
                                     }
                                 }
                             }
@@ -567,24 +644,50 @@ public class OrderServiceImpl implements OrderService {
                                 for (OrderResponse subOrderResponse : subOrderList) {
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                        paymentService.createManualPayment(
+//                                        paymentService.createManualPayment(
+//                                                PaymentRequest
+//                                                        .builder()
+//                                                        .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
+//                                                        .paymentSenderName("NGUYEN VAN A")
+//                                                        .paymentSenderBankCode("NCB")
+//                                                        .paymentSenderBankNumber("9704198526191432198")
+//                                                        .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
+//                                                        .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
+//                                                        .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
+//                                                        .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
+//                                                        .orderID(subOrder.getOrderID())
+//                                                        .paymentAmount(subOrder.getTotalPrice())
+//                                                        .paymentMethod(PaymentMethod.CREDIT_CARD)
+//                                                        .paymentType(PaymentType.BRAND_INVOICE)
+//                                                        .build()
+//                                        );
+                                        var payOSResponse = paymentService.createPayOSPayment(
                                                 PaymentRequest
                                                         .builder()
-                                                        .paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID())
-                                                        .paymentSenderName("NGUYEN VAN A")
-                                                        .paymentSenderBankCode("NCB")
-                                                        .paymentSenderBankNumber("9704198526191432198")
-                                                        .paymentRecipientID(subOrder.getDetailList().get(0).getBrand().getBrandID())
-                                                        .paymentRecipientName(subOrder.getDetailList().get(0).getBrand().getBrandName())
-                                                        .paymentRecipientBankCode(subOrder.getDetailList().get(0).getBrand().getBankName())
-                                                        .paymentRecipientBankNumber(subOrder.getDetailList().get(0).getBrand().getAccountNumber())
                                                         .orderID(subOrder.getOrderID())
-                                                        .paymentAmount(subOrder.getTotalPrice())
-                                                        .paymentMethod(PaymentMethod.CREDIT_CARD)
+
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName(order.getBuyerName())
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
+
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("OCB")
+                                                        .paymentRecipientBankNumber("0163100007285002")
+
                                                         .paymentType(PaymentType.BRAND_INVOICE)
+                                                        .paymentAmount(subOrder.getTotalPrice())
+                                                        .itemList(null)
                                                         .build()
                                         );
-                                        updateOrderStatus(subOrder.getOrderID(), OrderStatus.CANCEL.name());
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(subOrder.getOrderID()))
+                                                        .status(OrderStatus.CANCEL.name())
+                                                        .build()
+                                        );
                                     }
                                 }
                             }
@@ -891,7 +994,7 @@ public class OrderServiceImpl implements OrderService {
                 orderRepository.save(orderResponse);
 
                 basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
-                basedOrder.setTotalPrice(10000);
+//                basedOrder.setTotalPrice(10000);
                 orderRepository.save(basedOrder);
 
                 orderResponse.setDetailList(detailResponse);
@@ -952,7 +1055,7 @@ public class OrderServiceImpl implements OrderService {
                 orderRepository.save(orderResponse);
 
                 basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
-                basedOrder.setTotalPrice(10000);
+//                basedOrder.setTotalPrice(10000);
 
                 orderRepository.save(basedOrder);
 
@@ -1339,7 +1442,12 @@ public class OrderServiceImpl implements OrderService {
         try {
             var listOrder = orderRepository.findAll()
                     .stream()
-                    .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL || order.getOrderStatus() == OrderStatus.DELIVERED)
+                    .filter(
+                            order -> order.getOrderType().equals("PARENT_ORDER") &&
+                                    (order.getOrderStatus() == OrderStatus.CANCEL
+                                            ||
+                                            order.getOrderStatus() == OrderStatus.DELIVERED)
+                    )
                     .toList();
             List<FullOrderResponse> response = new ArrayList<>();
             for (Order order : listOrder) {
