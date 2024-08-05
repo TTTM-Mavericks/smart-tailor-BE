@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
-import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.event.CreateOrderEvent;
 import com.smart.tailor.exception.BadRequestException;
@@ -406,9 +405,15 @@ public class OrderServiceImpl implements OrderService {
                                             var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                                             maxDateTime = maxDateTime.isAfter(completionDate) ? maxDateTime : completionDate;
                                         }
-                                        order.setOrderStatus(OrderStatus.COMPLETED);
                                         order.setProductionCompletionDate(maxDateTime);
                                         updateOrder(order);
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(orderID))
+                                                        .status(OrderStatus.COMPLETED.name())
+                                                        .build()
+                                        );
                                         break;
                                     }
                             }
@@ -572,7 +577,13 @@ public class OrderServiceImpl implements OrderService {
                                                         .itemList(null)
                                                         .build()
                                         );
-                                        updateOrderStatus(subOrder.getOrderID(), OrderStatus.CANCEL.name());
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(subOrder.getOrderID()))
+                                                        .status(OrderStatus.CANCEL.name())
+                                                        .build()
+                                        );
                                     }
                                 }
                             }
@@ -618,7 +629,13 @@ public class OrderServiceImpl implements OrderService {
                                                         .itemList(null)
                                                         .build()
                                         );
-                                        updateOrderStatus(subOrder.getOrderID(), OrderStatus.CANCEL.name());
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(subOrder.getOrderID()))
+                                                        .status(OrderStatus.CANCEL.name())
+                                                        .build()
+                                        );
                                     }
                                 }
                             }
@@ -664,7 +681,13 @@ public class OrderServiceImpl implements OrderService {
                                                         .itemList(null)
                                                         .build()
                                         );
-                                        updateOrderStatus(subOrder.getOrderID(), OrderStatus.CANCEL.name());
+                                        changeOrderStatus(
+                                                OrderStatusUpdateRequest
+                                                        .builder()
+                                                        .orderID(String.valueOf(subOrder.getOrderID()))
+                                                        .status(OrderStatus.CANCEL.name())
+                                                        .build()
+                                        );
                                     }
                                 }
                             }
