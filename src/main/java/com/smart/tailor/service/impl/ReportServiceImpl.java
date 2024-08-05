@@ -43,25 +43,6 @@ public class ReportServiceImpl implements ReportService {
         var order = orderService.getOrderById(orderID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
 
-//        var isValidOrderByCustomerID = orderService.getOrderByUserID(user.getUserID())
-//                .stream()
-//                .filter(orderCustomResponse -> orderCustomResponse.getOrderID().equals(orderID))
-//                .findFirst();
-//
-//        var isValidOrderByBrandID = orderService.getOrderByBrandID(user.getUserID())
-//                .stream()
-//                .filter(orderCustomResponse -> orderCustomResponse.getOrderID().equals(orderID))
-//                .findFirst();
-//
-//        var isValidOrderForEmployee = order
-//                .getEmployee()
-//                .getEmployeeID()
-//                .equals(orderID);
-//
-//
-//        if(isValidOrderByCustomerID.isEmpty() && isValidOrderByBrandID.isEmpty() && !isValidOrderForEmployee){
-//            throw new ItemNotFoundException("Can not find Order with UserID: " + user.getUserID() + " to Report");
-//        }
 
         var saveReport = reportRepository.save(
                 Report
@@ -102,19 +83,21 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<ReportResponse> getAllReportByUserID(String userID) throws Exception {
-        return orderService
-                .getOrderByUserID(userID)
+        return reportRepository
+                .findAll()
                 .stream()
-                .flatMap(orderCustomResponse -> getAllReportByOrderID(orderCustomResponse.getOrderID()).stream())
+                .filter(report -> report.getUser().getUserID().equals(userID))
+                .map(reportMapper::mapperToReportResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ReportResponse> getAllReportByBrandID(String brandID) throws Exception {
-        return orderService
-                .getOrderByBrandID(brandID)
+        return reportRepository
+                .findAll()
                 .stream()
-                .flatMap(orderCustomResponse -> getAllReportByOrderID(orderCustomResponse.getOrderID()).stream())
+                .filter(report -> report.getUser().getUserID().equals(brandID))
+                .map(reportMapper::mapperToReportResponse)
                 .collect(Collectors.toList());
     }
 }
