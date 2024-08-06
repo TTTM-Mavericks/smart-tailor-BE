@@ -10,6 +10,13 @@ public class DataHandler extends TextWebSocketHandler {
     private final Logger LOG = LoggerFactory.getLogger(DataHandler.class);
 
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        LOG.info("User with email '{}' opened the page", message.getPayload());
+        String query = String.valueOf(session.getUri());
+        String email = "";
+        if (query != null) {
+            String[] pair = query.split("=");
+            email = pair[1];
+        }
+        LOG.info("User with email '{}' opened the page", email);
+//        LOG.info("User with email '{}' opened the page", message.getPayload());
     }
 }
