@@ -19,7 +19,7 @@ public interface DesignDetailRepository extends JpaRepository<DesignDetail, Stri
 
     DesignDetail findDesignDetailByDesignDesignIDAndSizeSizeID(String designID, String sizeID);
 
-    @Query(nativeQuery = true, value = "SELECT d.* FROM design_detail d JOIN orders o ON d.order_id = o.order_id WHERE o.order_type = 'SUB_ORDER' AND o.order_id = ?1 AND d.brand_id = ?2")
+    @Query(nativeQuery = true, value = "SELECT d.* FROM design_detail d JOIN orders o ON d.order_id = o.order_id WHERE o.order_type = 'SUB_ORDER' AND o.parent_order_id = ?1 AND d.brand_id = ?2")
     DesignDetail getDetailOfOrderBaseOnBrandID(String orderID, String brandID);
 
     Optional<DesignDetail> getDesignDetailByDesignDetailID(String designDetailID);
