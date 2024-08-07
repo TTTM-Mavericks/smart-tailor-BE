@@ -1114,8 +1114,6 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
                         }
-
-                        default -> throw new IllegalStateException("Unexpected value: " + currentStatus);
                     }
                 }
                 /**
