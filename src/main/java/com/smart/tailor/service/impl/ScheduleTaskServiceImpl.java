@@ -147,7 +147,10 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     if (payment.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
                         payOS = payOSService.getBrandPaymentInfo(payment.getPaymentCode());
                     } else {
-                        payOS = payOSService.getPaymentInfo(payment.getPaymentCode());
+                        if (payment.getPaymentType().equals(PaymentType.ORDER_REFUND)) {
+                            payOS = payOSService.getRefundPaymentInfo(payment.getPaymentCode());
+                        } else
+                            payOS = payOSService.getPaymentInfo(payment.getPaymentCode());
                     }
                     if (payOS != null) {
                         payment.setPaymentStatus(payOS.getData().getStatus().equals("PAID"));

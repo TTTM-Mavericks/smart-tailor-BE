@@ -146,74 +146,173 @@ public class PaymentServiceImpl implements PaymentService {
                 var orderID = paymentRequest.getOrderID();
                 PayOSCreationResponse creationPayOS = null;
                 if (paymentType.equals(PaymentType.BRAND_INVOICE)) {
+                    var checkSender = userService.getUserByUserID(paymentSenderID);
+                    if (checkSender.isEmpty()) {
+                        throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentSenderID);
+                    }
+                    var sender = checkSender.get();
+
+                    var checkRecipient = userService.getUserByUserID(paymentRecipientID);
+                    if (checkRecipient.isEmpty()) {
+                        throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentRecipientID);
+                    }
+                    var recipient = checkRecipient.get();
+
                     description = "Brand Invoice";
                     creationPayOS = payOSService.createBrandPaymentLink(
                             PayOSRequest
                                     .builder()
                                     .amount(paymentAmount)
                                     .description(description)
-                                    .buyerName("")
-                                    .buyerEmail("")
-                                    .buyerPhone("")
+                                    .buyerName(recipient.getName())
+                                    .buyerEmail(recipient.getEmail())
+                                    .buyerPhone(recipient.getPhoneNumber())
                                     .buyerAddress("")
                                     .returnUrl(clientURL + "/accountant")
                                     .build()
                     );
-                } else {
-                    if (paymentType.equals(PaymentType.DEPOSIT)) {
-                        description = "DEPOSIT ORDER";
-                    } else if (paymentType.equals(PaymentType.STAGE_1)) {
-                        description = "STAGE 1";
-                    } else {
-                        description = "STAGE 2";
+                    if (creationPayOS == null) {
+                        throw new Exception("Create PayOS Fail!");
                     }
+                    Integer orderCode = creationPayOS.getData().getOrderCode();
 
-                    creationPayOS = payOSService.createPaymentLink(
-                            PayOSRequest
-                                    .builder()
-                                    .amount(paymentAmount)
-                                    .description(description)
-                                    .buyerName("")
-                                    .buyerEmail("")
-                                    .buyerPhone("")
-                                    .buyerAddress("")
-                                    .returnUrl(clientURL + "/order_detail/" + orderID)
+                    var order = orderRepository.findById(orderID)
+                            .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderID));
+
+                    var storedPayment = paymentRepository.save(
+                            Payment.builder()
+                                    .paymentSender(sender)
+                                    .paymentSenderName(paymentSenderName)
+                                    .paymentSenderBankCode(paymentSenderBankCode)
+                                    .paymentSenderBankNumber(paymentSenderBankNumber)
+
+                                    .paymentRecipient(recipient)
+                                    .paymentRecipientName(recipient.getName())
+                                    .paymentRecipientBankCode(paymentRecipientBankCode)
+                                    .paymentRecipientBankNumber(paymentRecipientBankNumber)
+
+                                    .paymentMethod(paymentMethod)
+                                    .paymentAmount(paymentAmount)
+                                    .paymentStatus(paymentStatus)
+                                    .paymentType(paymentType)
+                                    .order(order)  // Use the retrieved order here
+                                    .paymentCode(orderCode)
                                     .build()
                     );
+
+                    return paymentMapper.mapperToPaymentResponse(storedPayment);
+                } else {
+                    if (paymentType.equals(PaymentType.ORDER_REFUND)) {
+                        var checkRecipient = userService.getUserByUserID(paymentRecipientID);
+                        if (checkRecipient.isEmpty()) {
+                            throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentRecipientID);
+                        }
+                        var recipient = checkRecipient.get();
+
+                        var checkSender = userService.getUserByUserID(paymentSenderID);
+                        if (checkSender.isEmpty()) {
+                            throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentSenderID);
+                        }
+                        var sender = checkSender.get();
+
+                        description = "Refund Invoice";
+                        creationPayOS = payOSService.createRefundPaymentLink(
+                                PayOSRequest
+                                        .builder()
+                                        .amount(paymentAmount)
+                                        .description(description)
+                                        .buyerName(paymentRecipientName)
+                                        .buyerEmail(recipient.getEmail())
+                                        .buyerPhone(recipient.getPhoneNumber())
+                                        .buyerAddress("")
+                                        .returnUrl(clientURL + "/accountant")
+                                        .build()
+                        );
+                        if (creationPayOS == null) {
+                            throw new Exception("Create PayOS Fail!");
+                        }
+                        Integer orderCode = creationPayOS.getData().getOrderCode();
+
+                        var order = orderRepository.findById(orderID)
+                                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderID));
+
+                        var storedPayment = paymentRepository.save(
+                                Payment.builder()
+                                        .paymentSender(sender)
+                                        .paymentSenderName(paymentSenderName)
+                                        .paymentSenderBankCode(paymentSenderBankCode)
+                                        .paymentSenderBankNumber(paymentSenderBankNumber)
+
+                                        .paymentRecipient(recipient)
+                                        .paymentRecipientName(paymentRecipientName)
+                                        .paymentRecipientBankCode(paymentRecipientBankCode)
+                                        .paymentRecipientBankNumber(paymentRecipientBankNumber)
+
+                                        .paymentMethod(paymentMethod)
+                                        .paymentAmount(paymentAmount)
+                                        .paymentStatus(paymentStatus)
+                                        .paymentType(paymentType)
+                                        .order(order)  // Use the retrieved order here
+                                        .paymentCode(orderCode)
+                                        .build()
+                        );
+
+                        return paymentMapper.mapperToPaymentResponse(storedPayment);
+                    } else {
+                        if (paymentType.equals(PaymentType.DEPOSIT)) {
+                            description = "DEPOSIT ORDER";
+                        } else if (paymentType.equals(PaymentType.STAGE_1)) {
+                            description = "STAGE 1";
+                        } else {
+                            description = "STAGE 2";
+                        }
+
+                        creationPayOS = payOSService.createPaymentLink(
+                                PayOSRequest
+                                        .builder()
+                                        .amount(paymentAmount)
+                                        .description(description)
+                                        .buyerName("")
+                                        .buyerEmail("")
+                                        .buyerPhone("")
+                                        .buyerAddress("")
+                                        .returnUrl(clientURL + "/order_detail/" + orderID)
+                                        .build()
+                        );
+                        logger.info("CREATE PayOS SUCCESSFULLY!");
+
+                        if (creationPayOS == null) {
+                            throw new Exception("Create PayOS Fail!");
+                        }
+                        Integer orderCode = creationPayOS.getData().getOrderCode();
+
+                        var order = orderRepository.findById(orderID)
+                                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderID));
+
+                        var storedPayment = paymentRepository.save(
+                                Payment.builder()
+                                        .paymentSender(null)
+                                        .paymentSenderName(paymentSenderName)
+                                        .paymentSenderBankCode(paymentSenderBankCode)
+                                        .paymentSenderBankNumber(paymentSenderBankNumber)
+
+                                        .paymentRecipient(null)
+                                        .paymentRecipientName("SMART TAILOR")
+                                        .paymentRecipientBankCode("OCB")
+                                        .paymentRecipientBankNumber("0163100007285002")
+
+                                        .paymentMethod(paymentMethod)
+                                        .paymentAmount(paymentAmount)
+                                        .paymentStatus(paymentStatus)
+                                        .paymentType(paymentType)
+                                        .order(order)  // Use the retrieved order here
+                                        .paymentCode(orderCode)
+                                        .build()
+                        );
+
+                        return paymentMapper.mapperToPaymentResponse(storedPayment);
+                    }
                 }
-
-                logger.info("CREATE PayOS SUCCESSFULLY!");
-
-                if (creationPayOS == null) {
-                    throw new Exception("Create PayOS Fail!");
-                }
-                Integer orderCode = creationPayOS.getData().getOrderCode();
-
-                var order = orderRepository.findById(orderID)
-                        .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderID));
-
-                var storedPayment = paymentRepository.save(
-                        Payment.builder()
-                                .paymentSender(null)
-                                .paymentSenderName("")
-                                .paymentSenderBankCode("")
-                                .paymentSenderBankNumber("")
-
-                                .paymentRecipient(null)
-                                .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                .paymentRecipientBankCode("OCB")
-                                .paymentRecipientBankNumber("0163100007285002")
-
-                                .paymentMethod(paymentMethod)
-                                .paymentAmount(paymentAmount)
-                                .paymentStatus(paymentStatus)
-                                .paymentType(paymentType)
-                                .order(order)  // Use the retrieved order here
-                                .paymentCode(orderCode)
-                                .build()
-                );
-
-                return paymentMapper.mapperToPaymentResponse(storedPayment);
             }
         } catch (Exception ex) {
             return null;

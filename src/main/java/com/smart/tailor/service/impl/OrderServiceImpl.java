@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
+import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.event.CreateOrderEvent;
 import com.smart.tailor.exception.BadRequestException;
@@ -58,107 +59,103 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) throws Exception {
-        try {
-            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getDesignID().toString())) {
-                throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
-            }
-            String designID = orderRequest.getDesignID();
-
-            DesignResponse designResponse = designService.getDesignResponseByID(designID);
-            if (designResponse == null) {
-                throw new BadRequestException(MessageConstant.INVALID_INPUT + ": designID");
-            }
-
-            Integer quantity = orderRequest.getQuantity() != null
-                    && Utilities.isValidNumber(orderRequest.getQuantity().toString())
-                    ? orderRequest.getQuantity()
-                    : 0;
-
-            UserResponse userResponse = designResponse.getUser();
-            CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
-
-            String address = "";
-            String province = "";
-            String district = "";
-            String ward = "";
-            if (Utilities.isNonNullOrEmpty(orderRequest.getAddress())
-                    && Utilities.isNonNullOrEmpty(orderRequest.getProvince())
-                    && Utilities.isNonNullOrEmpty(orderRequest.getDistrict())
-                    && Utilities.isNonNullOrEmpty(orderRequest.getWard())) {
-                address = orderRequest.getAddress();
-                province = orderRequest.getProvince();
-                district = orderRequest.getDistrict();
-                ward = orderRequest.getWard();
-            } else {
-                address = customerResponse.getAddress();
-                province = customerResponse.getProvince();
-                district = customerResponse.getDistrict();
-                ward = customerResponse.getWard();
-            }
-
-            String phone = "";
-            if (!Utilities.isStringNotNullOrEmpty(orderRequest.getPhone())) {
-                phone = customerResponse.getPhoneNumber();
-            } else if (!Utilities.isValidVietnamesePhoneNumber(orderRequest.getPhone())) {
-                phone = customerResponse.getPhoneNumber();
-            } else {
-                phone = orderRequest.getPhone();
-            }
-
-            String buyerName;
-            if (Utilities.isNonNullOrEmpty(orderRequest.getBuyerName())) {
-                buyerName = orderRequest.getBuyerName();
-            } else {
-                buyerName = customerResponse.getFullName();
-            }
-
-            String orderType = orderRequest.getOrderType();
-
-            if (orderRequest.getParentOrderID() != null) {
-                var parentOrderID = orderRequest.getParentOrderID();
-                Optional<Order> parentOrder = orderRepository.findById(parentOrderID);
-                if (parentOrder.isPresent()) {
-                    Order order = Order.builder()
-                            .quantity(quantity)
-                            .address(address)
-                            .province(province)
-                            .district(district)
-                            .ward(ward)
-                            .orderType(orderType)
-                            .phone(phone)
-                            .buyerName(buyerName)
-                            .orderStatus(orderRequest.getOrderStatus())
-                            .orderType("SUB_ORDER")
-                            .parentOrder(parentOrder.get())
-                            .totalPrice(0)
-                            .expectedStartDate(LocalDateTime.now().plusDays(1))
-                            .employee(getSuitableEmp())
-                            .build();
-                    var orderResponse = orderRepository.save(order);
-                    return orderMapper.mapToOrderResponse(orderResponse);
-                } else {
-                    throw new RuntimeException("Parent order not found");
-                }
-            }
-            Order order = Order.builder()
-                    .quantity(quantity)
-                    .address(address)
-                    .province(province)
-                    .district(district)
-                    .ward(ward)
-                    .orderType(orderType)
-                    .phone(phone)
-                    .buyerName(buyerName)
-                    .orderStatus(orderRequest.getOrderStatus())
-                    .totalPrice(0)
-                    .orderType("PARENT_ORDER")
-                    .expectedStartDate(LocalDateTime.now().plusDays(1))
-                    .build();
-            var orderResponse = orderRepository.save(order);
-            return orderMapper.mapToOrderResponse(orderResponse);
-        } catch (Exception ex) {
-            throw ex;
+        if (!Utilities.isStringNotNullOrEmpty(orderRequest.getDesignID())) {
+            throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designID");
         }
+        String designID = orderRequest.getDesignID();
+
+        DesignResponse designResponse = designService.getDesignResponseByID(designID);
+        if (designResponse == null) {
+            throw new BadRequestException(MessageConstant.INVALID_INPUT + ": designID");
+        }
+
+        Integer quantity = orderRequest.getQuantity() != null
+                && Utilities.isValidNumber(orderRequest.getQuantity().toString())
+                ? orderRequest.getQuantity()
+                : 0;
+
+        UserResponse userResponse = designResponse.getUser();
+        CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
+
+        String address;
+        String province;
+        String district;
+        String ward;
+        if (Utilities.isNonNullOrEmpty(orderRequest.getAddress())
+                && Utilities.isNonNullOrEmpty(orderRequest.getProvince())
+                && Utilities.isNonNullOrEmpty(orderRequest.getDistrict())
+                && Utilities.isNonNullOrEmpty(orderRequest.getWard())) {
+            address = orderRequest.getAddress();
+            province = orderRequest.getProvince();
+            district = orderRequest.getDistrict();
+            ward = orderRequest.getWard();
+        } else {
+            address = customerResponse.getAddress();
+            province = customerResponse.getProvince();
+            district = customerResponse.getDistrict();
+            ward = customerResponse.getWard();
+        }
+
+        String phone;
+        if (!Utilities.isStringNotNullOrEmpty(orderRequest.getPhone())) {
+            phone = customerResponse.getPhoneNumber();
+        } else if (!Utilities.isValidVietnamesePhoneNumber(orderRequest.getPhone())) {
+            phone = customerResponse.getPhoneNumber();
+        } else {
+            phone = orderRequest.getPhone();
+        }
+
+        String buyerName;
+        if (Utilities.isNonNullOrEmpty(orderRequest.getBuyerName())) {
+            buyerName = orderRequest.getBuyerName();
+        } else {
+            buyerName = customerResponse.getFullName();
+        }
+
+        String orderType = orderRequest.getOrderType();
+
+        if (orderRequest.getParentOrderID() != null) {
+            var parentOrderID = orderRequest.getParentOrderID();
+            Optional<Order> parentOrder = orderRepository.findById(parentOrderID);
+            if (parentOrder.isPresent()) {
+                Order order = Order.builder()
+                        .quantity(quantity)
+                        .address(address)
+                        .province(province)
+                        .district(district)
+                        .ward(ward)
+                        .orderType(orderType)
+                        .phone(phone)
+                        .buyerName(buyerName)
+                        .orderStatus(orderRequest.getOrderStatus())
+                        .orderType("SUB_ORDER")
+                        .parentOrder(parentOrder.get())
+                        .totalPrice(0)
+                        .expectedStartDate(LocalDateTime.now().plusDays(1))
+                        .employee(getSuitableEmp())
+                        .build();
+                var orderResponse = orderRepository.save(order);
+                return orderMapper.mapToOrderResponse(orderResponse);
+            } else {
+                throw new RuntimeException("Parent order not found");
+            }
+        }
+        Order order = Order.builder()
+                .quantity(quantity)
+                .address(address)
+                .province(province)
+                .district(district)
+                .ward(ward)
+                .orderType(orderType)
+                .phone(phone)
+                .buyerName(buyerName)
+                .orderStatus(orderRequest.getOrderStatus())
+                .totalPrice(0)
+                .orderType("PARENT_ORDER")
+                .expectedStartDate(LocalDateTime.now().plusDays(1))
+                .build();
+        var orderResponse = orderRepository.save(order);
+        return orderMapper.mapToOrderResponse(orderResponse);
     }
 
     @Override
@@ -169,7 +166,6 @@ public class OrderServiceImpl implements OrderService {
             var response = orderMapper.mapToOrderResponse(order);
             orderResponse.add(response);
         }
-        ;
         return orderResponse;
     }
 
@@ -259,7 +255,7 @@ public class OrderServiceImpl implements OrderService {
                                 changeOrderStatus(
                                         OrderStatusUpdateRequest
                                                 .builder()
-                                                .orderID(orderID.toString())
+                                                .orderID(orderID)
                                                 .status(OrderStatus.PROCESSING.name())
                                                 .build()
                                 );
@@ -306,14 +302,15 @@ public class OrderServiceImpl implements OrderService {
                             }
 
                             var subOrderList = getSubOrderByParentID(orderID);
-                            boolean isFinish = true;
+                            boolean isFinish;
                             switch (stage) {
-                                case 0:
+                                case 0 -> {
                                     isFinish = true;
                                     for (OrderResponse subOrder : subOrderList) {
                                         if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)
                                                 && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                             isFinish = false;
+                                            break;
                                         }
                                     }
                                     if (isFinish) {
@@ -322,7 +319,7 @@ public class OrderServiceImpl implements OrderService {
                                         ).findFirst();
                                         if (checkDeposited.isEmpty()) {
                                             logger.error("CREATE STAGE_1");
-                                            var payOSResponse = paymentService.createPayOSPayment(
+                                            paymentService.createPayOSPayment(
                                                     PaymentRequest
                                                             .builder()
                                                             .orderID(orderID)
@@ -349,13 +346,14 @@ public class OrderServiceImpl implements OrderService {
                                             }
                                         }
                                     }
-                                    break;
-                                case 1:
+                                }
+                                case 1 -> {
                                     isFinish = true;
                                     for (OrderResponse subOrder : subOrderList) {
                                         if (!subOrder.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)
                                                 && !subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                             isFinish = false;
+                                            break;
                                         }
                                     }
                                     if (isFinish) {
@@ -364,7 +362,7 @@ public class OrderServiceImpl implements OrderService {
                                         ).findFirst();
                                         if (checkDeposited.isEmpty()) {
                                             logger.error("CREATE STAGE_2");
-                                            var payOSResponse = paymentService.createPayOSPayment(
+                                            paymentService.createPayOSPayment(
                                                     PaymentRequest
                                                             .builder()
                                                             .orderID(orderID)
@@ -391,12 +389,13 @@ public class OrderServiceImpl implements OrderService {
                                             }
                                         }
                                     }
-                                    break;
-                                case 2:
+                                }
+                                case 2 -> {
                                     isFinish = true;
                                     for (OrderResponse subOrder : subOrderList) {
                                         if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                             isFinish = false;
+                                            break;
                                         }
                                     }
                                     if (isFinish) {
@@ -410,20 +409,21 @@ public class OrderServiceImpl implements OrderService {
                                         changeOrderStatus(
                                                 OrderStatusUpdateRequest
                                                         .builder()
-                                                        .orderID(String.valueOf(orderID))
+                                                        .orderID(orderID)
                                                         .status(OrderStatus.COMPLETED.name())
                                                         .build()
                                         );
-                                        break;
                                     }
+                                }
                             }
                         } else {
                             var subOrderList = getSubOrderByParentID(orderID);
-                            boolean isFinish = true;
+                            boolean isFinish;
                             isFinish = true;
                             for (OrderResponse subOrder : subOrderList) {
                                 if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                     isFinish = false;
+                                    break;
                                 }
                             }
                             if (isFinish) {
@@ -432,7 +432,7 @@ public class OrderServiceImpl implements OrderService {
                                 ).findFirst();
                                 if (checkDeposited.isEmpty()) {
                                     logger.error("CREATE COMPLETE_ORDER");
-                                    var payOSResponse = paymentService.createPayOSPayment(
+                                    paymentService.createPayOSPayment(
                                             PaymentRequest
                                                     .builder()
                                                     .orderID(orderID)
@@ -457,7 +457,7 @@ public class OrderServiceImpl implements OrderService {
                                 changeOrderStatus(
                                         OrderStatusUpdateRequest
                                                 .builder()
-                                                .orderID(orderID.toString())
+                                                .orderID(orderID)
                                                 .status(OrderStatus.COMPLETED.name())
                                                 .build()
                                 );
@@ -486,7 +486,7 @@ public class OrderServiceImpl implements OrderService {
 //                                            .build()
 //                            );
                             if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
-                                var payOSResponse = paymentService.createPayOSPayment(
+                                paymentService.createPayOSPayment(
                                         PaymentRequest
                                                 .builder()
                                                 .orderID(subOrder.getOrderID())
@@ -535,10 +535,8 @@ public class OrderServiceImpl implements OrderService {
                             }
                         }
                         var subOrderList = getSubOrderByParentID(orderID);
-                        boolean isFinish = true;
                         switch (stage) {
                             case 0 -> {
-                                isFinish = true;
                                 for (OrderResponse subOrderResponse : subOrderList) {
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
@@ -592,7 +590,6 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
                             case 1 -> {
-                                isFinish = true;
                                 for (OrderResponse subOrderResponse : subOrderList) {
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
@@ -646,7 +643,6 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
                             case 2 -> {
-                                isFinish = true;
                                 for (OrderResponse subOrderResponse : subOrderList) {
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
@@ -805,109 +801,452 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) throws Exception {
         String orderID = orderRequest.getOrderID();
+
+        // Retrieve the order by its ID
         var order = getOrderById(orderID);
         if (order.isEmpty()) {
-            throw new ItemNotFoundException("Can not find Order with OrderID: " + orderID);
+            throw new ItemNotFoundException("Cannot find order with OrderID: " + orderID);
         }
 
+        // Get the existing order object
         var existedOrder = order.get();
-        existedOrder.setOrderStatus(OrderStatus.valueOf(orderRequest.getStatus()));
 
-        if (existedOrder.getOrderStatus().equals(OrderStatus.CANCEL)) {
-            if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
-                var subOrderList = getSubOrderByParentID(existedOrder.getOrderID());
-                for (var subOrderResponse : subOrderList) {
-                    var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                    subOrder.setOrderStatus(OrderStatus.CANCEL);
-                    orderRepository.save(subOrder);
-                }
-            } else {
-//<<<<<<< HEAD
-//                if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name())
-//                        || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
-//                    var stage = stageService.getOrderStageByID(
-//                           (
-//                                    stageService.getOrderStageByOrderID(
-//                                                    existedOrder.getParentOrder().getOrderID()
-//                                            )
-//                                            .stream()
-//                                            .filter(
-//                                                    s -> s.getStage().equals(OrderStatus.PROCESSING)
-//                                            )
-//                                            .findFirst()
-//                                            .get().getStageId()
-//                            )
-//                    );
-//                    var subStage = stageService.getOrderStageByID(
-//                            (
-//                                    stageService.getOrderStageByOrderID(existedOrder.getOrderID())
-//                                            .stream()
-//                                            .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
-//                                            .findFirst()
-//                                            .get().getStageId()
-//                            )
-//                    );
-//                    if (stage != null) {
-//                        stage.setCurrentQuantity(
-//                                stage.getCurrentQuantity() + subStage.getCurrentQuantity()
-//=======
-                var parentOrder = getOrderById(existedOrder.getParentOrder().getOrderID()).get();
-                parentOrder.setOrderStatus(OrderStatus.PENDING);
-                orderRepository.save(parentOrder);
+        // Retrieve the new status from the request
+        var orderStatus = OrderStatus.valueOf(orderRequest.getStatus());
 
-                var detailList = existedOrder.getDetailList();
-                for (var detail : detailList) {
-                    detail.setOrder(parentOrder);
-                    detail.setBrand(null);
-                    detail.setDetailStatus(false);
-                    detailRepository.save(detail);
-                }
-                existedOrder.setDetailList(null);
-                var orderResponse = safeMapToOrderResponse(parentOrder);
-                applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
-            }
-        } else {
-            if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING.name())) {
-                existedOrder.setProductionStartDate(LocalDateTime.now());
-            } else {
-                if (orderRequest.getStatus().equals(OrderStatus.COMPLETED.name())) {
-                    existedOrder.setProductionCompletionDate(LocalDateTime.now());
-                } else {
-                    if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name())
-                            || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
-                        var stage = stageService.getOrderStageByID(
-                                (
-                                        stageService.getOrderStageByOrderID(
-                                                        existedOrder.getParentOrder().getOrderID()
-                                                )
-                                                .stream()
-                                                .filter(
-                                                        s -> s.getStage().equals(OrderStatus.PROCESSING)
-                                                )
-                                                .findFirst()
-                                                .get().getStageId()
-                                )
-//>>>>>>> feature
-                        );
-                        var subStage = stageService.getOrderStageByID(
-                                (
-                                        stageService.getOrderStageByOrderID(existedOrder.getOrderID())
-                                                .stream()
-                                                .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
-                                                .findFirst()
-                                                .get().getStageId()
-                                )
-                        );
-                        if (stage != null) {
-                            stage.setCurrentQuantity(
-                                    stage.getCurrentQuantity() + subStage.getCurrentQuantity()
-                            );
-                            stageService.updateStage(stage);
+        switch (orderStatus) {
+            case CANCEL -> {
+                // Get the current status of the order
+                var currentStatus = existedOrder.getOrderStatus();
+
+                /**
+                 * If the order is a parent order (PARENT_ORDER)
+                 */
+                if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
+
+                    // Step 1: Retrieve the list of all sub-orders associated with the parent order
+                    var subOrderList = getSubOrderByParentID(existedOrder.getOrderID());
+
+                    // Step 2: Update the status of each sub-order
+                    for (var subOrderResponse : subOrderList) {
+
+                        // Fetch the sub-order based on its ID
+                        var subOrder = getOrderById(subOrderResponse.getOrderID())
+                                .orElseThrow(() -> new ItemNotFoundException("Cannot find sub-order with ID: " + subOrderResponse.getOrderID()));
+
+                        // Change the status of the sub-order to CANCEL
+                        subOrder.setOrderStatus(OrderStatus.CANCEL);
+
+                        // Save the updated sub-order status to the repository
+                        orderRepository.save(subOrder);
+                    }
+
+                    // Handle different current statuses of the parent order
+                    switch (currentStatus) {
+                        case NOT_VERIFY, PENDING, DELIVERED, COMPLETED -> {
+                            /**
+                             * TODO
+                             * Create a report for the employee
+                             */
+                            logger.warn("Create a report for the employee line 850: {}", currentStatus);
                         }
+                        case DEPOSIT -> {
+                            /**
+                             * Check if payment has been made
+                             */
+                            // Get deposit payments associated with the order
+                            var depositPayment = paymentService.findAllByOrderID(orderID)
+                                    .stream()
+                                    .filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT))
+                                    .findFirst()
+                                    .orElse(null);
+
+                            if (depositPayment == null) {
+                                /**
+                                 * TODO
+                                 * Create a report for the employee
+                                 */
+                                logger.warn("Create a report: NONE DEPOSIT {}", currentStatus);
+                            } else {
+                                // Get the status of the deposit payment
+                                var depositPaymentStatus = depositPayment.getPaymentStatus();
+
+                                // If payment has been made
+                                if (depositPaymentStatus) {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: DEPOSIT: {}", "PAID");
+
+                                    /**
+                                     * TODO
+                                     * Update numberOfViolations
+                                     */
+                                    logger.warn("Update numberOfViolations: DEPOSIT: {}", "PAID");
+
+                                    /**
+                                     * TODO
+                                     * Refund 80% of the deposited payment
+                                     */
+                                    int price = (int) (depositPayment.getPaymentAmount() * 0.8);
+                                    paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .paymentAmount(price)
+                                                    .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                                                    .paymentType(PaymentType.ORDER_REFUND)
+                                                    .paymentSenderID(
+                                                            userService.getUserByEmail("").getUserID()
+                                                    )
+                                                    .paymentSenderName(
+                                                            userService.getUserByEmail("").getName()
+                                                    )
+                                                    .paymentSenderBankCode("OCB")
+                                                    .paymentSenderBankNumber("0163100007285002")
+
+                                                    .paymentRecipientID(
+                                                            existedOrder.getDetailList().get(0).getDesign().getUser().getUserID()
+                                                    )
+                                                    .paymentRecipientName(
+                                                            existedOrder.getDetailList().get(0).getDesign().getUser().getName()
+                                                    )
+                                                    .paymentRecipientBankNumber("")
+                                                    .paymentRecipientBankCode("")
+                                                    .build()
+                                    );
+                                } else {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: DEPOSIT: {}", "PENDING");
+                                }
+                            }
+                        }
+                        case PROCESSING -> {
+
+                            // Step 1: Get current stage
+                            var depositStage = subOrderList.stream()
+                                    .allMatch(o -> o.getOrderStatus().equals(OrderStatus.COMPLETED) ||
+                                            o.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE));
+
+                            var firstStage = subOrderList.stream()
+                                    .allMatch(o -> o.getOrderStatus().equals(OrderStatus.COMPLETED) ||
+                                            o.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE));
+
+                            if (depositStage) {
+                                var depositPayment = paymentService.findAllByOrderID(orderID)
+                                        .stream()
+                                        .filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT))
+                                        .findFirst()
+                                        .orElseThrow(() -> new ItemNotFoundException("Deposit payment not found for OrderID: " + orderID));
+
+                                // Get the status of the deposit payment
+                                var depositPaymentStatus = depositPayment.getPaymentStatus();
+
+                                // If payment has been made
+                                if (depositPaymentStatus) {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: DEPOSIT: {}", "PAID");
+
+                                    /**
+                                     * TODO
+                                     * Update numberOfViolations
+                                     */
+                                    logger.warn("Update numberOfViolations: DEPOSIT: {}", "PAID");
+                                } else {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: DEPOSIT: {}", "PENDING");
+                                }
+                                /**
+                                 * TODO
+                                 * Create Transaction For Brand
+                                 */
+                                for (var subOrderResponse : subOrderList) {
+                                    var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                    if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                        paymentService.createPayOSPayment(
+                                                PaymentRequest
+                                                        .builder()
+                                                        .orderID(subOrder.getOrderID())
+
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName("")
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
+
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("OCB")
+                                                        .paymentRecipientBankNumber("0163100007285002")
+
+                                                        .paymentType(PaymentType.BRAND_INVOICE)
+                                                        .paymentAmount(subOrder.getTotalPrice())
+                                                        .itemList(null)
+                                                        .build()
+                                        );
+                                    }
+                                }
+                            } else if (firstStage) {
+                                var stage1Payment = paymentService.findAllByOrderID(orderID)
+                                        .stream()
+                                        .filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1))
+                                        .findFirst()
+                                        .orElseThrow(() -> new ItemNotFoundException("Stage 1 payment not found for OrderID: " + orderID));
+
+                                // Get the status of the deposit payment
+                                var stage1PaymentStatus = stage1Payment.getPaymentStatus();
+
+                                // If payment has been made
+                                if (stage1PaymentStatus) {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: FINISH_STAGE_1: {}", "PAID");
+
+                                    /**
+                                     * TODO
+                                     * Update numberOfViolations
+                                     */
+                                    logger.warn("Update numberOfViolations: FINISH_STAGE_1: {}", "PAID");
+                                } else {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: FINISH_STAGE_1: {}", "PENDING");
+                                }
+                                /**
+                                 * TODO
+                                 * Create Transaction For Brand
+                                 */
+                                for (var subOrderResponse : subOrderList) {
+                                    var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                    if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                        paymentService.createPayOSPayment(
+                                                PaymentRequest
+                                                        .builder()
+                                                        .orderID(subOrder.getOrderID())
+
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName("")
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
+
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("OCB")
+                                                        .paymentRecipientBankNumber("0163100007285002")
+
+                                                        .paymentType(PaymentType.BRAND_INVOICE)
+                                                        .paymentAmount(subOrder.getTotalPrice())
+                                                        .itemList(null)
+                                                        .build()
+                                        );
+                                    }
+                                }
+                            } else {
+                                var stage2Payment = paymentService.findAllByOrderID(orderID)
+                                        .stream()
+                                        .filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2))
+                                        .findFirst()
+                                        .orElseThrow(() -> new ItemNotFoundException("Stage 2 payment not found for OrderID: " + orderID));
+
+                                // Get the status of the deposit payment
+                                var stage2PaymentStatus = stage2Payment.getPaymentStatus();
+
+                                // If payment has been made
+                                if (stage2PaymentStatus) {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: FINISH_STAGE_2: {}", "PAID");
+
+                                    /**
+                                     * TODO
+                                     * Update numberOfViolations
+                                     */
+                                    logger.warn("Update numberOfViolations: FINISH_STAGE_2: {}", "PAID");
+                                } else {
+                                    /**
+                                     * TODO
+                                     * Create a report for the employee
+                                     */
+                                    logger.warn("Create a report: FINISH_STAGE_2: {}", "PENDING");
+                                }
+                                /**
+                                 * TODO
+                                 * Create Transaction For Brand
+                                 */
+                                for (var subOrderResponse : subOrderList) {
+                                    var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                    if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                        paymentService.createPayOSPayment(
+                                                PaymentRequest
+                                                        .builder()
+                                                        .orderID(subOrder.getOrderID())
+
+                                                        .paymentSenderID(null)
+                                                        .paymentSenderName("")
+                                                        .paymentSenderBankCode("")
+                                                        .paymentSenderBankNumber("")
+
+                                                        .paymentRecipientID(null)
+                                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                        .paymentRecipientBankCode("OCB")
+                                                        .paymentRecipientBankNumber("0163100007285002")
+
+                                                        .paymentType(PaymentType.BRAND_INVOICE)
+                                                        .paymentAmount(subOrder.getTotalPrice())
+                                                        .itemList(null)
+                                                        .build()
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        default -> throw new IllegalStateException("Unexpected value: " + currentStatus);
+                    }
+                }
+                /**
+                 * THIS ORDER IS SUB_ORDER
+                 */
+                else {
+                    var parentOrder = getOrderById(existedOrder.getParentOrder().getOrderID()).get();
+                    parentOrder.setOrderStatus(OrderStatus.PENDING);
+                    orderRepository.save(parentOrder);
+
+                    var detailList = existedOrder.getDetailList();
+                    for (var detail : detailList) {
+                        detail.setOrder(parentOrder);
+                        detail.setBrand(null);
+                        detail.setDetailStatus(false);
+                        detailRepository.save(detail);
+                    }
+                    existedOrder.setDetailList(null);
+                    var orderResponse = safeMapToOrderResponse(parentOrder);
+                    applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
+                }
+            }
+            case START_PRODUCING -> {
+                existedOrder.setProductionStartDate(LocalDateTime.now());
+            }
+            case COMPLETED -> {
+                existedOrder.setProductionCompletionDate(LocalDateTime.now());
+            }
+            case PROCESSING -> {
+                if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name())
+                        || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
+                    var stage = stageService.getOrderStageByID(
+                            (
+                                    stageService.getOrderStageByOrderID(
+                                                    existedOrder.getParentOrder().getOrderID()
+                                            )
+                                            .stream()
+                                            .filter(
+                                                    s -> s.getStage().equals(OrderStatus.PROCESSING)
+                                            )
+                                            .findFirst()
+                                            .get().getStageId()
+                            )
+                    );
+                    var subStage = stageService.getOrderStageByID(
+                            (
+                                    stageService.getOrderStageByOrderID(existedOrder.getOrderID())
+                                            .stream()
+                                            .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
+                                            .findFirst()
+                                            .get().getStageId()
+                            )
+                    );
+                    if (stage != null) {
+                        stage.setCurrentQuantity(
+                                stage.getCurrentQuantity() + subStage.getCurrentQuantity()
+                        );
+                        stageService.updateStage(stage);
                     }
                 }
             }
         }
+
+        existedOrder.setOrderStatus(orderStatus);
+
+//        if (existedOrder.getOrderStatus().equals(OrderStatus.CANCEL)) {
+//            if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
+//                var subOrderList = getSubOrderByParentID(existedOrder.getOrderID());
+//                for (var subOrderResponse : subOrderList) {
+//                    var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+//                    subOrder.setOrderStatus(OrderStatus.CANCEL);
+//                    orderRepository.save(subOrder);
+//                }
+//            } else {
+//                var parentOrder = getOrderById(existedOrder.getParentOrder().getOrderID()).get();
+//                parentOrder.setOrderStatus(OrderStatus.PENDING);
+//                orderRepository.save(parentOrder);
+//
+//                var detailList = existedOrder.getDetailList();
+//                for (var detail : detailList) {
+//                    detail.setOrder(parentOrder);
+//                    detail.setBrand(null);
+//                    detail.setDetailStatus(false);
+//                    detailRepository.save(detail);
+//                }
+//                existedOrder.setDetailList(null);
+//                var orderResponse = safeMapToOrderResponse(parentOrder);
+//                applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
+//            }
+//        } else {
+//            if (orderRequest.getStatus().equals(OrderStatus.START_PRODUCING.name())) {
+//                existedOrder.setProductionStartDate(LocalDateTime.now());
+//            }
+//            else {
+//                if (orderRequest.getStatus().equals(OrderStatus.COMPLETED.name())) {
+//                    existedOrder.setProductionCompletionDate(LocalDateTime.now());
+//                } else {
+//                    if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name())
+//                            || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
+//                        var stage = stageService.getOrderStageByID(
+//                                (
+//                                        stageService.getOrderStageByOrderID(
+//                                                        existedOrder.getParentOrder().getOrderID()
+//                                                )
+//                                                .stream()
+//                                                .filter(
+//                                                        s -> s.getStage().equals(OrderStatus.PROCESSING)
+//                                                )
+//                                                .findFirst()
+//                                                .get().getStageId()
+//                                )
+//                        );
+//                        var subStage = stageService.getOrderStageByID(
+//                                (
+//                                        stageService.getOrderStageByOrderID(existedOrder.getOrderID())
+//                                                .stream()
+//                                                .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
+//                                                .findFirst()
+//                                                .get().getStageId()
+//                                )
+//                        );
+//                        if (stage != null) {
+//                            stage.setCurrentQuantity(
+//                                    stage.getCurrentQuantity() + subStage.getCurrentQuantity()
+//                            );
+//                            stageService.updateStage(stage);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         var stageResponseList = stageService.getOrderStageByOrderID(orderID);
         for (var stageResponse : stageResponseList) {
             if (stageResponse.getStage().equals(OrderStatus.valueOf(orderRequest.getStatus()))) {

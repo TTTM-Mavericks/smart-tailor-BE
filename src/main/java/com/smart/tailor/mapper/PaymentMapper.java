@@ -44,7 +44,10 @@ class PaymentMapperImpl implements PaymentMapper {
                             payment.getPaymentType().equals(PaymentType.BRAND_INVOICE) ?
                                     payOSService.getBrandPaymentInfo(payment.getPaymentCode())
                                     :
-                                    payOSService.getPaymentInfo(payment.getPaymentCode())
+                                    payment.getPaymentType().equals(PaymentType.ORDER_REFUND) ?
+                                            payOSService.getRefundPaymentInfo(payment.getPaymentCode())
+                                            :
+                                            payOSService.getPaymentInfo(payment.getPaymentCode())
                     )
                     .createDate(payment.getCreateDate().toString())
                     .paymentURl(payment.getPaymentURl())
