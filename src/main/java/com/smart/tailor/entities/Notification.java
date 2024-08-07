@@ -20,17 +20,17 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Notification extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "notification_id", unique = true, nullable = false)
+    @Column(name = "notification_id", columnDefinition = "varchar(14)")
     private String notificationID;
 
     @Column(columnDefinition = "varchar(100)")
     private String action;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", columnDefinition = "varchar(14)")
     private String userID;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", columnDefinition = "varchar(14)", nullable = false, insertable = false, updatable = false)
     private User user;
 
     private Boolean status;

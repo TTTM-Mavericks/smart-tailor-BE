@@ -21,7 +21,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReportImage extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "report_image_id", unique = true, nullable = false)
+    @Column(name = "report_image_id", columnDefinition = "varchar(14)")
     private String reportImageID;
 
     @Column(name = "report_image_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")

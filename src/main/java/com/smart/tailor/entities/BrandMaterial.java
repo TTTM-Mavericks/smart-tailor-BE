@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
+import java.math.BigInteger;
 
 @Entity
 @Table(name = "brand_material")
@@ -26,6 +27,6 @@ public class BrandMaterial extends AuditEntity implements Serializable {
     @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
     private Brand brand;
 
-    @Column(name = "brand_price", nullable = false, unique = false)
+    @Column(name = "brand_price")
     private Integer brandPrice;
 }

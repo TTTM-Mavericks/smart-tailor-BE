@@ -25,7 +25,7 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "partOfDesignID")
 public class PartOfDesign extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "part_of_design_id", unique = true, nullable = false)
+    @Column(name = "part_of_design_id", columnDefinition = "varchar(14)")
     private String partOfDesignID;
 
     @ManyToOne

@@ -15,7 +15,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BrandImage implements Serializable {
     @Id
-    @Column(name = "image_id")
+    @Column(name = "image_id", columnDefinition = "varchar(14)")
     private String imageID;
 
     @ManyToOne

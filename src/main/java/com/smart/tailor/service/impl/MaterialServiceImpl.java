@@ -31,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,7 +109,7 @@ public class MaterialServiceImpl implements MaterialService {
             boolean inValidData = false;
             List<ErrorDetail> errorFields = new ArrayList<>();
 
-            int rowIndex = 2;
+            int rowIndex = 3;
             while (rowIndex <= sheet.getLastRowNum()) {
                 Row row = sheet.getRow(rowIndex);
                 if (row == null || isRowCompletelyEmptyForCategoryMaterial(row)) {
@@ -162,27 +164,38 @@ public class MaterialServiceImpl implements MaterialService {
                                 break;
                             case 2:
                                 isValid = false;
-                                long longValue = -1;
-                                message = " must be data type numeric";
+                                BigInteger bigIntegerValue = null;
+                                message = " must be a valid positive integer";
+
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        longValue = (long) cell.getNumericCellValue();
-                                        isValid = true;
-                                        break;
-                                    case STRING:
                                         try {
-                                            longValue = Long.parseLong(cell.getStringCellValue());
+                                            double numericValue = cell.getNumericCellValue();
+                                            bigIntegerValue = BigDecimal.valueOf(numericValue).toBigInteger();
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
                                         }
                                         break;
+                                    case STRING:
+                                        try {
+                                            String stringValue = cell.getStringCellValue();
+                                            bigIntegerValue = new BigInteger(stringValue);
+                                            isValid = true;
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                        }
+                                        break;
+                                    default:
+                                        isValid = false;
+                                        break;
                                 }
-                                if (isValid && longValue >= 0) {
-                                    materialRequest.setHsCode(longValue);
+
+                                if (isValid && bigIntegerValue != null && bigIntegerValue.compareTo(BigInteger.ZERO) >= 0) {
+                                    materialRequest.setHsCode(bigIntegerValue);
                                 } else {
-                                    if (isValid && longValue < 0) {
-                                        message = " must be positive numeric";
+                                    if (bigIntegerValue != null && bigIntegerValue.compareTo(BigInteger.ZERO) < 0) {
+                                        message = " must be a positive integer";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;
@@ -207,12 +220,21 @@ public class MaterialServiceImpl implements MaterialService {
                                 break;
                             case 4:
                                 isValid = false;
-                                Integer basePrice = -1;
-                                message = " must be data type numeric";
+                                Integer basePrice = null;
+                                message = " must be data type integer";
                                 switch (cell.getCellType()) {
                                     case NUMERIC:
-                                        basePrice = (int) cell.getNumericCellValue();
-                                        isValid = true;
+                                        try {
+                                            double numericValue = cell.getNumericCellValue();
+                                            if (numericValue >= Integer.MIN_VALUE && numericValue <= Integer.MAX_VALUE) {
+                                                basePrice = (int) numericValue;
+                                                isValid = true;
+                                            } else {
+                                                isValid = false;
+                                            }
+                                        } catch (NumberFormatException e) {
+                                            isValid = false;
+                                        }
                                         break;
                                     case STRING:
                                         try {
@@ -220,15 +242,14 @@ public class MaterialServiceImpl implements MaterialService {
                                             isValid = true;
                                         } catch (NumberFormatException e) {
                                             isValid = false;
-                                            System.out.println(e.getMessage());
                                         }
                                         break;
                                 }
-                                if (isValid && basePrice >= 0) {
+                                if (isValid && basePrice != null && basePrice >= 0) {
                                     materialRequest.setBasePrice(basePrice);
                                 } else {
-                                    if (isValid && basePrice < 0) {
-                                        message = " must be positive numeric";
+                                    if (isValid && basePrice != null && basePrice < 0) {
+                                        message = " must be positive integer";
                                     }
                                     inValidData = true;
                                     rowDataValid = false;

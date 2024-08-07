@@ -15,9 +15,9 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SizeExpertTailoringKey implements Serializable {
-    @Column(name = "expert_tailoring_id", nullable = false)
+    @Column(name = "expert_tailoring_id", columnDefinition = "varchar(14)")
     private String expertTailoringID;
 
-    @Column(name = "size_id", nullable = false)
+    @Column(name = "size_id", columnDefinition = "varchar(14)")
     private String sizeID;
 }

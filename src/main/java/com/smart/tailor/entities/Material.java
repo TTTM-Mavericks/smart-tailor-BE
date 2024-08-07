@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 
 
 @Entity
@@ -20,7 +21,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Material extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "material_id", unique = true, nullable = false)
+    @Column(name = "material_id", columnDefinition = "varchar(14)")
     private String materialID;
 
     @Column(columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
@@ -30,8 +31,8 @@ public class Material extends AuditEntity implements Serializable {
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
 
-    @Column(name = "hs_code")
-    private Long hsCode;
+    @Column(name = "hs_code", columnDefinition = "DECIMAL(38, 0)")
+    private BigInteger hsCode;
 
     @Column(columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
     private String unit;

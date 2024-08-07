@@ -13,9 +13,9 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BrandMaterialKey implements Serializable {
-    @Column(name = "material_id", nullable = false)
+    @Column(name = "material_id", columnDefinition = "varchar(14)")
     private String materialID;
 
-    @Column(name = "brand_id", nullable = false)
+    @Column(name = "brand_id", columnDefinition = "varchar(14)")
     private String brandID;
 }

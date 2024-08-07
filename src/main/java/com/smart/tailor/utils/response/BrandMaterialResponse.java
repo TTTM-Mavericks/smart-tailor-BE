@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
 
 
 @Data
@@ -20,7 +21,7 @@ public class BrandMaterialResponse {
 
     private String materialName;
 
-    private Double hsCode;
+    private BigInteger hsCode;
 
     private String unit;
 

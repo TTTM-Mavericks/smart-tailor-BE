@@ -20,6 +20,7 @@ import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -124,6 +125,13 @@ public class UserServiceImpl implements UserService {
                 .findAll()
                 .stream()
                 .filter(user -> user.getRoles().getRoleName().equals(roleType.name()))
+                .sorted(
+                        Comparator
+                                .comparing(User::getLastModifiedDate, Comparator.nullsFirst(Comparator.naturalOrder()))
+                                .reversed()
+                                .thenComparing(User::getCreateDate, Comparator.nullsFirst(Comparator.naturalOrder()))
+                                .reversed()
+                )
                 .map(userMapper::mapperToUserResponse)
                 .collect(Collectors.toList());
     }

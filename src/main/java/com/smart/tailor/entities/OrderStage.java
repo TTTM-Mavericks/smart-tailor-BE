@@ -21,7 +21,7 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public class OrderStage extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "stage_id", updatable = false, nullable = false)
+    @Column(name = "stage_id", columnDefinition = "varchar(14)")
     String stageId;
 
     @ManyToOne

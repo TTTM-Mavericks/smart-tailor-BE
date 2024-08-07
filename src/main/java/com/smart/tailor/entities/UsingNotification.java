@@ -19,7 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UsingNotification {
     @Id
-    @Column(name = "using_notification_id", nullable = false, unique = true)
+    @Column(name = "using_notification_id", columnDefinition = "varchar(14)")
     private String usingNotificationID;
 
     @ManyToOne

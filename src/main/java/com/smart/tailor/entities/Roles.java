@@ -21,7 +21,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Roles extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "role_id", unique = true, nullable = false)
+    @Column(name = "role_id", columnDefinition = "varchar(14)")
     private String roleID;
 
     @Column(name = "role_name", nullable = false, columnDefinition = "varchar(20)")

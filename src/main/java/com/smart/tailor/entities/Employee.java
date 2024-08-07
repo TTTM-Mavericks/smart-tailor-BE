@@ -20,12 +20,12 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Employee extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "employee_id", unique = true, nullable = false)
+    @Column(name = "employee_id", columnDefinition = "varchar(14)")
     private String employeeID;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "employee_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "employee_id", referencedColumnName = "user_id", columnDefinition = "varchar(14)")
     private User user;
 
     @Column(name = "total_task")

@@ -20,7 +20,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExpertTailoring extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "expert_tailoring_id", unique = true, nullable = false)
+    @Column(name = "expert_tailoring_id", columnDefinition = "varchar(14)")
     private String expertTailoringID;
 
     @Column(name = "expert_tailoring_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")

@@ -20,6 +20,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -58,6 +60,30 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             cell.setCellValue((Calendar) value);
         } else if (value instanceof String) {
             cell.setCellValue((String) value);
+        }  else if (value instanceof BigDecimal) {
+            BigDecimal bigDecimal = (BigDecimal) value;
+            // Check if the BigDecimal fits into an Integer or Long
+            if (bigDecimal.scale() <= 0 && bigDecimal.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) <= 0) {
+                if (bigDecimal.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) <= 0) {
+                    cell.setCellValue(bigDecimal.intValue());
+                } else {
+                    cell.setCellValue(bigDecimal.longValue());
+                }
+            } else {
+                // Convert to String if it's too large
+                cell.setCellValue(bigDecimal.toString());
+            }
+        } else if (value instanceof BigInteger) {
+            BigInteger bigInteger = (BigInteger) value;
+            // Check if the BigInteger fits into an Integer or Long
+            if (bigInteger.bitLength() <= 31) {
+                cell.setCellValue(bigInteger.intValue());
+            } else if (bigInteger.bitLength() <= 63) {
+                cell.setCellValue(bigInteger.longValue());
+            } else {
+                // Convert to String if it's too large
+                cell.setCellValue(bigInteger.toString());
+            }
         } else {
             cell.setCellValue("");
         }
@@ -137,6 +163,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         font.setFontHeight(20);
         titleStyle.setFont(font);
         titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setLocked(true);
         createCell(row, 0, "Category and Material List", titleStyle, sheet);
         CellRangeAddress rangeAddress = new CellRangeAddress(0, 0, 0, 5);
         sheet.addMergedRegion(rangeAddress);
@@ -146,8 +173,51 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         RegionUtil.setBorderRight(BorderStyle.MEDIUM, rangeAddress, sheet);
         font.setFontHeightInPoints((short) 10);
 
-        // Create Header of Excel Sheet
+        // Create Explanation Row
         row = sheet.createRow(1);
+        XSSFFont explanationFont = workbook.createFont();
+        explanationFont.setBold(false);
+        explanationFont.setFontHeight(14);
+        CellStyle explanationStyle = workbook.createCellStyle();
+        explanationStyle.setBorderTop(BorderStyle.MEDIUM);
+        explanationStyle.setBorderBottom(BorderStyle.MEDIUM);
+        explanationStyle.setBorderLeft(BorderStyle.MEDIUM);
+        explanationStyle.setBorderRight(BorderStyle.MEDIUM);
+        explanationStyle.setAlignment(HorizontalAlignment.LEFT);
+        explanationStyle.setWrapText(true);
+        explanationStyle.setFont(explanationFont);
+//        explanationStyle.setLocked(true);
+
+        var priceVariationPercentageForMaterial = Double.parseDouble(systemPropertiesService.getByName("PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL").getPropertyValue());
+        var lowerBrandPricePercentage = (100 - priceVariationPercentageForMaterial * 100);
+        var upperBrandPricePercentage = (100 + priceVariationPercentageForMaterial * 100);
+        String explanation = "Explanation:\n"
+                + "• Category_Name: Only values from the predefined list of categories in the Smart Tailor application are allowed.\n"
+                + "• Base_Price: Only positive integer values are allowed, and the currency unit is VND.\n"
+                + "• HS_Code: Only positive integer values are allowed.\n"
+                + "• Brand_Price: Only positive integer values are allowed, and the currency unit is VND. Brand_Price must be between " + lowerBrandPricePercentage + "% and " + upperBrandPricePercentage + "% of Base_Price.\n" +
+                "If the brand does not have a material for this entry, the field may be left blank.\n";
+
+        // Create a cell and set the style
+        Cell explanationCell = row.createCell(0);
+        explanationCell.setCellValue(explanation);
+        explanationCell.setCellStyle(explanationStyle);
+
+        // Merge cells for the explanation row
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 5));
+
+        // Apply borders to the merged region
+        CellRangeAddress explanationRange = new CellRangeAddress(1, 1, 0, 5);
+        RegionUtil.setBorderTop(BorderStyle.MEDIUM, explanationRange, sheet);
+        RegionUtil.setBorderBottom(BorderStyle.MEDIUM, explanationRange, sheet);
+        RegionUtil.setBorderLeft(BorderStyle.MEDIUM, explanationRange, sheet);
+        RegionUtil.setBorderRight(BorderStyle.MEDIUM, explanationRange, sheet);
+
+        // Set Row Height for Explanation Row
+        row.setHeightInPoints(107); // Adjust height as needed
+
+        // Create Header of Excel Sheet
+        row = sheet.createRow(2);
         font.setBold(true);
         font.setFontHeight(16);
         titleStyle.setFont(font);
@@ -166,7 +236,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         createCell(row, 5, "Brand_Price", headerStyle, sheet);
 
         // Write Data from DB to Excel Sheet
-        int rowIndex = 2;
+        int rowIndex = 3;
         XSSFFont fontData = workbook.createFont();
         fontData.setBold(false);
         fontData.setFontHeight(14);
@@ -199,37 +269,38 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             createCell(rowSheet, countIndex++, materialResponse.getBasePrice(), lockedData, sheet);
             createCell(rowSheet, countIndex++, null, styleData, sheet);
         }
+
         // Auto Size Column to fit content
         for (int i = 0; i < 6; ++i) {
             sheet.autoSizeColumn(i);
         }
+
         // Set Password to Unlock Columns and Rows
         sheet.protectSheet("Aa@123456");
 
-        // Apply Border to Sheet
-        rangeAddress = new CellRangeAddress(0, materialResponses.size(), 0, 5);
-
-        // Apply data validation for Brand Price column from rowIndex = 2 to the last row
+        // Apply data validation for Brand Price column
         int lastRow = sheet.getLastRowNum();
-        var priceVariationPercentageForMaterial = Double.parseDouble(systemPropertiesService.getByName("PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL").getPropertyValue());
         String brandPriceFormula = "AND(F3>=1, E3>=F3*" + (1 - priceVariationPercentageForMaterial) + ", E3<=F3*" + (1 + priceVariationPercentageForMaterial) + ")";
         DataValidationHelper validationHelper = sheet.getDataValidationHelper();
 
-        // Create a CellRangeAddressList for Brand Price column
         CellRangeAddressList brandPriceAddressList = new CellRangeAddressList(2, lastRow, 5, 5);
 
-        // Create a custom data validation constraint
         DataValidationConstraint brandPriceConstraint = validationHelper.createCustomConstraint(brandPriceFormula);
 
-        // Create data validation for Brand Price column
         DataValidation brandPriceValidation = validationHelper.createValidation(brandPriceConstraint, brandPriceAddressList);
 
-        // Show error box if the data validation fails
         brandPriceValidation.setShowErrorBox(true);
         brandPriceValidation.createErrorBox("Invalid Input", "Brand Price must be between " + (100 - priceVariationPercentageForMaterial * 100) + "% and " + (100 + priceVariationPercentageForMaterial * 100) + "% of Base Price.");
 
-        // Add data validation to the sheet
         sheet.addValidationData(brandPriceValidation);
+
+        // Set column widths
+        sheet.setColumnWidth(0, 25 * 256);
+        sheet.setColumnWidth(1, 55 * 256);
+        sheet.setColumnWidth(2, 21 * 256);
+        sheet.setColumnWidth(3, 18 * 256);
+        sheet.setColumnWidth(4, 18 * 256);
+        sheet.setColumnWidth(5, 18 * 256);
 
         // Export Data to Excel
         ServletOutputStream outputStream = response.getOutputStream();
@@ -237,6 +308,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         workbook.close();
         outputStream.close();
     }
+
 
     @Override
     public void exportSampleExpertTailoring(HttpServletResponse response) throws IOException {
@@ -334,18 +406,43 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
         font.setFontHeightInPoints((short) 10);
 
-        // Create Header of Excel Sheet
+        // Create Explanation Row
         row = sheet.createRow(1);
-        font.setBold(true);
-        font.setFontHeight(16);
-        style.setFont(font);
+        XSSFFont explanationFont = workbook.createFont();
+        explanationFont.setBold(false);
+        explanationFont.setFontHeight(14);
+        CellStyle explanationStyle = workbook.createCellStyle();
+        explanationStyle.setAlignment(HorizontalAlignment.LEFT);
+        explanationStyle.setWrapText(true);
+        font.setBold(false);
+        font.setFontHeight(14);
+        explanationStyle.setFont(explanationFont);
+//        explanationStyle.setLocked(true);
+
+        String explanation = "Explanation:\n"
+                + "• Category_Name: Only values from the predefined list of categories in the Smart Tailor application are allowed.\n"
+                + "• Base_Price: Only positive integer values are allowed, and the currency unit is VND.\n"
+                + "• HS_Code: Only positive integer values are allowed.";
+
+        createCell(row, 0, explanation, explanationStyle, sheet);
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 4));
+
+        // Set Row Height for Explanation Row
+        row.setHeightInPoints(72); // Adjust height as needed
+
+        // Create Header of Excel Sheet
+        row = sheet.createRow(2);
+        XSSFFont headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setFontHeight(16);
+        style.setFont(headerFont);
         createCell(row, 0, "Category_Name", style, sheet);
         createCell(row, 1, "Material_Name", style, sheet);
         createCell(row, 2, "HS_Code", style, sheet);
         createCell(row, 3, "Unit", style, sheet);
         createCell(row, 4, "Base_Price", style, sheet);
 
-        int rowIndex = 2;
+        int rowIndex = 3;
         XSSFFont fontData = workbook.createFont();
         fontData.setBold(false);
         fontData.setFontHeight(14);
@@ -357,7 +454,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         sheet.protectSheet("Aa@123456");
 
         // Unlocked For Specific Cells
-        for (int i = 2; i <= 200; ++i) {
+        for (int i = rowIndex; i <= 200; ++i) {
             row = sheet.createRow(i);
             Cell cellA = row.createCell(0);
             Cell cellB = row.createCell(1);
@@ -376,51 +473,50 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
         // Apply Constraint to Cell 0 <=> CategoryName
         DataValidationConstraint constraint = dataValidationHelper.createExplicitListConstraint(categoryNames);
-        CellRangeAddressList categoryNameRange = new CellRangeAddressList(2, 200, 0, 0);
+        CellRangeAddressList categoryNameRange = new CellRangeAddressList(3, 200, 0, 0);
         DataValidation categoryNameValidation = dataValidationHelper.createValidation(constraint, categoryNameRange);
         categoryNameValidation.setShowErrorBox(true);
         categoryNameValidation.createErrorBox("Invalid Input", "Category Name must be one of predefined values");
         sheet.addValidationData(categoryNameValidation);
 
         // Apply Constraint to Cell 1 <=> MaterialName
-        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(B3)");
-        CellRangeAddressList materialNameRange = new CellRangeAddressList(2, 200, 1, 1);
+        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(B4)");
+        CellRangeAddressList materialNameRange = new CellRangeAddressList(3, 200, 1, 1);
         DataValidation materialNameValidation = dataValidationHelper.createValidation(constraint, materialNameRange);
         materialNameValidation.setShowErrorBox(true);
         materialNameValidation.createErrorBox("Invalid Input", "Material Name must be Type String");
         sheet.addValidationData(materialNameValidation);
 
         // Apply Constraint to Cell 2 <=> HSCode
-        constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(C3), C3 >= 0)");
-        CellRangeAddressList hsCodeRange = new CellRangeAddressList(2, 200, 2, 2);
+        constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(C4), C4 >= 0)");
+        CellRangeAddressList hsCodeRange = new CellRangeAddressList(3, 200, 2, 2);
         DataValidation hsCodeValidation = dataValidationHelper.createValidation(constraint, hsCodeRange);
         hsCodeValidation.setShowErrorBox(true);
         hsCodeValidation.createErrorBox("Invalid Input", "HS Code must be Type Number And Non-Negative Number");
         sheet.addValidationData(hsCodeValidation);
 
         // Apply Constraint to Cell 3 <=> Unit
-        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(D3)");
-        CellRangeAddressList unitRange = new CellRangeAddressList(2, 200, 3, 3);
+        constraint = dataValidationHelper.createCustomConstraint("ISTEXT(D4)");
+        CellRangeAddressList unitRange = new CellRangeAddressList(3, 200, 3, 3);
         DataValidation unitValidation = dataValidationHelper.createValidation(constraint, unitRange);
         unitValidation.setShowErrorBox(true);
-        unitValidation.createErrorBox("Invalid Input", "Material Name must be Type String");
+        unitValidation.createErrorBox("Invalid Input", "Unit must be Type String");
         sheet.addValidationData(unitValidation);
 
         // Apply Constraint to Cell 4 <=> BasePrice
-        constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(E3), E3 >= 0)");
-        CellRangeAddressList basePriceRange = new CellRangeAddressList(2, 200, 4, 4);
+        constraint = dataValidationHelper.createCustomConstraint("AND(ISNUMBER(E4), E4 >= 0)");
+        CellRangeAddressList basePriceRange = new CellRangeAddressList(3, 200, 4, 4);
         DataValidation basePriceValidation = dataValidationHelper.createValidation(constraint, basePriceRange);
         basePriceValidation.setShowErrorBox(true);
         basePriceValidation.createErrorBox("Invalid Input", "Base Price must be Type Number And Non-Negative Number");
         sheet.addValidationData(basePriceValidation);
 
-        // Set Width for Specific Column
-        sheet.setColumnWidth(0, 25 * 256);
+        // Set Width for Specific Columns
+        sheet.setColumnWidth(0, 25 * 256); // Adjust width of the column with explanation
         sheet.setColumnWidth(1, 55 * 256);
         sheet.setColumnWidth(2, 18 * 256);
         sheet.setColumnWidth(3, 18 * 256);
         sheet.setColumnWidth(4, 18 * 256);
-
 
         // Export Data to Excel
         ServletOutputStream outputStream = response.getOutputStream();

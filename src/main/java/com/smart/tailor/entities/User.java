@@ -31,7 +31,7 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User extends AuditEntity implements Serializable, OAuth2User, UserDetails {
     @Id
-    @Column(name = "user_id")
+    @Column(name = "user_id", columnDefinition = "varchar(14)")
     private String userID;
 
     @Column(columnDefinition = "varchar(255)")

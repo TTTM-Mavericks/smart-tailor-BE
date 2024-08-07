@@ -20,7 +20,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Task extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "task_id", unique = true, nullable = false)
+    @Column(name = "task_id", columnDefinition = "varchar(14)")
     private String taskID;
 
     @ManyToOne

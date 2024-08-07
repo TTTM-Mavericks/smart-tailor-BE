@@ -22,7 +22,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Report extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "report_id", unique = true, nullable = false)
+    @Column(name = "report_id", columnDefinition = "varchar(14)")
     private String reportID;
 
     @Column(name = "type_of_report", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")

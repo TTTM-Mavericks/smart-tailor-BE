@@ -21,7 +21,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class SystemProperties extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "property_id", unique = true, nullable = false)
+    @Column(name = "property_id", columnDefinition = "varchar(14)")
     private String propertyID;
 
     @Column(name = "property_name", columnDefinition = "varchar(50)", nullable = false, unique = true)

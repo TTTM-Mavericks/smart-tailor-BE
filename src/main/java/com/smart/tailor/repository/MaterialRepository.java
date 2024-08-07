@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public interface MaterialRepository extends JpaRepository<Material, String> {
     boolean existsByMaterialNameIgnoreCaseAndCategory_CategoryNameIgnoreCaseAndHsCodeAndUnitIgnoreCaseAndBasePrice(
             String materialName,
             String categoryName,
-            Long hsCode,
+            BigInteger hsCode,
             String unit,
             Integer basePrice
     );

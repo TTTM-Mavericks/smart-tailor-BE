@@ -20,7 +20,7 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public class SystemImage extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "image_id")
+    @Column(name = "image_id", columnDefinition = "varchar(14)")
     private String imageID;
 
     @Column(name = "image_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")
