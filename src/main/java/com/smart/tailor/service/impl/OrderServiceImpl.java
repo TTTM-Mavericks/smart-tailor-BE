@@ -711,32 +711,57 @@ public class OrderServiceImpl implements OrderService {
                             boolean isFinish;
                             switch (stage) {
                                 case 0 -> {
+
+                                    var isStart = false;
                                     for (var subOrderResponse : subOrderList) {
-                                        var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                        if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
-                                            paymentService.createPayOSPayment(
-                                                    PaymentRequest
-                                                            .builder()
-                                                            .orderID(subOrder.getOrderID())
-
-                                                            .paymentSenderID(null)
-                                                            .paymentSenderName("")
-                                                            .paymentSenderBankCode("")
-                                                            .paymentSenderBankNumber("")
-
-                                                            .paymentRecipientID(null)
-                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                            .paymentRecipientBankCode("OCB")
-                                                            .paymentRecipientBankNumber("0163100007285002")
-
-                                                            .paymentType(PaymentType.BRAND_INVOICE)
-                                                            .paymentAmount(
-                                                                    10000
-                                                            )
-                                                            .itemList(null)
-                                                            .build()
-                                            );
+                                        var started = stageService.getOrderStageByOrderID(
+                                                        subOrderResponse.getOrderID()
+                                                )
+                                                .stream()
+                                                .filter(s -> s.getStage().equals(OrderStatus.START_PRODUCING))
+                                                .findFirst()
+                                                .get();
+                                        if (started.getStatus()) {
+                                            isStart = true;
+                                            break;
                                         }
+                                    }
+
+                                    if (isStart) {
+                                        for (var subOrderResponse : subOrderList) {
+                                            var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                            if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                                paymentService.createPayOSPayment(
+                                                        PaymentRequest
+                                                                .builder()
+                                                                .orderID(subOrder.getOrderID())
+
+                                                                .paymentSenderID(null)
+                                                                .paymentSenderName("")
+                                                                .paymentSenderBankCode("")
+                                                                .paymentSenderBankNumber("")
+
+                                                                .paymentRecipientID(null)
+                                                                .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                                .paymentRecipientBankCode("OCB")
+                                                                .paymentRecipientBankNumber("0163100007285002")
+
+                                                                .paymentType(PaymentType.BRAND_INVOICE)
+                                                                .paymentAmount(
+                                                                        10000
+                                                                )
+                                                                .itemList(null)
+                                                                .build()
+                                                );
+                                            }
+                                        }
+                                    } else {
+                                        var depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).findFirst().orElse(null);
+                                        int price = (int) (depositPayment.getPaymentAmount() * 0.8);
+                                        paymentService.createPayOSPayment(PaymentRequest.builder().paymentAmount(price).paymentMethod(PaymentMethod.BANK_TRANSFER).paymentType(PaymentType.ORDER_REFUND).paymentSenderID(userService.getUserByEmail("").getUserID()).paymentSenderName(userService.getUserByEmail("").getName()).paymentSenderBankCode("OCB").paymentSenderBankNumber("0163100007285002")
+
+                                                .paymentRecipientID(existedOrder.getDetailList().get(0).getDesign().getUser().getUserID()).paymentRecipientName(existedOrder.getDetailList().get(0).getDesign().getUser().getName()).paymentRecipientBankNumber("").paymentRecipientBankCode("").build());
+
                                     }
                                 }
                                 case 1 -> {
@@ -976,7 +1001,7 @@ public class OrderServiceImpl implements OrderService {
 
         existedOrder.setOrderStatus(orderStatus);
 
-//        if (existedOrder.getOrderStatus().equals(OrderStatus.CANCEL)) {
+        //        if (existedOrder.getOrderStatus().equals(OrderStatus.CANCEL)) {
 //            if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
 //                var subOrderList = getSubOrderByParentID(existedOrder.getOrderID());
 //                for (var subOrderResponse : subOrderList) {
@@ -1043,13 +1068,15 @@ public class OrderServiceImpl implements OrderService {
 //            }
 //        }
         var stageResponseList = stageService.getOrderStageByOrderID(orderID);
-        for (var stageResponse : stageResponseList) {
+        for (
+                var stageResponse : stageResponseList) {
             if (stageResponse.getStage().equals(OrderStatus.valueOf(orderRequest.getStatus()))) {
                 var stage = stageService.getOrderStageByID(stageResponse.getStageId());
                 stage.setStatus(true);
                 stageService.updateStage(stage);
             }
         }
+
         var updatedOrder = orderRepository.save(existedOrder);
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
