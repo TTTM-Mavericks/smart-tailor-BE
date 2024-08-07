@@ -1817,11 +1817,14 @@ public class OrderServiceImpl implements OrderService {
         try {
             var listOrder = orderRepository.findAll()
                     .stream()
-                    .filter(
-                            order -> order.getOrderType().equals("PARENT_ORDER") &&
-                                    (order.getOrderStatus() == OrderStatus.CANCEL
-                                            ||
-                                            order.getOrderStatus() == OrderStatus.DELIVERED)
+                    .filter(order ->
+                            (order.getOrderStatus() == OrderStatus.CANCEL
+                                    || order.getOrderStatus() == OrderStatus.DELIVERED)
+                                    && getSubOrderByParentID(order.getOrderID())
+                                    .stream()
+                                    .flatMap(subOrder -> subOrder.getPaymentList().stream())
+                                    .findAny()
+                                    .isPresent()
                     )
                     .toList();
             List<FullOrderResponse> response = new ArrayList<>();
