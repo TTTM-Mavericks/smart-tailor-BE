@@ -1473,7 +1473,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<FullOrderResponse> getFullProp() throws JsonProcessingException {
         try {
-            var listOrder = orderRepository.findAll().stream().filter(order -> (order.getOrderStatus() == OrderStatus.CANCEL || order.getOrderStatus() == OrderStatus.DELIVERED) && getSubOrderByParentID(order.getOrderID()).stream().flatMap(subOrder -> subOrder.getPaymentList().stream()).findAny().isPresent()).toList();
+            var listOrder = orderRepository.findAll().stream()
+                    .filter(order ->
+                            (order.getOrderStatus() == OrderStatus.CANCEL
+                                    || order.getOrderStatus() == OrderStatus.DELIVERED) // Trạng thái đơn hàng là CANCEL hoặc DELIVERED
+                                    && getSubOrderByParentID(order.getOrderID()).stream()
+                                    .flatMap(subOrder -> Optional.ofNullable(subOrder.getPaymentList()).orElseGet(List::of).stream()) // Xử lý paymentList có thể là null
+                                    .findAny() // Tìm bất kỳ thanh toán nào
+                                    .isPresent() // Kiểm tra xem có tồn tại thanh toán hay không
+                    )
+                    .toList();
             List<FullOrderResponse> response = new ArrayList<>();
             for (Order order : listOrder) {
                 FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
