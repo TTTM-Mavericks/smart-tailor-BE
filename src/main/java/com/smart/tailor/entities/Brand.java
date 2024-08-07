@@ -20,12 +20,12 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class Brand extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "brand_id")
+    @Column(name = "brand_id", columnDefinition = "varchar(14)")
     private String brandID;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "brand_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "brand_id", referencedColumnName = "user_id", columnDefinition = "varchar(14)")
     private User user;
 
     @Column(name = "brand_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin", unique = false, nullable = false)
@@ -75,9 +75,4 @@ public class Brand extends AuditEntity implements Serializable {
 
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BrandImage> brandImages;
-//
-//    @PrePersist
-//    private void prePersist() {
-//        this.brandID = Utilities.generateCustomPrimaryKey();
-//    }
 }

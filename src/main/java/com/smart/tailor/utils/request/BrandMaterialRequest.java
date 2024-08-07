@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,7 +30,7 @@ public class BrandMaterialRequest {
 
     @NotNull(message = "HS Code is required")
     @Min(value = 0, message = "HS Code must not be less than 0")
-    private Long hsCode;
+    private BigInteger hsCode;
 
     @NotBlank(message = "Unit is required")
     @Size(max = 50, message = "Unit must not exceed 50 characters")

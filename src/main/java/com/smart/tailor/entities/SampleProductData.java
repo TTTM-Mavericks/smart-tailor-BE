@@ -21,7 +21,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SampleProductData extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "sample_model_id", nullable = false, unique = true)
+    @Column(name = "sample_model_id", columnDefinition = "varchar(14)")
     private String sampleModelID;
 
     @ManyToOne

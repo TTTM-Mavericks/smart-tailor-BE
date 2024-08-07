@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 
 
 @Repository
@@ -39,7 +40,7 @@ public interface BrandMaterialRepository extends JpaRepository<BrandMaterial, Br
                     "m.unit = ?5 && m.base_price = ?6 && bm.brand_price = ?7", nativeQuery = true
     )
     BrandMaterial findBrandMaterialByCategoryNameAndMaterialNameAndBrandNameAndHsCodeAndPrice(
-            String categoryName, String materialName, String brandName, Long hsCode,
+            String categoryName, String materialName, String brandName, BigInteger hsCode,
             String unit, Integer basePrice, Integer brandPrice);
 
     @Query(value = "SELECT brand_price FROM brand_material where brand_id = ?1 && material_id = ?2", nativeQuery = true)

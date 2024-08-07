@@ -25,7 +25,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Order extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "order_id", nullable = false, unique = true)
+    @Column(name = "order_id", columnDefinition = "varchar(14)")
     private String orderID;
 
     @ManyToOne

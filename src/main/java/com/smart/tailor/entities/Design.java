@@ -21,7 +21,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Design extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "design_id", unique = true, nullable = false)
+    @Column(name = "design_id", columnDefinition = "varchar(14)")
     private String designID;
 
     @ManyToOne

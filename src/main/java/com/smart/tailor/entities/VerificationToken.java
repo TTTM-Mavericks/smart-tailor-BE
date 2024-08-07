@@ -20,9 +20,10 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VerificationToken implements Serializable {
     @Id
-    @Column(name = "verification_token_id")
+    @Column(name = "verification_token_id", columnDefinition = "varchar(14)")
     private String verificationTokenID;
 
+    @Column(columnDefinition = "varchar(14)")
     private String token;
 
     private LocalDateTime expirationDateTime;

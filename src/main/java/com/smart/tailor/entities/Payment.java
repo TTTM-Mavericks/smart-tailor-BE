@@ -23,7 +23,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "payment_id", unique = true, nullable = false)
+    @Column(name = "payment_id", columnDefinition = "varchar(14)")
     private String paymentID;
 
     @ManyToOne

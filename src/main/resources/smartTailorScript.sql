@@ -41,7 +41,7 @@ VALUES (GenerateCustomKeyString(), current_timestamp, null,
         'TIME_BEFORE_ACCOUNT_DELETION', 'NUMBER', true, 'INT','12'),
        (GenerateCustomKeyString(), current_timestamp, null,
         'The percentage range within which the price for Material can vary. Prices outside this range will not be accepted for Material pricing.',
-        'PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL', 'NUMBER', true, 'FLOAT', '0.07'),
+        'PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL', 'NUMBER', true, 'FLOAT', '0.08'),
         (GenerateCustomKeyString(), current_timestamp, null,
         'The period within which customers can verify their email address.', 'EMAIL_VERIFICATION_TIME', 'DURATION', true, 'MINUTE',
         '30');

@@ -17,7 +17,7 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public class BrandProperties extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "brand_property_id", unique = true, nullable = false)
+    @Column(name = "brand_property_id", columnDefinition = "varchar(14)")
     private String brandPropertyID;
 
     @ManyToOne

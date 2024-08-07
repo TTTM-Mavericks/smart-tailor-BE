@@ -21,12 +21,12 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class Customer extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "customer_id", unique = true, nullable = false)
+    @Column(name = "customer_id", columnDefinition = "varchar(14)")
     private String customerID;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "customer_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", columnDefinition = "varchar(14)")
     private User user;
 
     private Boolean gender;

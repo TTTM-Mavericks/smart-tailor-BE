@@ -20,7 +20,7 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public class Category extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "category_id", unique = true, nullable = false)
+    @Column(name = "category_id", columnDefinition = "varchar(14)")
     private String categoryID;
 
     @Column(name = "category_name", columnDefinition = "varchar(50) CHARACTER SET utf8 COLLATE utf8_bin")

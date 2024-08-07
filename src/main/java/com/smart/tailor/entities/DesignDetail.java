@@ -22,7 +22,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DesignDetail extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "design_detail_id", unique = true, nullable = false)
+    @Column(name = "design_detail_id", columnDefinition = "varchar(14)")
     private String designDetailID;
 
     @ManyToOne

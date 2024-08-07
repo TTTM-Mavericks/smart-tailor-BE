@@ -21,7 +21,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Token extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "token_id", nullable = false, unique = true)
+    @Column(name = "token_id", columnDefinition = "varchar(14)")
     private String tokenID;
 
     @Column(name = "expired", nullable = false, unique = false)
@@ -30,7 +30,7 @@ public class Token extends AuditEntity implements Serializable {
     @Column(name = "revoked", nullable = false, unique = false)
     private boolean revoked;
 
-    @Column(name = "token", nullable = false, unique = false)
+    @Column(name = "token")
     private String token;
 
     @Enumerated(EnumType.STRING)

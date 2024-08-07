@@ -20,7 +20,7 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public class LaborQuantity extends AuditEntity implements Serializable {
     @Id
-    @Column(name = "labor_quantity_id")
+    @Column(name = "labor_quantity_id", columnDefinition = "varchar(14)")
     private String laborQuantityID;
 
     private Integer laborQuantityMinQuantity;
