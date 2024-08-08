@@ -44,7 +44,9 @@ VALUES (GenerateCustomKeyString(), current_timestamp, null,
         'PRICE_VARIATION_PERCENTAGE_FOR_MATERIAL', 'NUMBER', true, 'FLOAT', '0.08'),
         (GenerateCustomKeyString(), current_timestamp, null,
         'The period within which customers can verify their email address.', 'EMAIL_VERIFICATION_TIME', 'DURATION', true, 'MINUTE',
-        '30');
+        '30'),
+         (GenerateCustomKeyString(), current_timestamp, null,
+        'Khối lượng tối đa vận chuyển đơn hàng là 20 kg', 'MAX_SHIPPING_WEIGHT', 'WEIGHT', true, 'KG', '20');
 
 -- INSERT INTO SYSTEM IMAGE
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date, last_modified_date)

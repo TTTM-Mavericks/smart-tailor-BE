@@ -16,6 +16,7 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final BrandService brandService;
     private final BrandMaterialService brandMaterialService;
     private final SizeExpertTailoringService sizeExpertTailoringService;
+    private final SystemPropertiesService systemPropertiesService;
+    private final GHTKShippingService ghtkShippingService;
     private final DesignService designService;
     private final CustomerService customerService;
     private final OrderService orderService;
@@ -294,8 +297,42 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             });
         });
 
-        var totalMinWeightOfParentOrder = orderCustomResponse.getQuantity() * designResponse.getMinWeight();
-        var totalMaxWeightOfParentOrder = orderCustomResponse.getQuantity() * designResponse.getMaxWeight();
+
+        var minWeightParentOrder = designResponse.getMinWeight() * orderCustomResponse.getQuantity();
+        var maxWeightParentOrder = designResponse.getMaxWeight() * orderCustomResponse.getQuantity();
+        var shippingFee = -1;
+        var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
+        var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
+        logger.info("Average Weight of Parent Order {}", averageWeightParentOrder);
+        logger.info("Maximum Shipping Weight {}", maximumShippingWeight);
+
+        if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
+            orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight){
+            OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
+                    new OrderShippingRequest.OrderShippingDetailRequest(
+                            "344 Lê Văn Việt",
+                            "Hồ Chí Minh",
+                            "Thủ Đức",
+                            "Tăng Nhơn Phú B",
+                            orderCustomResponse.getAddress(),
+                            orderCustomResponse.getProvince(),
+                            orderCustomResponse.getDistrict(),
+                            orderCustomResponse.getWard(),
+                            averageWeightParentOrder
+                    );
+
+            var orderShippingRequest =
+                    OrderShippingRequest
+                            .builder()
+                            .order(orderShippingDetailRequest)
+                            .build();
+
+            var feeResponse = ghtkShippingService.calculateShippingFee(orderShippingRequest);
+            if(feeResponse != null && feeResponse.getSuccess()){
+                shippingFee = feeResponse.getFee();
+            }
+            logger.info("Fee Response From Shipping API {}", feeResponse);
+        }
 
         BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
         BigDecimal customerPriceDeposit = BigDecimal.ZERO;
@@ -367,6 +404,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 .customerPriceDeposit(customerPriceDeposit.toString())
                 .customerPriceFirstStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
                 .customerSecondStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
+                .customerShippingFee(shippingFee)
                 .brandDetailPriceResponseList(brandDetailPriceResponseList)
                 .build();
     }
