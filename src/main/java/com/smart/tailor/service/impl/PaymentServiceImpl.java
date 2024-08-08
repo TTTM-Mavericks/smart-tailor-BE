@@ -133,7 +133,8 @@ public class PaymentServiceImpl implements PaymentService {
                                 .build()
                 );
                 return paymentMapper.mapperToPaymentResponse(storedPayment);
-            } else {
+            }
+            else {
 
                 /**
                  * TODO
@@ -231,6 +232,7 @@ public class PaymentServiceImpl implements PaymentService {
                         if (creationPayOS == null) {
                             throw new Exception("Create PayOS Fail!");
                         }
+                        logger.error("CREATE CUS REFUND SUCCESSFULLY");
                         Integer orderCode = creationPayOS.getData().getOrderCode();
 
                         var order = orderRepository.findById(orderID)
@@ -256,7 +258,7 @@ public class PaymentServiceImpl implements PaymentService {
                                         .paymentCode(orderCode)
                                         .build()
                         );
-
+                        logger.error("AFTER SAVE PAYMENT: {}", storedPayment);
                         return paymentMapper.mapperToPaymentResponse(storedPayment);
                     } else {
                         if (paymentType.equals(PaymentType.DEPOSIT)) {
