@@ -20,7 +20,7 @@ public class OrderDetailPriceResponse {
 
     private String customerSecondStage;
 
-    private Integer customerShippingFee;
+    private String customerShippingFee;
 
     private List<BrandDetailPriceResponse> brandDetailPriceResponseList;
 }

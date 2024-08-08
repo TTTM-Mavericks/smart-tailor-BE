@@ -300,14 +300,16 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
         var minWeightParentOrder = designResponse.getMinWeight() * orderCustomResponse.getQuantity();
         var maxWeightParentOrder = designResponse.getMaxWeight() * orderCustomResponse.getQuantity();
-        var shippingFee = -1;
         var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
         var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
         logger.info("Average Weight of Parent Order {}", averageWeightParentOrder);
         logger.info("Maximum Shipping Weight {}", maximumShippingWeight);
 
+        BigDecimal shippingFee = BigDecimal.valueOf(-1);
+
         if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
-            orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight){
+                orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
+
             OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
                     new OrderShippingRequest.OrderShippingDetailRequest(
                             "344 Lê Văn Việt",
@@ -328,8 +330,8 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             .build();
 
             var feeResponse = ghtkShippingService.calculateShippingFee(orderShippingRequest);
-            if(feeResponse != null && feeResponse.getSuccess()){
-                shippingFee = feeResponse.getFee();
+            if (feeResponse != null && feeResponse.getSuccess()) {
+                shippingFee = BigDecimal.valueOf(feeResponse.getFee());
             }
             logger.info("Fee Response From Shipping API {}", feeResponse);
         }
@@ -398,13 +400,18 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
 
+        BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder;
+        if (!shippingFee.equals(BigDecimal.valueOf(-1))) {
+            adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(shippingFee);
+        }
+
         return OrderDetailPriceResponse
                 .builder()
-                .totalPriceOfParentOrder(totalPriceOfParentOrder.toString())
+                .totalPriceOfParentOrder(adjustedTotalPriceOfParentOrder.toString())
                 .customerPriceDeposit(customerPriceDeposit.toString())
                 .customerPriceFirstStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
                 .customerSecondStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
-                .customerShippingFee(shippingFee)
+                .customerShippingFee(shippingFee.toString())
                 .brandDetailPriceResponseList(brandDetailPriceResponseList)
                 .build();
     }
