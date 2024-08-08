@@ -718,7 +718,7 @@ public class OrderServiceImpl implements OrderService {
                                                         subOrderResponse.getOrderID()
                                                 )
                                                 .stream()
-                                                .filter(s -> s.getStage().equals(OrderStatus.START_PRODUCING))
+                                                .filter(s -> s.getStage().equals(OrderStatus.START_PRODUCING) && s.getStatus())
                                                 .findAny().isEmpty();
                                         if (started) {
                                             isStart = true;
