@@ -347,9 +347,18 @@ public class OrderServiceImpl implements OrderService {
                             if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                 paymentService.createPayOSPayment(PaymentRequest.builder().orderID(subOrder.getOrderID())
 
-                                        .paymentSenderID(null).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
+                                        .paymentSenderID(
+                                                userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                        .getUserID()
+                                        )
+                                        .paymentSenderName("")
+                                        .paymentSenderBankCode("")
+                                        .paymentSenderBankNumber("")
 
-                                        .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
+                                        .paymentRecipientID(
+                                                subOrder.getDetailList().get(0)
+                                                        .getBrand().getBrandID()
+                                        ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                         .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
                             }
@@ -401,9 +410,18 @@ public class OrderServiceImpl implements OrderService {
                                         if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                             var payOSResponse = paymentService.createPayOSPayment(PaymentRequest.builder().orderID(subOrder.getOrderID())
 
-                                                    .paymentSenderID(null).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
+                                                    .paymentSenderID(
+                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                    .getUserID()
+                                                    )
+                                                    .paymentSenderName("")
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
 
-                                                    .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentRecipientID(
+                                                            subOrder.getDetailList().get(0)
+                                                                    .getBrand().getBrandID()
+                                                    ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
                                         }
@@ -435,9 +453,18 @@ public class OrderServiceImpl implements OrderService {
                                         if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                             var payOSResponse = paymentService.createPayOSPayment(PaymentRequest.builder().orderID(subOrder.getOrderID())
 
-                                                    .paymentSenderID(null).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
+                                                    .paymentSenderID(
+                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                    .getUserID()
+                                                    )
+                                                    .paymentSenderName("")
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
 
-                                                    .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentRecipientID(
+                                                            subOrder.getDetailList().get(0)
+                                                                    .getBrand().getBrandID()
+                                                    ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
                                         }
@@ -469,9 +496,18 @@ public class OrderServiceImpl implements OrderService {
                                         if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                             var payOSResponse = paymentService.createPayOSPayment(PaymentRequest.builder().orderID(subOrder.getOrderID())
 
-                                                    .paymentSenderID(null).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
+                                                    .paymentSenderID(
+                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                    .getUserID()
+                                                    )
+                                                    .paymentSenderName("")
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
 
-                                                    .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentRecipientID(
+                                                            subOrder.getDetailList().get(0)
+                                                                    .getBrand().getBrandID()
+                                                    ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
                                         }
@@ -735,12 +771,18 @@ public class OrderServiceImpl implements OrderService {
                                                                 .builder()
                                                                 .orderID(subOrder.getOrderID())
 
-                                                                .paymentSenderID(null)
+                                                                .paymentSenderID(
+                                                                        userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                                .getUserID()
+                                                                )
                                                                 .paymentSenderName("")
                                                                 .paymentSenderBankCode("")
                                                                 .paymentSenderBankNumber("")
 
-                                                                .paymentRecipientID(null)
+                                                                .paymentRecipientID(
+                                                                        subOrder.getDetailList().get(0)
+                                                                                .getBrand().getBrandID()
+                                                                )
                                                                 .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
                                                                 .paymentRecipientBankCode("OCB")
                                                                 .paymentRecipientBankNumber("0163100007285002")
@@ -772,12 +814,18 @@ public class OrderServiceImpl implements OrderService {
                                                             .builder()
                                                             .orderID(subOrder.getOrderID())
 
-                                                            .paymentSenderID(null)
+                                                            .paymentSenderID(
+                                                                    userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                            .getUserID()
+                                                            )
                                                             .paymentSenderName("")
                                                             .paymentSenderBankCode("")
                                                             .paymentSenderBankNumber("")
 
-                                                            .paymentRecipientID(null)
+                                                            .paymentRecipientID(
+                                                                    subOrder.getDetailList().get(0)
+                                                                            .getBrand().getBrandID()
+                                                            )
                                                             .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
                                                             .paymentRecipientBankCode("OCB")
                                                             .paymentRecipientBankNumber("0163100007285002")
@@ -801,12 +849,18 @@ public class OrderServiceImpl implements OrderService {
                                                             .builder()
                                                             .orderID(subOrder.getOrderID())
 
-                                                            .paymentSenderID(null)
+                                                            .paymentSenderID(
+                                                                    userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                            .getUserID()
+                                                            )
                                                             .paymentSenderName("")
                                                             .paymentSenderBankCode("")
                                                             .paymentSenderBankNumber("")
 
-                                                            .paymentRecipientID(null)
+                                                            .paymentRecipientID(
+                                                                    subOrder.getDetailList().get(0)
+                                                                            .getBrand().getBrandID()
+                                                            )
                                                             .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
                                                             .paymentRecipientBankCode("OCB")
                                                             .paymentRecipientBankNumber("0163100007285002")
