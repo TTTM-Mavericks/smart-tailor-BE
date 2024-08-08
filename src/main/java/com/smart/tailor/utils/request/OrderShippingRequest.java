@@ -30,7 +30,7 @@ public class OrderShippingRequest {
             this.weight = weight;
         }
 
-        public OrderShippingDetailRequest(String id, String pick_name, String pick_address, String pick_province, String pick_district, String pick_ward, String pick_tel, String tel, String name, String address, String province, String district, String ward, String hamlet, String is_freeship, String pick_date, Integer pick_money, Float total_weight, String note, Integer value, String transport) {
+        public OrderShippingDetailRequest(String id, String pick_name, String pick_address, String pick_province, String pick_district, String pick_ward, String pick_tel, String tel, String name, String address, String province, String district, String ward, String hamlet, String is_freeship, String pick_date, Integer pick_money, Float total_weight, Integer value) {
             this.id = id;
             this.pick_name = pick_name;
             this.pick_address = pick_address;
@@ -49,9 +49,7 @@ public class OrderShippingRequest {
             this.pick_date = pick_date;
             this.pick_money = pick_money;
             this.total_weight = total_weight;
-            this.note = note;
             this.value = value;
-            this.transport = transport;
         }
 
         private String id; // mã đơn hàng thuộc hệ thống của đối tác
@@ -72,9 +70,7 @@ public class OrderShippingRequest {
         private String pick_date; // Hẹn ngày lấy hàng (YYYY/MM/DD)
         private Integer pick_money; // Số tiền CoD. Nếu bằng 0 thì không thu tiền CoD. Tính theo VNĐ
         private Float total_weight; // Cân nặng này dùng để tạo Order Shipping. Tổng khối lượng của đơn hàng. Tính theo đơn vị KG
-        private String note;
         private Integer value; // Giá trị đóng bảo hiểm, là căn cứ để tính phí bảo hiểm và bồi thường khi có sự cố.
-        private String transport; // Phương thức vâng chuyển road ( bộ ) , fly (bay)
         private Float weight; // Cân nặng này dùng để tính phí ship A -> B. Đơn vị sử dụng Gram
     }
 }

@@ -5,6 +5,7 @@ import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.service.*;
+import com.smart.tailor.utils.request.OrderShippingRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
 import com.smart.tailor.utils.response.OrderResponse;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -157,4 +159,67 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
             }
         }
     }
+
+//    @Scheduled(cron = "0/30 * * * * *") // Run every minute
+//    @Override
+//    public void createOrderDelivery() throws Exception {
+//        logger.info("Inside Create Order Delivery");
+//        var orders = orderService.getAllParentOrder();
+//        for (OrderResponse orderResponse : orders) {
+//            if(orderResponse.getOrderStatus().name().equals(OrderStatus.DELIVERED.name()) &&
+//                    Optional.ofNullable(orderResponse.getLabelID()).isEmpty()){
+//                var order = orderService.getOrderById(orderResponse.getOrderID()).get();
+//                logger.info("Retrieved Order: {}", order);
+//
+//                var detail = detailService.findAllByOrderID(orderResponse.getOrderID());
+//                logger.info("Retrieved Order Details for OrderID {}: {}", orderResponse.getOrderID(), detail);
+//
+//                var design = detail.getDesign();
+//                logger.info("Design Information: {}", design);
+//
+//                var minWeightParentOrder = design.getMinWeight() * order.getQuantity();
+//                logger.info("Minimum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), minWeightParentOrder);
+//
+//                var maxWeightParentOrder = design.getMaxWeight() * order.getQuantity();
+//                logger.info("Maximum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), maxWeightParentOrder);
+//
+//                var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
+//                logger.info("Average Weight for Parent Order: {}", averageWeightParentOrder);
+//
+//                var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
+//                if(averageWeightParentOrder < maximumShippingWeight){
+//                    OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
+//                            new OrderShippingRequest.OrderShippingDetailRequest(
+//                                     order.getOrderID(),
+//                                    "Smart Tailor Services",
+//                                    "344 Lê Văn Việt",
+//                                    "Hồ Chí Minh",
+//                                    "Thủ Đức",
+//                                    "Tăng Nhơn Phú B",
+//                                    "0926733445",
+//                                    order.getPhone(),
+//                                    order.getBuyerName(),
+//                                    order.getAddress(),
+//                                    order.getProvince(),
+//                                    order.getDistrict(),
+//                                    order.getWard(),
+//                                    "Khác",
+//                                    "1",
+//                                    "2024/10/08",
+//                                    0,
+//                                    averageWeightParentOrder,
+//                                    1
+//                            );
+//
+//                    var orderShippingRequest =
+//                            OrderShippingRequest
+//                                    .builder()
+//                                    .order(orderShippingDetailRequest)
+//                                    .build();
+//
+//                    var createShippingOrder = ghtkShippingService.createShippingOrder(orderShippingRequest);
+//                }
+//            }
+//        }
+//    }
 }

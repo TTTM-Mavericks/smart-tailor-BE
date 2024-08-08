@@ -337,7 +337,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         }
 
         BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
-        BigDecimal customerPriceDeposit = BigDecimal.ZERO;
         BigDecimal customerPriceLaborQuantity = BigDecimal.ZERO;
         List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
         for (var subOrder : listSubOrders) {
@@ -380,25 +379,47 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
                 logger.info("Brand Labor Cost Per Quantity {}", brandLaborCostPerQuantity);
 
-                brandPriceDeposit = brandPriceDeposit.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).multiply(designDetailQuantity));
-                brandPriceLaborQuantity = brandPriceLaborQuantity.add(brandLaborCostPerQuantity.multiply(designDetailQuantity));
-                customerPriceDeposit = customerPriceDeposit.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).multiply(designDetailQuantity));
-                customerPriceLaborQuantity = customerPriceLaborQuantity.add(brandLaborCostPerQuantity.multiply(designDetailQuantity));
                 totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
-
                 logger.info("Total price for each sub-order ID {}: {}", subOrder.getOrderID(), totalPriceOfEachSubOrder);
             }
+
+            BigDecimal brandDepositStage = totalPriceOfEachSubOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal brandFirstStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal brandSecondStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).subtract(brandFirstStage).setScale(0, RoundingMode.HALF_UP);
+            logger.info("Brand Deposit Stage SubOrder {}", brandDepositStage);
+            logger.info("First Stage SubOrder {}", brandFirstStage);
+            logger.info("Second Stage SubOrder {}", brandSecondStage);
+
             BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
                     .builder()
                     .brandID(brand.getBrandID())
                     .subOrderID(subOrder.getOrderID())
-                    .brandPriceDeposit(brandPriceDeposit.toString())
-                    .brandPriceFirstStage(brandPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
-                    .brandPriceSecondStage(brandPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
+                    .brandPriceDeposit(brandDepositStage.toString())
+                    .brandPriceFirstStage(brandFirstStage.toString())
+                    .brandPriceSecondStage(brandSecondStage.toString())
                     .build();
             brandDetailPriceResponseList.add(brandDetailPriceResponse);
+
+            // Add Total Price Of SubOrder to ParentOrder
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
+
+        logger.info("Total Price of Parent Order {}", totalPriceOfParentOrder);
+        var orderFeePercentage = Integer.parseInt(systemPropertiesService.getByName("ORDER_FEE_PERCENTAGE").getPropertyValue());
+
+        logger.info("Order Fee Percentage {}", orderFeePercentage);
+        BigDecimal commission = totalPriceOfParentOrder.multiply(BigDecimal.valueOf(orderFeePercentage).divide(BigDecimal.valueOf(100)));
+        logger.info("Commission {}", commission);
+
+        BigDecimal customerDepositStage = totalPriceOfParentOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal customerFirstStage = totalPriceOfParentOrder.subtract(customerDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal customerSecondStage = totalPriceOfParentOrder.subtract(customerDepositStage).subtract(customerFirstStage).setScale(0, RoundingMode.HALF_UP);
+
+        logger.info("Deposit Without Commission of Parent Order {}", customerDepositStage);
+        logger.info("First Stage of Parent Order {}", customerFirstStage);
+        logger.info("Second Stage of Parent Order {}", customerSecondStage);
+
+        BigDecimal customerPriceDeposit = commission.add(customerDepositStage);
 
         BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder;
         if (!shippingFee.equals(BigDecimal.valueOf(-1))) {
@@ -409,8 +430,8 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 .builder()
                 .totalPriceOfParentOrder(adjustedTotalPriceOfParentOrder.toString())
                 .customerPriceDeposit(customerPriceDeposit.toString())
-                .customerPriceFirstStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
-                .customerSecondStage(customerPriceLaborQuantity.divide(BigDecimal.valueOf(2)).toString())
+                .customerPriceFirstStage(customerFirstStage.toString())
+                .customerSecondStage(customerSecondStage.toString())
                 .customerShippingFee(shippingFee.toString())
                 .brandDetailPriceResponseList(brandDetailPriceResponseList)
                 .build();

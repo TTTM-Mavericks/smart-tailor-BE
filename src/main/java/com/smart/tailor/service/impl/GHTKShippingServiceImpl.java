@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,7 +31,7 @@ import java.util.Objects;
 @Slf4j
 public class GHTKShippingServiceImpl implements GHTKShippingService {
     @Value("${GHTK_SHIPPING_API_URL}")
-    private String shippingApiUrl;
+    private String baseShippingApiUrl;
 
     @Value("${GHTK_SHPPING_API_TOKEN_KEY}")
     private String shippingApiTokenKey;
@@ -41,14 +42,73 @@ public class GHTKShippingServiceImpl implements GHTKShippingService {
 
     @Override
     public OrderShippingResponse createShippingOrder(OrderShippingRequest orderShippingRequest) {
+        try {
+            String shippingApiUrl = baseShippingApiUrl +  "/order/?ver=1.5";
 
-        return null;
+            logger.info("Shipping API Token {}", shippingApiTokenKey);
+            logger.info("Shipping API Url {}", shippingApiUrl);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Token", shippingApiTokenKey);
+
+            WebClient client = WebClient.create();
+            Mono<String> response = client
+                    .post()
+                    .uri(shippingApiUrl)
+                    .headers(httpHeaders -> httpHeaders.putAll(headers))
+                    .body(BodyInserters.fromValue(orderShippingRequest))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))) // Retry up to 3 times with exponential backoff
+                    .onErrorResume(error -> {
+                        logger.error("Error after retries: {}", error.getMessage());
+                        return Mono.empty();
+                    });
+
+            String responseBody = response.block();
+            if (responseBody == null) {
+                throw new Exception("Failed to get response from the service");
+            }
+
+            JsonNode res = objectMapper.readTree(responseBody);
+
+            logger.info("Response Body From Request URL {}", responseBody);
+            if (!Objects.equals(res.get("success").asText(), "true")) {
+                throw new Exception("Fail");
+            }
+
+            Boolean success = Boolean.parseBoolean(res.get("success").asText());
+            String message = res.get("message").asText();
+            String partner_id = res.get("order").get("partner_id").asText();
+            String label = res.get("order").get("label").asText();
+            Integer fee = Integer.parseInt(res.get("order").get("fee").asText());
+            String estimated_pick_time = res.get("order").get("estimated_pick_time").asText();
+            String estimated_deliver_time = res.get("order").get("estimated_deliver_time").asText();
+            Integer status_id =  Integer.parseInt(res.get("order").get("status_id").asText());
+            String warning_message = res.get("warning_message").asText();
+
+            return OrderShippingResponse.builder()
+                    .success(success)
+                    .message(message)
+                    .partner_id(partner_id)
+                    .label(label)
+                    .fee(fee)
+                    .estimated_pick_time(estimated_pick_time)
+                    .estimated_deliver_time(estimated_deliver_time)
+                    .status_id(status_id)
+                    .warning_message(warning_message)
+                    .build();
+
+        } catch (Exception ex) {
+            logger.error("Exception occurred: {}", ex.getMessage());
+            return null;
+        }
     }
 
     @Override
     public FeeResponse calculateShippingFee(OrderShippingRequest orderShippingRequest) {
         try {
-            shippingApiUrl += "/fee";
+            String shippingApiUrl = baseShippingApiUrl + "/fee";
 
             // Build the URI with parameters
             shippingApiUrl = UriComponentsBuilder
@@ -69,7 +129,6 @@ public class GHTKShippingServiceImpl implements GHTKShippingService {
             logger.info("Shipping API Url {}", shippingApiUrl);
 
             HttpHeaders headers = new HttpHeaders();
-//            headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Token", shippingApiTokenKey);
 
             WebClient client = WebClient.create();
@@ -79,7 +138,6 @@ public class GHTKShippingServiceImpl implements GHTKShippingService {
                     .headers(httpHeaders -> httpHeaders.putAll(headers))
                     .retrieve()
                     .bodyToMono(String.class)
-//                    .timeout(Duration.ofSeconds(10))
                     .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))) // Retry up to 3 times with exponential backoff
                     .onErrorResume(error -> {
                         logger.error("Error after retries: {}", error.getMessage());
@@ -98,7 +156,8 @@ public class GHTKShippingServiceImpl implements GHTKShippingService {
                 throw new Exception("Fail");
             }
 
-            return FeeResponse.builder()
+            return FeeResponse
+                    .builder()
                     .success(Boolean.parseBoolean(res.get("success").asText()))
                     .fee(Integer.parseInt(res.get("fee").get("fee").asText()))
                     .message(res.get("message").asText())
