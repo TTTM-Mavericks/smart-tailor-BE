@@ -135,15 +135,15 @@ public class OrderServiceImpl implements OrderService {
         return orderResponse;
     }
 
-    @Override
-    public void updateOrderStatus(String orderID, String orderStatus) {
-        var order = getOrderById(orderID).isPresent() ? getOrderById(orderID).get() : null;
-        if (order == null) {
-            throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND);
-        }
-        order.setOrderStatus(OrderStatus.valueOf(orderStatus));
-        updateOrder(order);
-    }
+//    @Override
+//    public void updateOrderStatus(String orderID, String orderStatus) {
+//        var order = getOrderById(orderID).isPresent() ? getOrderById(orderID).get() : null;
+//        if (order == null) {
+//            throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND);
+//        }
+//        order.setOrderStatus(OrderStatus.valueOf(orderStatus));
+//        updateOrder(order);
+//    }
 
     private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails) {
         return OrderCustomResponse.builder().designResponse(designService.getDesignByOrderID(order.getOrderID())).parentOrderID(order.getParentOrder() != null ? order.getParentOrder().getOrderID() : null).orderType(order.getOrderType()).orderID(order.getOrderID()).quantity(order.getQuantity()).orderStatus(order.getOrderStatus()).rating(order.getRating()).address(order.getAddress()).province(order.getProvince()).district(order.getDistrict()).ward(order.getWard()).phone(order.getPhone()).buyerName(order.getBuyerName()).totalPrice(order.getTotalPrice()).expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate())).expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate())).estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate())).productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate())).productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate())).createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null).detailList(designDetails.stream().map(detailMapper::mapperToDesignDetailResponse).toList()).paymentList(paymentService.findAllByOrderID(order.getOrderID()).stream().map(paymentMapper::mapperToPaymentResponse).toList()).build();
@@ -659,9 +659,9 @@ public class OrderServiceImpl implements OrderService {
                                      * Refund 80% of the deposited payment
                                      */
                                     int price = (int) (depositPayment.getPaymentAmount() * 0.8);
-                                    paymentService.createPayOSPayment(PaymentRequest.builder().paymentAmount(price).paymentMethod(PaymentMethod.BANK_TRANSFER).paymentType(PaymentType.ORDER_REFUND).paymentSenderID(userService.getUserByEmail("").getUserID()).paymentSenderName(userService.getUserByEmail("").getName()).paymentSenderBankCode("OCB").paymentSenderBankNumber("0163100007285002")
+                                    paymentService.createPayOSPayment(PaymentRequest.builder().paymentAmount(price).paymentMethod(PaymentMethod.BANK_TRANSFER).paymentType(PaymentType.ORDER_REFUND).paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID()).paymentSenderName(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getName()).paymentSenderBankCode("OCB").paymentSenderBankNumber("0163100007285002")
 
-                                            .paymentRecipientID(existedOrder.getDetailList().get(0).getDesign().getUser().getUserID()).paymentRecipientName(existedOrder.getDetailList().get(0).getDesign().getUser().getName()).paymentRecipientBankNumber("").paymentRecipientBankCode("").build());
+                                            .paymentRecipientID("").paymentRecipientName("").paymentRecipientBankNumber("").paymentRecipientBankCode("").build());
                                 } else {
                                     /**
                                      * TODO
@@ -719,9 +719,8 @@ public class OrderServiceImpl implements OrderService {
                                                 )
                                                 .stream()
                                                 .filter(s -> s.getStage().equals(OrderStatus.START_PRODUCING))
-                                                .findFirst()
-                                                .get();
-                                        if (started.getStatus()) {
+                                                .findAny().isEmpty();
+                                        if (started) {
                                             isStart = true;
                                             break;
                                         }
@@ -758,9 +757,9 @@ public class OrderServiceImpl implements OrderService {
                                     } else {
                                         var depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).findFirst().orElse(null);
                                         int price = (int) (depositPayment.getPaymentAmount() * 0.8);
-                                        paymentService.createPayOSPayment(PaymentRequest.builder().paymentAmount(price).paymentMethod(PaymentMethod.BANK_TRANSFER).paymentType(PaymentType.ORDER_REFUND).paymentSenderID(userService.getUserByEmail("").getUserID()).paymentSenderName(userService.getUserByEmail("").getName()).paymentSenderBankCode("OCB").paymentSenderBankNumber("0163100007285002")
+                                        paymentService.createPayOSPayment(PaymentRequest.builder().paymentAmount(price).paymentMethod(PaymentMethod.BANK_TRANSFER).paymentType(PaymentType.ORDER_REFUND).paymentSenderID(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getUserID()).paymentSenderName(userService.getUserByEmail("accountantsmarttailor123@gmail.com").getName()).paymentSenderBankCode("OCB").paymentSenderBankNumber("0163100007285002")
 
-                                                .paymentRecipientID(existedOrder.getDetailList().get(0).getDesign().getUser().getUserID()).paymentRecipientName(existedOrder.getDetailList().get(0).getDesign().getUser().getName()).paymentRecipientBankNumber("").paymentRecipientBankCode("").build());
+                                                .paymentRecipientID("").paymentRecipientName("").paymentRecipientBankNumber("").paymentRecipientBankCode("").build());
 
                                     }
                                 }
@@ -1461,7 +1460,6 @@ public class OrderServiceImpl implements OrderService {
             brandService.ratingBrand(brand.get().getBrandID(), 1, brandOrderRating);
         }
     }
-
 
     @Override
     public OrderTimeLineResponse getOrderTimeLineByParentOrderID(String parentOrderID) {
