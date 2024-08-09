@@ -383,6 +383,7 @@ public class MessageConstant {
     public static final String CREATE_REPORT_SUCCESSFULLY = "Create Report Successfully!";
     public static final String GET_ALL_REPORT_SUCCESSFULLY = "Get All Report Successfully!";
     public static final String GET_ALL_REPORT_BY_ORDER_ID_SUCCESSFULLY = "Get All Report By Order ID Successfully!";
+    public static final String GET_ALL_REPORT_BY_PARENT_ORDER_ID_SUCCESSFULLY = "Get All Report By Parent Order ID Successfully!";
     public static final String GET_ALL_REPORT_BY_USER_ID_SUCCESSFULLY = "Get All Report By User ID Successfully!";
     public static final String GET_ALL_REPORT_BY_BRAND_ID_SUCCESSFULLY = "Get All Report By Brand ID Successfully!";
 

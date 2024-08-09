@@ -16,4 +16,6 @@ public interface ReportService {
     List<ReportResponse> getAllReportByUserID(String userID) throws Exception;
 
     List<ReportResponse> getAllReportByBrandID(String brandID) throws Exception;
+
+    List<ReportResponse> getAllReportByParentOrderID(String parentOrderID);
 }

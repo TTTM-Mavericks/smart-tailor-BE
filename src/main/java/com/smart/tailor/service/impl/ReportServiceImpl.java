@@ -10,6 +10,7 @@ import com.smart.tailor.service.ReportImageService;
 import com.smart.tailor.service.ReportService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.ReportRequest;
+import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.utils.response.ReportResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -99,5 +101,19 @@ public class ReportServiceImpl implements ReportService {
                 .filter(report -> report.getUser().getUserID().equals(brandID))
                 .map(reportMapper::mapperToReportResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReportResponse> getAllReportByParentOrderID(String parentOrderID) {
+        List<ReportResponse> reportResponseList = new ArrayList<>();
+        var parentOrderReportList = getAllReportByOrderID(parentOrderID);
+        reportResponseList.addAll(parentOrderReportList);
+
+        var subOrderList = orderService.getSubOrderByParentID(parentOrderID);
+        for(OrderResponse subOrderResponse : subOrderList){
+            var subOrderReportList = getAllReportByOrderID(subOrderResponse.getOrderID());
+            reportResponseList.addAll(subOrderReportList);
+        }
+        return reportResponseList;
     }
 }

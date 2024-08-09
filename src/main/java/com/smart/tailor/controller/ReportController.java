@@ -101,4 +101,20 @@ public class ReportController {
         response.put("message", MessageConstant.CREATE_REPORT_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_PARENT_ORDER_ID + "/{parentOrderID}")
+    public ResponseEntity<ObjectNode> getAllReportByParentOrderID(@PathVariable("parentOrderID") String parentOrderID) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var reportResponses = reportService.getAllReportByParentOrderID(parentOrderID);
+        if (!reportResponses.isEmpty()) {
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", MessageConstant.GET_ALL_REPORT_BY_PARENT_ORDER_ID_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(reportResponses));
+        } else {
+            response.put("status", HttpStatus.NOT_FOUND.value());
+            response.put("message", MessageConstant.CAN_NOT_FIND_ANY_REPORT);
+        }
+        return ResponseEntity.ok(response);
+    }
 }
