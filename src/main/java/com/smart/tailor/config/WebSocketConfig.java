@@ -7,8 +7,7 @@ import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
 @EnableWebSocket
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(getUserHandShakeHandler(), "/websocket")
@@ -19,19 +18,5 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
     @Bean
     DataHandler getUserHandShakeHandler() {
         return new DataHandler();
-    }
-
-        @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket")
-                .setAllowedOriginPatterns("*")
-//                .setHandshakeHandler(new UserHandshakeHandler())
-                .withSockJS();
-    }
-
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/ws");
-        registry.enableSimpleBroker("/topic");
     }
 }
