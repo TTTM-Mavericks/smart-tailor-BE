@@ -161,6 +161,7 @@ public class MessageConstant {
      * NOTIFICATION
      */
     public static final String SEND_NOTIFICATION_SUCCESSFULLY = "Notification sent successfully!";
+    public static final String GET_NOTIFICATION_SUCCESSFULLY = "Get Notification successfully!";
     public static final String SEND_NOTIFICATION_FAIL = "Fail To Send Notification!";
 
     /**

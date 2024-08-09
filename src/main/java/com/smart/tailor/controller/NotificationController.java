@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(APIConstant.NotificationAPI.Notification)
@@ -52,6 +49,23 @@ public class NotificationController {
             respon.put("status", -1);
             respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
             logger.error("ERROR IN SEND NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
+    @GetMapping(APIConstant.NotificationAPI.GET_ALL_NOTIFICATION_BY_USER_ID + "/{userID}")
+    public ResponseEntity<ObjectNode> getAllNotification(@PathVariable("userID") String userID) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            notificationService.getNotificationByUserID(userID);
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.GET_NOTIFICATION_SUCCESSFULLY);
+            return ResponseEntity.ok(respon);
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            logger.error("ERROR IN GET NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
     }
