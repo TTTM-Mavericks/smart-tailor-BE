@@ -27,6 +27,7 @@ public class OrderResponse {
     private String ward;
     private String phone;
     private String buyerName;
+    private String labelID;
     private Integer totalPrice;
     private String expectedStartDate;
     private String expectedProductCompletionDate;

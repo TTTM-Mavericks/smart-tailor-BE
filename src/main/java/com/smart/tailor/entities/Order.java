@@ -71,6 +71,9 @@ public class Order extends AuditEntity implements Serializable {
     @Column(name = "total_price")
     private Integer totalPrice;
 
+    @Column(name = "label_id")
+    private String labelID; // Generate ID using for Shipping Order
+
     @Column(name = "expected_start_date", columnDefinition = "datetime(2)")
     private LocalDateTime expectedStartDate;
 

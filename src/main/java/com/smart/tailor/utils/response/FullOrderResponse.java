@@ -25,6 +25,7 @@ public class FullOrderResponse {
     private String province;
     private String district;
     private String ward;
+    private String labelID;
     private String phone;
     private String buyerName;
     private Integer totalPrice;
