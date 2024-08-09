@@ -297,7 +297,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             });
         });
 
-
+        // Get Min Weight and Max Weight of each Design
         var minWeightParentOrder = designResponse.getMinWeight() * orderCustomResponse.getQuantity();
         var maxWeightParentOrder = designResponse.getMaxWeight() * orderCustomResponse.getQuantity();
         var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
@@ -307,37 +307,43 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
         BigDecimal shippingFee = BigDecimal.valueOf(-1);
 
-        if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
-                orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
-
-            OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
-                    new OrderShippingRequest.OrderShippingDetailRequest(
-                            "344 Lê Văn Việt",
-                            "Hồ Chí Minh",
-                            "Thủ Đức",
-                            "Tăng Nhơn Phú B",
-                            orderCustomResponse.getAddress(),
-                            orderCustomResponse.getProvince(),
-                            orderCustomResponse.getDistrict(),
-                            orderCustomResponse.getWard(),
-                            averageWeightParentOrder
-                    );
-
-            var orderShippingRequest =
-                    OrderShippingRequest
-                            .builder()
-                            .order(orderShippingDetailRequest)
-                            .build();
-
-            var feeResponse = ghtkShippingService.calculateShippingFee(orderShippingRequest);
-            if (feeResponse != null && feeResponse.getSuccess()) {
-                shippingFee = BigDecimal.valueOf(feeResponse.getFee());
-            }
-            logger.info("Fee Response From Shipping API {}", feeResponse);
-        }
+//        // Calculate Shipping fee based on Address and Weight of Customer
+//        if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
+//                orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
+//
+//            OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
+//                    new OrderShippingRequest.OrderShippingDetailRequest(
+//                            "344 Lê Văn Việt",
+//                            "Hồ Chí Minh",
+//                            "Thủ Đức",
+//                            "Tăng Nhơn Phú B",
+//                            orderCustomResponse.getAddress(),
+//                            orderCustomResponse.getProvince(),
+//                            orderCustomResponse.getDistrict(),
+//                            orderCustomResponse.getWard(),
+//                            averageWeightParentOrder
+//                    );
+//
+//            var orderShippingRequest =
+//                    OrderShippingRequest
+//                            .builder()
+//                            .order(orderShippingDetailRequest)
+//                            .build();
+//
+//            var feeResponse = ghtkShippingService.calculateShippingFee(orderShippingRequest);
+//            if (feeResponse != null && feeResponse.getSuccess()) {
+//                shippingFee = BigDecimal.valueOf(feeResponse.getFee());
+//            }
+//            logger.info("Fee Response From Shipping API {}", feeResponse);
+//        }
 
         BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
-        BigDecimal customerPriceLaborQuantity = BigDecimal.ZERO;
+        var divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+        var maxQuantity = Integer.MIN_VALUE;
+        var minQuantity = Integer.MAX_VALUE;
+        List<BigDecimal> subOrderIncludeTwoStage = new ArrayList<>();
+        List<List<BigDecimal>> subOrderIncludeFourStage = new ArrayList<>();
+
         List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
         for (var subOrder : listSubOrders) {
             List<DesignDetail> designDetailList = getDesignDetailBySubOrderID(subOrder.getOrderID());
@@ -348,32 +354,39 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     .sum();
 
             BigDecimal totalPriceOfEachSubOrder = BigDecimal.ZERO;
-            BigDecimal brandPriceDeposit = BigDecimal.ZERO;
-            BigDecimal brandPriceLaborQuantity = BigDecimal.ZERO;
+            maxQuantity = Math.max(maxQuantity, totalQuantityOfSubOrder);
+            minQuantity = Math.min(minQuantity, totalQuantityOfSubOrder);
+
             Brand brand = null;
             for (DesignDetail designDetail : designDetailList) {
                 brand = designDetail.getBrand();
                 var designDetailQuantity = BigDecimal.valueOf(designDetail.getQuantity());
                 var size = designDetail.getSize();
+
                 logger.info("Brand ID {} Brand Email {} Brand Total Quantity {}", brand.getBrandID(), brand.getUser().getEmail(), totalQuantityOfSubOrder);
                 var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
                         expertTailoring.getExpertTailoringID(),
                         size.getSizeID()
                 );
+
                 var ratio = BigDecimal.valueOf(sizeExpertTailoring.getRatio());
                 logger.info("Size Name {} Ratio {}", sizeExpertTailoring.getSizeName(), sizeExpertTailoring.getRatio());
+
+                // Calculate Total Price Of PartOfDesign of SubOrder
                 BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
                 for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
                     totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio));
                 }
                 logger.info("Part of design price for sub-order ID {}", totalPricePartOfDesignOfSubOrder);
 
+                // Calculate Total Price Of ItemMask of SubOrder
                 BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
                 for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
                     totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID()));
                 }
                 logger.info("Item Mask price for sub-order ID {}", totalPriceItemMaskOfSubOrder);
 
+                // Get Labor Quantity of Each Brand for SubOrder
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
 
                 BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
@@ -383,9 +396,23 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 logger.info("Total price for each sub-order ID {}: {}", subOrder.getOrderID(), totalPriceOfEachSubOrder);
             }
 
-            BigDecimal brandDepositStage = totalPriceOfEachSubOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-            BigDecimal brandFirstStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-            BigDecimal brandSecondStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).subtract(brandFirstStage).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal brandDepositStage = BigDecimal.valueOf(-1);
+            BigDecimal brandFirstStage = BigDecimal.valueOf(-1);
+            BigDecimal brandSecondStage = BigDecimal.valueOf(-1);
+            if(maxQuantity < divideNumber){
+                brandDepositStage = totalPriceOfEachSubOrder;
+                subOrderIncludeTwoStage.add(brandDepositStage);
+            } else {
+                brandDepositStage = totalPriceOfEachSubOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+                brandFirstStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+                brandSecondStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).subtract(brandFirstStage).setScale(0, RoundingMode.HALF_UP);
+                List<BigDecimal> fourStage = new ArrayList<>();
+                fourStage.add(brandDepositStage);
+                fourStage.add(brandFirstStage);
+                fourStage.add(brandSecondStage);
+                subOrderIncludeFourStage.add(fourStage);
+            }
+
             logger.info("Brand Deposit Stage SubOrder {}", brandDepositStage);
             logger.info("First Stage SubOrder {}", brandFirstStage);
             logger.info("Second Stage SubOrder {}", brandSecondStage);
@@ -403,17 +430,51 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             // Add Total Price Of SubOrder to ParentOrder
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
-
         logger.info("Total Price of Parent Order {}", totalPriceOfParentOrder);
-        var orderFeePercentage = Integer.parseInt(systemPropertiesService.getByName("ORDER_FEE_PERCENTAGE").getPropertyValue());
 
+        // Get Order Fee Percentage to calculate Commission for Each Order
+        var orderFeePercentage = Integer.parseInt(systemPropertiesService.getByName("ORDER_FEE_PERCENTAGE").getPropertyValue());
         logger.info("Order Fee Percentage {}", orderFeePercentage);
+
+        // Calculate Commission by divide 100
         BigDecimal commission = totalPriceOfParentOrder.multiply(BigDecimal.valueOf(orderFeePercentage).divide(BigDecimal.valueOf(100)));
         logger.info("Commission {}", commission);
 
-        BigDecimal customerDepositStage = totalPriceOfParentOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-        BigDecimal customerFirstStage = totalPriceOfParentOrder.subtract(customerDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-        BigDecimal customerSecondStage = totalPriceOfParentOrder.subtract(customerDepositStage).subtract(customerFirstStage).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal customerDepositStage = BigDecimal.valueOf(-1);
+        BigDecimal customerFirstStage = BigDecimal.valueOf(-1);
+        BigDecimal customerSecondStage = BigDecimal.valueOf(-1);
+
+        logger.info("Min Quantity {} and Max Quantity {}", minQuantity, maxQuantity);
+        // Case all subOrder have only two stage.
+        // CustomerDepositStage = sum of All Deposit Stage of SubOrder
+        if(minQuantity < divideNumber && maxQuantity < divideNumber){
+            customerDepositStage = subOrderIncludeTwoStage
+                    .stream()
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Case at least one SubOrder has two stage and one SubOrder has four stage
+        // CustomerDepositStage = sum of All Deposit Two Stage of SubOrder and all of 1/3 Deposit Four Stage of SubOrder
+        // CustomerFirstStage = CustomerSecondStage = sum all  1/3 Deposit Four Stage of SubOrder
+        } else if(minQuantity < divideNumber && maxQuantity >= divideNumber){
+            customerDepositStage = subOrderIncludeTwoStage
+                    .stream()
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            customerFirstStage = BigDecimal.ZERO;
+            customerSecondStage = BigDecimal.ZERO;
+            for(List<BigDecimal> stage : subOrderIncludeFourStage){
+                customerDepositStage = customerDepositStage.add(stage.get(0));
+                customerFirstStage = customerFirstStage.add(stage.get(1));
+                customerSecondStage = customerSecondStage.add(stage.get(2));
+            }
+
+        // Case all subOrder have 4 stage
+        // CustomerDepositStage = CustomerFirstStage = CustomerSecondStage = 1/3 Total Price
+        } else if(minQuantity >= divideNumber && maxQuantity >= divideNumber){
+             customerDepositStage = totalPriceOfParentOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+             customerFirstStage = totalPriceOfParentOrder.subtract(customerDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+             customerSecondStage = totalPriceOfParentOrder.subtract(customerDepositStage).subtract(customerFirstStage).setScale(0, RoundingMode.HALF_UP);
+        }
 
         logger.info("Deposit Without Commission of Parent Order {}", customerDepositStage);
         logger.info("First Stage of Parent Order {}", customerFirstStage);
@@ -421,7 +482,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
         BigDecimal customerPriceDeposit = commission.add(customerDepositStage);
 
-        BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder;
+        BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(commission);
         if (!shippingFee.equals(BigDecimal.valueOf(-1))) {
             adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(shippingFee);
         }
