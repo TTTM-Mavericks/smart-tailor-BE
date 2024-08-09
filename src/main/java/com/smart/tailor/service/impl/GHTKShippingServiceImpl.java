@@ -49,6 +49,7 @@ public class GHTKShippingServiceImpl implements GHTKShippingService {
             logger.info("Shipping API Url {}", shippingApiUrl);
 
             HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Token", shippingApiTokenKey);
 
             WebClient client = WebClient.create();

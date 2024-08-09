@@ -505,7 +505,7 @@ public class OrderServiceImpl implements OrderService {
                                 if(averageWeightParentOrder < maximumShippingWeight){
                                     OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
                                             new OrderShippingRequest.OrderShippingDetailRequest(
-                                                    order.getOrderID(),
+                                                    order.getOrderID() + " " + LocalDateTime.now(),
                                                     "Smart Tailor Services",
                                                     "344 Lê Văn Việt",
                                                     "Hồ Chí Minh",

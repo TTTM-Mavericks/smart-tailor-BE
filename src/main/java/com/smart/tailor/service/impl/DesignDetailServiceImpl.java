@@ -307,35 +307,35 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
         BigDecimal shippingFee = BigDecimal.valueOf(-1);
 
-//        // Calculate Shipping fee based on Address and Weight of Customer
-//        if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
-//                orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
-//
-//            OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
-//                    new OrderShippingRequest.OrderShippingDetailRequest(
-//                            "344 Lê Văn Việt",
-//                            "Hồ Chí Minh",
-//                            "Thủ Đức",
-//                            "Tăng Nhơn Phú B",
-//                            orderCustomResponse.getAddress(),
-//                            orderCustomResponse.getProvince(),
-//                            orderCustomResponse.getDistrict(),
-//                            orderCustomResponse.getWard(),
-//                            averageWeightParentOrder
-//                    );
-//
-//            var orderShippingRequest =
-//                    OrderShippingRequest
-//                            .builder()
-//                            .order(orderShippingDetailRequest)
-//                            .build();
-//
-//            var feeResponse = ghtkShippingService.calculateShippingFee(orderShippingRequest);
-//            if (feeResponse != null && feeResponse.getSuccess()) {
-//                shippingFee = BigDecimal.valueOf(feeResponse.getFee());
-//            }
-//            logger.info("Fee Response From Shipping API {}", feeResponse);
-//        }
+        // Calculate Shipping fee based on Address and Weight of Customer
+        if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
+                orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
+
+            OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
+                    new OrderShippingRequest.OrderShippingDetailRequest(
+                            "344 Lê Văn Việt",
+                            "Hồ Chí Minh",
+                            "Thủ Đức",
+                            "Tăng Nhơn Phú B",
+                            orderCustomResponse.getAddress(),
+                            orderCustomResponse.getProvince(),
+                            orderCustomResponse.getDistrict(),
+                            orderCustomResponse.getWard(),
+                            averageWeightParentOrder
+                    );
+
+            var orderShippingRequest =
+                    OrderShippingRequest
+                            .builder()
+                            .order(orderShippingDetailRequest)
+                            .build();
+
+            var feeResponse = ghtkShippingService.calculateShippingFee(orderShippingRequest);
+            if (feeResponse != null && feeResponse.getSuccess()) {
+                shippingFee = BigDecimal.valueOf(feeResponse.getFee());
+            }
+            logger.info("Fee Response From Shipping API {}", feeResponse);
+        }
 
         BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
         var divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
