@@ -1585,4 +1585,9 @@ public class OrderServiceImpl implements OrderService {
             throw ex;
         }
     }
+
+    @Override
+    public Boolean isCreateShippingOrder(String parentOrderID) {
+        return orderRepository.findOrderByParentOrderID(parentOrderID).getLabelID() != null;
+    }
 }
