@@ -5,11 +5,11 @@ import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.service.*;
-import com.smart.tailor.utils.request.OrderShippingRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
 import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.utils.response.PayOSResponse;
+import com.smart.tailor.utils.response.PayOSResponseData;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -75,7 +74,16 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     if (paymentList != null && !paymentList.isEmpty()) {
                         for (Payment p : paymentList) {
                             var orderCode = p.getPaymentCode();
-                            var onlinePayOS = payOSService.getPaymentInfo(orderCode).getData();
+                            PayOSResponseData onlinePayOS;
+                            if (p.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
+                                onlinePayOS = payOSService.getBrandPaymentInfo(orderCode).getData();
+                            } else {
+                                if (p.getPaymentType().equals(PaymentType.ORDER_REFUND)) {
+                                    onlinePayOS = payOSService.getRefundPaymentInfo(orderCode).getData();
+                                } else {
+                                    onlinePayOS = payOSService.getPaymentInfo(orderCode).getData();
+                                }
+                            }
                             var checkPayOSData = payOSDataService.findByOrderCode(orderCode);
                             if (checkPayOSData.isPresent()) {
                                 var payOSData = checkPayOSData.get();
