@@ -32,6 +32,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.Math.max;
+
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -197,7 +199,12 @@ public class OrderServiceImpl implements OrderService {
                         logger.error("INCASE PROCESSING");
 
                         int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
-                        if (order.getQuantity() >= divideNumber) {
+                        var subOrderList = getSubOrderByParentID(orderID);
+                        Integer maxSubQuantity = 0;
+                        for(var subOrder : subOrderList){
+                            maxSubQuantity = max(maxSubQuantity, subOrder.getQuantity());
+                        }
+                        if (maxSubQuantity >= divideNumber) {
 
                             // CHECK CURRENT STAGE
                             var stage = -1;
@@ -219,7 +226,6 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
 
-                            var subOrderList = getSubOrderByParentID(orderID);
                             boolean isFinish;
                             switch (stage) {
                                 case 0 -> {
@@ -297,7 +303,6 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
                         } else {
-                            var subOrderList = getSubOrderByParentID(orderID);
                             boolean isFinish;
                             isFinish = true;
                             for (OrderResponse subOrder : subOrderList) {
@@ -1583,13 +1588,13 @@ public class OrderServiceImpl implements OrderService {
             // Find the Maximum Date At FirstStage, SecondStage, CompleteStage
             logger.info("Finish First Stage");
             logger.info("Brand {} Brand Quantity {} Brand Property {}", brand.get().getUser().getEmail(), Utilities.roundToNearestHalf(subOrder.getQuantity() * 1.0 / 3), brandProductivity.getBrandPropertyValue());
-            maximumDateAtFirstStage = Math.max(maximumDateAtFirstStage, (int) Math.ceil((subOrder.getQuantity() * 1.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+            maximumDateAtFirstStage = max(maximumDateAtFirstStage, (int) Math.ceil((subOrder.getQuantity() * 1.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
             logger.info("Finish Second Stage");
             logger.info("Brand {} Brand Quantity {} Brand Property {}", brand.get().getUser().getEmail(), Utilities.roundToNearestHalf(subOrder.getQuantity() * 2.0 / 3), brandProductivity.getBrandPropertyValue());
-            maximumDateAtSecondStage = Math.max(maximumDateAtSecondStage, (int) Math.ceil((subOrder.getQuantity() * 2.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+            maximumDateAtSecondStage = max(maximumDateAtSecondStage, (int) Math.ceil((subOrder.getQuantity() * 2.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
             logger.info("Finish Complete Stage");
             logger.info("Brand {} Brand Quantity {} Brand Property {}", brand.get().getUser().getEmail(), Utilities.roundToNearestHalf(subOrder.getQuantity() * 1.0), brandProductivity.getBrandPropertyValue());
-            maximumDateAtCompleteStage = Math.max(maximumDateAtCompleteStage, (int) Math.ceil((subOrder.getQuantity() * 1.0) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
+            maximumDateAtCompleteStage = max(maximumDateAtCompleteStage, (int) Math.ceil((subOrder.getQuantity() * 1.0) / Integer.parseInt(brandProductivity.getBrandPropertyValue())));
         }
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
