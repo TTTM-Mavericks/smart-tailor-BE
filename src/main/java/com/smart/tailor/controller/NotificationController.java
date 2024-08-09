@@ -58,9 +58,10 @@ public class NotificationController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
-            notificationService.getNotificationByUserID(userID);
+            var data = notificationService.getNotificationByUserID(userID);
             respon.put("status", 200);
             respon.put("message", MessageConstant.GET_NOTIFICATION_SUCCESSFULLY);
+            respon.set("data", objectMapper.valueToTree(data));
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("status", -1);
