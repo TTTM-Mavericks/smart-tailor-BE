@@ -64,4 +64,6 @@ public interface OrderService {
     List<FullOrderResponse> getFullPropByBrandID(String brandID) throws JsonProcessingException;
 
     Boolean isCreateShippingOrder(String parentOrderID);
+
+    OrderDetailShippingResponse getOrderDetailShippingResponseByLabelID(String labelID);
 }

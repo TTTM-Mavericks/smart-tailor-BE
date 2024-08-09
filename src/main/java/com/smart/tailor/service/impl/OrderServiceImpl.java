@@ -1733,4 +1733,9 @@ public class OrderServiceImpl implements OrderService {
     public Boolean isCreateShippingOrder(String parentOrderID) {
         return orderRepository.findOrderByParentOrderID(parentOrderID).getLabelID() != null;
     }
+
+    @Override
+    public OrderDetailShippingResponse getOrderDetailShippingResponseByLabelID(String labelID) {
+        return ghtkShippingService.getOrderDetailShippingResponseByLabelID(labelID);
+    }
 }
