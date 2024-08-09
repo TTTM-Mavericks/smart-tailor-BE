@@ -17,7 +17,7 @@ public interface OrderService {
 
     List<OrderResponse> getParentOrderByDesignID(String designID) throws Exception;
 
-    void updateOrderStatus(String orderID, String orderStatus);
+//    void updateOrderStatus(String orderID, String orderStatus);
 
     OrderCustomResponse getOrderByOrderID(String orderID) throws Exception;
 

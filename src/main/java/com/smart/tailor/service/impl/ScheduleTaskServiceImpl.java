@@ -70,16 +70,18 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     var recipient = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
 
                     var paymentList = paymentService.findAllByOrderID(orderResponse.getOrderID());
-                    for (Payment p : paymentList) {
-                        var orderCode = p.getPaymentCode();
-                        var onlinePayOS = payOSService.getPaymentInfo(orderCode).getData();
-                        var checkPayOSData = payOSDataService.findByOrderCode(orderCode);
-                        if (checkPayOSData.isPresent()) {
-                            var payOSData = checkPayOSData.get();
-                            payOSData.setStatus(onlinePayOS.getStatus());
-                            payOSDataService.save(payOSData);
-                            p.setPaymentStatus(payOSData.getStatus().equals("PAID"));
-                            paymentService.updatePayment(p);
+                    if (paymentList != null && !paymentList.isEmpty()) {
+                        for (Payment p : paymentList) {
+                            var orderCode = p.getPaymentCode();
+                            var onlinePayOS = payOSService.getPaymentInfo(orderCode).getData();
+                            var checkPayOSData = payOSDataService.findByOrderCode(orderCode);
+                            if (checkPayOSData.isPresent()) {
+                                var payOSData = checkPayOSData.get();
+                                payOSData.setStatus(onlinePayOS.getStatus());
+                                payOSDataService.save(payOSData);
+                                p.setPaymentStatus(payOSData.getStatus().equals("PAID"));
+                                paymentService.updatePayment(p);
+                            }
                         }
                     }
                     logger.error("PAYMENT LIST: {}", paymentList);
@@ -147,7 +149,10 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     if (payment.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
                         payOS = payOSService.getBrandPaymentInfo(payment.getPaymentCode());
                     } else {
-                        payOS = payOSService.getPaymentInfo(payment.getPaymentCode());
+                        if (payment.getPaymentType().equals(PaymentType.ORDER_REFUND)) {
+                            payOS = payOSService.getRefundPaymentInfo(payment.getPaymentCode());
+                        } else
+                            payOS = payOSService.getPaymentInfo(payment.getPaymentCode());
                     }
                     if (payOS != null) {
                         payment.setPaymentStatus(payOS.getData().getStatus().equals("PAID"));

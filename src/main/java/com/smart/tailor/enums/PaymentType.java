@@ -8,4 +8,5 @@ public enum PaymentType {
     STAGE_2,
     COMPLETED_ORDER,
     BRAND_INVOICE,
+    ORDER_REFUND,
 }

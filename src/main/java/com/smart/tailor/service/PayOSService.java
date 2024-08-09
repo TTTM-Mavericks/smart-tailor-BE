@@ -10,9 +10,13 @@ public interface PayOSService {
 
     PayOSCreationResponse createBrandPaymentLink(PayOSRequest paymentRequest) throws Exception;
 
+    PayOSCreationResponse createRefundPaymentLink(PayOSRequest paymentRequest) throws Exception;
+
     public PayOSResponse getPaymentInfo(Integer paymentID) throws JsonProcessingException;
 
     public PayOSResponse getBrandPaymentInfo(Integer paymentID) throws JsonProcessingException;
+
+    public PayOSResponse getRefundPaymentInfo(Integer paymentID) throws JsonProcessingException;
 
     void confirmPayment(Integer orderCode) throws JsonProcessingException;
 }
