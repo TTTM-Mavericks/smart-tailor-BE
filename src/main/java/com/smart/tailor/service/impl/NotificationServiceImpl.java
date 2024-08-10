@@ -1,49 +1,57 @@
 package com.smart.tailor.service.impl;
 
+import com.smart.tailor.config.DataHandler;
 import com.smart.tailor.entities.Notification;
+import com.smart.tailor.mapper.NotificationMapper;
 import com.smart.tailor.repository.NotificationRepository;
-import com.smart.tailor.service.BrandService;
 import com.smart.tailor.service.NotificationService;
 import com.smart.tailor.utils.request.NotificationRequest;
+import com.smart.tailor.utils.response.NotificationResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationServiceImpl implements NotificationService {
-//    private final SimpMessagingTemplate messagingTemplate;
+public class NotificationServiceImpl extends TextWebSocketHandler implements NotificationService {
+    private final DataHandler dataHandler;
+    private final NotificationMapper notificationMapper;
     private final NotificationRepository notificationRepository;
-    private final BrandService brandService;
+
 
     @Override
-    public void sendGlobalNotification(NotificationRequest notificationRequest) {
-//        messagingTemplate.convertAndSend("/topic/global-notifications", notificationRequest);
+    public void sendGlobalNotification(NotificationRequest notificationRequest) throws Exception {
+        dataHandler.sendGlobal(notificationRequest);
+        saveNotification(notificationRequest);
     }
 
     @Override
     public void sendPrivateNotification(NotificationRequest notificationRequest) throws Exception {
-//        messagingTemplate.convertAndSendToUser(
-//                notificationRequest.getRecipient(),
-//                "/topic/private-notifications",
-//                notificationRequest
-//        );
+        dataHandler.sendToUser(notificationRequest.getRecipient(), notificationRequest);
         saveNotification(notificationRequest);
     }
 
     @Override
     public void saveNotification(NotificationRequest notificationRequest) throws Exception {
-        if (notificationRequest.getType().equals("BRAND REGISTRATION")) {
-            var brand = brandService.getBrandByEmail(notificationRequest.getSender());
-            notificationRepository.save(
-                    Notification
-                            .builder()
-                            .action(notificationRequest.getType())
-                            .userID(brand.getBrandID())
-                            .status(false)
-                            .detail(notificationRequest.getMessage())
-                            .build()
-            );
-        }
+        notificationRepository.save(
+                Notification
+                        .builder()
+                        .action(notificationRequest.getType())
+                        .userID(notificationRequest.getRecipient())
+                        .status(false)
+                        .detail(notificationRequest.getMessage())
+                        .build()
+        );
+    }
+
+    @Override
+    public List<NotificationResponse> getNotificationByUserID(String userID) throws Exception {
+        return notificationRepository.findAll()
+                .stream()
+                .filter(n -> n.getUserID().equals(userID))
+                .map(notificationMapper::mapToNotificationResponse)
+                .toList();
     }
 }
