@@ -219,7 +219,7 @@ public class OrderServiceImpl implements OrderService {
                             if (checkDeposited.isPresent()) {
                                 // change status of parent order to PROCESSING
                                 logger.info("Change Status PROCESSING Order");
-                                changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(orderID).status(OrderStatus.PROCESSING.name()).build());
+                                changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(orderID).status(OrderStatus.PREPARING.name()).build());
 
                                 // change status of sub order to START_PRODUCING
                                 var subOrderList = getSubOrderByParentID(orderID);
@@ -231,13 +231,26 @@ public class OrderServiceImpl implements OrderService {
                             }
                         }
                     }
+                    case PREPARING -> {
+                        var subOrderList = getSubOrderByParentID(orderID);
+                        boolean isStart = true;
+                        for (var subResponse : subOrderList) {
+                            if (!subResponse.getOrderStatus().equals(OrderStatus.START_PRODUCING)) {
+                                isStart = false;
+                            }
+                        }
+                        if (isStart) {
+                            logger.info("Change Status PROCESSING Order");
+                            changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(orderID).status(OrderStatus.PROCESSING.name()).build());
+                        }
+                    }
                     case PROCESSING -> {
                         logger.error("INCASE PROCESSING");
 
                         int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
                         var subOrderList = getSubOrderByParentID(orderID);
                         Integer maxSubQuantity = 0;
-                        for(var subOrder : subOrderList){
+                        for (var subOrder : subOrderList) {
                             maxSubQuantity = max(maxSubQuantity, subOrder.getQuantity());
                         }
                         if (maxSubQuantity >= divideNumber) {
@@ -744,14 +757,14 @@ public class OrderServiceImpl implements OrderService {
 
                     // Handle different current statuses of the parent order
                     switch (currentStatus) {
-                        case NOT_VERIFY, PENDING, DELIVERED, COMPLETED -> {
+                        case NOT_VERIFY, PENDING, REJECTED, DELIVERED, COMPLETED -> {
                             /**
                              * TODO
                              * Create a report for the employee
                              */
                             logger.warn("Create a report for the employee line 850: {}", currentStatus);
                         }
-                        case DEPOSIT -> {
+                        case DEPOSIT, PREPARING -> {
                             /**
                              * Check if payment has been made
                              */
@@ -788,30 +801,30 @@ public class OrderServiceImpl implements OrderService {
                                      */
                                     int price = (int) (depositPayment.getPaymentAmount() * 0.8);
                                     var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
-                                    logger.error("CREATE CUS REFUND");
-
+                                    var sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                                    var recipient = orderResponse.getDesignResponse().getUser();
                                     paymentService.createPayOSPayment(
                                             PaymentRequest.builder()
                                                     .paymentAmount(price)
                                                     .paymentMethod(PaymentMethod.BANK_TRANSFER)
                                                     .paymentType(PaymentType.ORDER_REFUND)
-                                                    .paymentSenderID(
-                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
-                                                                    .getUserID()
-                                                    )
-                                                    .paymentSenderName(
-                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com").getName()
-                                                    )
+
+                                                    .paymentSenderID(sender.getUserID())
+                                                    .paymentSenderName(sender.getFullName())
                                                     .paymentSenderBankCode("OCB")
                                                     .paymentSenderBankNumber("0163100007285002")
-
-                                                    .paymentRecipientID(orderResponse.getDesignResponse().getUser().getUserID())
+                                                    .paymentRecipientID(
+                                                            recipient.getUserID()
+                                                    )
                                                     .paymentRecipientName("")
                                                     .paymentRecipientBankNumber("")
                                                     .paymentRecipientBankCode("")
                                                     .orderID(orderID)
                                                     .build()
                                     );
+                                    logger.error("CREATE CUS REFUND SUCCESSFULLY");
+                                    logger.error("sender: {}", sender.getUserID());
+                                    logger.error("recipient: {}", recipient.getUserID());
                                 } else {
                                     /**
                                      * TODO
@@ -1362,7 +1375,7 @@ public class OrderServiceImpl implements OrderService {
                     orderRepository.save(orderResponse);
 
                     basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
-                    basedOrder.setTotalPrice(10000);
+//                    basedOrder.setTotalPrice(10000);
                     orderRepository.save(basedOrder);
 
                     orderResponse.setDetailList(detailResponse);
@@ -1400,7 +1413,7 @@ public class OrderServiceImpl implements OrderService {
                     orderRepository.save(orderResponse);
 
                     basedOrder.setTotalPrice(basedOrder.getTotalPrice() + price);
-                    basedOrder.setTotalPrice(10000);
+//                    basedOrder.setTotalPrice(10000);
 
                     orderRepository.save(basedOrder);
 

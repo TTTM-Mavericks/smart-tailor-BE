@@ -4,6 +4,7 @@ public enum OrderStatus {
     NOT_VERIFY, // ch xac thuc design
     PENDING,    // cho brand pick
     DEPOSIT,    // cho dat coc
+    PREPARING,
     PROCESSING, // cho may
     CANCEL,     // huy
     COMPLETED,   // hoan thanh nhung chua giao
