@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 import java.util.Base64;
 
 
-@Mapper(componentModel = "spring", uses = {ItemMaskMapper.class})
+@Mapper(componentModel = "spring", uses = {ItemMaskMapper.class, MaterialMapper.class})
 public interface PartOfDesignMapper {
     @Mapping(source = "partOfDesign.partOfDesignID", target = "partOfDesignID")
     @Mapping(source = "partOfDesign.itemMaskList", target = "itemMasks")

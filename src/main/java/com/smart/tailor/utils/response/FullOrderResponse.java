@@ -35,6 +35,7 @@ public class FullOrderResponse {
     private String productionStartDate;
     private String productionCompletionDate;
     private String createDate;
+    private String lastModifiedDate;
     private List<DesignDetailResponse> detailList;
     private List<OrderResponse> subOrderList;
     private List<PaymentResponse> paymentList;

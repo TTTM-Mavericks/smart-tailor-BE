@@ -66,6 +66,8 @@ class OrderMapperImpl implements OrderMapper {
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
                 .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
                 .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
+                .createDate(order.getCreateDate() != null ? Utilities.convertLocalDateTimeToString(order.getCreateDate()) : null)
+                .lastModifiedDate(order.getLastModifiedDate() != null ? Utilities.convertLocalDateTimeToString(order.getLastModifiedDate()) : null)
                 .detailList(order.getDetailList() != null ?
                         order.getDetailList().stream()
                                 .map(detailMapper::mapperToDesignDetailResponse)
@@ -138,7 +140,8 @@ class OrderMapperImpl implements OrderMapper {
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
                 .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
                 .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
-                .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
+                .createDate(order.getCreateDate() != null ? Utilities.convertLocalDateTimeToString(order.getCreateDate()) : null)
+                .lastModifiedDate(order.getLastModifiedDate() != null ? Utilities.convertLocalDateTimeToString(order.getLastModifiedDate()) : null)
                 .detailList(order.getDetailList() != null ?
                         order.getDetailList().stream()
                                 .map(detailMapper::mapperToDesignDetailResponse)
@@ -187,7 +190,8 @@ class OrderMapperImpl implements OrderMapper {
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
                 .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
                 .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
-                .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
+                .createDate(order.getCreateDate() != null ? Utilities.convertLocalDateTimeToString(order.getCreateDate()) : null)
+                .lastModifiedDate(order.getLastModifiedDate() != null ? Utilities.convertLocalDateTimeToString(order.getLastModifiedDate()) : null)
                 .detailList(order.getDetailList() != null ?
                         order.getDetailList().stream()
                                 .map(detailMapper::mapperToDesignDetailResponse)

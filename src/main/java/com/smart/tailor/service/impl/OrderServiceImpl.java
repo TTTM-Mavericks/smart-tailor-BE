@@ -385,57 +385,57 @@ public class OrderServiceImpl implements OrderService {
 //                                            .paymentType(PaymentType.BRAND_INVOICE)
 //                                            .build()
 //                            );
-                            if(order.getOrderStatus().name().equals(OrderStatus.DELIVERED.name()) &&
-                                    Optional.ofNullable(order.getLabelID()).isEmpty() && order.getOrderType().equals("PARENT_ORDER")) {
-                                var design = designService.getDesignByOrderID(subOrder.getOrderID());
-                                logger.info("Design Information: {}", design);
-
-                                var minWeightParentOrder = design.getMinWeight() * order.getQuantity();
-                                logger.info("Minimum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), minWeightParentOrder);
-
-                                var maxWeightParentOrder = design.getMaxWeight() * order.getQuantity();
-                                logger.info("Maximum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), maxWeightParentOrder);
-
-                                var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
-                                logger.info("Average Weight for Parent Order: {}", averageWeightParentOrder);
-
-                                var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
-                                if(averageWeightParentOrder < maximumShippingWeight){
-                                    OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
-                                            new OrderShippingRequest.OrderShippingDetailRequest(
-                                                    order.getOrderID() + " " + LocalDateTime.now(),
-                                                    "Smart Tailor Services",
-                                                    "344 Lê Văn Việt",
-                                                    "Hồ Chí Minh",
-                                                    "Thủ Đức",
-                                                    "Tăng Nhơn Phú B",
-                                                    "0926733445",
-                                                    order.getPhone(),
-                                                    order.getBuyerName(),
-                                                    order.getAddress(),
-                                                    order.getProvince(),
-                                                    order.getDistrict(),
-                                                    order.getWard(),
-                                                    "Khác",
-                                                    "1",
-                                                    "2024/10/08",
-                                                    0,
-                                                    averageWeightParentOrder,
-                                                    1
-                                            );
-
-                                    var orderShippingRequest =
-                                            OrderShippingRequest
-                                                    .builder()
-                                                    .order(orderShippingDetailRequest)
-                                                    .build();
-
-                                    var createShippingOrder = ghtkShippingService.createShippingOrder(orderShippingRequest);
-                                    if(createShippingOrder != null){
-                                        logger.info("Create Shipping Order Successfully {}", createShippingOrder);
-                                    }
-                                }
-                            }
+//                            if(order.getOrderStatus().name().equals(OrderStatus.DELIVERED.name()) &&
+//                                    Optional.ofNullable(order.getLabelID()).isEmpty() && order.getOrderType().equals("PARENT_ORDER")) {
+//                                var design = designService.getDesignByOrderID(subOrder.getOrderID());
+//                                logger.info("Design Information: {}", design);
+//
+//                                var minWeightParentOrder = design.getMinWeight() * order.getQuantity();
+//                                logger.info("Minimum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), minWeightParentOrder);
+//
+//                                var maxWeightParentOrder = design.getMaxWeight() * order.getQuantity();
+//                                logger.info("Maximum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), maxWeightParentOrder);
+//
+//                                var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
+//                                logger.info("Average Weight for Parent Order: {}", averageWeightParentOrder);
+//
+//                                var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
+//                                if(averageWeightParentOrder < maximumShippingWeight){
+//                                    OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
+//                                            new OrderShippingRequest.OrderShippingDetailRequest(
+//                                                    order.getOrderID() + " " + LocalDateTime.now(),
+//                                                    "Smart Tailor Services",
+//                                                    "344 Lê Văn Việt",
+//                                                    "Hồ Chí Minh",
+//                                                    "Thủ Đức",
+//                                                    "Tăng Nhơn Phú B",
+//                                                    "0926733445",
+//                                                    order.getPhone(),
+//                                                    order.getBuyerName(),
+//                                                    order.getAddress(),
+//                                                    order.getProvince(),
+//                                                    order.getDistrict(),
+//                                                    order.getWard(),
+//                                                    "Khác",
+//                                                    "1",
+//                                                    "2024/10/08",
+//                                                    0,
+//                                                    averageWeightParentOrder,
+//                                                    1
+//                                            );
+//
+//                                    var orderShippingRequest =
+//                                            OrderShippingRequest
+//                                                    .builder()
+//                                                    .order(orderShippingDetailRequest)
+//                                                    .build();
+//
+//                                    var createShippingOrder = ghtkShippingService.createShippingOrder(orderShippingRequest);
+//                                    if(createShippingOrder != null){
+//                                        logger.info("Create Shipping Order Successfully {}", createShippingOrder);
+//                                    }
+//                                }
+//                            }
                             if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                 paymentService.createPayOSPayment(PaymentRequest.builder().orderID(subOrder.getOrderID())
 
