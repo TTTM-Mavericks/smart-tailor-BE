@@ -483,9 +483,9 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         BigDecimal customerPriceDeposit = commission.add(customerDepositStage);
 
         BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(commission);
-        if (!shippingFee.equals(BigDecimal.valueOf(-1))) {
-            adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(shippingFee);
-        }
+//        if (!shippingFee.equals(BigDecimal.valueOf(-1))) {
+//            adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(shippingFee);
+//        }
 
         return OrderDetailPriceResponse
                 .builder()

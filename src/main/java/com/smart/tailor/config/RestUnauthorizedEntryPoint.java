@@ -23,7 +23,7 @@ public class RestUnauthorizedEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         String timestamp = LocalDateTime.now().format(dateTimeFormatter);
 
         objectNode.put("timestamp", timestamp);

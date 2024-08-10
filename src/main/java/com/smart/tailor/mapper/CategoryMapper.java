@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
-    @Mapping(source = "category.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "category.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "category.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "category.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     @Mapping(source = "category.status", target = "status")
     CategoryResponse mapperToCategoryResponse(Category category);
 

@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface SizeMapper {
-    @Mapping(source = "size.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "size.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "size.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "size.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     SizeResponse mapperToSizeResponse(Size size);
 }

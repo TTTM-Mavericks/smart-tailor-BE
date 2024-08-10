@@ -175,7 +175,7 @@ public class Utilities {
 
     public static String convertLocalDateTimeToString(LocalDateTime localDateTime) {
         if (localDateTime == null) return null;
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         return dateTimeFormatter.format(localDateTime);
     }
 

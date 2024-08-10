@@ -17,8 +17,8 @@ public interface ItemMaskMapper {
     @Mapping(source = "itemMask.bottomLeftRadius", target = "bottomLeftRadius")
     @Mapping(source = "itemMask.bottomRightRadius", target = "bottomRightRadius")
     @Mapping(source = "itemMask.material", target = "material")
-    @Mapping(source = "itemMask.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "itemMask.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "itemMask.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "itemMask.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(itemMask.getImageUrl()))")
     ItemMaskResponse mapperToItemMaskResponse(ItemMask itemMask);
 

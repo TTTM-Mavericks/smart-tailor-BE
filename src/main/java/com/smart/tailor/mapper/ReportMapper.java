@@ -10,7 +10,7 @@ public interface ReportMapper {
     @Mapping(source = "report.user", target = "userResponse")
     @Mapping(source = "report.order", target = "orderResponse")
     @Mapping(source = "report.reportImageList", target = "reportImageList")
-    @Mapping(source = "report.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "report.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "report.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "report.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     ReportResponse mapperToReportResponse(Report report);
 }

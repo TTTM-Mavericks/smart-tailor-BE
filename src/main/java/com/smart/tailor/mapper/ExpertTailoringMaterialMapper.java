@@ -14,7 +14,7 @@ public interface ExpertTailoringMaterialMapper {
     @Mapping(source = "expertTailoringMaterial.material.materialName", target = "materialName")
     @Mapping(source = "expertTailoringMaterial.material.category.categoryName", target = "categoryName")
     @Mapping(source = "expertTailoringMaterial.material.category.categoryID", target = "categoryID")
-    @Mapping(source = "expertTailoringMaterial.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "expertTailoringMaterial.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "expertTailoringMaterial.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "expertTailoringMaterial.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     ExpertTailoringMaterialResponse mapperToExpertTailoringMaterialResponse(ExpertTailoringMaterial expertTailoringMaterial);
 }

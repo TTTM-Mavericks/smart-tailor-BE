@@ -18,8 +18,8 @@ public interface SampleProductDataMapper {
     @Mapping(source = "sampleProductData.status", target = "status")
     @Mapping(target = "video", expression = "java(decodeByteArrayToString(sampleProductData.getVideo()))")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(sampleProductData.getImageUrl()))")
-    @Mapping(source = "sampleProductData.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "sampleProductData.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "sampleProductData.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "sampleProductData.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     SampleProductDataResponse mapperToSampleProductDataResponse(SampleProductData sampleProductData);
 
     default String decodeByteArrayToString(byte[] values) {

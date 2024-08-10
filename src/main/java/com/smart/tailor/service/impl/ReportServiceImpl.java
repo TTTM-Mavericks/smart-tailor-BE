@@ -2,6 +2,8 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.entities.Report;
 import com.smart.tailor.entities.ReportImage;
+import com.smart.tailor.enums.RoleType;
+import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.ReportMapper;
 import com.smart.tailor.repository.ReportRepository;
@@ -41,10 +43,26 @@ public class ReportServiceImpl implements ReportService {
         var user = userService.getUserByUserID(reportRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find User with UserID: " + reportRequest.getUserID()));
 
-        String orderID = reportRequest.getOrderID();
-        var order = orderService.getOrderById(orderID)
-                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + orderID));
+        var order = orderService.getOrderById(reportRequest.getOrderID())
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Order with OrderID: " + reportRequest.getOrderID()));
 
+        if(user.getRoles().getRoleName().equals(RoleType.CUSTOMER.name())){
+            if(!order.getOrderType().equals("PARENT_ORDER")){
+                throw new BadRequestException("Customer can only report ParentOrder");
+            }
+        }
+
+        if(user.getRoles().getRoleName().equals(RoleType.BRAND.name())){
+            if(!order.getOrderType().equals("SUB_ORDER")){
+                throw new BadRequestException("Brand can only report SubOrder");
+            }
+        }
+
+        if(user.getRoles().getRoleName().equals(RoleType.EMPLOYEE.name())){
+            if(!order.getOrderType().equals("SUB_ORDER") || !order.getOrderType().equals("PARENT_ORDER")){
+                throw new BadRequestException("Employee can report ParentOrder and SubOrder");
+            }
+        }
 
         var saveReport = reportRepository.save(
                 Report
@@ -105,15 +123,16 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<ReportResponse> getAllReportByParentOrderID(String parentOrderID) {
-        List<ReportResponse> reportResponseList = new ArrayList<>();
-        var parentOrderReportList = getAllReportByOrderID(parentOrderID);
-        reportResponseList.addAll(parentOrderReportList);
+        List<ReportResponse> reportResponseList = new ArrayList<>(getAllReportByOrderID(parentOrderID));
 
-        var subOrderList = orderService.getSubOrderByParentID(parentOrderID);
-        for(OrderResponse subOrderResponse : subOrderList){
-            var subOrderReportList = getAllReportByOrderID(subOrderResponse.getOrderID());
-            reportResponseList.addAll(subOrderReportList);
-        }
+        List<OrderResponse> subOrderList = orderService.getSubOrderByParentID(parentOrderID);
+
+        subOrderList
+                .stream()
+                .map(OrderResponse::getOrderID)
+                .map(this::getAllReportByOrderID)
+                .forEach(reportResponseList::addAll);
+
         return reportResponseList;
     }
 }
