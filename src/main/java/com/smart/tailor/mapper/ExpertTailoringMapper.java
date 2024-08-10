@@ -9,5 +9,7 @@ import org.mapstruct.Mapping;
 public interface ExpertTailoringMapper {
     @Mapping(source = "expertTailoring.expertTailoringID", target = "expertTailoringID")
     @Mapping(source = "expertTailoring.status", target = "status")
+    @Mapping(source = "expertTailoring.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "expertTailoring.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     ExpertTailoringResponse mapperToExpertTailoringResponse(ExpertTailoring expertTailoring);
 }

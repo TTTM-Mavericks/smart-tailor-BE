@@ -131,7 +131,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         CellStyle dateTimeCellStyle = workbook.createCellStyle();
         CreationHelper createHelper = workbook.getCreationHelper();
         dateTimeCellStyle.setFont(fontData);
-        dateTimeCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm:ss.00"));
+        dateTimeCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MM-yyyy HH:mm:ss.00"));
         dateTimeCellStyle.setAlignment(HorizontalAlignment.CENTER);
 
         for (var expertTailoring : expertTailoringResponses) {

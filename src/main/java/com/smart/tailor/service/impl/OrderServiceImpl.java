@@ -327,9 +327,9 @@ public class OrderServiceImpl implements OrderService {
                                         }
                                     }
                                     if (isFinish) {
-                                        var maxDateTime = LocalDateTime.parse(subOrderList.get(0).getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                        var maxDateTime = LocalDateTime.parse(subOrderList.get(0).getProductionCompletionDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
                                         for (OrderResponse subOrder : subOrderList) {
-                                            var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                            var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
                                             maxDateTime = maxDateTime.isAfter(completionDate) ? maxDateTime : completionDate;
                                         }
                                         order.setProductionCompletionDate(maxDateTime);
@@ -1524,16 +1524,16 @@ public class OrderServiceImpl implements OrderService {
 
             var subOrderList = getSubOrderByParentID(orderID);
             String maxDate = subOrderList.get(0).getExpectedProductCompletionDate();
-            var convertMaxDate = LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            var convertMaxDate = LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
 //            LocalDateTime maxDate = subOrderList.get(0).getExpectedProductCompletionDate();
             int quantity = 0;
             for (var subOrder : subOrderList) {
                 var expectedCompleteDate = subOrder.getExpectedProductCompletionDate();
-                var convertExpectedCompleteDate = LocalDateTime.parse(expectedCompleteDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                var convertExpectedCompleteDate = LocalDateTime.parse(expectedCompleteDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
                 maxDate = convertExpectedCompleteDate.isAfter(convertMaxDate) ? expectedCompleteDate : maxDate;
                 quantity += subOrder.getQuantity();
             }
-            order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
             updateOrder(order);
 
             int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
@@ -1583,7 +1583,7 @@ public class OrderServiceImpl implements OrderService {
         var estimateOrderTimeLine = getOrderTimeLineByParentOrderID(parentOrder.getOrderID());
 
         // Define the format for parsing and formatting dates
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
         // Convert estimated dates to LocalDateTime

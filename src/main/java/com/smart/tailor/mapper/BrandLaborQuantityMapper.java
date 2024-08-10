@@ -15,7 +15,7 @@ public interface BrandLaborQuantityMapper {
     @Mapping(source = "brandLaborQuantity.laborQuantity.status", target = "laborQuantityStatus")
     @Mapping(source = "brandLaborQuantity.brandLaborCostPerQuantity", target = "laborCostPerQuantity")
     @Mapping(source = "brandLaborQuantity.status", target = "brandLaborQuantityStatus")
-    @Mapping(source = "brandLaborQuantity.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "brandLaborQuantity.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "brandLaborQuantity.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "brandLaborQuantity.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     BrandLaborQuantityResponse mapToLaborQuantityResponse(BrandLaborQuantity brandLaborQuantity);
 }

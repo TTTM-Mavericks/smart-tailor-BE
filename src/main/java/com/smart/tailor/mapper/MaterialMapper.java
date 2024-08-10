@@ -9,13 +9,13 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface MaterialMapper {
     @Mapping(source = "material.category.categoryName", target = "categoryName")
-    @Mapping(source = "material.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "material.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "material.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "material.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     MaterialResponse mapperToMaterialResponseWithoutPrices(Material material);
 
     @Mapping(source = "material.category.categoryName", target = "categoryName")
-    @Mapping(source = "material.createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "material.lastModifiedDate", target = "lastModifiedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "material.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "material.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     MaterialWithPriceResponse mapperToMaterialResponseWithPrices(Material material);
 
     default MaterialWithPriceResponse mapperToMaterialResponseWithPrices(Material material, Integer minPrice, Integer maxPrice) {
