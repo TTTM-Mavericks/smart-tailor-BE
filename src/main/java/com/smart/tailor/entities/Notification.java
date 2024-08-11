@@ -4,7 +4,6 @@ import com.smart.tailor.utils.Utilities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
@@ -26,17 +25,24 @@ public class Notification extends AuditEntity implements Serializable {
     @Column(columnDefinition = "varchar(100)")
     private String action;
 
-    @Column(name = "user_id", columnDefinition = "varchar(14)")
-    private String userID;
+    @Column(name = "type")
+    private String type;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", columnDefinition = "varchar(14)", nullable = false, insertable = false, updatable = false)
-    private User user;
+    @JoinColumn(name = "sender_id", referencedColumnName = "user_id", columnDefinition = "varchar(14)")
+    private User sender;
+
+    @ManyToOne
+    @JoinColumn(name = "recipient_id", referencedColumnName = "user_id", columnDefinition = "varchar(14)")
+    private User recipient;
+
+    @Column(name = "target_id", columnDefinition = "varchar(14)")
+    private String targetID;
 
     private Boolean status;
 
     @Column(columnDefinition = "varchar(255)")
-    private String detail;
+    private String message;
 
     @PrePersist
     private void prePersist() {

@@ -30,7 +30,7 @@ public class NotificationController {
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("message", ex.getMessage());
             logger.error("ERROR IN SEND PUBLIC NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -47,7 +47,7 @@ public class NotificationController {
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("message", ex.getMessage());
             logger.error("ERROR IN SEND NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
@@ -65,7 +65,7 @@ public class NotificationController {
             return ResponseEntity.ok(respon);
         } catch (Exception ex) {
             respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            respon.put("message", ex.getMessage());
             logger.error("ERROR IN GET NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(respon);
         }
