@@ -14,6 +14,8 @@ import java.util.List;
 public class OrderDetailPriceResponse {
     private String totalPriceOfParentOrder;
 
+    private String customerCommissionFee;
+
     private String customerPriceDeposit;
 
     private String customerPriceFirstStage;

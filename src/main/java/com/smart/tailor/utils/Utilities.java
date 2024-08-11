@@ -240,4 +240,16 @@ public class Utilities {
         );
         return pattern.matcher(value).matches();
     }
+
+    public static BigDecimal roundToNearestThousand(BigDecimal value){
+        // Truncate the decimal part
+        value = value.setScale(0, RoundingMode.DOWN);
+        BigDecimal thousand = BigDecimal.valueOf(1000);
+        BigDecimal remainder = value.remainder(thousand);
+        if(remainder.compareTo(BigDecimal.valueOf(500)) >= 0){
+            return value.subtract(remainder).add(thousand);
+        } else {
+            return value.subtract(remainder);
+        }
+    }
 }
