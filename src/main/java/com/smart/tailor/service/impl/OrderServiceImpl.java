@@ -1294,12 +1294,19 @@ public class OrderServiceImpl implements OrderService {
         }
 
         var updatedOrder = orderRepository.save(existedOrder);
+        if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
+            getOrderByOrderID(existedOrder.getOrderID());
+        } else {
+            if (existedOrder.getParentOrder() != null)
+                getOrderByOrderID(existedOrder.getParentOrder().getOrderID());
+        }
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
 
     @Override
-    public void updateOrder(Order order) {
+    public void updateOrder(Order order) throws Exception {
         orderRepository.save(order);
+        getOrderByOrderID(order.getOrderID());
     }
 
     @Override
@@ -1440,6 +1447,7 @@ public class OrderServiceImpl implements OrderService {
                     }
 
                     orderResponse.setDetailList(detailResponse);
+                    getOrderByOrderID(basedOrderID);
                     return orderMapper.mapToOrderResponse(orderResponse);
                 }
             } else {
