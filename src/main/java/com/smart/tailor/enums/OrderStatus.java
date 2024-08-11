@@ -6,6 +6,7 @@ public enum OrderStatus {
     DEPOSIT,    // cho dat coc
     PREPARING,
     PROCESSING, // cho may
+    SUSPENDED,
     CANCEL,     // huy
     COMPLETED,   // hoan thanh nhung chua giao
     DELIVERED,  // da giao

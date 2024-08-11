@@ -28,6 +28,8 @@ public interface DesignService {
 
     void updatePublicStatusDesign(String designID);
 
+    Design saveDesign(Design design);
+
     void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest);
 
     APIResponse updateDesign(String designID, DesignRequest designRequest);

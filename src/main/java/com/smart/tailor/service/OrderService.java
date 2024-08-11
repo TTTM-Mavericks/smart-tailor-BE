@@ -37,7 +37,7 @@ public interface OrderService {
 
     OrderResponse changeOrderStatus(OrderStatusUpdateRequest orderRequest) throws Exception;
 
-    void updateOrder(Order order);
+    void updateOrder(Order order) throws Exception;
 
     OrderResponse brandPickOrder(OrderPickingRequest orderPickingRequest) throws Exception;
 

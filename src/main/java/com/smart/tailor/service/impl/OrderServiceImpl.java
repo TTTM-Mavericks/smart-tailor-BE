@@ -166,6 +166,7 @@ public class OrderServiceImpl implements OrderService {
                 .phone(order.getPhone())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
+                .employeeID(order.getEmployee().getEmployeeID())
                 .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
                 .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
@@ -298,8 +299,10 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentType(PaymentType.STAGE_1).paymentAmount(order.getTotalPrice()).itemList(null).build());
                                             for (OrderResponse subOrderResponse : subOrderList) {
                                                 var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                                subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
-                                                updateOrder(subOrder);
+                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+                                                    updateOrder(subOrder);
+                                                }
                                             }
                                         }
                                     }
@@ -325,8 +328,10 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentType(PaymentType.STAGE_2).paymentAmount(order.getTotalPrice()).itemList(null).build());
                                             for (OrderResponse subOrderResponse : subOrderList) {
                                                 var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                                subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
-                                                updateOrder(subOrder);
+                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+                                                    updateOrder(subOrder);
+                                                }
                                             }
                                         }
                                     }
@@ -493,7 +498,11 @@ public class OrderServiceImpl implements OrderService {
                         switch (stage) {
                             case 0 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
-                                    if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)) {
+                                    if (
+                                            subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)
+                                                    ||
+                                                    subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)
+                                    ) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
 //                                        paymentService.createManualPayment(
 //                                                PaymentRequest
@@ -536,7 +545,8 @@ public class OrderServiceImpl implements OrderService {
                             }
                             case 1 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
-                                    if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)) {
+                                    if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE) ||
+                                            subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
 //                                        paymentService.createManualPayment(
 //                                                PaymentRequest
@@ -764,6 +774,140 @@ public class OrderServiceImpl implements OrderService {
                              */
                             logger.warn("Create a report for the employee line 850: {}", currentStatus);
                         }
+                        case SUSPENDED -> {
+                            var depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).findFirst().orElse(null);
+                            if (depositPayment != null) {
+
+                                var depositPaymentStatus = depositPayment.getPaymentStatus();
+                                if (depositPaymentStatus) {
+
+                                    int price = (int) (depositPayment.getPaymentAmount());
+                                    var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
+                                    var sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                                    var recipient = orderResponse.getDesignResponse().getUser();
+                                    paymentService.createPayOSPayment(
+                                            PaymentRequest.builder()
+                                                    .paymentAmount(price)
+                                                    .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                                                    .paymentType(PaymentType.ORDER_REFUND)
+
+                                                    .paymentSenderID(sender.getUserID())
+                                                    .paymentSenderName(sender.getFullName())
+                                                    .paymentSenderBankCode("OCB")
+                                                    .paymentSenderBankNumber("0163100007285002")
+                                                    .paymentRecipientID(
+                                                            recipient.getUserID()
+                                                    )
+                                                    .paymentRecipientName("")
+                                                    .paymentRecipientBankNumber("")
+                                                    .paymentRecipientBankCode("")
+                                                    .orderID(orderID)
+                                                    .build()
+                                    );
+                                    logger.error("CREATE CUS REFUND SUCCESSFULLY");
+
+                                    depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst().orElse(null);
+                                    if (depositPayment != null) {
+
+                                        depositPaymentStatus = depositPayment.getPaymentStatus();
+                                        if (depositPaymentStatus) {
+                                            price = (int) (depositPayment.getPaymentAmount());
+                                            orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
+                                            sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                                            recipient = orderResponse.getDesignResponse().getUser();
+                                            paymentService.createPayOSPayment(
+                                                    PaymentRequest.builder()
+                                                            .paymentAmount(price)
+                                                            .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                                                            .paymentType(PaymentType.ORDER_REFUND)
+
+                                                            .paymentSenderID(sender.getUserID())
+                                                            .paymentSenderName(sender.getFullName())
+                                                            .paymentSenderBankCode("OCB")
+                                                            .paymentSenderBankNumber("0163100007285002")
+                                                            .paymentRecipientID(
+                                                                    recipient.getUserID()
+                                                            )
+                                                            .paymentRecipientName("")
+                                                            .paymentRecipientBankNumber("")
+                                                            .paymentRecipientBankCode("")
+                                                            .orderID(orderID)
+                                                            .build()
+                                            );
+                                            logger.error("CREATE CUS REFUND SUCCESSFULLY");
+                                            depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).findFirst().orElse(null);
+                                            if (depositPayment != null) {
+
+                                                depositPaymentStatus = depositPayment.getPaymentStatus();
+                                                if (depositPaymentStatus) {
+                                                    price = (int) (depositPayment.getPaymentAmount());
+                                                    orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
+                                                    sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                                                    recipient = orderResponse.getDesignResponse().getUser();
+                                                    paymentService.createPayOSPayment(
+                                                            PaymentRequest.builder()
+                                                                    .paymentAmount(price)
+                                                                    .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                                                                    .paymentType(PaymentType.ORDER_REFUND)
+
+                                                                    .paymentSenderID(sender.getUserID())
+                                                                    .paymentSenderName(sender.getFullName())
+                                                                    .paymentSenderBankCode("OCB")
+                                                                    .paymentSenderBankNumber("0163100007285002")
+                                                                    .paymentRecipientID(
+                                                                            recipient.getUserID()
+                                                                    )
+                                                                    .paymentRecipientName("")
+                                                                    .paymentRecipientBankNumber("")
+                                                                    .paymentRecipientBankCode("")
+                                                                    .orderID(orderID)
+                                                                    .build()
+                                                    );
+                                                    logger.error("CREATE CUS REFUND SUCCESSFULLY");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            for (var subOrderResponse : subOrderList) {
+                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                    logger.error("CREATE BRAND TRANS");
+
+                                    paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .orderID(subOrder.getOrderID())
+
+                                                    .paymentSenderID(
+                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                    .getUserID()
+                                                    )
+                                                    .paymentSenderName("")
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
+
+                                                    .paymentRecipientID(
+                                                            subOrder.getDetailList().get(0)
+                                                                    .getBrand().getBrandID()
+                                                    )
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("OCB")
+                                                    .paymentRecipientBankNumber("0163100007285002")
+
+                                                    .paymentType(PaymentType.BRAND_INVOICE)
+                                                    .paymentAmount(
+                                                            subOrder.getTotalPrice()
+                                                    )
+                                                    .itemList(null)
+                                                    .build()
+                                    );
+                                }
+                            }
+
+                        }
                         case DEPOSIT, PREPARING -> {
                             /**
                              * Check if payment has been made
@@ -920,7 +1064,7 @@ public class OrderServiceImpl implements OrderService {
 
                                                                 .paymentType(PaymentType.BRAND_INVOICE)
                                                                 .paymentAmount(
-                                                                        10000
+                                                                        subOrder.getTotalPrice()
                                                                 )
                                                                 .itemList(null)
                                                                 .build()
@@ -985,7 +1129,7 @@ public class OrderServiceImpl implements OrderService {
 
                                                             .paymentType(PaymentType.BRAND_INVOICE)
                                                             .paymentAmount(
-                                                                    10000
+                                                                    subOrder.getTotalPrice()
                                                             )
                                                             .itemList(null)
                                                             .build()
@@ -1020,7 +1164,7 @@ public class OrderServiceImpl implements OrderService {
 
                                                             .paymentType(PaymentType.BRAND_INVOICE)
                                                             .paymentAmount(
-                                                                    10000
+                                                                    subOrder.getTotalPrice()
                                                             )
                                                             .itemList(null)
                                                             .build()
@@ -1172,8 +1316,8 @@ public class OrderServiceImpl implements OrderService {
                  */
                 else {
                     var parentOrder = getOrderById(existedOrder.getParentOrder().getOrderID()).get();
-                    parentOrder.setOrderStatus(OrderStatus.PENDING);
-                    orderRepository.save(parentOrder);
+//                    parentOrder.setOrderStatus(OrderStatus.PENDING);
+//                    orderRepository.save(parentOrder);
 
                     var detailList = existedOrder.getDetailList();
                     for (var detail : detailList) {
@@ -1183,6 +1327,7 @@ public class OrderServiceImpl implements OrderService {
                         detailRepository.save(detail);
                     }
                     existedOrder.setDetailList(null);
+                    existedOrder.setParentOrder(null);
                     var orderResponse = safeMapToOrderResponse(parentOrder);
                     applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
                 }
@@ -1284,12 +1429,19 @@ public class OrderServiceImpl implements OrderService {
         }
 
         var updatedOrder = orderRepository.save(existedOrder);
+        if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
+            getOrderByOrderID(existedOrder.getOrderID());
+        } else {
+            if (existedOrder.getParentOrder() != null)
+                getOrderByOrderID(existedOrder.getParentOrder().getOrderID());
+        }
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
 
     @Override
-    public void updateOrder(Order order) {
+    public void updateOrder(Order order) throws Exception {
         orderRepository.save(order);
+//        getOrderByOrderID(order.getOrderID());
     }
 
     @Override
@@ -1430,6 +1582,7 @@ public class OrderServiceImpl implements OrderService {
                     }
 
                     orderResponse.setDetailList(detailResponse);
+//                    getOrderByOrderID(basedOrderID);
                     return orderMapper.mapToOrderResponse(orderResponse);
                 }
             } else {
@@ -1719,7 +1872,8 @@ public class OrderServiceImpl implements OrderService {
             List<FullOrderResponse> response = new ArrayList<>();
             for (Order order : listOrder) {
                 FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
-                response.add(fullOrderResponse);
+                if (fullOrderResponse.getPaymentList() != null && !fullOrderResponse.getPaymentList().isEmpty())
+                    response.add(fullOrderResponse);
             }
             return response;
         } catch (Exception ex) {

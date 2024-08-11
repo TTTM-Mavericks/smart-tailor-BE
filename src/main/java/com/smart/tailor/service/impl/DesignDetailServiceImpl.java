@@ -16,7 +16,6 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final DesignDetailMapper designDetailMapper;
     private final DesignMapper designMapper;
     private final OrderMapper orderMapper;
+    private final PartOfDesignService partOfDesignService;
     private final BrandService brandService;
     private final BrandMaterialService brandMaterialService;
     private final SizeExpertTailoringService sizeExpertTailoringService;
@@ -105,10 +105,28 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designId");
             }
             String designId = designDetailRequest.getDesignId();
-            Design design = designService.getDesignByID(designId);
+            Design baseDesign = designService.getDesignByID(designId);
+
+            Design clone = new Design();
+            clone.setUser(baseDesign.getUser());
+            clone.setExpertTailoring(baseDesign.getExpertTailoring());
+            clone.setTitleDesign(baseDesign.getTitleDesign());
+            clone.setPublicStatus(false);
+            clone.setMinWeight(baseDesign.getMinWeight());
+            clone.setMaxWeight(baseDesign.getMaxWeight());
+            clone.setImageUrl(baseDesign.getImageUrl());
+            clone.setColor(baseDesign.getColor());
+
+            var basePartOfDesign = partOfDesignService.getListPartOfDesignObjectByDesignID(designId);
+            var partOfDesign = partOfDesignService.savePartOfDesign(basePartOfDesign);
+
+            clone.setPartOfDesignList(partOfDesign);
+
+            var design = designService.saveDesign(clone);
             if (design == null) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
             }
+            designId = design.getDesignID();
             Order parentOrder = null;
             DesignResponse designResponse = designService.getDesignResponseByID(designId);
             UserResponse userResponse = designResponse.getUser();
@@ -439,22 +457,22 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
         // Case all subOrder have only two stage.
         // CustomerDepositStage = sum of All Deposit Stage of SubOrder
-        if(minQuantity < divideNumber && maxQuantity < divideNumber){
+        if (minQuantity < divideNumber && maxQuantity < divideNumber) {
             customerDepositStage = subOrderIncludeTwoStage
                     .stream()
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Case at least one SubOrder has two stage and one SubOrder has four stage
-        // CustomerDepositStage = sum of All Deposit Two Stage of SubOrder and all of 1/3 Deposit Four Stage of SubOrder
-        // CustomerFirstStage = CustomerSecondStage = sum all  1/3 Deposit Four Stage of SubOrder
-        } else if(minQuantity < divideNumber && maxQuantity >= divideNumber){
+            // Case at least one SubOrder has two stage and one SubOrder has four stage
+            // CustomerDepositStage = sum of All Deposit Two Stage of SubOrder and all of 1/3 Deposit Four Stage of SubOrder
+            // CustomerFirstStage = CustomerSecondStage = sum all  1/3 Deposit Four Stage of SubOrder
+        } else if (minQuantity < divideNumber && maxQuantity >= divideNumber) {
             customerDepositStage = subOrderIncludeTwoStage
                     .stream()
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             customerFirstStage = BigDecimal.ZERO;
             customerSecondStage = BigDecimal.ZERO;
-            for(List<BigDecimal> stage : subOrderIncludeFourStage){
+            for (List<BigDecimal> stage : subOrderIncludeFourStage) {
                 customerDepositStage = customerDepositStage.add(stage.get(0));
                 customerFirstStage = customerFirstStage.add(stage.get(1));
                 customerSecondStage = customerSecondStage.add(stage.get(2));
@@ -474,7 +492,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
             // Update Total Price Of SubOrder with new Nearest Stage of Deposit, First, Second Stage
             totalPriceOfParentOrder = customerDepositStage.add(customerFirstStage).add(customerSecondStage);
-
         }
 
         BigDecimal customerPriceDeposit = customerDepositStage.add(commission);

@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import java.util.stream.Collectors;
 
 @Service
@@ -123,6 +122,15 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     }
 
     @Override
+    public List<PartOfDesign> getListPartOfDesignObjectByDesignID(String designID) {
+        return partOfDesignRepository
+                .findAll()
+                .stream()
+                .filter(part -> part.getDesign().getDesignID().toString().equals(designID.toString()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public PartOfDesignResponse getPartOfDesignByPartOfDesignID(String partOfDesignID) {
         var partOfDesign = partOfDesignRepository.findById(partOfDesignID);
         if (partOfDesign.isPresent()) {
@@ -145,5 +153,10 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     public void deletePartOfDesignByDesignID(String designID) {
         itemMaskService.deleteItemMaskByDesignID(designID);
         partOfDesignRepository.deletePartOfDesignByDesignID(designID);
+    }
+
+    @Override
+    public List<PartOfDesign> savePartOfDesign(List<PartOfDesign> partOfDesignList) {
+        return partOfDesignRepository.saveAll(partOfDesignList);
     }
 }

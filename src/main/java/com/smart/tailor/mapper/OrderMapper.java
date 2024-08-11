@@ -61,6 +61,7 @@ class OrderMapperImpl implements OrderMapper {
                 .phone(order.getPhone())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
+                .employeeID(order.getEmployee().getEmployeeID())
                 .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
                 .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
@@ -135,6 +136,7 @@ class OrderMapperImpl implements OrderMapper {
                 .rating(order.getRating())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
+                .employeeID(order.getEmployee().getEmployeeID())
                 .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
                 .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
@@ -185,6 +187,7 @@ class OrderMapperImpl implements OrderMapper {
                 .rating(order.getRating())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
+                .employeeID(order.getEmployee().getEmployeeID())
                 .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
                 .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
@@ -220,7 +223,9 @@ class OrderMapperImpl implements OrderMapper {
                         .filter(o -> "SUB_ORDER".equals(o.getOrderType()) &&
                                 o.getParentOrder() != null &&
                                 order.getOrderID() != null &&
-                                order.getOrderID().equals(o.getParentOrder().getOrderID()))
+                                order.getOrderID().equals(o.getParentOrder().getOrderID()) &&
+                                !o.getPaymentList().isEmpty()
+                        )
                         .map(this::mapToOrderResponse)
                         .toList();
 
