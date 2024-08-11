@@ -131,26 +131,27 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                             .build()
                             );
                         }
-                        case PROCESSING -> {
-                            logger.info("Change Status PENDING Order");
-                            orderService.changeOrderStatus(
-                                    OrderStatusUpdateRequest
-                                            .builder()
-                                            .orderID(order.getOrderID().toString())
-                                            .status(OrderStatus.SUSPENDED.name())
-                                            .build()
-                            );
-                        }
                     }
                 } else {
-                    logger.info("Change Status Delete Order");
-                    orderService.changeOrderStatus(
-                            OrderStatusUpdateRequest
-                                    .builder()
-                                    .orderID(order.getOrderID().toString())
-                                    .status(OrderStatus.CANCEL.name())
-                                    .build()
-                    );
+                    if (orderStatus.equals(OrderStatus.PROCESSING)) {
+                        logger.info("Change Status PENDING Order");
+                        orderService.changeOrderStatus(
+                                OrderStatusUpdateRequest
+                                        .builder()
+                                        .orderID(order.getOrderID().toString())
+                                        .status(OrderStatus.SUSPENDED.name())
+                                        .build()
+                        );
+                    } else {
+                        logger.info("Change Status Delete Order");
+                        orderService.changeOrderStatus(
+                                OrderStatusUpdateRequest
+                                        .builder()
+                                        .orderID(order.getOrderID().toString())
+                                        .status(OrderStatus.CANCEL.name())
+                                        .build()
+                        );
+                    }
                 }
             }
         }
