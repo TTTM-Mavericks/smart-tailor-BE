@@ -17,6 +17,7 @@ public class NotificationResponse {
     private String type;
     private String targetID;
     private String message;
+    private Boolean status;
     private String createDate;
     private String lastModifiedDate;
 }

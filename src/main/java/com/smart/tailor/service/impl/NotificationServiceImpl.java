@@ -53,26 +53,38 @@ public class NotificationServiceImpl extends TextWebSocketHandler implements Not
             return new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND + ": " + notificationRequest.getRecipientID());
         });
 
-        return notificationRepository.save(
-                Notification.builder()
-                        .action(notificationRequest.getAction())
-                        .type(notificationRequest.getType())
+        return notificationRepository.save(Notification.builder().action(notificationRequest.getAction()).type(notificationRequest.getType())
 
-                        .sender(sender)
-                        .recipient(recipient)
+                .sender(sender).recipient(recipient)
 
-                        .targetID(notificationRequest.getTargetID())
-                        .status(false)
-                        .message(notificationRequest.getMessage())
-                        .build()
-        );
+                .targetID(notificationRequest.getTargetID()).status(false).message(notificationRequest.getMessage()).build());
     }
 
     @Override
     public List<NotificationResponse> getNotificationByUserID(String userID) {
-        return notificationRepository.findAll()
-                .stream()
-                .filter(noti -> noti.getRecipient().getUserID().equals(userID))
-                .map(notificationMapper::mapToNotificationResponse).toList();
+        return notificationRepository.findAll().stream().filter(noti -> noti.getRecipient().getUserID().equals(userID)).map(notificationMapper::mapToNotificationResponse).toList();
     }
+
+    @Override
+    public List<NotificationResponse> markAllRead(String userID) {
+        var listNoti = getNotificationByUserID(userID);
+        if (!listNoti.isEmpty()) {
+            listNoti.stream().forEach(noti -> {
+                updateNotificationStatus(noti.getNotificationID());
+            });
+            listNoti = getNotificationByUserID(userID);
+        }
+        return listNoti;
+    }
+
+    @Override
+    public void updateNotificationStatus(String notificationID) {
+        var noti = notificationRepository.findById(notificationID).orElseThrow(() -> {
+            return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND + ": " + notificationID);
+        });
+        noti.setStatus(true);
+        notificationRepository.save(noti);
+    }
+
+
 }
