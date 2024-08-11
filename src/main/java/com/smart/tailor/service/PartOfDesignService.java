@@ -13,9 +13,13 @@ public interface PartOfDesignService {
 
     List<PartOfDesignResponse> getListPartOfDesignByDesignID(String designID);
 
+    List<PartOfDesign> getListPartOfDesignObjectByDesignID(String designID);
+
     PartOfDesignResponse getPartOfDesignByPartOfDesignID(String partOfDesignID);
 
     List<PartOfDesignResponse> getAllPartOfDesign();
 
     void deletePartOfDesignByDesignID(String designID);
+
+    List<PartOfDesign> savePartOfDesign(List<PartOfDesign> partOfDesignList);
 }
