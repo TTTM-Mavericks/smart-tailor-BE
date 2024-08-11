@@ -50,17 +50,27 @@ public class ReportServiceImpl implements ReportService {
             if(!order.getOrderType().equals("PARENT_ORDER")){
                 throw new BadRequestException("Customer can only report ParentOrder");
             }
+            if(orderService.getParentOrderByOrderIDAndUserID(order.getOrderID(), user.getUserID()).isEmpty()){
+                throw new BadRequestException("Customers are only allowed to report parent orders that they own");
+            }
         }
 
         if(user.getRoles().getRoleName().equals(RoleType.BRAND.name())){
             if(!order.getOrderType().equals("SUB_ORDER")){
                 throw new BadRequestException("Brand can only report SubOrder");
             }
+            if(orderService.getSubOrderByOrderIDAndBrandID(order.getOrderID(), user.getUserID()).isEmpty()){
+                throw new BadRequestException("Brands are only allowed to report sub orders that they own");
+            }
         }
 
         if(user.getRoles().getRoleName().equals(RoleType.EMPLOYEE.name())){
-            if(!order.getOrderType().equals("SUB_ORDER") || !order.getOrderType().equals("PARENT_ORDER")){
-                throw new BadRequestException("Employee can report ParentOrder and SubOrder");
+            if(order.getEmployee() != null){
+                if(!order.getEmployee().getEmployeeID().equals(user.getUserID())){
+                    throw new BadRequestException("Employees are only allowed to report orders that they are responsible for managing");
+                }
+            } else {
+                throw new BadRequestException("Current Order have to be managed by Employee");
             }
         }
 
