@@ -97,8 +97,8 @@ public class BrandController {
                 respon.put("status", 200);
                 respon.put("message", MessageConstant.REGISTER_NEW_BRAND_SUCCESSFULLY);
                 respon.set("data", objectMapper.valueToTree(brandMapper.mapperToBrandResponse(brand)));
-                NotificationRequest request = NotificationRequest.builder().sender(brand.getUser().getEmail()).type("BRAND REGISTRATION").message(MessageConstant.NEW_BRAND_REGISTERED).recipient("smarttailor.ma@gmail.com").build();
-                notificationService.sendPrivateNotification(request);
+//                NotificationRequest request = NotificationRequest.builder().sender(brand.getUser().getEmail()).type("BRAND REGISTRATION").message(MessageConstant.NEW_BRAND_REGISTERED).recipient("smarttailor.ma@gmail.com").build();
+//                notificationService.sendPrivateNotification(request);
                 return ResponseEntity.ok(respon);
             } else {
                 respon.put("status", 400);
