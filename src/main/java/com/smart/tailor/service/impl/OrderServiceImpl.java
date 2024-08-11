@@ -166,7 +166,7 @@ public class OrderServiceImpl implements OrderService {
                 .phone(order.getPhone())
                 .buyerName(order.getBuyerName())
                 .totalPrice(order.getTotalPrice())
-                .employeeID(order.getEmployee().getEmployeeID())
+//                .employeeID(order.getEmployee().getEmployeeID())
                 .expectedStartDate(Utilities.convertLocalDateTimeToString(order.getExpectedStartDate()))
                 .expectedProductCompletionDate(Utilities.convertLocalDateTimeToString(order.getExpectedProductCompletionDate()))
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
