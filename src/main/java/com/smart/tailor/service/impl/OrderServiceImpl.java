@@ -1181,8 +1181,8 @@ public class OrderServiceImpl implements OrderService {
                  */
                 else {
                     var parentOrder = getOrderById(existedOrder.getParentOrder().getOrderID()).get();
-                    parentOrder.setOrderStatus(OrderStatus.PENDING);
-                    orderRepository.save(parentOrder);
+//                    parentOrder.setOrderStatus(OrderStatus.PENDING);
+//                    orderRepository.save(parentOrder);
 
                     var detailList = existedOrder.getDetailList();
                     for (var detail : detailList) {
@@ -1306,7 +1306,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateOrder(Order order) throws Exception {
         orderRepository.save(order);
-        getOrderByOrderID(order.getOrderID());
+//        getOrderByOrderID(order.getOrderID());
     }
 
     @Override
@@ -1447,7 +1447,7 @@ public class OrderServiceImpl implements OrderService {
                     }
 
                     orderResponse.setDetailList(detailResponse);
-                    getOrderByOrderID(basedOrderID);
+//                    getOrderByOrderID(basedOrderID);
                     return orderMapper.mapToOrderResponse(orderResponse);
                 }
             } else {
