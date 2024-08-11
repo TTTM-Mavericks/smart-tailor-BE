@@ -1743,12 +1743,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Boolean isCreateShippingOrder(String parentOrderID) {
-        return orderRepository.findOrderByParentOrderID(parentOrderID).getLabelID() != null;
+    public OrderDetailShippingResponse getOrderDetailShippingResponseByLabelID(String labelID) {
+        return ghtkShippingService.getOrderDetailShippingResponseByLabelID(labelID);
     }
 
     @Override
-    public OrderDetailShippingResponse getOrderDetailShippingResponseByLabelID(String labelID) {
-        return ghtkShippingService.getOrderDetailShippingResponseByLabelID(labelID);
+    public Optional<Order> getParentOrderByOrderIDAndUserID(String orderID, String userID) {
+        return orderRepository.getParentOrderByOrderIDAndUserID(orderID, userID);
+    }
+
+    @Override
+    public Optional<Order> getSubOrderByOrderIDAndBrandID(String orderID, String brandID) {
+        return orderRepository.getSubOrderByOrderIDAndBrandID(orderID, brandID);
     }
 }
