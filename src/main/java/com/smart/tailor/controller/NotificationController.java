@@ -70,4 +70,40 @@ public class NotificationController {
             return ResponseEntity.ok(respon);
         }
     }
+
+    @PutMapping(APIConstant.NotificationAPI.UPDATE_NOTIFICATION_STATUS + "/{notiID}")
+    public ResponseEntity<ObjectNode> updateNotificationStatus(@PathVariable("notiID") String notiID) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            notificationService.updateNotificationStatus(notiID);
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.UPDATE_NOTIFICATION_STATUS_SUCCESSFULLY);
+//            respon.set("data", objectMapper.valueToTree(data));
+            return ResponseEntity.ok(respon);
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", ex.getMessage());
+            logger.error("ERROR IN GET NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
+
+    @GetMapping(APIConstant.NotificationAPI.MARK_ALL_READ + "/{userID}")
+    public ResponseEntity<ObjectNode> markAllRead(@PathVariable("userID") String userID) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode respon = objectMapper.createObjectNode();
+        try {
+            var data = notificationService.markAllRead(userID);
+            respon.put("status", 200);
+            respon.put("message", MessageConstant.MARK_ALL_READ);
+            respon.set("data", objectMapper.valueToTree(data));
+            return ResponseEntity.ok(respon);
+        } catch (Exception ex) {
+            respon.put("status", -1);
+            respon.put("message", ex.getMessage());
+            logger.error("ERROR IN GET NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
+            return ResponseEntity.ok(respon);
+        }
+    }
 }

@@ -14,4 +14,8 @@ public interface NotificationService {
     Notification saveNotification(NotificationRequest notificationRequest);
 
     List<NotificationResponse> getNotificationByUserID(String userID);
+
+    List<NotificationResponse> markAllRead(String userID);
+
+    void updateNotificationStatus(String notificationID);
 }

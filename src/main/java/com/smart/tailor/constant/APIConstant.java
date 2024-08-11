@@ -132,6 +132,8 @@ public class APIConstant {
         public static final String SEND_PUBLIC_NOTIFICATION = "/send-public-notification";
         public static final String SEND_NOTIFICATION = "/send-notification";
         public static final String GET_ALL_NOTIFICATION_BY_USER_ID = "/get-all-notification-user-id";
+        public static final String UPDATE_NOTIFICATION_STATUS = "/update-notification-status";
+        public static final String MARK_ALL_READ = "/mark-all-read";
     }
 
     /**
