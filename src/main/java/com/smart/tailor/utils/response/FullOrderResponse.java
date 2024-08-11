@@ -29,6 +29,7 @@ public class FullOrderResponse {
     private String phone;
     private String buyerName;
     private Integer totalPrice;
+    private String employeeID;
     private String expectedStartDate;
     private String expectedProductCompletionDate;
     private String estimatedDeliveryDate;
