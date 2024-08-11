@@ -131,6 +131,16 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                             .build()
                             );
                         }
+                        case PROCESSING -> {
+                            logger.info("Change Status PENDING Order");
+                            orderService.changeOrderStatus(
+                                    OrderStatusUpdateRequest
+                                            .builder()
+                                            .orderID(order.getOrderID().toString())
+                                            .status(OrderStatus.SUSPENDED.name())
+                                            .build()
+                            );
+                        }
                     }
                 } else {
                     logger.info("Change Status Delete Order");

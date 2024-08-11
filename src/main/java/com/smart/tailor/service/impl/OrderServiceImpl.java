@@ -774,6 +774,140 @@ public class OrderServiceImpl implements OrderService {
                              */
                             logger.warn("Create a report for the employee line 850: {}", currentStatus);
                         }
+                        case SUSPENDED -> {
+                            var depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).findFirst().orElse(null);
+                            if (depositPayment != null) {
+
+                                var depositPaymentStatus = depositPayment.getPaymentStatus();
+                                if (depositPaymentStatus) {
+
+                                    int price = (int) (depositPayment.getPaymentAmount());
+                                    var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
+                                    var sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                                    var recipient = orderResponse.getDesignResponse().getUser();
+                                    paymentService.createPayOSPayment(
+                                            PaymentRequest.builder()
+                                                    .paymentAmount(price)
+                                                    .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                                                    .paymentType(PaymentType.ORDER_REFUND)
+
+                                                    .paymentSenderID(sender.getUserID())
+                                                    .paymentSenderName(sender.getFullName())
+                                                    .paymentSenderBankCode("OCB")
+                                                    .paymentSenderBankNumber("0163100007285002")
+                                                    .paymentRecipientID(
+                                                            recipient.getUserID()
+                                                    )
+                                                    .paymentRecipientName("")
+                                                    .paymentRecipientBankNumber("")
+                                                    .paymentRecipientBankCode("")
+                                                    .orderID(orderID)
+                                                    .build()
+                                    );
+                                    logger.error("CREATE CUS REFUND SUCCESSFULLY");
+
+                                    depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst().orElse(null);
+                                    if (depositPayment != null) {
+
+                                        depositPaymentStatus = depositPayment.getPaymentStatus();
+                                        if (depositPaymentStatus) {
+                                            price = (int) (depositPayment.getPaymentAmount());
+                                            orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
+                                            sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                                            recipient = orderResponse.getDesignResponse().getUser();
+                                            paymentService.createPayOSPayment(
+                                                    PaymentRequest.builder()
+                                                            .paymentAmount(price)
+                                                            .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                                                            .paymentType(PaymentType.ORDER_REFUND)
+
+                                                            .paymentSenderID(sender.getUserID())
+                                                            .paymentSenderName(sender.getFullName())
+                                                            .paymentSenderBankCode("OCB")
+                                                            .paymentSenderBankNumber("0163100007285002")
+                                                            .paymentRecipientID(
+                                                                    recipient.getUserID()
+                                                            )
+                                                            .paymentRecipientName("")
+                                                            .paymentRecipientBankNumber("")
+                                                            .paymentRecipientBankCode("")
+                                                            .orderID(orderID)
+                                                            .build()
+                                            );
+                                            logger.error("CREATE CUS REFUND SUCCESSFULLY");
+                                            depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).findFirst().orElse(null);
+                                            if (depositPayment != null) {
+
+                                                depositPaymentStatus = depositPayment.getPaymentStatus();
+                                                if (depositPaymentStatus) {
+                                                    price = (int) (depositPayment.getPaymentAmount());
+                                                    orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
+                                                    sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                                                    recipient = orderResponse.getDesignResponse().getUser();
+                                                    paymentService.createPayOSPayment(
+                                                            PaymentRequest.builder()
+                                                                    .paymentAmount(price)
+                                                                    .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                                                                    .paymentType(PaymentType.ORDER_REFUND)
+
+                                                                    .paymentSenderID(sender.getUserID())
+                                                                    .paymentSenderName(sender.getFullName())
+                                                                    .paymentSenderBankCode("OCB")
+                                                                    .paymentSenderBankNumber("0163100007285002")
+                                                                    .paymentRecipientID(
+                                                                            recipient.getUserID()
+                                                                    )
+                                                                    .paymentRecipientName("")
+                                                                    .paymentRecipientBankNumber("")
+                                                                    .paymentRecipientBankCode("")
+                                                                    .orderID(orderID)
+                                                                    .build()
+                                                    );
+                                                    logger.error("CREATE CUS REFUND SUCCESSFULLY");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            for (var subOrderResponse : subOrderList) {
+                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                    logger.error("CREATE BRAND TRANS");
+
+                                    paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .orderID(subOrder.getOrderID())
+
+                                                    .paymentSenderID(
+                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                    .getUserID()
+                                                    )
+                                                    .paymentSenderName("")
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
+
+                                                    .paymentRecipientID(
+                                                            subOrder.getDetailList().get(0)
+                                                                    .getBrand().getBrandID()
+                                                    )
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("OCB")
+                                                    .paymentRecipientBankNumber("0163100007285002")
+
+                                                    .paymentType(PaymentType.BRAND_INVOICE)
+                                                    .paymentAmount(
+                                                            subOrder.getTotalPrice()
+                                                    )
+                                                    .itemList(null)
+                                                    .build()
+                                    );
+                                }
+                            }
+
+                        }
                         case DEPOSIT, PREPARING -> {
                             /**
                              * Check if payment has been made
@@ -930,7 +1064,7 @@ public class OrderServiceImpl implements OrderService {
 
                                                                 .paymentType(PaymentType.BRAND_INVOICE)
                                                                 .paymentAmount(
-                                                                        10000
+                                                                        subOrder.getTotalPrice()
                                                                 )
                                                                 .itemList(null)
                                                                 .build()
@@ -995,7 +1129,7 @@ public class OrderServiceImpl implements OrderService {
 
                                                             .paymentType(PaymentType.BRAND_INVOICE)
                                                             .paymentAmount(
-                                                                    10000
+                                                                    subOrder.getTotalPrice()
                                                             )
                                                             .itemList(null)
                                                             .build()
@@ -1030,7 +1164,7 @@ public class OrderServiceImpl implements OrderService {
 
                                                             .paymentType(PaymentType.BRAND_INVOICE)
                                                             .paymentAmount(
-                                                                    10000
+                                                                    subOrder.getTotalPrice()
                                                             )
                                                             .itemList(null)
                                                             .build()
