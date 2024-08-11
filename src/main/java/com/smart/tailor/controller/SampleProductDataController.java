@@ -25,7 +25,7 @@ public class SampleProductDataController {
     private final OrderService orderService;
 
     @PostMapping(SampleProductDataAPI.ADD_SAMPLE_PRODUCT_DATA)
-    public ResponseEntity<ObjectNode> addSampleProductData(@Valid @RequestBody SampleProductDataRequest sampleData) {
+    public ResponseEntity<ObjectNode> addSampleProductData(@Valid @RequestBody SampleProductDataRequest sampleData) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         dataService.addNewSampleProductData(sampleData);
