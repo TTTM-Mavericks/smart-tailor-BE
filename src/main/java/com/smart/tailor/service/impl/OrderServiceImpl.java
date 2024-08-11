@@ -298,8 +298,10 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentType(PaymentType.STAGE_1).paymentAmount(order.getTotalPrice()).itemList(null).build());
                                             for (OrderResponse subOrderResponse : subOrderList) {
                                                 var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                                subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
-                                                updateOrder(subOrder);
+                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+                                                    updateOrder(subOrder);
+                                                }
                                             }
                                         }
                                     }
@@ -325,8 +327,10 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentType(PaymentType.STAGE_2).paymentAmount(order.getTotalPrice()).itemList(null).build());
                                             for (OrderResponse subOrderResponse : subOrderList) {
                                                 var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                                subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
-                                                updateOrder(subOrder);
+                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+                                                    updateOrder(subOrder);
+                                                }
                                             }
                                         }
                                     }
@@ -493,7 +497,11 @@ public class OrderServiceImpl implements OrderService {
                         switch (stage) {
                             case 0 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
-                                    if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)) {
+                                    if (
+                                            subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)
+                                                    ||
+                                                    subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)
+                                    ) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
 //                                        paymentService.createManualPayment(
 //                                                PaymentRequest
@@ -536,7 +544,8 @@ public class OrderServiceImpl implements OrderService {
                             }
                             case 1 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
-                                    if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE)) {
+                                    if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE) ||
+                                            subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
 //                                        paymentService.createManualPayment(
 //                                                PaymentRequest
@@ -1183,6 +1192,7 @@ public class OrderServiceImpl implements OrderService {
                         detailRepository.save(detail);
                     }
                     existedOrder.setDetailList(null);
+                    existedOrder.setParentOrder(null);
                     var orderResponse = safeMapToOrderResponse(parentOrder);
                     applicationEventPublisher.publishEvent(new CreateOrderEvent(orderResponse));
                 }
@@ -1719,7 +1729,8 @@ public class OrderServiceImpl implements OrderService {
             List<FullOrderResponse> response = new ArrayList<>();
             for (Order order : listOrder) {
                 FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
-                response.add(fullOrderResponse);
+                if (fullOrderResponse.getPaymentList() != null && !fullOrderResponse.getPaymentList().isEmpty())
+                    response.add(fullOrderResponse);
             }
             return response;
         } catch (Exception ex) {

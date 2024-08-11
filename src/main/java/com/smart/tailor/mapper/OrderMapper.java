@@ -220,7 +220,9 @@ class OrderMapperImpl implements OrderMapper {
                         .filter(o -> "SUB_ORDER".equals(o.getOrderType()) &&
                                 o.getParentOrder() != null &&
                                 order.getOrderID() != null &&
-                                order.getOrderID().equals(o.getParentOrder().getOrderID()))
+                                order.getOrderID().equals(o.getParentOrder().getOrderID()) &&
+                                !o.getPaymentList().isEmpty()
+                        )
                         .map(this::mapToOrderResponse)
                         .toList();
 
