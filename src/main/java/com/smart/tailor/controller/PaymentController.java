@@ -100,4 +100,19 @@ public class PaymentController {
             throw ex;
         }
     }
+
+    @GetMapping(PaymentAPI.GET_ALL_PAYMENT)
+    ResponseEntity<ObjectNode> getAllPayment() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            var value = paymentService.getAllPaymentResponse();
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_PAYMENT_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(value));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
 }

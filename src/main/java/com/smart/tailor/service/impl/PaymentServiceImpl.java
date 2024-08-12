@@ -602,6 +602,14 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public List<PaymentResponse> getAllPaymentResponse() {
+        return paymentRepository.findAll()
+                .stream()
+                .map(paymentMapper::mapperToPaymentResponse)
+                .toList();
+    }
+
+    @Override
     public List<PaymentResponse> getPaymentByUserID(String userID) {
         try {
             if (userID == null) {

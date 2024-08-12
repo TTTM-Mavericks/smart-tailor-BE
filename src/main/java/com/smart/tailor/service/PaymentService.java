@@ -22,5 +22,7 @@ public interface PaymentService {
 
     List<Payment> getAllPayment();
 
+    List<PaymentResponse> getAllPaymentResponse();
+
     List<PaymentResponse> getPaymentByUserID(String userID);
 }
