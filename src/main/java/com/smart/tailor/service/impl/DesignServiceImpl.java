@@ -138,6 +138,7 @@ public class DesignServiceImpl implements DesignService {
             List<DesignMaterialDetail> materialDetailList = new ArrayList<>();
 
             List<PartOfDesignResponse> partOfDesignList = designResponse.getPartOfDesign();
+            logger.error("Part: {}", partOfDesignList);
             for (PartOfDesignResponse partOfDesign : partOfDesignList) {
                 MaterialResponse materialResponse = partOfDesign.getMaterial();
                 DesignMaterialDetail designMaterialDetail = DesignMaterialDetail
@@ -166,32 +167,35 @@ public class DesignServiceImpl implements DesignService {
                 }
 
                 List<ItemMaskResponse> itemMaskResponseList = partOfDesign.getItemMasks();
-                for (ItemMaskResponse itemMaskResponse : itemMaskResponseList) {
-                    if (itemMaskResponse.getMaterial() != null) {
-                        materialResponse = itemMaskResponse.getMaterial();
-                        designMaterialDetail = DesignMaterialDetail
-                                .builder()
-                                .materialResponse(materialResponse)
-                                .quantity(1)
-                                .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
-                                .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
-                                .build();
-                        constain = false;
-                        for (int index = 0; index < materialDetailList.size(); index++) {
-                            if (materialDetailList.get(index).getMaterialResponse().getMaterialID().equals(materialResponse.getMaterialID())) {
-                                designMaterialDetail.setMaxPrice(
-                                        designMaterialDetail.getMaxPrice() + materialDetailList.get(index).getMaxPrice()
-                                );
-                                designMaterialDetail.setMinPrice(
-                                        designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
-                                );
-                                designMaterialDetail.setQuantity(1 + materialDetailList.get(index).getQuantity());
-                                materialDetailList.set(index, designMaterialDetail);
-                                constain = true;
+                logger.error("itemMaskResponseList: {}", itemMaskResponseList);
+                if (itemMaskResponseList != null) {
+                    for (ItemMaskResponse itemMaskResponse : itemMaskResponseList) {
+                        if (itemMaskResponse.getMaterial() != null) {
+                            materialResponse = itemMaskResponse.getMaterial();
+                            designMaterialDetail = DesignMaterialDetail
+                                    .builder()
+                                    .materialResponse(materialResponse)
+                                    .quantity(1)
+                                    .maxPrice(brandMaterialService.getMaxPriceByMaterialID(materialResponse.getMaterialID()))
+                                    .minPrice(brandMaterialService.getMinPriceByMaterialID(materialResponse.getMaterialID()))
+                                    .build();
+                            constain = false;
+                            for (int index = 0; index < materialDetailList.size(); index++) {
+                                if (materialDetailList.get(index).getMaterialResponse().getMaterialID().equals(materialResponse.getMaterialID())) {
+                                    designMaterialDetail.setMaxPrice(
+                                            designMaterialDetail.getMaxPrice() + materialDetailList.get(index).getMaxPrice()
+                                    );
+                                    designMaterialDetail.setMinPrice(
+                                            designMaterialDetail.getMinPrice() + materialDetailList.get(index).getMinPrice()
+                                    );
+                                    designMaterialDetail.setQuantity(1 + materialDetailList.get(index).getQuantity());
+                                    materialDetailList.set(index, designMaterialDetail);
+                                    constain = true;
+                                }
                             }
-                        }
-                        if (!constain) {
-                            materialDetailList.add(designMaterialDetail);
+                            if (!constain) {
+                                materialDetailList.add(designMaterialDetail);
+                            }
                         }
                     }
                 }
