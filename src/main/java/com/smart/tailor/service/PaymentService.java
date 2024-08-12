@@ -21,4 +21,6 @@ public interface PaymentService {
     Payment updatePayment(Payment payment);
 
     List<Payment> getAllPayment();
+
+    List<PaymentResponse> getPaymentByUserID(String userID);
 }

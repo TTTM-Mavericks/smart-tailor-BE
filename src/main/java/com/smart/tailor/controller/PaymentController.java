@@ -7,14 +7,12 @@ import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
 import com.smart.tailor.utils.request.PaymentRequest;
-import com.smart.tailor.validate.ValidCustomKey;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 
 
 @RequiredArgsConstructor
@@ -27,7 +25,7 @@ public class PaymentController {
     private final PayOSService payOSService;
 
     @GetMapping(PaymentAPI.PAYMENT_INFO + "/{paymentID}")
-    ResponseEntity<ObjectNode> getPaymentInfo( @PathVariable("paymentID") String paymentID) throws Exception {
+    ResponseEntity<ObjectNode> getPaymentInfo(@PathVariable("paymentID") String paymentID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();
@@ -43,7 +41,7 @@ public class PaymentController {
     }
 
     @GetMapping(PaymentAPI.CONFIRM_PAYMENT + "/{paymentID}")
-    ResponseEntity<ObjectNode> confirmPayment( @PathVariable("paymentID") Integer paymentID) throws Exception {
+    ResponseEntity<ObjectNode> confirmPayment(@PathVariable("paymentID") Integer paymentID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();
@@ -74,11 +72,26 @@ public class PaymentController {
     }
 
     @GetMapping(PaymentAPI.MANUAL_PAYMENT_INFO + "/{paymentID}")
-    ResponseEntity<ObjectNode> getManualPaymentByID( @PathVariable("paymentID") String paymentID) throws Exception {
+    ResponseEntity<ObjectNode> getManualPaymentByID(@PathVariable("paymentID") String paymentID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();
             var value = paymentService.getManualPaymentByID(paymentID);
+            response.put("status", 200);
+            response.put("message", MessageConstant.GET_PAYMENT_SUCCESSFULLY);
+            response.set("data", objectMapper.valueToTree(value));
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @GetMapping(PaymentAPI.GET_PAYMENT_BY_USER_ID + "/{userID}")
+    ResponseEntity<ObjectNode> getPaymentByUserID(@PathVariable("userID") String userID) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ObjectNode response = objectMapper.createObjectNode();
+            var value = paymentService.getPaymentByUserID(userID);
             response.put("status", 200);
             response.put("message", MessageConstant.GET_PAYMENT_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(value));

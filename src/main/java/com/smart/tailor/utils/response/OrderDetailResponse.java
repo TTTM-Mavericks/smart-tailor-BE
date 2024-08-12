@@ -16,5 +16,6 @@ import java.util.List;
 public class OrderDetailResponse {
     List<DesignDetailSize> sizeList;
     String orderID;
+    String employeeID;
 }
 
