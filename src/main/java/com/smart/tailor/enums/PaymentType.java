@@ -9,4 +9,5 @@ public enum PaymentType {
     COMPLETED_ORDER,
     BRAND_INVOICE,
     ORDER_REFUND,
+    FINED
 }

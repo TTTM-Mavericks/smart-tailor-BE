@@ -118,15 +118,62 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             clone.setColor(baseDesign.getColor());
 
             var basePartOfDesign = partOfDesignService.getListPartOfDesignObjectByDesignID(designId);
-            var partOfDesign = partOfDesignService.savePartOfDesign(basePartOfDesign);
 
-            clone.setPartOfDesignList(partOfDesign);
+            List<PartOfDesignRequest> clonePart = new ArrayList<>();
+            for (var partOfDesign : basePartOfDesign) {
+                var itemMarkList = partOfDesign.getItemMaskList();
+                List<ItemMaskRequest> cloneItemMark = new ArrayList<>();
+
+                for (var itemMark : itemMarkList) {
+                    cloneItemMark.add(
+                            ItemMaskRequest
+                                    .builder()
+                                    .itemMaskName(itemMark.getItemMaskName())
+                                    .typeOfItem(itemMark.getTypeOfItem())
+                                    .materialID(itemMark.getMaterial().getMaterialID())
+                                    .isSystemItem(itemMark.getIsSystemItem())
+                                    .positionX(itemMark.getPositionX())
+                                    .positionY(itemMark.getPositionY())
+                                    .scaleX(itemMark.getScaleX())
+                                    .scaleY(itemMark.getScaleY())
+                                    .rotate(itemMark.getRotate())
+                                    .topLeftRadius(itemMark.getTopLeftRadius())
+                                    .topRightRadius(itemMark.getTopRightRadius())
+                                    .bottomLeftRadius(itemMark.getBottomLeftRadius())
+                                    .bottomRightRadius(itemMark.getBottomRightRadius())
+                                    .indexZ(itemMark.getIndexZ())
+                                    .imageUrl(Utilities.decodeBase64ToString(itemMark.getImageUrl()))
+                                    .printType(itemMark.getPrintType().name())
+                                    .build()
+                    );
+                }
+
+                clonePart.add(
+                        PartOfDesignRequest
+                                .builder()
+                                .partOfDesignName(partOfDesign.getPartOfDesignName())
+                                .imageUrl(Utilities.decodeBase64ToString(partOfDesign.getImageUrl()))
+                                .materialID(partOfDesign.getMaterial().getMaterialID())
+                                .successImageUrl(Utilities.decodeBase64ToString(partOfDesign.getSuccessImageUrl()))
+                                .realPartImageUrl(Utilities.decodeBase64ToString(partOfDesign.getRealPartImageUrl()))
+                                .width(partOfDesign.getWidth())
+                                .height(partOfDesign.getHeight())
+                                .itemMask(cloneItemMark)
+                                .build()
+                );
+            }
 
             var design = designService.saveDesign(clone);
             if (design == null) {
                 throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
             }
+            var newPart = partOfDesignService.createPartOfDesign(design, clonePart);
+            design.setPartOfDesignList(newPart);
+
+            designService.saveDesign(design);
+
             designId = design.getDesignID();
+            logger.error("DESIGN ID: {}", designId);
             Order parentOrder = null;
             DesignResponse designResponse = designService.getDesignResponseByID(designId);
             UserResponse userResponse = designResponse.getUser();
@@ -251,6 +298,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             OrderDetailResponse.builder()
                                     .sizeList(sizeList)
                                     .orderID(parentOrder.getOrderID())
+                                    .employeeID(parentOrder.getEmployee().getEmployeeID())
                                     .build()
                     )
                     .build();
@@ -407,7 +455,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             BigDecimal brandDepositStage = BigDecimal.valueOf(-1);
             BigDecimal brandFirstStage = BigDecimal.valueOf(-1);
             BigDecimal brandSecondStage = BigDecimal.valueOf(-1);
-            if(maxQuantity < divideNumber){
+            if (maxQuantity < divideNumber) {
                 brandDepositStage = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
                 subOrderIncludeTwoStage.add(brandDepositStage);
             } else {
@@ -478,12 +526,12 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 customerSecondStage = customerSecondStage.add(stage.get(2));
             }
 
-        // Case all subOrder have 4 stage
-        // CustomerDepositStage = CustomerFirstStage = CustomerSecondStage = 1/3 Total Price
-        } else if(minQuantity >= divideNumber && maxQuantity >= divideNumber){
-             customerDepositStage = totalPriceOfParentOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-             customerFirstStage = totalPriceOfParentOrder.subtract(customerDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-             customerSecondStage = totalPriceOfParentOrder.subtract(customerDepositStage).subtract(customerFirstStage).setScale(0, RoundingMode.HALF_UP);
+            // Case all subOrder have 4 stage
+            // CustomerDepositStage = CustomerFirstStage = CustomerSecondStage = 1/3 Total Price
+        } else if (minQuantity >= divideNumber && maxQuantity >= divideNumber) {
+            customerDepositStage = totalPriceOfParentOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+            customerFirstStage = totalPriceOfParentOrder.subtract(customerDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+            customerSecondStage = totalPriceOfParentOrder.subtract(customerDepositStage).subtract(customerFirstStage).setScale(0, RoundingMode.HALF_UP);
 
             // Round Brand Price at Deposit, First, Second Stage to nearest Thousand
             customerDepositStage = Utilities.roundToNearestThousand(customerDepositStage);

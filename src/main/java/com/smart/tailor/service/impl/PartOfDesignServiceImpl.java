@@ -37,7 +37,6 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     private final Logger logger = LoggerFactory.getLogger(PartOfDesignServiceImpl.class);
 
     @Override
-    @Transactional(readOnly = true)
     public List<PartOfDesign> createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
         List<PartOfDesign> partOfDesignList = new ArrayList<>();
         for (PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList) {
@@ -126,7 +125,7 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
         return partOfDesignRepository
                 .findAll()
                 .stream()
-                .filter(part -> part.getDesign().getDesignID().toString().equals(designID.toString()))
+                .filter(part -> part.getDesign().getDesignID().equals(designID))
                 .collect(Collectors.toList());
     }
 

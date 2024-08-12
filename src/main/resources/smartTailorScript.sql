@@ -401,6 +401,10 @@ VALUES (GenerateCustomKeyString(), 'nguyenvanquan@gmail.com',
         (SELECT role_id FROM roles WHERE role_name = 'ACCOUNTANT'), 'LOCAL', 'ACTIVE', 'https://i.pinimg.com/564x/28/b3/64/28b3645f39dafd0f47ebe0c8b7a52433.jpg',
         current_timestamp, null);
 
+-- INSERT INTO EMPLOYEE
+INSERT INTO employee (employee_id, success_task, fail_task, pending_task, total_task, create_date, last_modified_date)
+VALUES ((SELECT user_id FROM users WHERE email = 'employeesmarttailor123@gmail.com'), 0, 0, 0,
+        0, current_timestamp, null);
 
 -- INSERT INTO CUSTOMER
 INSERT INTO customer (customer_id, gender, date_of_birth, address, ward, district, province, number_of_violations,
