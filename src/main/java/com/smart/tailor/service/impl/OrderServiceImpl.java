@@ -283,14 +283,18 @@ public class OrderServiceImpl implements OrderService {
                         for (var subOrder : subOrderList) {
                             maxSubQuantity = max(maxSubQuantity, subOrder.getQuantity());
                         }
+                        var sender = designDetailList.get(0).getDesign().getUser();
+                        var recipient = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
                         if (maxSubQuantity >= divideNumber) {
 
                             // CHECK CURRENT STAGE
                             var stage = -1;
                             if (!paymentList.isEmpty()) {
-                                var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).findFirst();
+                                var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)
+                                        && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                 if (checkDeposited.isEmpty()) {
-                                    checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst();
+                                    checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)
+                                            && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                     if (checkDeposited.isPresent()) {
                                         if (checkDeposited.get().getPaymentStatus()) {
                                             stage = 1;
@@ -306,6 +310,8 @@ public class OrderServiceImpl implements OrderService {
                             }
 
                             boolean isFinish;
+
+
                             switch (stage) {
                                 case 0 -> {
                                     isFinish = true;
@@ -316,14 +322,16 @@ public class OrderServiceImpl implements OrderService {
                                         }
                                     }
                                     if (isFinish) {
-                                        var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)).findFirst();
+                                        var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)
+                                                && p.getOrder().getOrderID().equals(orderID)
+                                        ).findFirst();
                                         if (checkDeposited.isEmpty()) {
                                             logger.error("CREATE STAGE_1");
                                             paymentService.createPayOSPayment(PaymentRequest.builder().orderID(orderID)
 
-                                                    .paymentSenderID(null).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
+                                                    .paymentSenderID(sender.getUserID()).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
 
-                                                    .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentRecipientID(recipient.getUserID()).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.STAGE_1).paymentAmount(order.getTotalPrice()).itemList(null).build());
 //                                            for (OrderResponse subOrderResponse : subOrderList) {
@@ -345,14 +353,15 @@ public class OrderServiceImpl implements OrderService {
                                         }
                                     }
                                     if (isFinish) {
-                                        var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)).findFirst();
+                                        var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)
+                                                && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                         if (checkDeposited.isEmpty()) {
                                             logger.error("CREATE STAGE_2");
                                             paymentService.createPayOSPayment(PaymentRequest.builder().orderID(orderID)
 
-                                                    .paymentSenderID(null).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
+                                                    .paymentSenderID(sender.getUserID()).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
 
-                                                    .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentRecipientID(recipient.getUserID()).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.STAGE_2).paymentAmount(order.getTotalPrice()).itemList(null).build());
 //                                            for (OrderResponse subOrderResponse : subOrderList) {
@@ -385,7 +394,8 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                             }
-                        } else {
+                        }
+                        else {
                             boolean isFinish;
                             isFinish = true;
                             for (OrderResponse subOrder : subOrderList) {
@@ -395,14 +405,15 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
                             if (isFinish) {
-                                var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.COMPLETED_ORDER)).findFirst();
+                                var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.COMPLETED_ORDER)
+                                        && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                 if (checkDeposited.isEmpty()) {
                                     logger.error("CREATE COMPLETE_ORDER");
                                     paymentService.createPayOSPayment(PaymentRequest.builder().orderID(orderID)
 
-                                            .paymentSenderID(null).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
+                                            .paymentSenderID(sender.getUserID()).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
 
-                                            .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
+                                            .paymentRecipientID(recipient.getUserID()).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                             .paymentType(PaymentType.COMPLETED_ORDER).paymentAmount(order.getTotalPrice()).itemList(null).build());
                                 }
@@ -1382,8 +1393,7 @@ public class OrderServiceImpl implements OrderService {
 
         existedOrder.setOrderStatus(orderStatus);
         var stageResponseList = stageService.getOrderStageByOrderID(orderID);
-        for (
-                var stageResponse : stageResponseList) {
+        for (var stageResponse : stageResponseList) {
             if (stageResponse.getStage().equals(OrderStatus.valueOf(orderRequest.getStatus()))) {
                 var stage = stageService.getOrderStageByID(stageResponse.getStageId());
                 stage.setStatus(true);
@@ -1394,7 +1404,8 @@ public class OrderServiceImpl implements OrderService {
         var updatedOrder = orderRepository.save(existedOrder);
         if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
             getOrderByOrderID(existedOrder.getOrderID());
-        } else {
+        }
+        else {
             if (existedOrder.getParentOrder() != null)
                 getOrderByOrderID(existedOrder.getParentOrder().getOrderID());
         }
