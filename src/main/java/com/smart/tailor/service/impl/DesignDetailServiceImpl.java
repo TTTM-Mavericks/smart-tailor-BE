@@ -8,6 +8,7 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.DesignMapper;
 import com.smart.tailor.mapper.OrderMapper;
@@ -49,6 +50,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private final CustomerService customerService;
     private final OrderService orderService;
     private final SizeService sizeService;
+    private final JwtService jwtService;
     private final BrandLaborQuantityService brandLaborQuantityService;
     private final Logger logger = LoggerFactory.getLogger(DesignDetailServiceImpl.class);
 
@@ -95,7 +97,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
     //    @Transactional(readOnly = true)
     @Override
-    public APIResponse createDesignDetail(DesignDetailRequest designDetailRequest) {
+    public APIResponse createDesignDetail(String jwtToken, DesignDetailRequest designDetailRequest) {
         try {
             if (designDetailRequest == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT);
@@ -106,6 +108,11 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             }
             String designId = designDetailRequest.getDesignId();
             Design baseDesign = designService.getDesignByID(designId);
+
+            var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+            if(!baseDesign.getUser().getUserID().equals(userIDFromJwtToken)){
+                throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+            }
 
             Design clone = new Design();
             clone.setUser(baseDesign.getUser());

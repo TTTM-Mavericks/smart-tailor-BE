@@ -10,6 +10,7 @@ import com.smart.tailor.validate.ValidCustomKey;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,8 +28,9 @@ public class DesignDetailController {
     private final DesignDetailService designDetailService;
 
     @PostMapping(DesignDetailAPI.ADD_NEW_DESIGN_DETAIL)
-    public ResponseEntity<ObjectNode> addNewDesignDetail(@RequestBody DesignDetailRequest designDetailRequest) {
-        var apiResponse = designDetailService.createDesignDetail(designDetailRequest);
+    public ResponseEntity<ObjectNode> addNewDesignDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                         @RequestBody DesignDetailRequest designDetailRequest) {
+        var apiResponse = designDetailService.createDesignDetail(jwtToken, designDetailRequest);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", apiResponse.getStatus());
         response.put("message", apiResponse.getMessage());
@@ -37,7 +39,7 @@ public class DesignDetailController {
     }
 
     @GetMapping(DesignDetailAPI.GET_ALL_DESIGN_DETAIL_BY_ORDER_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getAllDesignDetailByDesignID( @PathVariable("orderID") String orderID) {
+    public ResponseEntity<ObjectNode> getAllDesignDetailByOrderID(@PathVariable("orderID") String orderID) {
         var designDetailResponseList = designDetailService.findAllByOrderID(orderID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
@@ -65,5 +67,4 @@ public class DesignDetailController {
         response.set("data", objectMapper.valueToTree(totalPrice));
         return ResponseEntity.ok(response);
     }
-
 }

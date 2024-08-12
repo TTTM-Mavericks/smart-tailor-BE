@@ -7,15 +7,15 @@ import java.util.List;
 
 
 public interface ReportService {
-    void createReport(ReportRequest reportRequest) throws Exception;
+    void createReport(String jwtToken, ReportRequest reportRequest) throws Exception;
 
     List<ReportResponse> getAllReport();
 
     List<ReportResponse> getAllReportByOrderID(String orderID);
 
-    List<ReportResponse> getAllReportByUserID(String userID) throws Exception;
+    List<ReportResponse> getAllReportByUserID(String jwtToken, String userID) throws Exception;
 
-    List<ReportResponse> getAllReportByBrandID(String brandID) throws Exception;
+    List<ReportResponse> getAllReportByBrandID(String jwtToken, String brandID) throws Exception;
 
-    List<ReportResponse> getAllReportByParentOrderID(String parentOrderID);
+    List<ReportResponse> getAllReportByParentOrderID(String jwtToken, String parentOrderID);
 }

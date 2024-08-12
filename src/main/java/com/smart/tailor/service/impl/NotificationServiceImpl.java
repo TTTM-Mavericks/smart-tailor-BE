@@ -2,8 +2,10 @@ package com.smart.tailor.service.impl;
 
 import com.smart.tailor.config.DataHandler;
 import com.smart.tailor.entities.Notification;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.NotificationMapper;
 import com.smart.tailor.repository.NotificationRepository;
+import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.NotificationService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.NotificationRequest;
@@ -21,7 +23,7 @@ public class NotificationServiceImpl extends TextWebSocketHandler implements Not
     private final UserService userService;
     private final NotificationMapper notificationMapper;
     private final NotificationRepository notificationRepository;
-
+    private final JwtService jwtService;
 
     @Override
     public void sendGlobalNotification(NotificationRequest notificationRequest) throws Exception {
@@ -45,7 +47,16 @@ public class NotificationServiceImpl extends TextWebSocketHandler implements Not
     }
 
     @Override
-    public List<NotificationResponse> getNotificationByUserID(String userID) throws Exception {
-        return notificationRepository.findAll().stream().filter(n -> n.getUserID().equals(userID)).map(notificationMapper::mapToNotificationResponse).toList();
+    public List<NotificationResponse> getNotificationByUserID(String jwtToken, String userID) throws Exception {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+        return notificationRepository
+                .findAll()
+                .stream()
+                .filter(n -> n.getUserID().equals(userID))
+                .map(notificationMapper::mapToNotificationResponse)
+                .toList();
     }
 }

@@ -9,6 +9,7 @@ import com.smart.tailor.utils.request.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,20 +55,14 @@ public class NotificationController {
     }
 
     @GetMapping(APIConstant.NotificationAPI.GET_ALL_NOTIFICATION_BY_USER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getAllNotification(@PathVariable("userID") String userID) {
+    public ResponseEntity<ObjectNode> getAllNotification(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                         @PathVariable("userID") String userID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
-        try {
-            var data = notificationService.getNotificationByUserID(userID);
-            respon.put("status", 200);
-            respon.put("message", MessageConstant.GET_NOTIFICATION_SUCCESSFULLY);
-            respon.set("data", objectMapper.valueToTree(data));
-            return ResponseEntity.ok(respon);
-        } catch (Exception ex) {
-            respon.put("status", -1);
-            respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN GET NOTIFICATION. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(respon);
-        }
+        var data = notificationService.getNotificationByUserID(jwtToken, userID);
+        respon.put("status", 200);
+        respon.put("message", MessageConstant.GET_NOTIFICATION_SUCCESSFULLY);
+        respon.set("data", objectMapper.valueToTree(data));
+        return ResponseEntity.ok(respon);
     }
 }
