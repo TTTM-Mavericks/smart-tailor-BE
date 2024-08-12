@@ -1734,14 +1734,16 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public void ratingOrder(RatingOrderRequest ratingOrderRequest) {
-        var user = userService.getUserByUserID(ratingOrderRequest.getUserID()).orElseThrow(() -> new ItemNotFoundException("Cannot find User with UserID: " + ratingOrderRequest.getUserID()));
+        var user = userService.getUserByUserID(ratingOrderRequest.getUserID())
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find User with UserID: " + ratingOrderRequest.getUserID()));
 
-        var parentOrder = orderRepository.findById(ratingOrderRequest.getParentOrderID()).orElseThrow(() -> new ItemNotFoundException("Cannot find Order with OrderID: " + ratingOrderRequest.getParentOrderID()));
+        var parentOrder = orderRepository.findById(ratingOrderRequest.getParentOrderID())
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find Order with OrderID: " + ratingOrderRequest.getParentOrderID()));
 
-        var orderRating = ratingOrderRequest.getRating();
+        var orderRating = (float) ratingOrderRequest.getRating();
         parentOrder.setRating(orderRating);
 
-        // Save Rating for Order
+        // Update Rating for Order
         orderRepository.save(parentOrder);
 
         // Rating Brand Contribute to Order
@@ -1764,7 +1766,7 @@ public class OrderServiceImpl implements OrderService {
         for (var subOrder : subOrderList) {
             var designDetail = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
             var brand = designDetail.stream().map(DesignDetail::getBrand).findFirst();
-
+            var subOrderRating = subOrder.getRating();
             var completedAheadOfSchedule = 0;
             var completedLate = 0;
             var subOrderStageList = stageService.getOrderStageByOrderID(subOrder.getOrderID());
@@ -1816,8 +1818,14 @@ public class OrderServiceImpl implements OrderService {
             logger.warn("Brand {} Complete A Head of Schedule {}", brand.get().getUser().getEmail(), completedAheadOfSchedule);
             logger.warn("Brand {} Complete Late {}", brand.get().getUser().getEmail(), completedLate);
             logger.warn("Order Rating {}", brandOrderRating);
+
             // Update the rating for the brand
-            brandService.ratingBrand(brand.get().getBrandID(), 1, brandOrderRating);
+            brandService.ratingBrand(brand.get().getBrandID(), brandOrderRating, subOrderRating);
+
+            // Update Rating for SubOrder
+            var existedSubOrder = orderRepository.findById(subOrder.getOrderID()).get();
+            existedSubOrder.setRating(brandOrderRating);
+            orderRepository.save(existedSubOrder);
         }
     }
 
