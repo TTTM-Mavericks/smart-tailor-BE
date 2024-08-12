@@ -22,7 +22,7 @@ public interface BrandService {
 
     List<Brand> findAllBrandByExpertTailoringID(String expertTailoringID);
 
-    void ratingBrand(String brandID, Integer numberOfRating, Float ratingScore);
+    void ratingBrand(String brandID, Float ratingScore, Float previousScoreRating);
 
     BrandResponse findBrandInformationByBrandID(String brandID);
 
