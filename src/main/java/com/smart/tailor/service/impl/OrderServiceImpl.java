@@ -326,13 +326,13 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.STAGE_1).paymentAmount(order.getTotalPrice()).itemList(null).build());
-                                            for (OrderResponse subOrderResponse : subOrderList) {
-                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
-                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
-                                                    updateOrder(subOrder);
-                                                }
-                                            }
+//                                            for (OrderResponse subOrderResponse : subOrderList) {
+//                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+//                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+//                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+//                                                    updateOrder(subOrder);
+//                                                }
+//                                            }
                                         }
                                     }
                                 }
@@ -355,13 +355,13 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentRecipientID(null).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
 
                                                     .paymentType(PaymentType.STAGE_2).paymentAmount(order.getTotalPrice()).itemList(null).build());
-                                            for (OrderResponse subOrderResponse : subOrderList) {
-                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
-                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
-                                                    updateOrder(subOrder);
-                                                }
-                                            }
+//                                            for (OrderResponse subOrderResponse : subOrderList) {
+//                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+//                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+//                                                    subOrder.setOrderStatus(OrderStatus.CHECKING_SAMPLE_DATA);
+//                                                    updateOrder(subOrder);
+//                                                }
+//                                            }
                                         }
                                     }
                                 }
