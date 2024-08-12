@@ -10,13 +10,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(APIConstant.CustomerAPI.CUSTOMER)
@@ -27,21 +25,16 @@ public class CustomerController {
     private final Logger logger = LoggerFactory.getLogger(CustomerController.class);
     private final ObjectMapper objectMapper;
 
-    @PutMapping(APIConstant.CustomerAPI.UPDATE_CUSTOMER_PROFILE)
-    public ResponseEntity<ObjectNode> updateCustomerProfile(@Valid @RequestBody CustomerRequest customerRequest) {
+    @PutMapping(APIConstant.CustomerAPI.UPDATE_CUSTOMER_PROFILE + "/{customerID}")
+    public ResponseEntity<ObjectNode> updateCustomerProfile(@PathVariable("customerID") String customerID,
+                                                            @RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                            @Valid @RequestBody CustomerRequest customerRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        try {
-            var apiResponse = customerService.updateCustomerProfile(customerRequest);
+        var apiResponse = customerService.updateCustomerProfile(jwtToken, customerID, customerRequest);
 
-            response.put("status", apiResponse.getStatus());
-            response.put("message", apiResponse.getMessage());
-            response.put("data", objectMapper.valueToTree(apiResponse.getData()));
-            return ResponseEntity.ok(response);
-        } catch (Exception ex) {
-            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-            logger.error("ERROR IN CREATE MATERIALS. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(response);
-        }
+        response.put("status", apiResponse.getStatus());
+        response.put("message", apiResponse.getMessage());
+        response.set("data", objectMapper.valueToTree(apiResponse.getData()));
+        return ResponseEntity.ok(response);
     }
 }

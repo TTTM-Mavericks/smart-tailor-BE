@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,9 +32,10 @@ public class DesignController {
     private final ObjectMapper objectMapper;
 
     @PostMapping(APIConstant.DesignAPI.ADD_NEW_DESIGN)
-    public ResponseEntity<ObjectNode> addNewDesign(@Valid @RequestBody DesignRequest designRequest) {
+    public ResponseEntity<ObjectNode> addNewDesign(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                   @Valid @RequestBody DesignRequest designRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = designService.addNewDesign(designRequest);
+        var apiResponse = designService.addNewDesign(jwtToken, designRequest);
         response.put("status", apiResponse.getStatus());
         response.put("message", apiResponse.getMessage());
         response.set("data", objectMapper.valueToTree(apiResponse.getData()));
@@ -41,8 +43,9 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_USER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getAllDesignByUserID( @PathVariable("userID") String userID) {
-        var designResponseList = designService.getAllDesignByUserID(userID);
+    public ResponseEntity<ObjectNode> getAllDesignByUserID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                           @PathVariable("userID") String userID) {
+        var designResponseList = designService.getAllDesignByUserID(jwtToken, userID);
         ObjectNode response = objectMapper.createObjectNode();
         if (designResponseList.isEmpty()) {
             response.put("status", HttpStatus.NOT_FOUND.value());
@@ -72,7 +75,7 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_DESIGN_BY_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> getDesignByID( @PathVariable("designID") String designID) {
+    public ResponseEntity<ObjectNode> getDesignByID(@PathVariable("designID") String designID) {
         var design = designService.getDesignResponseByID(designID);
         ObjectNode response = objectMapper.createObjectNode();
         if (design == null) {
@@ -87,8 +90,9 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_CUSTOMER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getAllDesignByCustomerID( @PathVariable("userID") String userID) {
-        var apiResponse = designService.getAllDesignByUserIDAndRoleName(userID, RoleType.CUSTOMER.name());
+    public ResponseEntity<ObjectNode> getAllDesignByCustomerID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                               @PathVariable("userID") String userID) {
+        var apiResponse = designService.getAllDesignByUserIDAndRoleName(jwtToken, userID, RoleType.CUSTOMER.name());
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", apiResponse.getStatus());
         response.put("message", apiResponse.getMessage());
@@ -97,8 +101,9 @@ public class DesignController {
     }
 
     @GetMapping(APIConstant.DesignAPI.GET_ALL_DESIGN_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getAllDesignByBrandID( @PathVariable("brandID") String brandID) {
-        var apiResponse = designService.getAllDesignByUserIDAndRoleName(brandID, RoleType.BRAND.name());
+    public ResponseEntity<ObjectNode> getAllDesignByBrandID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                            @PathVariable("brandID") String brandID) {
+        var apiResponse = designService.getAllDesignByUserIDAndRoleName(jwtToken, brandID, RoleType.BRAND.name());
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", apiResponse.getStatus());
         response.put("message", apiResponse.getMessage());
@@ -107,8 +112,9 @@ public class DesignController {
     }
 
     @PutMapping(APIConstant.DesignAPI.UPDATE_PUBLIC_STATUS_BY_DESIGN_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> updatePublicStatusByDesignID( @PathVariable("designID") String designID) {
-        designService.updatePublicStatusDesign(designID);
+    public ResponseEntity<ObjectNode> updatePublicStatusByDesignID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                                   @PathVariable("designID") String designID) {
+        designService.updatePublicStatusDesign(jwtToken, designID);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.UPDATE_PUBLIC_STATUS_SUCCESSFULLY);
@@ -116,8 +122,9 @@ public class DesignController {
     }
 
     @PostMapping(APIConstant.DesignAPI.ADD_NEW_CLONE_DESIGN)
-    public ResponseEntity<ObjectNode> addNewCloneDesign(@Valid @RequestBody CloneDesignRequest cloneDesignRequest) {
-        designService.addNewCloneDesignFromBrandDesign(cloneDesignRequest);
+    public ResponseEntity<ObjectNode> addNewCloneDesign(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                        @Valid @RequestBody CloneDesignRequest cloneDesignRequest) {
+        designService.addNewCloneDesignFromBrandDesign(jwtToken, cloneDesignRequest);
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.ADD_NEW_CLONE_DESIGN_SUCCESSFULLY);
@@ -125,10 +132,11 @@ public class DesignController {
     }
 
     @PutMapping(APIConstant.DesignAPI.UPDATE_DESIGN + "/{designID}")
-    public ResponseEntity<ObjectNode> updateDesign( @PathVariable("designID") String designID,
+    public ResponseEntity<ObjectNode> updateDesign(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                   @PathVariable("designID") String designID,
                                                    @Valid @RequestBody DesignRequest designRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = designService.updateDesign(designID, designRequest);
+        var apiResponse = designService.updateDesign(jwtToken, designID, designRequest);
         response.put("status", apiResponse.getStatus());
         response.put("message", apiResponse.getMessage());
         response.set("data", objectMapper.valueToTree(apiResponse.getData()));

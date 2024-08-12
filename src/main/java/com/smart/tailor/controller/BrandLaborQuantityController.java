@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,10 +31,11 @@ public class BrandLaborQuantityController {
     private final Logger logger = LoggerFactory.getLogger(BrandLaborQuantityController.class);
 
     @GetMapping(APIConstant.BrandLaborQuantityAPI.GET_ALL_BRAND_LABOR_QUANTITY_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getAllLaborQuantityByBrandID( @PathVariable("brandID") String brandID) {
+    public ResponseEntity<ObjectNode> getAllLaborQuantityByBrandID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                                   @PathVariable("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        var brandLaborQuantityResponses = brandLaborQuantityService.findBrandLaborQuantityByBrandID(brandID);
+        var brandLaborQuantityResponses = brandLaborQuantityService.findBrandLaborQuantityByBrandID(jwtToken, brandID);
         if (!brandLaborQuantityResponses.isEmpty()) {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_BRAND_LABOR_QUANTITY_BY_BRAND_ID_SUCCESSFULLY);
@@ -46,21 +48,23 @@ public class BrandLaborQuantityController {
     }
 
     @PostMapping(APIConstant.BrandLaborQuantityAPI.ADD_NEW_BRAND_LABOR_QUANTITY)
-    public ResponseEntity<ObjectNode> addNewBrandLaborQuantity(@Valid @RequestBody BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
+    public ResponseEntity<ObjectNode> addNewBrandLaborQuantity(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                               @Valid @RequestBody BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        brandLaborQuantityService.createBrandLaborQuantity(brandLaborQuantityListRequest);
+        brandLaborQuantityService.createBrandLaborQuantity(jwtToken, brandLaborQuantityListRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.ADD_BRAND_LABOR_QUANTITY_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping(APIConstant.BrandLaborQuantityAPI.UPDATE_BRAND_LABOR_QUANTITY + "/{brandID}")
-    public ResponseEntity<ObjectNode> updateLaborQuantity( @PathVariable("brandID") String brandID,
+    public ResponseEntity<ObjectNode> updateLaborQuantity(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                          @PathVariable("brandID") String brandID,
                                                           @Valid @RequestBody BrandLaborQuantityRequest brandLaborQuantityRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        brandLaborQuantityService.updateBrandLaborQuantity(brandID, brandLaborQuantityRequest);
+        brandLaborQuantityService.updateBrandLaborQuantity(jwtToken, brandID, brandLaborQuantityRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.UPDATE_LABOR_QUANTITY_SUCCESSFULLY);
         return ResponseEntity.ok(response);

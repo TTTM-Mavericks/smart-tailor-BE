@@ -11,15 +11,17 @@ import java.util.Optional;
 
 
 public interface BrandMaterialService {
-    void createBrandMaterial(BrandMaterialRequest brandMaterialRequest);
+    void createBrandMaterial(String jwtToken, BrandMaterialRequest brandMaterialRequest);
 
     List<BrandMaterialResponse> getAllBrandMaterial();
 
+    List<BrandMaterialResponse> getAllBrandMaterialByBrandID(String jwtToken, String brandID);
+
     List<BrandMaterialResponse> getAllBrandMaterialByBrandID(String brandID);
 
-    void createBrandMaterialByImportExcelData(MultipartFile file, String brandID);
+    void createBrandMaterialByImportExcelData(String jwtToken, MultipartFile file, String brandID);
 
-    void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest);
+    void updateBrandMaterial(String jwtToken, BrandMaterialRequest brandMaterialRequest);
 
     Integer getMinPriceByMaterialID(String materialID);
 

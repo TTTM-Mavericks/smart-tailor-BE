@@ -14,7 +14,7 @@ public interface CustomerService {
 
     Optional<Customer> findById(String customerID);
 
-    APIResponse updateCustomerProfile(CustomerRequest customerRequest);
+    APIResponse updateCustomerProfile(String jwtToken, String customerID, CustomerRequest customerRequest);
 
     CustomerResponse getCustomerByUserID(String userID);
 

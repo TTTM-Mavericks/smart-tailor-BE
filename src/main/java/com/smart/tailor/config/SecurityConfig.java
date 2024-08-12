@@ -64,9 +64,10 @@ public class SecurityConfig {
 //                            /* User API */
 //                            auth.requestMatchers("/api/v1/user/get-all-admin").hasRole(RoleType.ADMIN.name());
 //                            auth.requestMatchers("/api/v1/user/**").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name());
-//                            /* Customer API */
-//                            auth.requestMatchers("/api/v1/customer/update-customer-profile").hasRole(RoleType.CUSTOMER.name());
-//
+
+                            /* Customer API */
+                            auth.requestMatchers("/api/v1/customer/update-customer-profile/**").hasRole(RoleType.CUSTOMER.name());
+
 //                            /* Category API */
 //                            auth.requestMatchers("/api/v1/category/get-all-category").permitAll();
 //                            auth.requestMatchers("/api/v1/category/get-category-by-id").permitAll();
@@ -78,7 +79,7 @@ public class SecurityConfig {
 //
 //                            /* Material API */
 //                            auth.requestMatchers("/api/v1/material/add-new-category-material-by-excel-file").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/material/update-material").hasRole(RoleType.ADMIN.name());
+//                            auth.requestMatchers("/api/v1/material/update-material/**").hasRole(RoleType.ADMIN.name());
 //                            auth.requestMatchers("/api/v1/material/add-new-material").hasRole(RoleType.ADMIN.name());
 //                            auth.requestMatchers("/api/v1/material/update-status-material/**").hasRole(RoleType.ADMIN.name());
 //                            auth.requestMatchers("/api/v1/material/generate-sample-category-material-by-excel-file").hasRole(RoleType.ADMIN.name());
@@ -111,7 +112,7 @@ public class SecurityConfig {
 //                            auth.requestMatchers("/api/v1/expert-tailoring/add-new-expert-tailoring").hasRole(RoleType.MANAGER.name());
 //                            auth.requestMatchers("/api/v1/expert-tailoring/add-new-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
 //                            auth.requestMatchers("/api/v1/expert-tailoring/generate-sample-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring/update-expert-tailoring").hasRole(RoleType.MANAGER.name());
+//                            auth.requestMatchers("/api/v1/expert-tailoring/update-expert-tailoring/**").hasRole(RoleType.MANAGER.name());
 //                            auth.requestMatchers("/api/v1/expert-tailoring/update-status-expert-tailoring/**").hasRole(RoleType.MANAGER.name());
 //                            auth.requestMatchers("/api/v1/expert-tailoring/**").permitAll();
 //
@@ -130,10 +131,10 @@ public class SecurityConfig {
 //                            auth.requestMatchers("/api/v1/size-expert-tailoring/**").permitAll();
 //
 //                            /* Design API */
-//                            auth.requestMatchers("/api/v1/design/get-all-design-by-customer-id").hasRole(RoleType.CUSTOMER.name());
-//                            auth.requestMatchers("/api/v1/design/get-all-design-by-brand-id").hasRole(RoleType.BRAND.name());
-//                            auth.requestMatchers("/api/v1/design/get-all-design").permitAll();
-//                            auth.requestMatchers("/api/v1/design/get-design-by-id").permitAll();
+//                            auth.requestMatchers("/api/v1/design/get-all-design-by-customer-id/**").hasRole(RoleType.CUSTOMER.name());
+//                            auth.requestMatchers("/api/v1/design/get-all-design-by-brand-id/**").hasRole(RoleType.BRAND.name());
+//                            auth.requestMatchers("/api/v1/design/get-all-design/**").permitAll();
+//                            auth.requestMatchers("/api/v1/design/get-design-by-id/**").permitAll();
 //                            auth.requestMatchers("/api/v1/design/**").hasAnyRole(authenticatedRole);
 //
 //                            /* Part Of Design API */
@@ -163,8 +164,8 @@ public class SecurityConfig {
 //
 //                            /* Payment API */
 //                            auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
-//
-//                            auth.requestMatchers(WHITE_LIST_URL).permitAll();
+
+                            auth.requestMatchers(WHITE_LIST_URL).permitAll();
                             auth.anyRequest().permitAll();
                         }
                 )

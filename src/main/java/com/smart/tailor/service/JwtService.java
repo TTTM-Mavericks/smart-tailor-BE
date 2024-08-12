@@ -28,4 +28,6 @@ public interface JwtService {
     boolean isTokenExpired(String token);
 
     Key getSignInKey();
+
+    String extractUserIDFromJwtToken(String jwtToken);
 }

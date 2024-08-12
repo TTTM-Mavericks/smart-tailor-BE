@@ -9,6 +9,7 @@ import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.event.CreateOrderEvent;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.DesignDetailMapper;
 import com.smart.tailor.mapper.OrderMapper;
 import com.smart.tailor.mapper.PaymentMapper;
@@ -54,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStageService stageService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final GHTKShippingService ghtkShippingService;
-    private final MailService mailService;
+    private final JwtService jwtService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Value("${client.server.link}")
@@ -678,7 +679,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderCustomResponse> getOrderByBrandID(String brandID) throws Exception {
+    public List<OrderCustomResponse> getOrderByBrandID(String jwtToken, String brandID) throws Exception {
+        var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(brandID)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
         var listOrder = orderRepository.findOrderByBrandID(brandID);
         List<OrderCustomResponse> responseList = new ArrayList<>();
         for (Order o : listOrder) {
@@ -687,13 +692,13 @@ public class OrderServiceImpl implements OrderService {
         return responseList;
     }
 
-    @Override
-    public List<OrderResponse> getOrderByDesignID(String designID) {
-        return orderRepository.findParentOrderByDesignID(designID).stream().map(this::safeMapToOrderResponse).toList();
-    }
 
     @Override
-    public List<OrderCustomResponse> getOrderByUserID(String userID) throws Exception {
+    public List<OrderCustomResponse> getOrderByUserID(String jwtToken, String userID) throws Exception {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
         var orderList = orderRepository.findParentOrderByUserID(userID);
         List<OrderCustomResponse> responseList = new ArrayList<>();
         for (Order o : orderList) {

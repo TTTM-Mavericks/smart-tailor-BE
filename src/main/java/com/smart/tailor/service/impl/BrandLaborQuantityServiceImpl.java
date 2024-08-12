@@ -5,10 +5,12 @@ import com.smart.tailor.entities.BrandLaborQuantityKey;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.exception.MultipleErrorException;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.BrandLaborQuantityMapper;
 import com.smart.tailor.repository.BrandLaborQuantityRepository;
 import com.smart.tailor.service.BrandLaborQuantityService;
 import com.smart.tailor.service.BrandService;
+import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.LaborQuantityService;
 import com.smart.tailor.utils.request.BrandLaborQuantityListRequest;
 import com.smart.tailor.utils.request.BrandLaborQuantityRequest;
@@ -33,10 +35,15 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     private final BrandLaborQuantityMapper brandLaborQuantityMapper;
     private final BrandService brandService;
     private final LaborQuantityService laborQuantityService;
+    private final JwtService jwtService;
     private final Logger logger = LoggerFactory.getLogger(BrandLaborQuantityServiceImpl.class);
 
     @Override
-    public void createBrandLaborQuantity(BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
+    public void createBrandLaborQuantity(String jwtToken, BrandLaborQuantityListRequest brandLaborQuantityListRequest) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandLaborQuantityListRequest.getBrandID().equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
         List<ErrorDetail> errorDetails = new ArrayList<>();
         String brandID = brandLaborQuantityListRequest.getBrandID();
         var brandExisted = brandService.findBrandById(brandID)
@@ -93,7 +100,11 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     }
 
     @Override
-    public List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(String brandID) {
+    public List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(String jwtToken, String brandID) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
         return brandLaborQuantityRepository
                 .findAll()
                 .stream()
@@ -104,7 +115,11 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
 
     @Transactional
     @Override
-    public void updateBrandLaborQuantity(String brandID, BrandLaborQuantityRequest brandLaborQuantityRequest) {
+    public void updateBrandLaborQuantity(String jwtToken, String brandID, BrandLaborQuantityRequest brandLaborQuantityRequest) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
         var brandExisted = brandService.findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandID));
 

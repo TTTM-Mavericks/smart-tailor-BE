@@ -6,6 +6,7 @@ import com.smart.tailor.entities.PartOfDesign;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.DesignMapper;
 import com.smart.tailor.repository.DesignRepository;
 import com.smart.tailor.service.*;
@@ -34,12 +35,18 @@ public class DesignServiceImpl implements DesignService {
     private final PartOfDesignService partOfDesignService;
     private final ExpertTailoringService expertTailoringService;
     private final BrandMaterialService brandMaterialService;
+    private final JwtService jwtService;
     private final UserService userService;
     private final DesignMapper designMapper;
     private final Logger logger = LoggerFactory.getLogger(DesignServiceImpl.class);
 
     @Override
-    public APIResponse addNewDesign(DesignRequest designRequest) {
+    public APIResponse addNewDesign(String jwtToken, DesignRequest designRequest) {
+        var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(designRequest.getUserID())){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         if (!Utilities.isValidBoolean(designRequest.getPublicStatus())) {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
@@ -120,7 +127,11 @@ public class DesignServiceImpl implements DesignService {
     }
 
     @Override
-    public List<DesignResponse> getAllDesignByUserID(String userID) {
+    public List<DesignResponse> getAllDesignByUserID(String jwtToken, String userID) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
         return designRepository
                 .findAll()
                 .stream()
@@ -215,7 +226,12 @@ public class DesignServiceImpl implements DesignService {
     }
 
     @Override
-    public APIResponse getAllDesignByUserIDAndRoleName(String userID, String roleName) {
+    public APIResponse getAllDesignByUserIDAndRoleName(String jwtToken, String userID, String roleName) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         if (!Utilities.isStringNotNullOrEmpty(roleName)) {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " roleName");
         }
@@ -250,11 +266,16 @@ public class DesignServiceImpl implements DesignService {
                 .build();
     }
 
-
+    @Transactional
     @Override
-    public void updatePublicStatusDesign(String designID) {
+    public void updatePublicStatusDesign(String jwtToken, String designID) {
         var designExisted = designRepository.findById(designID)
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN));
+
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!designExisted.getUser().getUserID().equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
 
         designExisted.setPublicStatus(!designExisted.getPublicStatus());
         designRepository.save(designExisted);
@@ -267,7 +288,12 @@ public class DesignServiceImpl implements DesignService {
 
     @Transactional
     @Override
-    public void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest) {
+    public void addNewCloneDesignFromBrandDesign(String jwtToken, CloneDesignRequest cloneDesignRequest) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!cloneDesignRequest.getUserID().equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         var user = userService.getUserByUserID(cloneDesignRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND));
 
@@ -313,7 +339,12 @@ public class DesignServiceImpl implements DesignService {
 
     @Transactional
     @Override
-    public APIResponse updateDesign(String designID, DesignRequest designRequest) {
+    public APIResponse updateDesign(String jwtToken, String designID, DesignRequest designRequest) {
+        var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(designRequest.getUserID())){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         if (!Utilities.isValidBoolean(designRequest.getPublicStatus())) {
             throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " publicStatus");
         }
