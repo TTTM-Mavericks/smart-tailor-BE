@@ -28,8 +28,8 @@ public class Order extends AuditEntity implements Serializable {
     @Column(name = "order_id", columnDefinition = "varchar(14)")
     private String orderID;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)

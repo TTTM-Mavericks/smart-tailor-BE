@@ -251,6 +251,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                             OrderDetailResponse.builder()
                                     .sizeList(sizeList)
                                     .orderID(parentOrder.getOrderID())
+                                    .employeeID(parentOrder.getEmployee().getEmployeeID())
                                     .build()
                     )
                     .build();

@@ -8,6 +8,7 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.entities.Payment;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
+import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.PaymentMapper;
 import com.smart.tailor.repository.OrderRepository;
 import com.smart.tailor.repository.PaymentRepository;
@@ -134,8 +135,7 @@ public class PaymentServiceImpl implements PaymentService {
                                 .build()
                 );
                 return paymentMapper.mapperToPaymentResponse(storedPayment);
-            }
-            else {
+            } else {
 
                 /**
                  * TODO
@@ -266,8 +266,12 @@ public class PaymentServiceImpl implements PaymentService {
                             description = "DEPOSIT ORDER";
                         } else if (paymentType.equals(PaymentType.STAGE_1)) {
                             description = "STAGE 1";
-                        } else {
+                        } else if (paymentType.equals(PaymentType.STAGE_2)) {
                             description = "STAGE 2";
+                        } else if (paymentType.equals(PaymentType.COMPLETED_ORDER)) {
+                            description = "COMPLETED ORDER";
+                        } else {
+                            description = "FINED";
                         }
 
                         creationPayOS = payOSService.createPaymentLink(
@@ -284,6 +288,18 @@ public class PaymentServiceImpl implements PaymentService {
                         );
                         logger.info("CREATE PayOS SUCCESSFULLY!");
 
+                        var checkSender = userService.getUserByUserID(paymentSenderID);
+                        if (checkSender.isEmpty()) {
+                            throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentSenderID);
+                        }
+                        var sender = checkSender.get();
+
+                        var checkRecipient = userService.getUserByUserID(paymentRecipientID);
+                        if (checkRecipient.isEmpty()) {
+                            throw new Exception(MessageConstant.USER_IS_NOT_FOUND + " with ID: " + paymentRecipientID);
+                        }
+                        var recipient = checkRecipient.get();
+
                         if (creationPayOS == null) {
                             throw new Exception("Create PayOS Fail!");
                         }
@@ -294,12 +310,12 @@ public class PaymentServiceImpl implements PaymentService {
 
                         var storedPayment = paymentRepository.save(
                                 Payment.builder()
-                                        .paymentSender(null)
+                                        .paymentSender(sender)
                                         .paymentSenderName(paymentSenderName)
                                         .paymentSenderBankCode(paymentSenderBankCode)
                                         .paymentSenderBankNumber(paymentSenderBankNumber)
 
-                                        .paymentRecipient(null)
+                                        .paymentRecipient(recipient)
                                         .paymentRecipientName("SMART TAILOR")
                                         .paymentRecipientBankCode("OCB")
                                         .paymentRecipientBankNumber("0163100007285002")
@@ -583,5 +599,29 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<Payment> getAllPayment() {
         return paymentRepository.findAll().stream().toList();
+    }
+
+    @Override
+    public List<PaymentResponse> getPaymentByUserID(String userID) {
+        try {
+            if (userID == null) {
+                throw new Exception(MessageConstant.MISSING_ARGUMENT);
+            }
+
+            var user = userService.getUserByUserID(userID).orElseThrow(() -> {
+                return new ItemNotFoundException(MessageConstant.USER_IS_NOT_FOUND);
+            });
+
+            return paymentRepository.findAll()
+                    .stream()
+                    .filter(p -> p.getPaymentRecipient().getUserID().equals(userID)
+                            ||
+                            p.getPaymentSender().getUserID().equals(userID))
+                    .map(paymentMapper::mapperToPaymentResponse)
+                    .toList();
+        } catch (Exception ex) {
+            logger.error("ERROR: {}", ex.getMessage());
+        }
+        return new ArrayList<>();
     }
 }

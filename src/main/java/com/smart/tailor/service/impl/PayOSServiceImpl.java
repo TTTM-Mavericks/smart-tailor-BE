@@ -52,11 +52,11 @@ public class PayOSServiceImpl implements PayOSService {
     @Value("${BRAND_PAYOS_CHECKSUM_KEY}")
     private String brandChecksumKey;
 
-    @Value("${BRAND_PAYOS_CLIENT_ID}")
+    @Value("${REFUND_PAYOS_CLIENT_ID}")
     private String refundClientId;
-    @Value("${BRAND_PAYOS_API_KEY}")
+    @Value("${REFUND_PAYOS_API_KEY}")
     private String refundApiKey;
-    @Value("${BRAND_PAYOS_CHECKSUM_KEY}")
+    @Value("${REFUND_PAYOS_CHECKSUM_KEY}")
     private String refundChecksumKey;
 
     @Value("${CLIENT_URL}")
