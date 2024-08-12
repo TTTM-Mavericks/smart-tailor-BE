@@ -129,9 +129,10 @@ public class BrandServiceImpl implements BrandService {
         var numberOfRatingsUpdate = brand.getNumberOfRatings() + 1;
         var totalRatingScoreUpdate = brand.getTotalRatingScore() + ratingScore;
         if(previousScoreRating != null){
-            numberOfRatingsUpdate -= previousScoreRating;
-            totalRatingScoreUpdate -= 1;
+            numberOfRatingsUpdate -= 1;
+            totalRatingScoreUpdate -= previousScoreRating;
         }
+        if(totalRatingScoreUpdate <= 0) totalRatingScoreUpdate = 0;
         var ratingUpdate = totalRatingScoreUpdate / numberOfRatingsUpdate;
         brandRepository.updateBrandRatingAndScore(
                 Math.max(ratingUpdate, 0),

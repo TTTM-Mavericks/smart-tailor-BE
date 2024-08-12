@@ -1740,7 +1740,7 @@ public class OrderServiceImpl implements OrderService {
         var parentOrder = orderRepository.findById(ratingOrderRequest.getParentOrderID())
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Order with OrderID: " + ratingOrderRequest.getParentOrderID()));
 
-        var orderRating = ratingOrderRequest.getRating();
+        var orderRating = (float) ratingOrderRequest.getRating();
         parentOrder.setRating(orderRating);
 
         // Update Rating for Order
