@@ -362,6 +362,7 @@ public class MessageConstant {
     public static final String GET_ALL_SYSTEM_PROPERTY_SUCCESSFULLY = "Get All System Properties Successfully!";
     public static final String GET_SYSTEM_PROPERTY_SUCCESSFULLY = "Get System Properties Successfully!";
     public static final String ADD_NEW_SYSTEM_PROPERTY_SUCCESSFULLY = "Add New System Property Successfully!";
+    public static final String UPDATE_SYSTEM_PROPERTY_SUCCESSFULLY = "Update System Property Successfully!";
     public static final String CAN_NOT_FIND_SYSTEM_PROPERTY = "Can Not Find System Property";
 
     /**

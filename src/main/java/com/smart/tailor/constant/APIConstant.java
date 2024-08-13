@@ -293,6 +293,7 @@ public class APIConstant {
     public class SystemPropertyAPI {
         public static final String SYSTEM_PROPERTY = APIConstant.API + "/system-property";
         public static final String ADD_NEW_SYSTEM_PROPERTY = "/add-new-system-property";
+        public static final String UPDATE_SYSTEM_PROPERTY = "/update-system-property";
         public static final String GET_ALL_SYSTEM_PROPERTY = "/get-all-system-properties";
         public static final String GET_ALL_SYSTEM_PROPERTY_BY_TYPE = "/get-all-system-properties-by-type";
         public static final String GET_SYSTEM_PROPERTY = "/get-system-property";
