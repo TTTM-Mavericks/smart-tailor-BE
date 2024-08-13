@@ -10,7 +10,7 @@ import java.util.List;
 
 
 public interface DesignService {
-    APIResponse addNewDesign(DesignRequest designRequest);
+    APIResponse addNewDesign(String jwtToken, DesignRequest designRequest);
 
     Design getDesignByID(String designID);
 
@@ -20,17 +20,17 @@ public interface DesignService {
 
     DesignResponse getDesignResponseByID(String designID);
 
-    List<DesignResponse> getAllDesignByUserID(String userID);
+    List<DesignResponse> getAllDesignByUserID(String jwtToken, String userID);
 
     List<DesignResponse> getAllDesign();
 
-    APIResponse getAllDesignByUserIDAndRoleName(String userID, String roleName);
+    APIResponse getAllDesignByUserIDAndRoleName(String jwtToken, String userID, String roleName);
 
-    void updatePublicStatusDesign(String designID);
+    void updatePublicStatusDesign(String jwtToken, String designID);
 
     Design saveDesign(Design design);
 
-    void addNewCloneDesignFromBrandDesign(CloneDesignRequest cloneDesignRequest);
+    void addNewCloneDesignFromBrandDesign(String jwtToken, CloneDesignRequest cloneDesignRequest);
 
-    APIResponse updateDesign(String designID, DesignRequest designRequest);
+    APIResponse updateDesign(String jwtToken, String designID, DesignRequest designRequest);
 }

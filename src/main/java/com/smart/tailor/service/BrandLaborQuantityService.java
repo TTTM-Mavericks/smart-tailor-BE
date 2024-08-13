@@ -8,11 +8,11 @@ import java.util.List;
 
 
 public interface BrandLaborQuantityService {
-    void createBrandLaborQuantity(BrandLaborQuantityListRequest brandLaborQuantityListRequest);
+    void createBrandLaborQuantity(String jwtToken, BrandLaborQuantityListRequest brandLaborQuantityListRequest);
 
-    List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(String brandID);
+    List<BrandLaborQuantityResponse> findBrandLaborQuantityByBrandID(String jwtToken, String brandID);
 
-    void updateBrandLaborQuantity(String brandID, BrandLaborQuantityRequest brandLaborQuantityListRequest);
+    void updateBrandLaborQuantity(String jwtToken, String brandID, BrandLaborQuantityRequest brandLaborQuantityListRequest);
 
     BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(String brandID, Integer brandQuantity);
 }

@@ -42,11 +42,17 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     private final BrandMaterialMapper brandMaterialMapper;
     private final ExcelImportService excelImportService;
     private final SystemPropertiesService systemPropertiesService;
+    private final JwtService jwtService;
     private final Logger logger = LoggerFactory.getLogger(BrandMaterialServiceImpl.class);
 
     @Override
     @Transactional
-    public void createBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
+    public void createBrandMaterial(String jwtToken, BrandMaterialRequest brandMaterialRequest) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandMaterialRequest.getBrandID().equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         // Check If Brand ID is Existed
         var brand = brandService.findBrandById(brandMaterialRequest.getBrandID())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandMaterialRequest.getBrandID()));
@@ -106,6 +112,22 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
+    public List<BrandMaterialResponse> getAllBrandMaterialByBrandID(String jwtToken, String brandID) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+        Optional<Brand> brand = brandService.findBrandById(brandID);
+        if (brand.isEmpty()) return null;
+        return brandMaterialRepository
+                .findAll()
+                .stream()
+                .filter(brandMaterial -> (brandMaterial.getBrand().getBrandID().toString().equalsIgnoreCase(brandID.toString())))
+                .map(brandMaterialMapper::mapperToBrandMaterialResponse)
+                .toList();
+    }
+
+    @Override
     public List<BrandMaterialResponse> getAllBrandMaterialByBrandID(String brandID) {
         Optional<Brand> brand = brandService.findBrandById(brandID);
         if (brand.isEmpty()) return null;
@@ -118,7 +140,11 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     }
 
     @Override
-    public void createBrandMaterialByImportExcelData(MultipartFile file, String brandID) {
+    public void createBrandMaterialByImportExcelData(String jwtToken, MultipartFile file, String brandID) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
         if (!excelImportService.isValidExcelFile(file)) {
             throw new ExcelFileInvalidFormatException(MessageConstant.INVALID_EXCEL_FILE_FORMAT);
         }
@@ -456,8 +482,14 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
         }
     }
 
+    @Transactional
     @Override
-    public void updateBrandMaterial(BrandMaterialRequest brandMaterialRequest) {
+    public void updateBrandMaterial(String jwtToken, BrandMaterialRequest brandMaterialRequest) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandMaterialRequest.getBrandID().equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         // Check If Brand Name is Existed
         var brand = brandService.findBrandById(brandMaterialRequest.getBrandID())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with BrandID: " + brandMaterialRequest.getBrandID()));

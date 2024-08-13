@@ -13,9 +13,9 @@ public interface NotificationService {
 
     Notification saveNotification(NotificationRequest notificationRequest);
 
-    List<NotificationResponse> getNotificationByUserID(String userID);
+    List<NotificationResponse> getNotificationByUserID(String jwtToken, String userID) throws Exception;
 
-    List<NotificationResponse> markAllRead(String userID);
+    List<NotificationResponse> markAllRead(String jwtToken, String userID) throws Exception;
 
     void updateNotificationStatus(String notificationID);
 }

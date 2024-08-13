@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -45,7 +46,7 @@ public class ReportController {
     }
 
     @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_ORDER_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getAllReportByOrderID( @PathVariable("orderID") String orderID) {
+    public ResponseEntity<ObjectNode> getAllReportByOrderID(@PathVariable("orderID") String orderID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
         var reportResponses = reportService.getAllReportByOrderID(orderID);
@@ -61,10 +62,11 @@ public class ReportController {
     }
 
     @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_USER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getAllReportByUserID( @PathVariable("userID") String userID) throws Exception {
+    public ResponseEntity<ObjectNode> getAllReportByUserID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                           @PathVariable("userID") String userID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        var reportResponses = reportService.getAllReportByUserID(userID);
+        var reportResponses = reportService.getAllReportByUserID(jwtToken, userID);
         if (!reportResponses.isEmpty()) {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_REPORT_BY_USER_ID_SUCCESSFULLY);
@@ -77,10 +79,11 @@ public class ReportController {
     }
 
     @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getAllReportByBrandID( @PathVariable("brandID") String brandID) throws Exception {
+    public ResponseEntity<ObjectNode> getAllReportByBrandID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                            @PathVariable("brandID") String brandID) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        var reportResponses = reportService.getAllReportByBrandID(brandID);
+        var reportResponses = reportService.getAllReportByBrandID(jwtToken, brandID);
         if (!reportResponses.isEmpty()) {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_REPORT_BY_BRAND_ID_SUCCESSFULLY);
@@ -93,20 +96,22 @@ public class ReportController {
     }
 
     @PostMapping(APIConstant.ReportAPI.CREATE_REPORT)
-    public ResponseEntity<ObjectNode> createReport(@Valid @RequestBody ReportRequest reportRequest) throws Exception {
+    public ResponseEntity<ObjectNode> createReport(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                   @Valid @RequestBody ReportRequest reportRequest) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        reportService.createReport(reportRequest);
+        reportService.createReport(jwtToken, reportRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.CREATE_REPORT_SUCCESSFULLY);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(APIConstant.ReportAPI.GET_ALL_REPORT_BY_PARENT_ORDER_ID + "/{parentOrderID}")
-    public ResponseEntity<ObjectNode> getAllReportByParentOrderID(@PathVariable("parentOrderID") String parentOrderID) {
+    public ResponseEntity<ObjectNode> getAllReportByParentOrderID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                                  @PathVariable("parentOrderID") String parentOrderID) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        var reportResponses = reportService.getAllReportByParentOrderID(parentOrderID);
+        var reportResponses = reportService.getAllReportByParentOrderID(jwtToken, parentOrderID);
         if (!reportResponses.isEmpty()) {
             response.put("status", HttpStatus.OK.value());
             response.put("message", MessageConstant.GET_ALL_REPORT_BY_PARENT_ORDER_ID_SUCCESSFULLY);

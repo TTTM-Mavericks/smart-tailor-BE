@@ -1,6 +1,7 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.service.JwtService;
+import com.smart.tailor.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,7 +21,6 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
-
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
@@ -29,6 +29,8 @@ public class JwtServiceImpl implements JwtService {
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshTokenExpiration;
+
+    private final UserService userService;
 
     @Override
     public String extractUsername(String token) {
@@ -97,5 +99,14 @@ public class JwtServiceImpl implements JwtService {
     public Key getSignInKey() {
         byte[] keyByte = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyByte);
+    }
+
+    @Override
+    public String extractUserIDFromJwtToken(String jwtToken) {
+        if(jwtToken.startsWith("Bearer ")){
+            jwtToken = jwtToken.substring(7);
+        }
+        var userName = extractUsername(jwtToken);
+        return userService.getUserByEmail(userName).getUserID();
     }
 }

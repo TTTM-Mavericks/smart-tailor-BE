@@ -2,6 +2,7 @@ package com.smart.tailor.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Order;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
@@ -25,11 +26,9 @@ public interface OrderService {
 
     Optional<Order> getOrderById(String orderID);
 
-    List<OrderCustomResponse> getOrderByBrandID(String brandID) throws Exception;
+    List<OrderCustomResponse> getOrderByBrandID(String jwtToken, String brandID) throws Exception;
 
-    List<OrderResponse> getOrderByDesignID(String designID);
-
-    List<OrderCustomResponse> getOrderByUserID(String userID) throws Exception;
+    List<OrderCustomResponse> getOrderByUserID(String jwtToken, String userID) throws Exception;
 
     List<OrderResponse> getSubOrderByParentID(String parentOrderID);
 

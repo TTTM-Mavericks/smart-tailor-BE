@@ -5,12 +5,10 @@ import com.smart.tailor.entities.ReportImage;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.ReportMapper;
 import com.smart.tailor.repository.ReportRepository;
-import com.smart.tailor.service.OrderService;
-import com.smart.tailor.service.ReportImageService;
-import com.smart.tailor.service.ReportService;
-import com.smart.tailor.service.UserService;
+import com.smart.tailor.service.*;
 import com.smart.tailor.utils.request.ReportRequest;
 import com.smart.tailor.utils.response.OrderResponse;
 import com.smart.tailor.utils.response.ReportResponse;
@@ -36,10 +34,16 @@ public class ReportServiceImpl implements ReportService {
     private final OrderService orderService;
     private final ReportMapper reportMapper;
     private final UserService userService;
+    private final JwtService jwtService;
 
     @Transactional
     @Override
-    public void createReport(ReportRequest reportRequest) throws Exception {
+    public void createReport(String jwtToken, ReportRequest reportRequest) throws Exception {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!reportRequest.getUserID().equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         var user = userService.getUserByUserID(reportRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException("Can not find User with UserID: " + reportRequest.getUserID()));
 
@@ -112,7 +116,12 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportResponse> getAllReportByUserID(String userID) throws Exception {
+    public List<ReportResponse> getAllReportByUserID(String jwtToken, String userID) throws Exception {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         return reportRepository
                 .findAll()
                 .stream()
@@ -122,7 +131,12 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportResponse> getAllReportByBrandID(String brandID) throws Exception {
+    public List<ReportResponse> getAllReportByBrandID(String jwtToken, String brandID) throws Exception {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!brandID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         return reportRepository
                 .findAll()
                 .stream()
@@ -132,7 +146,15 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportResponse> getAllReportByParentOrderID(String parentOrderID) {
+    public List<ReportResponse> getAllReportByParentOrderID(String jwtToken, String parentOrderID) {
+        var order = orderService.getOrderById(parentOrderID)
+                .orElseThrow(()-> new ItemNotFoundException("Can not find Parent Order with ParentOrderID:" + parentOrderID));
+
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!order.getEmployee().getEmployeeID().equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         List<ReportResponse> reportResponseList = new ArrayList<>(getAllReportByOrderID(parentOrderID));
 
         List<OrderResponse> subOrderList = orderService.getSubOrderByParentID(parentOrderID);

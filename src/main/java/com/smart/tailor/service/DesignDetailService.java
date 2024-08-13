@@ -16,7 +16,7 @@ public interface DesignDetailService {
 
     DesignDetailResponse findByID(String orderID);
 
-    APIResponse createDesignDetail(DesignDetailRequest designDetailRequest);
+    APIResponse createDesignDetail(String jwtToken, DesignDetailRequest designDetailRequest);
 
     DesignDetailResponse updateDesignDetail(DesignDetail designDetail);
 

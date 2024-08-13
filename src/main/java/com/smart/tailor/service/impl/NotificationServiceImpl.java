@@ -3,9 +3,11 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.config.DataHandler;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Notification;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.NotificationMapper;
 import com.smart.tailor.repository.NotificationRepository;
+import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.NotificationService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.request.NotificationRequest;
@@ -23,7 +25,7 @@ public class NotificationServiceImpl extends TextWebSocketHandler implements Not
     private final UserService userService;
     private final NotificationMapper notificationMapper;
     private final NotificationRepository notificationRepository;
-
+    private final JwtService jwtService;
 
     @Override
     public void sendGlobalNotification(NotificationRequest notificationRequest) {
@@ -61,18 +63,31 @@ public class NotificationServiceImpl extends TextWebSocketHandler implements Not
     }
 
     @Override
-    public List<NotificationResponse> getNotificationByUserID(String userID) {
-        return notificationRepository.findAll().stream().filter(noti -> noti.getRecipient().getUserID().equals(userID)).map(notificationMapper::mapToNotificationResponse).toList();
+    public List<NotificationResponse> getNotificationByUserID(String jwtToken, String userID) throws Exception {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+        return notificationRepository
+                .findAll()
+                .stream()
+                .filter(noti -> noti.getRecipient().getUserID().equals(userID))
+                .map(notificationMapper::mapToNotificationResponse)
+                .toList();
     }
 
     @Override
-    public List<NotificationResponse> markAllRead(String userID) {
-        var listNoti = getNotificationByUserID(userID);
+    public List<NotificationResponse> markAllRead(String jwtToken, String userID) throws Exception{
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+        var listNoti = getNotificationByUserID(jwtToken, userID);
         if (!listNoti.isEmpty()) {
             listNoti.stream().forEach(noti -> {
                 updateNotificationStatus(noti.getNotificationID());
             });
-            listNoti = getNotificationByUserID(userID);
+            listNoti = getNotificationByUserID(jwtToken, userID);
         }
         return listNoti;
     }
@@ -85,6 +100,5 @@ public class NotificationServiceImpl extends TextWebSocketHandler implements Not
         noti.setStatus(true);
         notificationRepository.save(noti);
     }
-
 
 }

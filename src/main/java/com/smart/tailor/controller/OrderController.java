@@ -6,6 +6,8 @@ import com.smart.tailor.constant.APIConstant.OrderAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.event.CreateOrderEvent;
+import com.smart.tailor.exception.UnauthorizedAccessException;
+import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -51,7 +55,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_BY_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getOrderByID( @PathVariable("orderID") String orderID) {
+    public ResponseEntity<ObjectNode> getOrderByID(@PathVariable("orderID") String orderID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -66,33 +70,25 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_BY_BRAND_ID + "/{brandID}")
-    public ResponseEntity<ObjectNode> getOrderByBrandID( @PathVariable("brandID") String brandID) {
-        try {
-            ObjectNode response = objectMapper.createObjectNode();
-            response.put("status", 200);
-            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
-            var orderResponse = orderService.getOrderByBrandID(brandID);
-            response.set("data", objectMapper.valueToTree(orderResponse));
-            return ResponseEntity.ok(response);
-        } catch (Exception ex) {
-            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
-            return null;
-        }
+    public ResponseEntity<ObjectNode> getOrderByBrandID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                        @PathVariable("brandID") String brandID) throws Exception {
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", 200);
+        response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+        var orderResponse = orderService.getOrderByBrandID(jwtToken, brandID);
+        response.set("data", objectMapper.valueToTree(orderResponse));
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(OrderAPI.GET_ORDER_BY_USER_ID + "/{userID}")
-    public ResponseEntity<ObjectNode> getOrderByUserID( @PathVariable("userID") String userID) {
-        try {
-            ObjectNode response = objectMapper.createObjectNode();
-            response.put("status", 200);
-            response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
-            var orderResponse = orderService.getOrderByUserID(userID);
-            response.set("data", objectMapper.valueToTree(orderResponse));
-            return ResponseEntity.ok(response);
-        } catch (Exception ex) {
-            logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
-            return null;
-        }
+    public ResponseEntity<ObjectNode> getOrderByUserID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                       @PathVariable("userID") String userID) throws Exception{
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", 200);
+        response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
+        var orderResponse = orderService.getOrderByUserID(jwtToken, userID);
+        response.set("data", objectMapper.valueToTree(orderResponse));
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(OrderAPI.GET_ALL_ORDER)
@@ -141,7 +137,7 @@ public class OrderController {
     }
 
     @PutMapping(OrderAPI.CHANGE_STATUS_ORDER)
-    public ResponseEntity<ObjectNode> chageOrderStatus(@Valid @RequestBody OrderStatusUpdateRequest orderRequest) {
+    public ResponseEntity<ObjectNode> changeOrderStatus(@Valid @RequestBody OrderStatusUpdateRequest orderRequest) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);

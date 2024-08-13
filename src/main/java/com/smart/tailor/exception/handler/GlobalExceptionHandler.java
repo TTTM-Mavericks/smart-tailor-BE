@@ -16,6 +16,8 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,5 +105,17 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getReason());
         response.set("errors", objectMapper.valueToTree(ex.getErrorDetails()));
         return ResponseEntity.status(ex.getStatusCode().value()).body(response);
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ObjectNode> handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
+        ObjectNode response = objectMapper.createObjectNode();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String timestamp = LocalDateTime.now().format(dateTimeFormatter);
+
+        response.put("timestamp", timestamp);
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 }

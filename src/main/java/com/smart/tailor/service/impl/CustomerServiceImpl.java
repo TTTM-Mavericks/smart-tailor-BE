@@ -4,9 +4,11 @@ import com.smart.tailor.constant.FormatConstant;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Customer;
 import com.smart.tailor.entities.User;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.CustomerMapper;
 import com.smart.tailor.repository.CustomerRepository;
 import com.smart.tailor.service.CustomerService;
+import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.CustomerRequest;
@@ -34,6 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerMapper customerMapper;
     private final CustomerRepository customerRepository;
     private final UserService userService;
+    private final JwtService jwtService;
     private final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Override
@@ -54,7 +57,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public APIResponse updateCustomerProfile(CustomerRequest customerRequest) {
+    public APIResponse updateCustomerProfile(String jwtToken, String customerID, CustomerRequest customerRequest) {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!customerID.equals(userIDFromJwtToken)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         if (!Utilities.isValidBoolean(customerRequest.getGender())) {
             return APIResponse
                     .builder()

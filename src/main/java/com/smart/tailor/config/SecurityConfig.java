@@ -56,115 +56,116 @@ public class SecurityConfig {
                     access.authenticationEntryPoint(restUnauthorizedEntryPoint);
                 })
                 .authorizeHttpRequests(auth -> {
-//                            /* Authentication API */
-//                            auth.requestMatchers("/api/v1/auth/log-out").hasAnyRole(authenticatedRole);
-//                            auth.requestMatchers("/api/v1/auth/refresh-token").hasAnyRole(authenticatedRole);
-//                            auth.requestMatchers("/api/v1/auth/**").permitAll();
-//
-//                            /* User API */
-//                            auth.requestMatchers("/api/v1/user/get-all-admin").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/user/**").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name());
-//                            /* Customer API */
-//                            auth.requestMatchers("/api/v1/customer/update-customer-profile").hasRole(RoleType.CUSTOMER.name());
-//
-//                            /* Category API */
-//                            auth.requestMatchers("/api/v1/category/get-all-category").permitAll();
-//                            auth.requestMatchers("/api/v1/category/get-category-by-id").permitAll();
-//                            auth.requestMatchers("/api/v1/category/**").hasRole(RoleType.ADMIN.name());
-//
-//                            /* Size API */
-//                            auth.requestMatchers("/api/v1/size/get-all-size").permitAll();
-//                            auth.requestMatchers("/api/v1/size/**").hasRole(RoleType.ADMIN.name());
-//
-//                            /* Material API */
-//                            auth.requestMatchers("/api/v1/material/add-new-category-material-by-excel-file").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/material/update-material").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/material/add-new-material").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/material/update-status-material/**").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/material/generate-sample-category-material-by-excel-file").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/material/**").permitAll();
-//
-//                            /* Brand Material API */
-//                            auth.requestMatchers("/api/v1/material/export-category-material-for-brand-by-excel").hasRole(RoleType.BRAND.name());
-//                            auth.requestMatchers("/api/v1/brand-material/**").hasRole(RoleType.BRAND.name());
-//
-//                            /* Labor Quantity API */
-//                            auth.requestMatchers("/api/v1/labor-quantity/**").hasRole(RoleType.ADMIN.name());
-//
-//                            /* Brand Labor Quantity API */
-//                            auth.requestMatchers("/api/v1/brand-labor-quantity/**").hasRole(RoleType.BRAND.name());
-//
-//                             /* Report API */
-//                            auth.requestMatchers("/api/v1/report/**").hasAnyRole(RoleType.EMPLOYEE.name(), RoleType.BRAND.name(), RoleType.CUSTOMER.name());
-//                            auth.requestMatchers("/api/v1/report/get-all-report-by-brand-id/**").hasRole(RoleType.BRAND.name());
-//                            auth.requestMatchers("/api/v1/report/get-all-report-by-user-id/**").hasRole(RoleType.CUSTOMER.name());
-//
-//                            /* System Property API */
-//                            auth.requestMatchers("/api/v1/system-property/add-new-system-property").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/system-property/**").permitAll();
-//
-//                            /* System Image API */
-//                            auth.requestMatchers("/api/v1/system-image/add-new-system-image").hasRole(RoleType.ADMIN.name());
-//                            auth.requestMatchers("/api/v1/system-image/**").permitAll();
-//
-//                            /* Expert Tailoring API */
-//                            auth.requestMatchers("/api/v1/expert-tailoring/add-new-expert-tailoring").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring/add-new-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring/generate-sample-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring/update-expert-tailoring").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring/update-status-expert-tailoring/**").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring/**").permitAll();
-//
-//                            /* Expert Tailoring Material API */
-//                            auth.requestMatchers("/api/v1/expert-tailoring-material/add-new-expert-tailoring-material").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring-material/add-new-expert-tailoring-material-by-excel-file").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring-material/change-status-expert-tailoring-material/**").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring-material/generate-sample-category-material-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/expert-tailoring-material/**").permitAll();
-//
-//                            /* Size Expert Tailoring API */
-//                            auth.requestMatchers("/api/v1/size-expert-tailoring/add-new-size-expert-tailoring").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/size-expert-tailoring/update-size-expert-tailoring").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/size-expert-tailoring/add-new-size-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/size-expert-tailoring/generate-sample-size-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/size-expert-tailoring/**").permitAll();
-//
-//                            /* Design API */
-//                            auth.requestMatchers("/api/v1/design/get-all-design-by-customer-id").hasRole(RoleType.CUSTOMER.name());
-//                            auth.requestMatchers("/api/v1/design/get-all-design-by-brand-id").hasRole(RoleType.BRAND.name());
-//                            auth.requestMatchers("/api/v1/design/get-all-design").permitAll();
-//                            auth.requestMatchers("/api/v1/design/get-design-by-id").permitAll();
-//                            auth.requestMatchers("/api/v1/design/**").hasAnyRole(authenticatedRole);
-//
-//                            /* Part Of Design API */
-//                            auth.requestMatchers("/api/v1/part-of-design/**").permitAll();
-//
-//                            /* Item Mask API */
-//                            auth.requestMatchers("/api/v1/item-mask/**").permitAll();
-//
-//                            /* Brand API */
-//                            auth.requestMatchers("/api/v1/brand/accept-brand").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/brand/reject-brand").hasRole(RoleType.MANAGER.name());
-//                            auth.requestMatchers("/api/v1/brand/get-brand-registration-payment").hasAnyRole(RoleType.BRAND.name(), RoleType.MANAGER.name(), RoleType.ACCOUNTANT.name());
-//                            auth.requestMatchers("/api/v1/brand/add-new-brand").permitAll();
-//                            auth.requestMatchers("/api/v1/brand/upload-brand-infor").hasRole(RoleType.BRAND.name());
-//                            auth.requestMatchers("/api/v1/brand/add-expert-tailoring-for-brand").hasRole(RoleType.BRAND.name());
-//                            auth.requestMatchers("/api/v1/brand/get-brand").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name(), RoleType.EMPLOYEE.name(), RoleType.BRAND.name(), RoleType.ACCOUNTANT.name());
-//
-//                            /* Notification API */
-//                            auth.requestMatchers("/api/v1/notification/**").hasAnyRole(authenticatedRole);
-//
-//                            /* Design Detail */
-//                            auth.requestMatchers("/api/v1/design-detail/**").hasAnyRole(authenticatedRole);
-//
-//                            /* Order API */
-//                            auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
-//                            auth.requestMatchers("/api/v1/order/get-order-by-brand-id/**").hasRole(RoleType.BRAND.name());
-//
-//                            /* Payment API */
-//                            auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
-//
-//                            auth.requestMatchers(WHITE_LIST_URL).permitAll();
+                            /* Authentication API */
+                            auth.requestMatchers("/api/v1/auth/log-out").hasAnyRole(authenticatedRole);
+                            auth.requestMatchers("/api/v1/auth/refresh-token").hasAnyRole(authenticatedRole);
+                            auth.requestMatchers("/api/v1/auth/**").permitAll();
+
+                            /* User API */
+                            auth.requestMatchers("/api/v1/user/get-all-admin").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/user/**").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name());
+
+                            /* Customer API */
+                            auth.requestMatchers("/api/v1/customer/update-customer-profile/**").hasRole(RoleType.CUSTOMER.name());
+
+                            /* Category API */
+                            auth.requestMatchers("/api/v1/category/get-all-category").permitAll();
+                            auth.requestMatchers("/api/v1/category/get-category-by-id").permitAll();
+                            auth.requestMatchers("/api/v1/category/**").hasRole(RoleType.ADMIN.name());
+
+                            /* Size API */
+                            auth.requestMatchers("/api/v1/size/get-all-size").permitAll();
+                            auth.requestMatchers("/api/v1/size/**").hasRole(RoleType.ADMIN.name());
+
+                            /* Material API */
+                            auth.requestMatchers("/api/v1/material/add-new-category-material-by-excel-file").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/material/update-material/**").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/material/add-new-material").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/material/update-status-material/**").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/material/generate-sample-category-material-by-excel-file").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/material/**").permitAll();
+
+                            /* Brand Material API */
+                            auth.requestMatchers("/api/v1/material/export-category-material-for-brand-by-excel").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/brand-material/**").hasRole(RoleType.BRAND.name());
+
+                            /* Labor Quantity API */
+                            auth.requestMatchers("/api/v1/labor-quantity/**").hasRole(RoleType.ADMIN.name());
+
+                            /* Brand Labor Quantity API */
+                            auth.requestMatchers("/api/v1/brand-labor-quantity/**").hasRole(RoleType.BRAND.name());
+
+                             /* Report API */
+                            auth.requestMatchers("/api/v1/report/**").hasAnyRole(RoleType.EMPLOYEE.name(), RoleType.BRAND.name(), RoleType.CUSTOMER.name());
+                            auth.requestMatchers("/api/v1/report/get-all-report-by-brand-id/**").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/report/get-all-report-by-user-id/**").hasRole(RoleType.CUSTOMER.name());
+
+                            /* System Property API */
+                            auth.requestMatchers("/api/v1/system-property/add-new-system-property").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/system-property/**").permitAll();
+
+                            /* System Image API */
+                            auth.requestMatchers("/api/v1/system-image/add-new-system-image").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/system-image/**").permitAll();
+
+                            /* Expert Tailoring API */
+                            auth.requestMatchers("/api/v1/expert-tailoring/add-new-expert-tailoring").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring/add-new-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring/generate-sample-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring/update-expert-tailoring/**").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring/update-status-expert-tailoring/**").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring/**").permitAll();
+
+                            /* Expert Tailoring Material API */
+                            auth.requestMatchers("/api/v1/expert-tailoring-material/add-new-expert-tailoring-material").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring-material/add-new-expert-tailoring-material-by-excel-file").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring-material/change-status-expert-tailoring-material/**").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring-material/generate-sample-category-material-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/expert-tailoring-material/**").permitAll();
+
+                            /* Size Expert Tailoring API */
+                            auth.requestMatchers("/api/v1/size-expert-tailoring/add-new-size-expert-tailoring").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/size-expert-tailoring/update-size-expert-tailoring").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/size-expert-tailoring/add-new-size-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/size-expert-tailoring/generate-sample-size-expert-tailoring-by-excel-file").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/size-expert-tailoring/**").permitAll();
+
+                            /* Design API */
+                            auth.requestMatchers("/api/v1/design/get-all-design-by-customer-id/**").hasRole(RoleType.CUSTOMER.name());
+                            auth.requestMatchers("/api/v1/design/get-all-design-by-brand-id/**").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/design/get-all-design/**").permitAll();
+                            auth.requestMatchers("/api/v1/design/get-design-by-id/**").permitAll();
+                            auth.requestMatchers("/api/v1/design/**").hasAnyRole(authenticatedRole);
+
+                            /* Part Of Design API */
+                            auth.requestMatchers("/api/v1/part-of-design/**").permitAll();
+
+                            /* Item Mask API */
+                            auth.requestMatchers("/api/v1/item-mask/**").permitAll();
+
+                            /* Brand API */
+                            auth.requestMatchers("/api/v1/brand/accept-brand").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/brand/reject-brand").hasRole(RoleType.MANAGER.name());
+                            auth.requestMatchers("/api/v1/brand/get-brand-registration-payment").hasAnyRole(RoleType.BRAND.name(), RoleType.MANAGER.name(), RoleType.ACCOUNTANT.name());
+                            auth.requestMatchers("/api/v1/brand/add-new-brand").permitAll();
+                            auth.requestMatchers("/api/v1/brand/upload-brand-infor").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/brand/add-expert-tailoring-for-brand").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/brand/get-brand").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name(), RoleType.EMPLOYEE.name(), RoleType.BRAND.name(), RoleType.ACCOUNTANT.name());
+
+                            /* Notification API */
+                            auth.requestMatchers("/api/v1/notification/**").hasAnyRole(authenticatedRole);
+
+                            /* Design Detail */
+                            auth.requestMatchers("/api/v1/design-detail/**").hasAnyRole(authenticatedRole);
+
+                            /* Order API */
+                            auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
+                            auth.requestMatchers("/api/v1/order/get-order-by-brand-id/**").hasRole(RoleType.BRAND.name());
+
+                            /* Payment API */
+                            auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
+
+                            auth.requestMatchers(WHITE_LIST_URL).permitAll();
                             auth.anyRequest().permitAll();
                         }
                 )
