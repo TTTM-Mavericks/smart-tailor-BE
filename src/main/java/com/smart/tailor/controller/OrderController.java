@@ -181,12 +181,13 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_DETAIL_BY_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getOrderDetailByID( @PathVariable("orderID") String orderID) {
+    public ResponseEntity<ObjectNode> getOrderDetailByID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                         @PathVariable("orderID") String orderID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
             response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
-            var orderResponse = orderService.getOrderDetailByOrderID(orderID);
+            var orderResponse = orderService.getOrderDetailByOrderID(jwtToken, orderID);
             response.set("data", objectMapper.valueToTree(orderResponse));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {

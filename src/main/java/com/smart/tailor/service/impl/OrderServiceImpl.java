@@ -695,9 +695,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderCustomResponse getOrderDetailByOrderID(String orderID) throws Exception {
+    public OrderCustomResponse getOrderDetailByOrderID(String jwtToken, String orderID) throws Exception {
         try {
+            var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+            var parentOrderList = orderRepository.findParentOrderByUserID(userIDFromJwtToken);
+
+            boolean isAuthorized = parentOrderList
+                    .stream()
+                    .anyMatch(order -> order.getOrderID().equals(orderID));
+
+            if(!isAuthorized){
+                throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+            }
+
             var response = getOrderByOrderID(orderID);
+
 
             var paymentNewest = response.getPaymentList().stream().max(Comparator.comparing(PaymentResponse::getCreateDate));
 
