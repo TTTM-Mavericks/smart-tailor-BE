@@ -131,6 +131,21 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                             .build()
                             );
                         }
+                        case SUSPENDED -> {
+                            logger.error("INCASE SUSPENDED");
+                            /**
+                             * UPDATE STATUS TO DEPOSIT
+                             */
+                            logger.info("Change Status PROCESSING Order");
+                            orderService.changeOrderStatus(
+                                    OrderStatusUpdateRequest
+                                            .builder()
+                                            .orderID(order.getOrderID().toString())
+                                            .status(OrderStatus.PROCESSING.name())
+                                            .build()
+                            );
+//                            orderService.confirmOrder(order.getOrderID());
+                        }
                     }
                 } else {
                     if (orderStatus.equals(OrderStatus.PROCESSING)) {
@@ -142,6 +157,8 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                         .status(OrderStatus.SUSPENDED.name())
                                         .build()
                         );
+                    } else if (orderStatus.equals(OrderStatus.SUSPENDED)) {
+                        logger.info("Continue Status SUSPENDED");
                     } else {
                         logger.info("Change Status Delete Order");
                         orderService.changeOrderStatus(

@@ -317,6 +317,8 @@ public class APIConstant {
         public static final String CREATE_PAYMENT = "/create-payment";
         public static final String PAYMENT_INFO = "/payment-info";
         public static final String MANUAL_PAYMENT_INFO = "/manual-payment-info";
+        public static final String GET_PAYMENT_BY_USER_ID = "/get-payment-by-user-id";
+        public static final String GET_ALL_PAYMENT = "/get-all-payment";
         public static final String CONFIRM_PAYMENT = "/confirm-payment";
     }
 

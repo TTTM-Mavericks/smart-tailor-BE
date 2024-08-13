@@ -1,11 +1,7 @@
 package com.smart.tailor.utils;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -147,6 +143,11 @@ public class Utilities {
         return Base64.getEncoder().encode(bytesToEncode);
     }
 
+    public static String decodeBase64ToString(byte[] base64Bytes) {
+        byte[] decodedBytes = Base64.getDecoder().decode(base64Bytes);
+        return new String(decodedBytes);
+    }
+
 //    public static int convertStringToInt(String StringStr) {
 //        if (StringStr.equals("null")) {
 //            return 000000;
@@ -188,7 +189,7 @@ public class Utilities {
         }
     }
 
-    public static String generateCustomPrimaryKey(){
+    public static String generateCustomPrimaryKey() {
         String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         Random random = new Random();
         StringBuilder customerPrimaryKey = new StringBuilder();
@@ -227,7 +228,7 @@ public class Utilities {
         return "" + randChar1 + randChar2;
     }
 
-    public static boolean isValidCustomKey(String value){
+    public static boolean isValidCustomKey(String value) {
         Pattern pattern = Pattern.compile(
                 "^[a-zA-Z0-9]{2}" +     // 2 ký tự ngẫu nhiên từ chars
                         "\\d{2}" +              // HH
@@ -241,12 +242,12 @@ public class Utilities {
         return pattern.matcher(value).matches();
     }
 
-    public static BigDecimal roundToNearestThousand(BigDecimal value){
+    public static BigDecimal roundToNearestThousand(BigDecimal value) {
         // Truncate the decimal part
         value = value.setScale(0, RoundingMode.DOWN);
         BigDecimal thousand = BigDecimal.valueOf(1000);
         BigDecimal remainder = value.remainder(thousand);
-        if(remainder.compareTo(BigDecimal.valueOf(500)) >= 0){
+        if (remainder.compareTo(BigDecimal.valueOf(500)) >= 0) {
             return value.subtract(remainder).add(thousand);
         } else {
             return value.subtract(remainder);
