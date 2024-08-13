@@ -48,7 +48,13 @@ VALUES (GenerateCustomKeyString(), current_timestamp, null,
        (GenerateCustomKeyString(), current_timestamp, null,
         'The maximum shipping weight for an order is 20 kg', 'MAX_SHIPPING_WEIGHT', 'WEIGHT', true, 'KG', '20'),
        (GenerateCustomKeyString(), current_timestamp, null,
-        'Charge a 5% fee on each Order.', 'ORDER_FEE_PERCENTAGE', 'PERCENTAGE', true, 'PERCENT', '5');
+        'Charge a 5% fee on each Order.', 'ORDER_FEE_PERCENTAGE', 'PERCENTAGE', true, 'PERCENT', '5'),
+       (GenerateCustomKeyString(), current_timestamp, null,
+        'Rating reduction if order is canceled before it starts.', 'RATING_REDUCTION_BEFORE_START', 'FLOAT', true, 'SCORE',
+        '0.2'),
+       (GenerateCustomKeyString(), current_timestamp, null,
+        'Rating reduction if order is canceled after it starts.', 'RATING_REDUCTION_AFTER_START', 'FLOAT', true, 'SCORE',
+        '0.8');
 
 -- INSERT INTO SYSTEM IMAGE
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date, last_modified_date)

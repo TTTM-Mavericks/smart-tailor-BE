@@ -123,7 +123,6 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public void ratingBrand(String brandID, Float ratingScore, Float previousScoreRating) {
-        logger.info("Inside Rating Brand");
         var brand = findBrandById(brandID)
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
         var numberOfRatingsUpdate = brand.getNumberOfRatings() + 1;
@@ -173,5 +172,21 @@ public class BrandServiceImpl implements BrandService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public void ratingBrandCancelOrder(String brandID, Float ratingScore) {
+        var brand = findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
+        var numberOfRatingsUpdate = brand.getNumberOfRatings() + 1;
+        var totalRatingScoreUpdate = brand.getTotalRatingScore() - ratingScore;
+        if(totalRatingScoreUpdate <= 0) totalRatingScoreUpdate = 0;
+        var ratingUpdate = totalRatingScoreUpdate / numberOfRatingsUpdate;
+        brandRepository.updateBrandRatingAndScore(
+                Math.max(ratingUpdate, 0),
+                numberOfRatingsUpdate,
+                totalRatingScoreUpdate,
+                brandID
+        );
     }
 }

@@ -31,4 +31,6 @@ public interface BrandService {
     List<BrandImage> getBrandImage(String brandID);
 
     boolean changeBrandImageStatus(String imageId);
+
+    void ratingBrandCancelOrder(String brandID, Float ratingScore);
 }

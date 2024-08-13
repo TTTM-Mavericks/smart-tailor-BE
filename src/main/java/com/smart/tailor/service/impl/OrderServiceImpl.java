@@ -1352,6 +1352,12 @@ public class OrderServiceImpl implements OrderService {
                         var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
                         var sender = curBrand;
                         var recipient = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
+                        /*
+                            UPDATE BRAND RATING WHEN BRAND CANCEL ORDER AFTER ORDER START AND PENALTY
+                        */
+                        var ratingReductionAfterStart = Float.parseFloat(systemPropertiesService.getByName("RATING_REDUCTION_AFTER_START").getPropertyValue());
+                        brandService.ratingBrandCancelOrder(curBrand.getBrandID(), ratingReductionAfterStart);
+
                         paymentService.createPayOSPayment(
                                 PaymentRequest.builder()
                                         .paymentAmount(price)
@@ -1372,6 +1378,12 @@ public class OrderServiceImpl implements OrderService {
                                         .build()
                         );
                         logger.error("CREATE FINED SUCCESSFULLY");
+                    } else {
+                           /*
+                            UPDATE BRAND RATING WHEN BRAND CANCEL ORDER BEFORE ORDER START TO AVOID SPAM PICK ORDER
+                        */
+                        var ratingReductionBeforeStart = Float.parseFloat(systemPropertiesService.getByName("RATING_REDUCTION_BEFORE_START").getPropertyValue());
+                        brandService.ratingBrandCancelOrder(curBrand.getBrandID(), ratingReductionBeforeStart);
                     }
 
                     existedOrder.setDetailList(null);
