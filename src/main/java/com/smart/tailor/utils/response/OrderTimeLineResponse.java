@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class OrderTimeLineResponse {
+    private String estimatedDateStartDepositStage;
+
     private Integer estimatedQuantityFinishFirstStage;
 
     private String estimatedDateFinishFirstStage;
