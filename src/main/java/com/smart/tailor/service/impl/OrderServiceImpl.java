@@ -56,6 +56,7 @@ public class OrderServiceImpl implements OrderService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final GHTKShippingService ghtkShippingService;
     private final JwtService jwtService;
+    private final NotificationService notificationService;
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Value("${client.server.link}")
@@ -395,8 +396,7 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             boolean isFinish;
                             isFinish = true;
                             for (OrderResponse subOrder : subOrderList) {
@@ -702,8 +702,8 @@ public class OrderServiceImpl implements OrderService {
         boolean isAuthorized = parentOrderList
                 .stream()
                 .anyMatch(order -> order.getOrderID().equals(orderID));
-    
-        if(!isAuthorized){
+
+        if (!isAuthorized) {
             throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
 
@@ -729,7 +729,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderCustomResponse> getOrderByBrandID(String jwtToken, String brandID) throws Exception {
         var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
-        if(!userID.equals(brandID)){
+        if (!userID.equals(brandID)) {
             throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
         var listOrder = orderRepository.findOrderByBrandID(brandID);
@@ -744,7 +744,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderCustomResponse> getOrderByUserID(String jwtToken, String userID) throws Exception {
         var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
-        if(!userID.equals(userIDFromJwtToken)){
+        if (!userID.equals(userIDFromJwtToken)) {
             throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
         var orderList = orderRepository.findParentOrderByUserID(userID);
@@ -816,6 +816,21 @@ public class OrderServiceImpl implements OrderService {
 
                         // Save the updated sub-order status to the repository
                         orderRepository.save(subOrder);
+
+                        var sender = subOrderResponse.getEmployeeID();
+                        var brand = subOrderResponse.getBrand().getBrandID();
+
+                        notificationService.sendPrivateNotification(
+                                NotificationRequest
+                                        .builder()
+                                        .senderID(sender)
+                                        .recipientID(brand)
+                                        .action("CHANGE ORDER STATUS")
+                                        .type("REQUEST VIEW")
+                                        .targetID(subOrderResponse.getOrderID())
+                                        .message("Order status has been changed! Status: " + orderStatus.name())
+                                        .build()
+                        );
                     }
 
                     // Handle different current statuses of the parent order
@@ -1429,8 +1444,37 @@ public class OrderServiceImpl implements OrderService {
         var updatedOrder = orderRepository.save(existedOrder);
         if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
             getOrderByOrderID(existedOrder.getOrderID());
-        }
-        else {
+            var sender = existedOrder.getEmployee().getEmployeeID();
+            var cus = getOrderByOrderID(existedOrder.getOrderID()).getDesignResponse().getUser().getUserID();
+
+            notificationService.sendPrivateNotification(
+                    NotificationRequest
+                            .builder()
+                            .senderID(sender)
+                            .recipientID(cus)
+                            .action("CHANGE ORDER STATUS")
+                            .type("REQUEST VIEW")
+                            .targetID(existedOrder.getOrderID())
+                            .message("Order status has been changed! Status: " + orderStatus.name())
+                            .build()
+            );
+
+            sender = getOrderByOrderID(existedOrder.getOrderID()).getDesignResponse().getUser().getUserID();
+            cus = existedOrder.getEmployee().getEmployeeID();
+
+            notificationService.sendPrivateNotification(
+                    NotificationRequest
+                            .builder()
+                            .senderID(sender)
+                            .recipientID(cus)
+                            .action("CHANGE ORDER STATUS")
+                            .type("REQUEST VIEW")
+                            .targetID(existedOrder.getOrderID())
+                            .message("Order status has been changed! Status: " + orderStatus.name())
+                            .build()
+            );
+
+        } else {
             if (existedOrder.getParentOrder() != null)
                 getOrderByOrderID(existedOrder.getParentOrder().getOrderID());
         }
