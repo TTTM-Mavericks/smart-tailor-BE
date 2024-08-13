@@ -695,21 +695,29 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderCustomResponse getOrderDetailByOrderID(String orderID) throws Exception {
-        try {
-            var response = getOrderByOrderID(orderID);
+    public OrderCustomResponse getOrderDetailByOrderID(String jwtToken, String orderID) throws Exception {
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        var parentOrderList = orderRepository.findParentOrderByUserID(userIDFromJwtToken);
 
-            var paymentNewest = response.getPaymentList().stream().max(Comparator.comparing(PaymentResponse::getCreateDate));
-
-            List<PaymentResponse> paymentList = new ArrayList<>();
-            if (paymentNewest.isPresent() && !paymentNewest.get().getPaymentStatus())
-                paymentList.add(paymentNewest.get());
-
-            response.setPaymentList(paymentList);
-            return response;
-        } catch (Exception ex) {
-            throw ex;
+        boolean isAuthorized = parentOrderList
+                .stream()
+                .anyMatch(order -> order.getOrderID().equals(orderID));
+    
+        if(!isAuthorized){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
+
+        var response = getOrderByOrderID(orderID);
+
+
+        var paymentNewest = response.getPaymentList().stream().max(Comparator.comparing(PaymentResponse::getCreateDate));
+
+        List<PaymentResponse> paymentList = new ArrayList<>();
+        if (paymentNewest.isPresent() && !paymentNewest.get().getPaymentStatus())
+            paymentList.add(paymentNewest.get());
+
+        response.setPaymentList(paymentList);
+        return response;
     }
 
     @Transactional(readOnly = true)

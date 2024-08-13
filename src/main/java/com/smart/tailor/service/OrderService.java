@@ -22,7 +22,7 @@ public interface OrderService {
 
     OrderCustomResponse getOrderByOrderID(String orderID) throws Exception;
 
-    OrderCustomResponse getOrderDetailByOrderID(String orderID) throws Exception;
+    OrderCustomResponse getOrderDetailByOrderID(String jwtToken, String orderID) throws Exception;
 
     Optional<Order> getOrderById(String orderID);
 
