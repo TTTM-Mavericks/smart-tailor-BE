@@ -167,7 +167,7 @@ public class SecurityConfig {
                             auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
 
                             /* Payment API */
-                            auth.requestMatchers("/api/v1/payment/calculate-user-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/payment/calculate-payment-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
 
 

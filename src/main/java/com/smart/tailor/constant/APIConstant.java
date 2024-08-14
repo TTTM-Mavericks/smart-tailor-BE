@@ -326,7 +326,7 @@ public class APIConstant {
         public static final String GET_PAYMENT_BY_USER_ID = "/get-payment-by-user-id";
         public static final String GET_ALL_PAYMENT = "/get-all-payment";
         public static final String CONFIRM_PAYMENT = "/confirm-payment";
-        public static final String CALCULATE_PAYMENT_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-user-growth-percentage-for-current-and-previous-week";
+        public static final String CALCULATE_PAYMENT_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-payment-growth-percentage-for-current-and-previous-week";
     }
 
     /**
