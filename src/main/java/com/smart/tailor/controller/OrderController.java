@@ -174,7 +174,7 @@ public class OrderController {
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             response.put("status", -1);
-            response.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
+            response.put("message", ex.getMessage());
             logger.error("ERROR IN BRAND PICKING ORDER. ERROR MESSAGE: {}", ex.getMessage());
             return ResponseEntity.ok(response);
         }
