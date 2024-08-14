@@ -27,6 +27,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -57,6 +59,10 @@ public class OrderServiceImpl implements OrderService {
     private final GHTKShippingService ghtkShippingService;
     private final JwtService jwtService;
     private final NotificationService notificationService;
+    private final SizeExpertTailoringService sizeExpertTailoringService;
+    private final BrandLaborQuantityService brandLaborQuantityService;
+    private final PayOSService payOSService;
+    private static final BigDecimal PIXEL_TO_CENTIMETER = new BigDecimal("0.0264583");
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Value("${client.server.link}")
@@ -219,6 +225,258 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
+    private BigDecimal calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, String brandID) {
+        // Convert scales from pixels to centimeters
+        BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(PIXEL_TO_CENTIMETER);
+        BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(PIXEL_TO_CENTIMETER);
+
+        String materialID = itemMaskInfo.getMaterialID();
+        BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
+
+        // Calculate area in square meters
+        BigDecimal area = scaleX_Centimeter.multiply(scaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
+
+        // Calculate price, rounding up to the nearest whole number
+        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, RoundingMode.CEILING);
+
+        return price;
+    }
+
+    private BigDecimal calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, String brandID, BigDecimal ratio) {
+        BigDecimal width = BigDecimal.valueOf(partInfo.getWidth()).multiply(ratio); // in Centimeter
+        BigDecimal height = BigDecimal.valueOf(partInfo.getHeight()).multiply(ratio); // in Centimeter
+
+        String materialID = partInfo.getMaterialID();
+        BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
+
+        // Correct calculation
+        BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Keeping 10 decimal places for precision
+        BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, RoundingMode.CEILING); // Rounding up to nearest whole number
+
+        return price;
+    }
+
+    public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
+        var orderCustomResponse = getOrderByOrderID(parentOrderID);
+        var listSubOrders = getSubOrderByParentID(parentOrderID);
+        var designResponse = orderCustomResponse.getDesignResponse();
+        var expertTailoring = designResponse.getExpertTailoring();
+        List<PartOfDesignInformation> partOfDesignInformationList = new ArrayList<>();
+        List<ItemMaskInformation> itemMaskInformationList = new ArrayList<>();
+
+        designResponse.getPartOfDesign().forEach(partOfDesignResponse -> {
+            partOfDesignInformationList.add(PartOfDesignInformation
+                    .builder()
+                    .width(partOfDesignResponse.getWidth())
+                    .height(partOfDesignResponse.getHeight())
+                    .materialID(partOfDesignResponse.getMaterial().getMaterialID())
+                    .materialName(partOfDesignResponse.getMaterial().getMaterialName())
+                    .build());
+            partOfDesignResponse.getItemMasks().forEach(itemMaskResponse -> {
+                itemMaskInformationList.add(ItemMaskInformation
+                        .builder()
+                        .scaleX(itemMaskResponse.getScaleX())
+                        .scaleY(itemMaskResponse.getScaleY())
+                        .materialID(itemMaskResponse.getMaterial().getMaterialID())
+                        .materialName(itemMaskResponse.getMaterial().getMaterialName())
+                        .build());
+            });
+        });
+
+        // Get Min Weight and Max Weight of each Design
+        var minWeightParentOrder = designResponse.getMinWeight() * orderCustomResponse.getQuantity();
+        var maxWeightParentOrder = designResponse.getMaxWeight() * orderCustomResponse.getQuantity();
+        var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
+        var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
+
+        BigDecimal shippingFee = BigDecimal.valueOf(-1);
+
+        // Calculate Shipping fee based on Address and Weight of Customer
+        if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
+                orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
+
+            OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
+                    new OrderShippingRequest.OrderShippingDetailRequest(
+                            "344 Lê Văn Việt",
+                            "Hồ Chí Minh",
+                            "Thủ Đức",
+                            "Tăng Nhơn Phú B",
+                            orderCustomResponse.getAddress(),
+                            orderCustomResponse.getProvince(),
+                            orderCustomResponse.getDistrict(),
+                            orderCustomResponse.getWard(),
+                            averageWeightParentOrder
+                    );
+
+            var orderShippingRequest =
+                    OrderShippingRequest
+                            .builder()
+                            .order(orderShippingDetailRequest)
+                            .build();
+
+            var feeResponse = ghtkShippingService.calculateShippingFee(orderShippingRequest);
+            if (feeResponse != null && feeResponse.getSuccess()) {
+                shippingFee = Utilities.roundToNearestThousand(BigDecimal.valueOf(feeResponse.getFee()));
+            }
+        }
+
+        BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
+        var divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+        var maxQuantity = Integer.MIN_VALUE;
+        var minQuantity = Integer.MAX_VALUE;
+        List<BigDecimal> subOrderIncludeTwoStage = new ArrayList<>();
+        List<List<BigDecimal>> subOrderIncludeFourStage = new ArrayList<>();
+
+        List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
+        for (var subOrder : listSubOrders) {
+            List<DesignDetail> designDetailList = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
+
+            int totalQuantityOfSubOrder = designDetailList
+                    .stream()
+                    .mapToInt(DesignDetail::getQuantity)
+                    .sum();
+
+            BigDecimal totalPriceOfEachSubOrder = BigDecimal.ZERO;
+            maxQuantity = Math.max(maxQuantity, totalQuantityOfSubOrder);
+            minQuantity = Math.min(minQuantity, totalQuantityOfSubOrder);
+
+            Brand brand = null;
+            for (DesignDetail designDetail : designDetailList) {
+                brand = designDetail.getBrand();
+                var designDetailQuantity = BigDecimal.valueOf(designDetail.getQuantity());
+                var size = designDetail.getSize();
+
+                var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
+                        expertTailoring.getExpertTailoringID(),
+                        size.getSizeID()
+                );
+
+                var ratio = BigDecimal.valueOf(sizeExpertTailoring.getRatio());
+
+                // Calculate Total Price Of PartOfDesign of SubOrder
+                BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
+                for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
+                    totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio));
+                }
+
+                // Calculate Total Price Of ItemMask of SubOrder
+                BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
+                for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
+                    totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID()));
+                }
+
+                // Get Labor Quantity of Each Brand for SubOrder
+                var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
+                BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
+
+                totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
+            }
+            totalPriceOfEachSubOrder = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
+            BigDecimal brandDepositStage = BigDecimal.valueOf(-1);
+            BigDecimal brandFirstStage = BigDecimal.valueOf(-1);
+            BigDecimal brandSecondStage = BigDecimal.valueOf(-1);
+            if (maxQuantity < divideNumber) {
+                brandDepositStage = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
+                subOrderIncludeTwoStage.add(brandDepositStage);
+            } else {
+                brandDepositStage = totalPriceOfEachSubOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+                brandFirstStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+                brandSecondStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).subtract(brandFirstStage).setScale(0, RoundingMode.HALF_UP);
+
+                // Round Brand Price at Deposit, First, Second Stage to nearest Thousand
+                brandDepositStage = Utilities.roundToNearestThousand(brandDepositStage);
+                brandFirstStage = Utilities.roundToNearestThousand(brandFirstStage);
+                brandSecondStage = Utilities.roundToNearestThousand(brandSecondStage);
+
+                // Update Total Price Of SubOrder with new Nearest Stage of Deposit, First, Second Stage
+                totalPriceOfEachSubOrder = brandDepositStage.add(brandFirstStage).add(brandSecondStage);
+
+                List<BigDecimal> fourStage = new ArrayList<>();
+                fourStage.add(brandDepositStage);
+                fourStage.add(brandFirstStage);
+                fourStage.add(brandSecondStage);
+                subOrderIncludeFourStage.add(fourStage);
+            }
+
+            BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
+                    .builder()
+                    .brandID(brand.getBrandID())
+                    .subOrderID(subOrder.getOrderID())
+                    .brandPriceDeposit(brandDepositStage.toString())
+                    .brandPriceFirstStage(brandFirstStage.toString())
+                    .brandPriceSecondStage(brandSecondStage.toString())
+                    .build();
+            brandDetailPriceResponseList.add(brandDetailPriceResponse);
+
+            // Add Total Price Of SubOrder to ParentOrder
+            totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
+        }
+
+        // Get Order Fee Percentage to calculate Commission for Each Order
+        var orderFeePercentage = Integer.parseInt(systemPropertiesService.getByName("ORDER_FEE_PERCENTAGE").getPropertyValue());
+
+        // Calculate Commission by divide 100
+        BigDecimal commission = totalPriceOfParentOrder.multiply(BigDecimal.valueOf(orderFeePercentage).divide(BigDecimal.valueOf(100)));
+        commission = Utilities.roundToNearestThousand(commission);
+
+        BigDecimal customerDepositStage = BigDecimal.valueOf(-1);
+        BigDecimal customerFirstStage = BigDecimal.valueOf(-1);
+        BigDecimal customerSecondStage = BigDecimal.valueOf(-1);
+
+        // Case all subOrder have only two stage.
+        // CustomerDepositStage = sum of All Deposit Stage of SubOrder
+        if (minQuantity < divideNumber && maxQuantity < divideNumber) {
+            customerDepositStage = subOrderIncludeTwoStage
+                    .stream()
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // Case at least one SubOrder has two stage and one SubOrder has four stage
+            // CustomerDepositStage = sum of All Deposit Two Stage of SubOrder and all of 1/3 Deposit Four Stage of SubOrder
+            // CustomerFirstStage = CustomerSecondStage = sum all  1/3 Deposit Four Stage of SubOrder
+        } else if (minQuantity < divideNumber && maxQuantity >= divideNumber) {
+            customerDepositStage = subOrderIncludeTwoStage
+                    .stream()
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            customerFirstStage = BigDecimal.ZERO;
+            customerSecondStage = BigDecimal.ZERO;
+            for (List<BigDecimal> stage : subOrderIncludeFourStage) {
+                customerDepositStage = customerDepositStage.add(stage.get(0));
+                customerFirstStage = customerFirstStage.add(stage.get(1));
+                customerSecondStage = customerSecondStage.add(stage.get(2));
+            }
+
+            // Case all subOrder have 4 stage
+            // CustomerDepositStage = CustomerFirstStage = CustomerSecondStage = 1/3 Total Price
+        } else if (minQuantity >= divideNumber && maxQuantity >= divideNumber) {
+            customerDepositStage = totalPriceOfParentOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+            customerFirstStage = totalPriceOfParentOrder.subtract(customerDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+            customerSecondStage = totalPriceOfParentOrder.subtract(customerDepositStage).subtract(customerFirstStage).setScale(0, RoundingMode.HALF_UP);
+
+            // Round Brand Price at Deposit, First, Second Stage to nearest Thousand
+            customerDepositStage = Utilities.roundToNearestThousand(customerDepositStage);
+            customerFirstStage = Utilities.roundToNearestThousand(customerFirstStage);
+            customerSecondStage = Utilities.roundToNearestThousand(customerSecondStage);
+
+            // Update Total Price Of SubOrder with new Nearest Stage of Deposit, First, Second Stage
+            totalPriceOfParentOrder = customerDepositStage.add(customerFirstStage).add(customerSecondStage);
+        }
+
+        BigDecimal customerPriceDeposit = customerDepositStage.add(commission);
+        BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(commission);
+
+        return OrderDetailPriceResponse
+                .builder()
+                .totalPriceOfParentOrder(adjustedTotalPriceOfParentOrder.toString())
+                .customerCommissionFee(commission.toString())
+                .customerPriceDeposit(customerPriceDeposit.toString())
+                .customerPriceFirstStage(customerFirstStage.toString())
+                .customerSecondStage(customerSecondStage.toString())
+                .customerShippingFee(shippingFee.toString())
+                .brandDetailPriceResponseList(brandDetailPriceResponseList)
+                .build();
+    }
+
     @Override
     public OrderCustomResponse getOrderByOrderID(String orderID) throws Exception {
         try {
@@ -228,6 +486,9 @@ public class OrderServiceImpl implements OrderService {
                 throw new BadRequestException(MessageConstant.RESOURCE_NOT_FOUND + " with orderID: " + orderID);
             }
             if (order.getOrderType().equals("PARENT_ORDER")) {
+
+                var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
+
                 List<DesignDetail> designDetailList = detailRepository.findAllByOrderID(orderID);
                 List<DesignDetail> detailList = null;
                 if (!designDetailList.isEmpty()) {
@@ -241,6 +502,9 @@ public class OrderServiceImpl implements OrderService {
 //                order.setDetailList(detailList);
                 var status = order.getOrderStatus();
                 var paymentList = paymentService.findAllByOrderID(orderID);
+                if (!isOrderCompletelyPicked(orderID)) {
+                    return convertToOrderCustomResponse(order, detailList);
+                }
                 switch (status) {
                     case DEPOSIT -> {
                         logger.error("INCASE DEPOSIT");
@@ -329,13 +593,23 @@ public class OrderServiceImpl implements OrderService {
                                         ).findFirst();
                                         if (checkDeposited.isEmpty()) {
                                             logger.error("CREATE STAGE_1");
-                                            paymentService.createPayOSPayment(PaymentRequest.builder().orderID(orderID)
-
-                                                    .paymentSenderID(sender.getUserID()).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
-
-                                                    .paymentRecipientID(recipient.getUserID()).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
-
-                                                    .paymentType(PaymentType.STAGE_1).paymentAmount(order.getTotalPrice()).itemList(null).build());
+                                            paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(orderID)
+                                                            .paymentSenderID(sender.getUserID())
+                                                            .paymentSenderName(order.getBuyerName())
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
+                                                            .paymentRecipientID(recipient.getUserID())
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
+                                                            .paymentType(PaymentType.valueOf(calculatePrice.getCustomerPriceFirstStage()))
+                                                            .paymentAmount(order.getTotalPrice())
+                                                            .itemList(null)
+                                                            .build()
+                                            );
 //                                            for (OrderResponse subOrderResponse : subOrderList) {
 //                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
 //                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
@@ -359,13 +633,23 @@ public class OrderServiceImpl implements OrderService {
                                                 && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                         if (checkDeposited.isEmpty()) {
                                             logger.error("CREATE STAGE_2");
-                                            paymentService.createPayOSPayment(PaymentRequest.builder().orderID(orderID)
-
-                                                    .paymentSenderID(sender.getUserID()).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
-
-                                                    .paymentRecipientID(recipient.getUserID()).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
-
-                                                    .paymentType(PaymentType.STAGE_2).paymentAmount(order.getTotalPrice()).itemList(null).build());
+                                            paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(orderID)
+                                                            .paymentSenderID(sender.getUserID())
+                                                            .paymentSenderName(order.getBuyerName())
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
+                                                            .paymentRecipientID(recipient.getUserID())
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
+                                                            .paymentType(PaymentType.STAGE_2)
+                                                            .paymentAmount(Integer.valueOf(calculatePrice.getCustomerSecondStage()))
+                                                            .itemList(null)
+                                                            .build()
+                                            );
 //                                            for (OrderResponse subOrderResponse : subOrderList) {
 //                                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
 //                                                if (!subOrder.getOrderStatus().equals(OrderStatus.COMPLETED)) {
@@ -410,13 +694,25 @@ public class OrderServiceImpl implements OrderService {
                                         && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                 if (checkDeposited.isEmpty()) {
                                     logger.error("CREATE COMPLETE_ORDER");
-                                    paymentService.createPayOSPayment(PaymentRequest.builder().orderID(orderID)
-
-                                            .paymentSenderID(sender.getUserID()).paymentSenderName(order.getBuyerName()).paymentSenderBankCode("").paymentSenderBankNumber("")
-
-                                            .paymentRecipientID(recipient.getUserID()).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
-
-                                            .paymentType(PaymentType.COMPLETED_ORDER).paymentAmount(order.getTotalPrice()).itemList(null).build());
+                                    paymentService.createPayOSPayment(
+                                            PaymentRequest
+                                                    .builder()
+                                                    .orderID(orderID)
+                                                    .paymentSenderID(sender.getUserID())
+                                                    .paymentSenderName(order.getBuyerName())
+                                                    .paymentSenderBankCode("")
+                                                    .paymentSenderBankNumber("")
+                                                    .paymentRecipientID(recipient.getUserID())
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("OCB")
+                                                    .paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentType(PaymentType.COMPLETED_ORDER)
+                                                    .paymentAmount(
+                                                            Integer.parseInt(calculatePrice.getTotalPriceOfParentOrder()) - Integer.parseInt(calculatePrice.getCustomerPriceDeposit())
+                                                    )
+                                                    .itemList(null)
+                                                    .build()
+                                    );
                                 }
                                 logger.info("Change Status PROCESSING Order");
                                 changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(orderID).status(OrderStatus.COMPLETED.name()).build());
@@ -427,6 +723,13 @@ public class OrderServiceImpl implements OrderService {
                         var subOrderList = getSubOrderByParentID(orderID);
                         for (var subOrderResponse : subOrderList) {
                             var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                            var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                    .stream()
+                                    .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
+                                    .findFirst()
+                                    .orElseThrow(() -> {
+                                        return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND);
+                                    });
 //                            paymentService.createManualPayment(
 //                                    PaymentRequest
 //                                            .builder()
@@ -509,9 +812,21 @@ public class OrderServiceImpl implements OrderService {
                                         .paymentRecipientID(
                                                 subOrder.getDetailList().get(0)
                                                         .getBrand().getBrandID()
-                                        ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
-
-                                        .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
+                                        )
+                                        .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                        .paymentRecipientBankCode("OCB")
+                                        .paymentRecipientBankNumber("0163100007285002")
+                                        .paymentType(PaymentType.BRAND_INVOICE)
+                                        .paymentAmount(
+                                                Integer.parseInt(subPrice.getBrandPriceDeposit())
+                                                        +
+                                                        Integer.parseInt(subPrice.getBrandPriceFirstStage())
+                                                        +
+                                                        Integer.parseInt(subPrice.getBrandPriceSecondStage())
+                                        )
+                                        .itemList(null)
+                                        .build()
+                                );
                             }
                         }
                     }
@@ -539,6 +854,13 @@ public class OrderServiceImpl implements OrderService {
                         switch (stage) {
                             case 0 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
+                                    var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                            .stream()
+                                            .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
+                                            .findFirst()
+                                            .orElseThrow(() -> {
+                                                return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND);
+                                            });
                                     if (
                                             subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_FIRST_STAGE)
                                                     ||
@@ -572,13 +894,18 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentSenderName("")
                                                     .paymentSenderBankCode("")
                                                     .paymentSenderBankNumber("")
-
                                                     .paymentRecipientID(
                                                             subOrder.getDetailList().get(0)
                                                                     .getBrand().getBrandID()
-                                                    ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
-
-                                                    .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
+                                                    )
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("OCB")
+                                                    .paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentType(PaymentType.BRAND_INVOICE)
+                                                    .paymentAmount(Integer.valueOf(subPrice.getBrandPriceDeposit()))
+                                                    .itemList(null)
+                                                    .build()
+                                            );
                                         }
                                         changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(String.valueOf(subOrder.getOrderID())).status(OrderStatus.CANCEL.name()).build());
                                     }
@@ -586,6 +913,13 @@ public class OrderServiceImpl implements OrderService {
                             }
                             case 1 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
+                                    var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                            .stream()
+                                            .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
+                                            .findFirst()
+                                            .orElseThrow(() -> {
+                                                return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND);
+                                            });
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.FINISH_SECOND_STAGE) ||
                                             subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
@@ -616,13 +950,18 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentSenderName("")
                                                     .paymentSenderBankCode("")
                                                     .paymentSenderBankNumber("")
-
                                                     .paymentRecipientID(
                                                             subOrder.getDetailList().get(0)
                                                                     .getBrand().getBrandID()
-                                                    ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
-
-                                                    .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
+                                                    )
+                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("OCB")
+                                                    .paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentType(PaymentType.BRAND_INVOICE)
+                                                    .paymentAmount(Integer.valueOf(subPrice.getBrandPriceFirstStage()))
+                                                    .itemList(null)
+                                                    .build()
+                                            );
                                         }
                                         changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(String.valueOf(subOrder.getOrderID())).status(OrderStatus.CANCEL.name()).build());
                                     }
@@ -630,6 +969,13 @@ public class OrderServiceImpl implements OrderService {
                             }
                             case 2 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
+                                    var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                            .stream()
+                                            .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
+                                            .findFirst()
+                                            .orElseThrow(() -> {
+                                                return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND);
+                                            });
                                     if (subOrderResponse.getOrderStatus().equals(OrderStatus.COMPLETED)) {
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
 //                                        paymentService.createManualPayment(
@@ -659,13 +1005,17 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentSenderName("")
                                                     .paymentSenderBankCode("")
                                                     .paymentSenderBankNumber("")
-
                                                     .paymentRecipientID(
                                                             subOrder.getDetailList().get(0)
                                                                     .getBrand().getBrandID()
-                                                    ).paymentRecipientName("NGUYEN HOANG LAM TRUONG").paymentRecipientBankCode("OCB").paymentRecipientBankNumber("0163100007285002")
-
-                                                    .paymentType(PaymentType.BRAND_INVOICE).paymentAmount(subOrder.getTotalPrice()).itemList(null).build());
+                                                    ).paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                    .paymentRecipientBankCode("OCB")
+                                                    .paymentRecipientBankNumber("0163100007285002")
+                                                    .paymentType(PaymentType.BRAND_INVOICE)
+                                                    .paymentAmount(Integer.valueOf(subPrice.getBrandPriceSecondStage()))
+                                                    .itemList(null)
+                                                    .build()
+                                            );
                                         }
                                         changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(String.valueOf(subOrder.getOrderID())).status(OrderStatus.CANCEL.name()).build());
                                     }
@@ -698,7 +1048,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderCustomResponse getOrderDetailByOrderID(String jwtToken, String orderID) throws Exception {
         var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
         var parentOrderList = orderRepository.getParentOrderByUserID(userIDFromJwtToken);
-
+        updatePayOS();
         boolean isAuthorized = parentOrderList
                 .stream()
                 .anyMatch(order -> order.getOrderID().equals(orderID));
@@ -1104,7 +1454,15 @@ public class OrderServiceImpl implements OrderService {
                                     }
 
                                     if (isStart) {
+                                        var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
                                         for (var subOrderResponse : subOrderList) {
+                                            var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                                    .stream()
+                                                    .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
+                                                    .findFirst()
+                                                    .orElseThrow(() -> {
+                                                        return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND);
+                                                    });
                                             var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
                                             if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                                 logger.error("CREATE BRAND TRANS");
@@ -1132,7 +1490,7 @@ public class OrderServiceImpl implements OrderService {
 
                                                                 .paymentType(PaymentType.BRAND_INVOICE)
                                                                 .paymentAmount(
-                                                                        subOrder.getTotalPrice()
+                                                                        Integer.valueOf(subPrice.getBrandPriceDeposit())
                                                                 )
                                                                 .itemList(null)
                                                                 .build()
@@ -1170,8 +1528,17 @@ public class OrderServiceImpl implements OrderService {
                                         logger.error("recipient: {}", recipient.getUserID());
                                     }
                                 }
-                                case 1, 2 -> {
+                                case 1 -> {
+                                    var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
                                     for (var subOrderResponse : subOrderList) {
+                                        var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                                .stream()
+                                                .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
+                                                .findFirst()
+                                                .orElseThrow(() -> {
+                                                    return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND);
+                                                });
+
                                         var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
                                         if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                             paymentService.createPayOSPayment(
@@ -1197,7 +1564,51 @@ public class OrderServiceImpl implements OrderService {
 
                                                             .paymentType(PaymentType.BRAND_INVOICE)
                                                             .paymentAmount(
-                                                                    subOrder.getTotalPrice()
+                                                                    Integer.valueOf(subPrice.getBrandPriceFirstStage())
+                                                            )
+                                                            .itemList(null)
+                                                            .build()
+                                            );
+                                        }
+                                    }
+                                }
+                                case 2 -> {
+                                    var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
+                                    for (var subOrderResponse : subOrderList) {
+                                        var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                                .stream()
+                                                .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
+                                                .findFirst()
+                                                .orElseThrow(() -> {
+                                                    return new ItemNotFoundException(MessageConstant.RESOURCE_NOT_FOUND);
+                                                });
+
+                                        var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+                                        if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                                            paymentService.createPayOSPayment(
+                                                    PaymentRequest
+                                                            .builder()
+                                                            .orderID(subOrder.getOrderID())
+
+                                                            .paymentSenderID(
+                                                                    userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+                                                                            .getUserID()
+                                                            )
+                                                            .paymentSenderName("")
+                                                            .paymentSenderBankCode("")
+                                                            .paymentSenderBankNumber("")
+
+                                                            .paymentRecipientID(
+                                                                    subOrder.getDetailList().get(0)
+                                                                            .getBrand().getBrandID()
+                                                            )
+                                                            .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+                                                            .paymentRecipientBankCode("OCB")
+                                                            .paymentRecipientBankNumber("0163100007285002")
+
+                                                            .paymentType(PaymentType.BRAND_INVOICE)
+                                                            .paymentAmount(
+                                                                    Integer.valueOf(subPrice.getBrandPriceSecondStage())
                                                             )
                                                             .itemList(null)
                                                             .build()
@@ -1956,7 +2367,7 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .map(DesignDetail::getBrand)
                 .findFirst()
-                .orElseThrow(() ->  new ItemNotFoundException("Can not find Brand with SubOrderID: " + subOrderID));
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand with SubOrderID: " + subOrderID));
 
         // Get Brand Productivity Per Day
         var systemPropertiesResponse = systemPropertiesService.getByName("BRAND_PRODUCTIVITY");
@@ -1964,9 +2375,9 @@ public class OrderServiceImpl implements OrderService {
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
-        if(subOrderQuantity < divideNumber){
+        if (subOrderQuantity < divideNumber) {
             var maximumDateAtCompleteStage = (int) Math.ceil((subOrder.getQuantity() * 1.0) / Integer.parseInt(brandProductivity.getBrandPropertyValue()));
-            if(listPayment.isEmpty()){
+            if (listPayment.isEmpty()) {
                 return OrderTimeLineResponse
                         .builder()
                         .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
@@ -1986,7 +2397,7 @@ public class OrderServiceImpl implements OrderService {
                         .filter(payment -> payment.getPaymentType().toString().equals(PaymentType.DEPOSIT.name()))
                         .findFirst();
 
-                if(customerDepositPayment.get().getCreateDate().isBefore(parentOrder.getExpectedStartDate())){
+                if (customerDepositPayment.get().getCreateDate().isBefore(parentOrder.getExpectedStartDate())) {
                     return OrderTimeLineResponse
                             .builder()
                             .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
@@ -2017,7 +2428,7 @@ public class OrderServiceImpl implements OrderService {
             var maximumDateAtSecondStage = (int) Math.ceil((subOrder.getQuantity() * 2.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue()));
             var maximumDateAtCompleteStage = (int) Math.ceil((subOrder.getQuantity() * 1.0) / Integer.parseInt(brandProductivity.getBrandPropertyValue()));
 
-            if(listPayment.isEmpty()){
+            if (listPayment.isEmpty()) {
                 return OrderTimeLineResponse
                         .builder()
                         .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
@@ -2047,24 +2458,24 @@ public class OrderServiceImpl implements OrderService {
                 var expectedStartDepositSubOrder = parentOrder.getExpectedStartDate();
                 // Check Customer Payment before Expected Start Date of Order
                 // Customer Deposit Payment for Period of Deposit -> Stage 1
-                if(customerDepositPayment.isPresent()){
-                    if(customerDepositPayment.get().getCreateDate().isAfter(parentOrder.getExpectedStartDate())){
+                if (customerDepositPayment.isPresent()) {
+                    if (customerDepositPayment.get().getCreateDate().isAfter(parentOrder.getExpectedStartDate())) {
                         expectedStartDepositSubOrder = customerDepositPayment.get().getCreateDate();
                     }
                 }
                 var expectedStartFirstStageSubOrder = expectedStartDepositSubOrder.plusDays(maximumDateAtFirstStage);
 
                 // Customer First Stage Payment for Period of Stage 1 -> Stage 2
-                if(customerFirstStagePayment.isPresent()){
-                    if(customerFirstStagePayment.get().getCreateDate().isAfter(expectedStartFirstStageSubOrder)){
+                if (customerFirstStagePayment.isPresent()) {
+                    if (customerFirstStagePayment.get().getCreateDate().isAfter(expectedStartFirstStageSubOrder)) {
                         expectedStartFirstStageSubOrder = customerFirstStagePayment.get().getCreateDate();
                     }
                 }
                 var expectedStartSecondStageSubOrder = expectedStartFirstStageSubOrder.plusDays(maximumDateAtSecondStage - maximumDateAtFirstStage);
 
                 // Customer Second Stage Payment for Period of Stage 2 -> Complete Stage
-                if(customerSecondStagePayment.isPresent()){
-                    if(customerSecondStagePayment.get().getCreateDate().isAfter(expectedStartSecondStageSubOrder)){
+                if (customerSecondStagePayment.isPresent()) {
+                    if (customerSecondStagePayment.get().getCreateDate().isAfter(expectedStartSecondStageSubOrder)) {
                         expectedStartSecondStageSubOrder = customerSecondStagePayment.get().getCreateDate();
                     }
                 }
@@ -2138,5 +2549,29 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Optional<Order> getSubOrderByOrderIDAndBrandID(String orderID, String brandID) {
         return orderRepository.getSubOrderByOrderIDAndBrandID(orderID, brandID);
+    }
+
+    public void updatePayOS() throws Exception {
+        logger.info("Inside Method updatePayOS");
+        var paymentList = paymentService.getAllPayment();
+        for (Payment payment : paymentList) {
+            if (payment != null) {
+                if (payment.getPaymentType() != null) {
+                    PayOSResponse payOS = null;
+                    if (payment.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
+                        payOS = payOSService.getBrandPaymentInfo(payment.getPaymentCode());
+                    } else {
+                        if (payment.getPaymentType().equals(PaymentType.ORDER_REFUND)) {
+                            payOS = payOSService.getRefundPaymentInfo(payment.getPaymentCode());
+                        } else
+                            payOS = payOSService.getPaymentInfo(payment.getPaymentCode());
+                    }
+                    if (payOS != null) {
+                        payment.setPaymentStatus(payOS.getData().getStatus().equals("PAID"));
+                        paymentService.updatePayment(payment);
+                    }
+                }
+            }
+        }
     }
 }

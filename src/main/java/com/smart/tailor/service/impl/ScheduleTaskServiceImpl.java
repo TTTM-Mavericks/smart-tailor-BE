@@ -102,6 +102,11 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                              * UPDATE STATUS TO DEPOSIT
                              */
                             logger.info("Change Status Start Order");
+                            var price = detailService.calculateTotalPriceForSpecificOrder(orderResponse.getOrderID());
+                            order.setTotalPrice(
+                                    Integer.valueOf(price.getTotalPriceOfParentOrder())
+                            );
+                            orderService.updateOrder(order);
                             orderService.changeOrderStatus(
                                     OrderStatusUpdateRequest
                                             .builder()
@@ -126,7 +131,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                                             .paymentRecipientBankNumber("0163100007285002")
 
                                             .paymentType(PaymentType.DEPOSIT)
-                                            .paymentAmount(order.getTotalPrice())
+                                            .paymentAmount(Integer.valueOf(price.getCustomerPriceDeposit()))
                                             .itemList(null)
                                             .build()
                             );
