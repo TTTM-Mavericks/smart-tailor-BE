@@ -68,4 +68,6 @@ public interface OrderService {
     Optional<Order> getSubOrderByOrderIDAndBrandID(String orderID, String brandID);
 
     OrderStatusDetailResponse getAllOrderStatusDetailResponse();
+
+    Float calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
 }

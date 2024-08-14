@@ -304,4 +304,14 @@ public class OrderController {
         response.set("data", objectMapper.valueToTree(orderDetailShippingResponse));
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(OrderAPI.CALCULATE_ORDER_STATUS_DETAIL_GROWTH_PERCENTAGE)
+    public ResponseEntity<ObjectNode> calculateOrderStatusDetailGrowthPercentage() {
+        ObjectNode response = objectMapper.createObjectNode();
+        Float growthPercentage = orderService.calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Order Status Detail Growth Percentage Calculated Successfully");
+        response.put("data", growthPercentage);
+        return ResponseEntity.ok(response);
+    }
 }

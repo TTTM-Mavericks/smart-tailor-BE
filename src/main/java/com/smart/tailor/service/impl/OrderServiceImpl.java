@@ -2618,4 +2618,30 @@ public class OrderServiceImpl implements OrderService {
                 .orderStatusDetailList(orderStatusDetailList)
                 .build();
     }
+
+    @Override
+    public Float calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
+        var totalParentOrder = orderRepository.getAllParentOrder();
+
+        var currentMonthOrderCount = totalParentOrder
+                .stream()
+                .filter(order -> order.getCreateDate().getMonth().equals(LocalDateTime.now().getMonth()) && !order.getCreateDate().isAfter(LocalDateTime.now()))
+                .count();
+
+        var previousMonthOrderCount  = totalParentOrder
+                .stream()
+                .filter(order -> order.getCreateDate().getMonth().equals(LocalDateTime.now().minusMonths(1).getMonth()))
+                .count();
+
+        if (previousMonthOrderCount == 0) {
+            return currentMonthOrderCount > 0 ? 100.0f : 0.0f;
+        }
+
+        float growthPercentage = ((float) (currentMonthOrderCount - previousMonthOrderCount) / previousMonthOrderCount) * 100.0f;
+
+        return BigDecimal
+                .valueOf(growthPercentage)
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
+    }
 }
