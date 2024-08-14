@@ -270,6 +270,15 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(OrderAPI.ORDER_TIME_LINE_BY_SUB_ORDER_ID + "/{subOrderID}")
+    public ResponseEntity<ObjectNode> orderTimeLineSubOrderID( @PathVariable("subOrderID") String subOrderID) {
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Order Time Line by Sub Order ID Successfully");
+        response.set("data", objectMapper.valueToTree(orderService.getOrderTimeLineBySubOrderID(subOrderID)));
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(OrderAPI.GET_ORDER_SHIPPING_DETAIL_BY_LABEL_ID + "/{labelID}")
     public ResponseEntity<ObjectNode> getOrderDetailShippingResponseByLabelID( @PathVariable("labelID") String labelID) {
         ObjectNode response = objectMapper.createObjectNode();

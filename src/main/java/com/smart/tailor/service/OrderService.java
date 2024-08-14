@@ -58,6 +58,8 @@ public interface OrderService {
 
     OrderTimeLineResponse getOrderTimeLineByParentOrderID(String parentOrderID);
 
+    OrderTimeLineResponse getOrderTimeLineBySubOrderID(String subOrderID);
+
     List<FullOrderResponse> getFullProp() throws JsonProcessingException;
 
     List<FullOrderResponse> getFullPropByBrandID(String brandID) throws JsonProcessingException;

@@ -160,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getParentOrderByDesignID(String designID) throws Exception {
-        List<Order> orderList = orderRepository.findParentOrderByDesignID(designID);
+        List<Order> orderList = orderRepository.getParentOrderByDesignID(designID);
         List<OrderResponse> orderResponse = new ArrayList<>();
         for (Order order : orderList) {
             var response = orderMapper.mapToOrderResponse(order);
@@ -697,7 +697,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderCustomResponse getOrderDetailByOrderID(String jwtToken, String orderID) throws Exception {
         var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
-        var parentOrderList = orderRepository.findParentOrderByUserID(userIDFromJwtToken);
+        var parentOrderList = orderRepository.getParentOrderByUserID(userIDFromJwtToken);
 
         boolean isAuthorized = parentOrderList
                 .stream()
@@ -732,7 +732,7 @@ public class OrderServiceImpl implements OrderService {
         if (!userID.equals(brandID)) {
             throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
-        var listOrder = orderRepository.findOrderByBrandID(brandID);
+        var listOrder = orderRepository.getOrderByBrandID(brandID);
         List<OrderCustomResponse> responseList = new ArrayList<>();
         for (Order o : listOrder) {
             responseList.add(getOrderByOrderID(o.getOrderID()));
@@ -747,7 +747,7 @@ public class OrderServiceImpl implements OrderService {
         if (!userID.equals(userIDFromJwtToken)) {
             throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
-        var orderList = orderRepository.findParentOrderByUserID(userID);
+        var orderList = orderRepository.getParentOrderByUserID(userID);
         List<OrderCustomResponse> responseList = new ArrayList<>();
         for (Order o : orderList) {
             responseList.add(getOrderByOrderID(o.getOrderID()));
@@ -1914,6 +1914,7 @@ public class OrderServiceImpl implements OrderService {
         if (maximumQuantityOfSubOrder < divideNumber) {
             return OrderTimeLineResponse
                     .builder()
+                    .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
                     .estimatedQuantityFinishFirstStage(0)
                     .estimatedDateFinishFirstStage(null)
                     .estimatedQuantityFinishSecondStage(0)
@@ -1925,6 +1926,7 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderTimeLineResponse
                 .builder()
+                .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
                 .estimatedQuantityFinishFirstStage(Utilities.roundToNearestHalf(parentOrder.getQuantity() * 1.0 / 3))
                 .estimatedDateFinishFirstStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtFirstStage)))
                 .estimatedQuantityFinishSecondStage(Utilities.roundToNearestHalf(parentOrder.getQuantity() * 2.0 / 3))
@@ -1932,6 +1934,154 @@ public class OrderServiceImpl implements OrderService {
                 .estimatedQuantityFinishCompleteStage(parentOrder.getQuantity())
                 .estimatedDateFinishCompleteStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage)))
                 .build();
+    }
+
+    @Override
+    public OrderTimeLineResponse getOrderTimeLineBySubOrderID(String subOrderID) {
+        var subOrder = getOrderById(subOrderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find SubOrder with SubOrderID: " + subOrderID));
+
+        var parentOrder = orderRepository.getParentOrderBySubOrderID(subOrderID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find ParentOrder with SubOrderID: " + subOrderID));
+
+        var listPayment = paymentService.findAllByOrderID(parentOrder.getOrderID());
+
+        // Compare SubOrder Quantity and Divide Number Quantity
+        var divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+        var subOrderQuantity = subOrder.getQuantity();
+
+        // Get Information Brand take part in SubOrder
+        var designDetail = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
+        var brand = designDetail
+                .stream()
+                .map(DesignDetail::getBrand)
+                .findFirst()
+                .orElseThrow(() ->  new ItemNotFoundException("Can not find Brand with SubOrderID: " + subOrderID));
+
+        // Get Brand Productivity Per Day
+        var systemPropertiesResponse = systemPropertiesService.getByName("BRAND_PRODUCTIVITY");
+        var brandProductivity = brandPropertiesService.getByBrandIDAndPropertyID(brand.getBrandID(), systemPropertiesResponse.getPropertyID());
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+        if(subOrderQuantity < divideNumber){
+            var maximumDateAtCompleteStage = (int) Math.ceil((subOrder.getQuantity() * 1.0) / Integer.parseInt(brandProductivity.getBrandPropertyValue()));
+            if(listPayment.isEmpty()){
+                return OrderTimeLineResponse
+                        .builder()
+                        .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
+                        .estimatedQuantityFinishFirstStage(0)
+                        .estimatedDateFinishFirstStage(null)
+                        .estimatedQuantityFinishSecondStage(0)
+                        .estimatedDateFinishSecondStage(null)
+                        .estimatedQuantityFinishCompleteStage(parentOrder.getQuantity())
+                        .estimatedDateFinishCompleteStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage)))
+                        .build();
+            } else {
+                // Update TimeLine Along With Latest Payment of Customer
+                // Check Whether Customer Payment Before The Estimated Date at Deposit Stage or not?
+                // If Before Expected Start Deposit Stage, The TimeLine Of SubOrder still remains
+                var customerDepositPayment = listPayment
+                        .stream()
+                        .filter(payment -> payment.getPaymentType().toString().equals(PaymentType.DEPOSIT.name()))
+                        .findFirst();
+
+                if(customerDepositPayment.get().getCreateDate().isBefore(parentOrder.getExpectedStartDate())){
+                    return OrderTimeLineResponse
+                            .builder()
+                            .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
+                            .estimatedQuantityFinishFirstStage(0)
+                            .estimatedDateFinishFirstStage(null)
+                            .estimatedQuantityFinishSecondStage(0)
+                            .estimatedDateFinishSecondStage(null)
+                            .estimatedQuantityFinishCompleteStage(parentOrder.getQuantity())
+                            .estimatedDateFinishCompleteStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage)))
+                            .build();
+                }
+                // If After Expected Start Deposit Stage, The TimeLine Of SubOrder Have to Start With DateTime Customer Payment
+                else {
+                    return OrderTimeLineResponse
+                            .builder()
+                            .estimatedDateStartDepositStage(dateTimeFormatter.format(customerDepositPayment.get().getCreateDate()))
+                            .estimatedQuantityFinishFirstStage(0)
+                            .estimatedDateFinishFirstStage(null)
+                            .estimatedQuantityFinishSecondStage(0)
+                            .estimatedDateFinishSecondStage(null)
+                            .estimatedQuantityFinishCompleteStage(parentOrder.getQuantity())
+                            .estimatedDateFinishCompleteStage(dateTimeFormatter.format(customerDepositPayment.get().getCreateDate().plusDays(maximumDateAtCompleteStage)))
+                            .build();
+                }
+            }
+        } else {
+            var maximumDateAtFirstStage = (int) Math.ceil((subOrder.getQuantity() * 1.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue()));
+            var maximumDateAtSecondStage = (int) Math.ceil((subOrder.getQuantity() * 2.0 / 3) / Integer.parseInt(brandProductivity.getBrandPropertyValue()));
+            var maximumDateAtCompleteStage = (int) Math.ceil((subOrder.getQuantity() * 1.0) / Integer.parseInt(brandProductivity.getBrandPropertyValue()));
+
+            if(listPayment.isEmpty()){
+                return OrderTimeLineResponse
+                        .builder()
+                        .estimatedDateStartDepositStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate()))
+                        .estimatedQuantityFinishFirstStage(Utilities.roundToNearestHalf(subOrder.getQuantity() * 1.0 / 3))
+                        .estimatedDateFinishFirstStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtFirstStage)))
+                        .estimatedQuantityFinishSecondStage(Utilities.roundToNearestHalf(subOrder.getQuantity() * 2.0 / 3))
+                        .estimatedDateFinishSecondStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtSecondStage)))
+                        .estimatedQuantityFinishCompleteStage(subOrder.getQuantity())
+                        .estimatedDateFinishCompleteStage(dateTimeFormatter.format(parentOrder.getExpectedStartDate().plusDays(maximumDateAtCompleteStage)))
+                        .build();
+            } else {
+                var customerDepositPayment = listPayment
+                        .stream()
+                        .filter(payment -> payment.getPaymentType().toString().equals(PaymentType.DEPOSIT.name()))
+                        .findFirst();
+
+                var customerFirstStagePayment = listPayment
+                        .stream()
+                        .filter(payment -> payment.getPaymentType().toString().equals(PaymentType.STAGE_1.name()))
+                        .findFirst();
+
+                var customerSecondStagePayment = listPayment
+                        .stream()
+                        .filter(payment -> payment.getPaymentType().toString().equals(PaymentType.STAGE_2.name()))
+                        .findFirst();
+
+                var expectedStartDepositSubOrder = parentOrder.getExpectedStartDate();
+                // Check Customer Payment before Expected Start Date of Order
+                // Customer Deposit Payment for Period of Deposit -> Stage 1
+                if(customerDepositPayment.isPresent()){
+                    if(customerDepositPayment.get().getCreateDate().isAfter(parentOrder.getExpectedStartDate())){
+                        expectedStartDepositSubOrder = customerDepositPayment.get().getCreateDate();
+                    }
+                }
+                var expectedStartFirstStageSubOrder = expectedStartDepositSubOrder.plusDays(maximumDateAtFirstStage);
+
+                // Customer First Stage Payment for Period of Stage 1 -> Stage 2
+                if(customerFirstStagePayment.isPresent()){
+                    if(customerFirstStagePayment.get().getCreateDate().isAfter(expectedStartFirstStageSubOrder)){
+                        expectedStartFirstStageSubOrder = customerFirstStagePayment.get().getCreateDate();
+                    }
+                }
+                var expectedStartSecondStageSubOrder = expectedStartFirstStageSubOrder.plusDays(maximumDateAtSecondStage - maximumDateAtFirstStage);
+
+                // Customer Second Stage Payment for Period of Stage 2 -> Complete Stage
+                if(customerSecondStagePayment.isPresent()){
+                    if(customerSecondStagePayment.get().getCreateDate().isAfter(expectedStartSecondStageSubOrder)){
+                        expectedStartSecondStageSubOrder = customerSecondStagePayment.get().getCreateDate();
+                    }
+                }
+                var expectedCompleteStageSubOrder = expectedStartSecondStageSubOrder.plusDays(maximumDateAtCompleteStage - maximumDateAtSecondStage);
+
+                return OrderTimeLineResponse
+                        .builder()
+                        .estimatedDateStartDepositStage(dateTimeFormatter.format(expectedStartDepositSubOrder))
+                        .estimatedQuantityFinishFirstStage(Utilities.roundToNearestHalf(subOrder.getQuantity() * 1.0 / 3))
+                        .estimatedDateFinishFirstStage(dateTimeFormatter.format(expectedStartFirstStageSubOrder))
+                        .estimatedQuantityFinishSecondStage(Utilities.roundToNearestHalf(subOrder.getQuantity() * 2.0 / 3))
+                        .estimatedDateFinishSecondStage(dateTimeFormatter.format(expectedStartSecondStageSubOrder))
+                        .estimatedQuantityFinishCompleteStage(subOrder.getQuantity())
+                        .estimatedDateFinishCompleteStage(dateTimeFormatter.format(expectedCompleteStageSubOrder))
+                        .build();
+            }
+        }
     }
 
     @Override
