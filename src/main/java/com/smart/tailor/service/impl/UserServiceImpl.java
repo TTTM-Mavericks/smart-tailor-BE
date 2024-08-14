@@ -20,6 +20,12 @@ import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -149,5 +155,91 @@ public class UserServiceImpl implements UserService {
         verificationTokenService.deleteVerificationTokenByUserID(userID);
         tokenService.deleteTokenByUserID(userID);
         userRepository.deleteUserByUserID(userID);
+    }
+
+    @Override
+    public Float calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime startOfCurrentWeek = now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
+        LocalDateTime endOfCurrentWeek = now;
+
+        LocalDateTime startOfPreviousWeek = startOfCurrentWeek.minusWeeks(1);
+        LocalDateTime endOfPreviousWeek = startOfCurrentWeek.minusSeconds(1);
+
+        var totalCustomer = userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRoles().getRoleName().equals(RoleType.CUSTOMER.name()))
+                .toList();
+
+        var currentWeekCustomerCount = totalCustomer
+                .stream()
+                .filter(user -> {
+                    LocalDateTime createDate = user.getCreateDate();
+                    return !createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek);
+                })
+                .count();
+
+        var previousWeekCustomerCount = totalCustomer
+                .stream()
+                .filter(user -> {
+                    LocalDateTime createDate = user.getCreateDate();
+                    return !createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek);
+                })
+                .count();
+
+        if (previousWeekCustomerCount == 0) {
+            return currentWeekCustomerCount > 0 ? 100.0f : 0.0f;
+        }
+
+        float growthPercentage = ((float) (currentWeekCustomerCount - previousWeekCustomerCount) / previousWeekCustomerCount) * 100.0f;
+
+        return BigDecimal
+                .valueOf(growthPercentage)
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
+    }
+
+    @Override
+    public Float calculateUserGrowthPercentageForCurrentAndPreviousMonth() {
+        // Get the current date and time
+        LocalDateTime now = LocalDateTime.now();
+
+        YearMonth currentMonth = YearMonth.from(now);
+        LocalDateTime startOfCurrentMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfCurrentMonth = now;
+
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+        LocalDateTime startOfPreviousMonth = previousMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfPreviousMonth = previousMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+
+        var totalUser = userRepository.findAll();
+
+        var currentMonthUserCount = totalUser
+                .stream()
+                .filter(user -> {
+                    LocalDateTime createDate = user.getCreateDate();
+                    return !createDate.isBefore(startOfCurrentMonth) && !createDate.isAfter(endOfCurrentMonth);
+                })
+                .count();
+
+        var previousMonthUserCount = totalUser
+                .stream()
+                .filter(user -> {
+                    LocalDateTime createDate = user.getCreateDate();
+                    return !createDate.isBefore(startOfPreviousMonth) && !createDate.isAfter(endOfPreviousMonth);
+                })
+                .count();
+
+        if (previousMonthUserCount == 0) {
+            return currentMonthUserCount > 0 ? 100.0f : 0.0f;
+        }
+
+        float growthPercentage = ((float) (currentMonthUserCount - previousMonthUserCount) / previousMonthUserCount) * 100.0f;
+
+        return BigDecimal
+                .valueOf(growthPercentage)
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
     }
 }

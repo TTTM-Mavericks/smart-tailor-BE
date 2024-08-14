@@ -8,6 +8,7 @@ import com.smart.tailor.entities.Order;
 import com.smart.tailor.entities.Payment;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
+import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.PaymentMapper;
 import com.smart.tailor.repository.OrderRepository;
@@ -34,12 +35,16 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -632,4 +637,45 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return new ArrayList<>();
     }
+
+    @Override
+    public Float calculatePaymentGrowthPercentageForCurrentAndPreviousWeek() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime startOfCurrentWeek = now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
+        LocalDateTime endOfCurrentWeek = now;
+
+        LocalDateTime startOfPreviousWeek = startOfCurrentWeek.minusWeeks(1);
+        LocalDateTime endOfPreviousWeek = startOfCurrentWeek.minusSeconds(1);
+
+        var totalPayments = paymentRepository.findAll();
+
+        long currentWeekPaymentCount = totalPayments
+                .stream()
+                .filter(payment -> {
+                    LocalDateTime createDate = payment.getCreateDate();
+                    return !createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek);
+                })
+                .count();
+
+        long previousWeekPaymentCount = totalPayments
+                .stream()
+                .filter(payment -> {
+                    LocalDateTime createDate = payment.getCreateDate();
+                    return !createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek);
+                })
+                .count();
+
+        if (previousWeekPaymentCount == 0) {
+            return currentWeekPaymentCount > 0 ? 100.0f : 0.0f;
+        }
+
+        float growthPercentage = ((float) (currentWeekPaymentCount - previousWeekPaymentCount) / previousWeekPaymentCount) * 100.0f;
+
+        return BigDecimal
+                .valueOf(growthPercentage)
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
+    }
+
 }

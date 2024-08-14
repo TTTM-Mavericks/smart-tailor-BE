@@ -37,4 +37,8 @@ public interface UserService {
     List<User> findAllUnverifiedUser();
 
     void deleteUnverifiedUser(String userID);
+
+    Float calculateUserGrowthPercentageForCurrentAndPreviousMonth();
+
+    Float calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek();
 }

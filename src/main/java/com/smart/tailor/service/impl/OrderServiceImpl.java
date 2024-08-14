@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -2623,14 +2624,30 @@ public class OrderServiceImpl implements OrderService {
     public Float calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
         var totalParentOrder = orderRepository.getAllParentOrder();
 
-        var currentMonthOrderCount = totalParentOrder
+        LocalDateTime now = LocalDateTime.now();
+
+        YearMonth currentMonth = YearMonth.from(now);
+        LocalDateTime startOfCurrentMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfCurrentMonth = now;
+
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+        LocalDateTime startOfPreviousMonth = previousMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfPreviousMonth = previousMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+
+        long currentMonthOrderCount = totalParentOrder
                 .stream()
-                .filter(order -> order.getCreateDate().getMonth().equals(LocalDateTime.now().getMonth()) && !order.getCreateDate().isAfter(LocalDateTime.now()))
+                .filter(order -> {
+                    LocalDateTime createDate = order.getCreateDate();
+                    return !createDate.isBefore(startOfCurrentMonth) && !createDate.isAfter(endOfCurrentMonth);
+                })
                 .count();
 
-        var previousMonthOrderCount  = totalParentOrder
+        long previousMonthOrderCount = totalParentOrder
                 .stream()
-                .filter(order -> order.getCreateDate().getMonth().equals(LocalDateTime.now().minusMonths(1).getMonth()))
+                .filter(order -> {
+                    LocalDateTime createDate = order.getCreateDate();
+                    return !createDate.isBefore(startOfPreviousMonth) && !createDate.isAfter(endOfPreviousMonth);
+                })
                 .count();
 
         if (previousMonthOrderCount == 0) {

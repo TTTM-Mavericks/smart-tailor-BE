@@ -25,4 +25,6 @@ public interface PaymentService {
     List<PaymentResponse> getAllPaymentResponse();
 
     List<PaymentResponse> getPaymentByUserID(String userID);
+
+    Float calculatePaymentGrowthPercentageForCurrentAndPreviousWeek();
 }

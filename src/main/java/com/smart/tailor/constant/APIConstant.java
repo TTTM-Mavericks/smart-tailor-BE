@@ -203,6 +203,8 @@ public class APIConstant {
         public static final String GET_ALL_ACCOUNTANT = "/get-all-accountant";
         public static final String GET_ALL_MANAGER = "/get-all-manager";
         public static final String GET_ALL_ADMIN = "/get-all-admin";
+        public static final String CALCULATE_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH = "/calculate-user-growth-percentage-for-current-and-previous-month";
+        public static final String CALCULATE_NEW_CUSTOMER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-new-customer-growth-percentage-for-current-and-previous-week";
     }
 
     /**
@@ -261,7 +263,7 @@ public class APIConstant {
         public static final String ORDER_TIME_LINE_BY_SUB_ORDER_ID = "/order-time-line-by-sub-order-id";
         public static final String GET_ORDER_SHIPPING_DETAIL_BY_LABEL_ID = "/get-order-shipping-detail-by-label-id";
         public static final String GET_ORDER_STATUS_DETAIL = "/get-order-status-detail";
-        public static final String CALCULATE_ORDER_STATUS_DETAIL_GROWTH_PERCENTAGE = "/calculate-order-status-detail-growth-percentage";
+        public static final String CALCULATE_ORDER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH = "/calculate-order-growth-percentage-for-current-and-previous-month";
     }
 
     /**
@@ -324,6 +326,7 @@ public class APIConstant {
         public static final String GET_PAYMENT_BY_USER_ID = "/get-payment-by-user-id";
         public static final String GET_ALL_PAYMENT = "/get-all-payment";
         public static final String CONFIRM_PAYMENT = "/confirm-payment";
+        public static final String CALCULATE_PAYMENT_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-user-growth-percentage-for-current-and-previous-week";
     }
 
     /**
