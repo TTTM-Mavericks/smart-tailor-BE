@@ -41,22 +41,19 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     public List<PartOfDesign> createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
         List<PartOfDesign> partOfDesignList = new ArrayList<>();
         for (PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList) {
+
             // Check Whether ImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64ImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getImageUrl()).isPresent()) {
-                base64ImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getImageUrl());
-            }
+            byte[] base64ImageUrl = Optional.ofNullable(partOfDesignRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
-            // Check Whether SuccessImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64SuccessImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).isPresent()) {
-                base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
-            }
+            byte[] base64SuccessImageUrl = Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
-            byte[] base64RealPartImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl()).isPresent()) {
-                base64RealPartImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getRealPartImageUrl());
-            }
+            byte[] base64RealPartImageUrl = Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
             var partOfDesign = PartOfDesign
                     .builder()
@@ -167,21 +164,17 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
             ).orElseThrow(() -> new ItemNotFoundException("Can not find PartOfDesign By DesignID and PartOfDesignName"));
 
             // Check Whether ImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64ImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getImageUrl()).isPresent()) {
-                base64ImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getImageUrl());
-            }
+            byte[] base64ImageUrl = Optional.ofNullable(partOfDesignRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
-            // Check Whether SuccessImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64SuccessImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).isPresent()) {
-                base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
-            }
+            byte[] base64SuccessImageUrl = Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
-            byte[] base64RealPartImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl()).isPresent()) {
-                base64RealPartImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getRealPartImageUrl());
-            }
+            byte[] base64RealPartImageUrl = Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
             Material material = null;
             if (Utilities.isStringNotNullOrEmpty(partOfDesignRequest.getMaterialID())) {
@@ -204,9 +197,10 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
             var oldItemMasks = itemMaskService.getAllItemMaskByPartOfDesignID(existedPartOfDesign.getPartOfDesignID());
             for(var oldItemMask : oldItemMasks){
-                existedPartOfDesign.getItemMaskList().remove(oldItemMask);
                 itemMaskService.changeStatusItemMask(oldItemMask, false);
             }
+            existedPartOfDesign.getItemMaskList().clear();
+
             logger.info("After Remove old ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
             for(ItemMask itemMask :  existedPartOfDesign.getItemMaskList()){
                 logger.warn("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());

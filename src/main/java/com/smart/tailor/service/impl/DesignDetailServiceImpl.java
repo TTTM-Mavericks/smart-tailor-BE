@@ -1,10 +1,7 @@
 package com.smart.tailor.service.impl;
 
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.entities.Brand;
-import com.smart.tailor.entities.Design;
-import com.smart.tailor.entities.DesignDetail;
-import com.smart.tailor.entities.Order;
+import com.smart.tailor.entities.*;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
@@ -128,29 +125,34 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
             List<PartOfDesignRequest> clonePart = new ArrayList<>();
             for (var partOfDesign : basePartOfDesign) {
-                var itemMarkList = partOfDesign.getItemMaskList();
+                var itemMaskList = partOfDesign
+                        .getItemMaskList()
+                        .stream()
+                        .filter(ItemMask::getStatus)
+                        .toList();
+
                 List<ItemMaskRequest> cloneItemMark = new ArrayList<>();
 
-                for (var itemMark : itemMarkList) {
+                for (var itemMask : itemMaskList) {
                     cloneItemMark.add(
                             ItemMaskRequest
                                     .builder()
-                                    .itemMaskName(itemMark.getItemMaskName())
-                                    .typeOfItem(itemMark.getTypeOfItem())
-                                    .materialID(itemMark.getMaterial().getMaterialID())
-                                    .isSystemItem(itemMark.getIsSystemItem())
-                                    .positionX(itemMark.getPositionX())
-                                    .positionY(itemMark.getPositionY())
-                                    .scaleX(itemMark.getScaleX())
-                                    .scaleY(itemMark.getScaleY())
-                                    .rotate(itemMark.getRotate())
-                                    .topLeftRadius(itemMark.getTopLeftRadius())
-                                    .topRightRadius(itemMark.getTopRightRadius())
-                                    .bottomLeftRadius(itemMark.getBottomLeftRadius())
-                                    .bottomRightRadius(itemMark.getBottomRightRadius())
-                                    .indexZ(itemMark.getIndexZ())
-                                    .imageUrl(Utilities.decodeBase64ToString(itemMark.getImageUrl()))
-                                    .printType(itemMark.getPrintType().name())
+                                    .itemMaskName(itemMask.getItemMaskName())
+                                    .typeOfItem(itemMask.getTypeOfItem())
+                                    .materialID(itemMask.getMaterial().getMaterialID())
+                                    .isSystemItem(itemMask.getIsSystemItem())
+                                    .positionX(itemMask.getPositionX())
+                                    .positionY(itemMask.getPositionY())
+                                    .scaleX(itemMask.getScaleX())
+                                    .scaleY(itemMask.getScaleY())
+                                    .rotate(itemMask.getRotate())
+                                    .topLeftRadius(itemMask.getTopLeftRadius())
+                                    .topRightRadius(itemMask.getTopRightRadius())
+                                    .bottomLeftRadius(itemMask.getBottomLeftRadius())
+                                    .bottomRightRadius(itemMask.getBottomRightRadius())
+                                    .indexZ(itemMask.getIndexZ())
+                                    .imageUrl(Utilities.decodeBase64ToString(itemMask.getImageUrl()))
+                                    .printType(itemMask.getPrintType().name())
                                     .build()
                     );
                 }

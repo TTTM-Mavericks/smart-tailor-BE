@@ -59,10 +59,9 @@ public class DesignServiceImpl implements DesignService {
 
         String color = Optional.ofNullable(designRequest.getColor()).orElse(null);
 
-        byte[] base64ImageUrl = null;
-        if (Optional.ofNullable(designRequest.getImageUrl()).isPresent()) {
-            base64ImageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
-        }
+        byte[] base64ImageUrl = Optional.ofNullable(designRequest.getImageUrl())
+                .map(Utilities::encodeStringToBase64)
+                .orElse(null);
 
         Design design = designRepository.save(
                 Design
@@ -181,7 +180,7 @@ public class DesignServiceImpl implements DesignService {
                 logger.error("itemMaskResponseList: {}", itemMaskResponseList);
                 if (itemMaskResponseList != null) {
                     for (ItemMaskResponse itemMaskResponse : itemMaskResponseList) {
-                        if (itemMaskResponse.getMaterial() != null) {
+                        if (itemMaskResponse.getMaterial() != null && itemMaskResponse.getStatus()) {
                             materialResponse = itemMaskResponse.getMaterial();
                             designMaterialDetail = DesignMaterialDetail
                                     .builder()
@@ -375,10 +374,9 @@ public class DesignServiceImpl implements DesignService {
             throw new ItemNotFoundException(ex.getMessage());
         }
 
-        byte[] base64ImageUrl = null;
-        if (Optional.ofNullable(designRequest.getImageUrl()).isPresent()) {
-            base64ImageUrl = Utilities.encodeStringToBase64(designRequest.getImageUrl());
-        }
+        byte[] base64ImageUrl = Optional.ofNullable(designRequest.getImageUrl())
+                .map(Utilities::encodeStringToBase64)
+                .orElse(null);
 
         var updateDesign = designRepository.save(
                 Design

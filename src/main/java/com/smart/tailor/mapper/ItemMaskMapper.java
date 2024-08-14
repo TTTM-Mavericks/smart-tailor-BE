@@ -27,16 +27,6 @@ public interface ItemMaskMapper {
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(itemMask.getImageUrl()))")
     ItemMaskResponse mapperToItemMaskResponse(ItemMask itemMask);
 
-    default List<ItemMaskResponse> mapToItemMaskResponseList(List<ItemMask> itemMasks) {
-        if (itemMasks == null) {
-            return new ArrayList<>();
-        }
-        return itemMasks.stream()
-                .filter(ItemMask::getStatus)
-                .map(this::mapperToItemMaskResponse)
-                .collect(Collectors.toList());
-    }
-
     default String decodeByteArrayToString(byte[] values) {
         if (values != null) {
             return new String(Base64.getDecoder().decode(values));

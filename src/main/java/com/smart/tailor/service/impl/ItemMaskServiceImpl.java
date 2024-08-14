@@ -86,11 +86,9 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomRightRadius");
             }
 
-            // Check Whether ImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64ImageUrl = null;
-            if (Optional.ofNullable(itemMaskRequest.getImageUrl()).isPresent()) {
-                base64ImageUrl = Utilities.encodeStringToBase64(itemMaskRequest.getImageUrl());
-            }
+            byte[] base64ImageUrl = Optional.ofNullable(itemMaskRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
             String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
             String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
@@ -227,10 +225,9 @@ public class ItemMaskServiceImpl implements ItemMaskService {
             }
 
             // Check Whether ImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64ImageUrl = null;
-            if (Optional.ofNullable(itemMaskRequest.getImageUrl()).isPresent()) {
-                base64ImageUrl = Utilities.encodeStringToBase64(itemMaskRequest.getImageUrl());
-            }
+            byte[] base64ImageUrl = Optional.ofNullable(itemMaskRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
             String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
             String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
