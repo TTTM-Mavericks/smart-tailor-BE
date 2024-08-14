@@ -260,6 +260,7 @@ public class APIConstant {
         public static final String ORDER_TIME_LINE_BY_PARENT_ORDER_ID = "/order-time-line-by-parent-order-id";
         public static final String ORDER_TIME_LINE_BY_SUB_ORDER_ID = "/order-time-line-by-sub-order-id";
         public static final String GET_ORDER_SHIPPING_DETAIL_BY_LABEL_ID = "/get-order-shipping-detail-by-label-id";
+        public static final String GET_ORDER_STATUS_DETAIL = "/get-order-status-detail";
     }
 
     /**

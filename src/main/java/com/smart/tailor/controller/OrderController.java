@@ -294,4 +294,14 @@ public class OrderController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(OrderAPI.GET_ORDER_STATUS_DETAIL)
+    public ResponseEntity<ObjectNode> getOrderStatusDetail() {
+        ObjectNode response = objectMapper.createObjectNode();
+        var orderDetailShippingResponse = orderService.getAllOrderStatusDetailResponse();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Get Order Status Detail Successfully");
+        response.set("data", objectMapper.valueToTree(orderDetailShippingResponse));
+        return ResponseEntity.ok(response);
+    }
 }

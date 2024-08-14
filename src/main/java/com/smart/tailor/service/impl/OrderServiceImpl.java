@@ -20,6 +20,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -2574,5 +2575,47 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
+    }
+
+    @Override
+    public OrderStatusDetailResponse getAllOrderStatusDetailResponse() {
+        var totalParentOrder = orderRepository.getAllParentOrder();
+
+        long totalPreOrder = totalParentOrder.stream()
+                .filter(order ->
+                            order.getOrderStatus() == OrderStatus.NOT_VERIFY ||
+                            order.getOrderStatus() == OrderStatus.PENDING
+                )
+                .count();
+
+        long totalProcessingOrder = totalParentOrder.stream()
+                .filter(order ->
+                            order.getOrderStatus() == OrderStatus.DEPOSIT ||
+                            order.getOrderStatus() == OrderStatus.PREPARING ||
+                            order.getOrderStatus() == OrderStatus.PROCESSING ||
+                            order.getOrderStatus() == OrderStatus.SUSPENDED ||
+                            order.getOrderStatus() == OrderStatus.COMPLETED
+                )
+                .count();
+
+        long totalFullyCompletedOrder = totalParentOrder.stream()
+                .filter(order -> order.getOrderStatus() == OrderStatus.DELIVERED)
+                .count();
+
+        long totalCancelOrder = totalParentOrder.stream()
+                .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL)
+                .count();
+
+        List<Pair<String, Long>> orderStatusDetailList = List.of(
+                Pair.of("Total Parent Order", (long) totalParentOrder.size()),
+                Pair.of("Total Pre Order", totalPreOrder),
+                Pair.of("Total Processing Order", totalProcessingOrder),
+                Pair.of("Total Fully Completed Order", totalFullyCompletedOrder),
+                Pair.of("Total Cancel Order", totalCancelOrder)
+        );
+
+        return OrderStatusDetailResponse.builder()
+                .orderStatusDetailList(orderStatusDetailList)
+                .build();
     }
 }

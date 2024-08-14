@@ -161,6 +161,7 @@ public class SecurityConfig {
                             /* Order API */
                             auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
                             auth.requestMatchers("/api/v1/order/get-order-by-brand-id/**").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/order/get-order-status-detail").hasRole(RoleType.ADMIN.name());
 
                             /* Payment API */
                             auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
