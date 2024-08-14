@@ -1833,18 +1833,11 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
-        if (orderRequest.getStatus().equals(OrderStatus.FINISH_FIRST_STAGE.name()) || orderRequest.getStatus().equals(OrderStatus.FINISH_SECOND_STAGE.name())) {
-            var stage = stageService.getOrderStageByID((stageService.getOrderStageByOrderID(existedOrder.getParentOrder().getOrderID()).stream().filter(s -> s.getStage().equals(OrderStatus.PROCESSING)).findFirst().get().getStageId()));
-            var subStage = stageService.getOrderStageByID((stageService.getOrderStageByOrderID(existedOrder.getOrderID()).stream().filter(s -> s.getStage().equals(existedOrder.getOrderStatus())).findFirst().get().getStageId()));
-            if (stage != null) {
-                stage.setCurrentQuantity(stage.getCurrentQuantity() + subStage.getCurrentQuantity());
-                stageService.updateStage(stage);
-            }
-        }
+
         existedOrder.setOrderStatus(orderStatus);
         var stageResponseList = stageService.getOrderStageByOrderID(orderID);
         for (var stageResponse : stageResponseList) {
-            if (stageResponse.getStage().equals(OrderStatus.valueOf(orderRequest.getStatus()))) {
+            if (stageResponse.getStage().equals(orderStatus)) {
                 var stage = stageService.getOrderStageByID(stageResponse.getStageId());
                 stage.setStatus(true);
                 stageService.updateStage(stage);
@@ -1852,6 +1845,35 @@ public class OrderServiceImpl implements OrderService {
         }
 
         var updatedOrder = orderRepository.save(existedOrder);
+
+        if (orderStatus.equals(OrderStatus.FINISH_FIRST_STAGE) || orderStatus.equals(OrderStatus.FINISH_SECOND_STAGE)) {
+            var stage = stageService.getOrderStageByID(
+                    (
+                            stageService.getOrderStageByOrderID(
+                                            existedOrder.getParentOrder().getOrderID()
+                                    ).stream()
+                                    .filter(s -> s.getStage().equals(OrderStatus.PROCESSING))
+                                    .findFirst()
+                                    .get()
+                                    .getStageId()
+                    )
+            );
+            var subStage = stageService.getOrderStageByID(
+                    (
+                            stageService.getOrderStageByOrderID(existedOrder.getOrderID())
+                                    .stream()
+                                    .filter(s -> s.getStage().equals(existedOrder.getOrderStatus()))
+                                    .findFirst()
+                                    .get()
+                                    .getStageId()
+                    )
+            );
+            if (stage != null) {
+                stage.setCurrentQuantity(stage.getCurrentQuantity() + subStage.getCurrentQuantity());
+                stageService.updateStage(stage);
+            }
+        }
+
         if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
 //            getOrderByOrderID(existedOrder.getOrderID());
             var sender = existedOrder.getEmployee().getEmployeeID();
