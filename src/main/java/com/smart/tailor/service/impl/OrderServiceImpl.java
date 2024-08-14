@@ -797,7 +797,7 @@ public class OrderServiceImpl implements OrderService {
 //                                    }
 //                                }
 //                            }
-                            if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+                            if (subOrderResponse.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
                                 paymentService.createPayOSPayment(PaymentRequest.builder().orderID(subOrder.getOrderID())
 
                                         .paymentSenderID(
@@ -1288,41 +1288,41 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
 
-                            for (var subOrderResponse : subOrderList) {
-                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                                if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
-                                    logger.error("CREATE BRAND TRANS");
-
-                                    paymentService.createPayOSPayment(
-                                            PaymentRequest
-                                                    .builder()
-                                                    .orderID(subOrder.getOrderID())
-
-                                                    .paymentSenderID(
-                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
-                                                                    .getUserID()
-                                                    )
-                                                    .paymentSenderName("")
-                                                    .paymentSenderBankCode("")
-                                                    .paymentSenderBankNumber("")
-
-                                                    .paymentRecipientID(
-                                                            subOrder.getDetailList().get(0)
-                                                                    .getBrand().getBrandID()
-                                                    )
-                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                    .paymentRecipientBankCode("OCB")
-                                                    .paymentRecipientBankNumber("0163100007285002")
-
-                                                    .paymentType(PaymentType.BRAND_INVOICE)
-                                                    .paymentAmount(
-                                                            subOrder.getTotalPrice()
-                                                    )
-                                                    .itemList(null)
-                                                    .build()
-                                    );
-                                }
-                            }
+//                            for (var subOrderResponse : subOrderList) {
+//                                var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
+//                                if (subOrder.getPaymentList() == null || subOrder.getPaymentList().isEmpty()) {
+//                                    logger.error("CREATE BRAND TRANS");
+//
+//                                    paymentService.createPayOSPayment(
+//                                            PaymentRequest
+//                                                    .builder()
+//                                                    .orderID(subOrder.getOrderID())
+//
+//                                                    .paymentSenderID(
+//                                                            userService.getUserByEmail("accountantsmarttailor123@gmail.com")
+//                                                                    .getUserID()
+//                                                    )
+//                                                    .paymentSenderName("")
+//                                                    .paymentSenderBankCode("")
+//                                                    .paymentSenderBankNumber("")
+//
+//                                                    .paymentRecipientID(
+//                                                            subOrder.getDetailList().get(0)
+//                                                                    .getBrand().getBrandID()
+//                                                    )
+//                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+//                                                    .paymentRecipientBankCode("OCB")
+//                                                    .paymentRecipientBankNumber("0163100007285002")
+//
+//                                                    .paymentType(PaymentType.BRAND_INVOICE)
+//                                                    .paymentAmount(
+//                                                            subOrder.getTotalPrice()
+//                                                    )
+//                                                    .itemList(null)
+//                                                    .build()
+//                                    );
+//                                }
+//                            }
 
                         }
                         case DEPOSIT, PREPARING -> {
@@ -1853,9 +1853,9 @@ public class OrderServiceImpl implements OrderService {
 
         var updatedOrder = orderRepository.save(existedOrder);
         if (existedOrder.getOrderType().equals("PARENT_ORDER")) {
-            getOrderByOrderID(existedOrder.getOrderID());
+//            getOrderByOrderID(existedOrder.getOrderID());
             var sender = existedOrder.getEmployee().getEmployeeID();
-            var cus = getOrderByOrderID(existedOrder.getOrderID()).getDesignResponse().getUser().getUserID();
+            var cus = designService.getDesignObjectByOrderID(orderID).getUser().getUserID();
 
             notificationService.sendPrivateNotification(
                     NotificationRequest
@@ -1869,7 +1869,7 @@ public class OrderServiceImpl implements OrderService {
                             .build()
             );
 
-            sender = getOrderByOrderID(existedOrder.getOrderID()).getDesignResponse().getUser().getUserID();
+            sender = designService.getDesignObjectByOrderID(orderID).getUser().getUserID();
             cus = existedOrder.getEmployee().getEmployeeID();
 
             notificationService.sendPrivateNotification(
@@ -1884,10 +1884,11 @@ public class OrderServiceImpl implements OrderService {
                             .build()
             );
 
-        } else {
-            if (existedOrder.getParentOrder() != null)
-                getOrderByOrderID(existedOrder.getParentOrder().getOrderID());
         }
+//        else {
+//            if (existedOrder.getParentOrder() != null)
+//                getOrderByOrderID(existedOrder.getParentOrder().getOrderID());
+//        }
         return orderMapper.mapToOrderResponse(updatedOrder);
     }
 
@@ -2165,12 +2166,15 @@ public class OrderServiceImpl implements OrderService {
             order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
             updateOrder(order);
 
-            int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
-            stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.DEPOSIT).currentQuantity(0).status(false).build());
+            var oldStage = stageService.getOrderStageByOrderID(orderID);
+            if (oldStage.isEmpty()) {
+                int divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+                stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.DEPOSIT).currentQuantity(0).status(false).build());
 
-            stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.PROCESSING).currentQuantity(0).status(false).build());
+                stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.PROCESSING).currentQuantity(0).status(false).build());
 
-            stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.COMPLETED).currentQuantity(quantity).status(false).build());
+                stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.COMPLETED).currentQuantity(quantity).status(false).build());
+            }
             calculatePrice.put(orderID, calculateTotalPriceForSpecificOrder(orderID));
         } catch (Exception e) {
             throw new RuntimeException(e);
