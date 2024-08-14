@@ -5,13 +5,18 @@ import com.smart.tailor.utils.response.ItemMaskResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {MaterialMapper.class})
 public interface ItemMaskMapper {
+
     @Mapping(source = "itemMask.itemMaskID", target = "itemMaskID")
     @Mapping(source = "itemMask.indexZ", target = "indexZ")
     @Mapping(source = "itemMask.rotate", target = "rotate")
+    @Mapping(source = "itemMask.status", target = "status")
     @Mapping(source = "itemMask.topLeftRadius", target = "topLeftRadius")
     @Mapping(source = "itemMask.topRightRadius", target = "topRightRadius")
     @Mapping(source = "itemMask.bottomLeftRadius", target = "bottomLeftRadius")
@@ -21,6 +26,16 @@ public interface ItemMaskMapper {
     @Mapping(source = "itemMask.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(itemMask.getImageUrl()))")
     ItemMaskResponse mapperToItemMaskResponse(ItemMask itemMask);
+
+    default List<ItemMaskResponse> mapToItemMaskResponseList(List<ItemMask> itemMasks) {
+        if (itemMasks == null) {
+            return new ArrayList<>();
+        }
+        return itemMasks.stream()
+                .filter(ItemMask::getStatus)
+                .map(this::mapperToItemMaskResponse)
+                .collect(Collectors.toList());
+    }
 
     default String decodeByteArrayToString(byte[] values) {
         if (values != null) {

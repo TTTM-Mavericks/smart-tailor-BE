@@ -1,24 +1,16 @@
 package com.smart.tailor.repository;
 
 import com.smart.tailor.entities.ItemMask;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 
 
 @Repository
 public interface ItemMaskRepository extends JpaRepository<ItemMask, String> {
-    @Transactional
-    @Modifying
-    @Query(value = "delete from item_mask im where im.part_of_design_id = ?1", nativeQuery = true)
-    void deleteItemMaskByPartOfDesignID(String partOfDesignId);
-
-    @Transactional
-    @Modifying
-    @Query(value = "delete it from item_mask it join part_of_design p on it.part_of_design_id = p.part_of_design_id " +
-            "where p.design_id = ?1", nativeQuery = true)
-    void deleteItemMaskByDesignID(String designID);
+    @Query(nativeQuery = true, value = "select im.* from item_mask im where im.part_of_design_id = ?1")
+    List<ItemMask> getAllItemMaskByPartOfDesignID(String partOfDesignID);
 }
+

@@ -11,11 +11,12 @@ import java.util.Base64;
 @Mapper(componentModel = "spring", uses = {ItemMaskMapper.class, MaterialMapper.class})
 public interface PartOfDesignMapper {
     @Mapping(source = "partOfDesign.partOfDesignID", target = "partOfDesignID")
-    @Mapping(source = "partOfDesign.itemMaskList", target = "itemMasks")
+//    @Mapping(source = "partOfDesign.itemMaskList", target = "itemMasks")
     @Mapping(source = "partOfDesign.material", target = "material")
     @Mapping(source = "partOfDesign.width", target = "width")
     @Mapping(source = "partOfDesign.height", target = "height")
     @Mapping(source = "partOfDesign.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(target = "itemMasks", expression = "java(itemMaskMapper.mapToItemMaskResponseList(partOfDesign.getItemMaskList()))")
     @Mapping(source = "partOfDesign.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     @Mapping(target = "realPartImageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getRealPartImageUrl()))")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(partOfDesign.getImageUrl()))")

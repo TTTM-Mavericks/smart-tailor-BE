@@ -359,15 +359,18 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     .materialID(partOfDesignResponse.getMaterial().getMaterialID())
                     .materialName(partOfDesignResponse.getMaterial().getMaterialName())
                     .build());
-            partOfDesignResponse.getItemMasks().forEach(itemMaskResponse -> {
-                itemMaskInformationList.add(ItemMaskInformation
-                        .builder()
-                        .scaleX(itemMaskResponse.getScaleX())
-                        .scaleY(itemMaskResponse.getScaleY())
-                        .materialID(itemMaskResponse.getMaterial().getMaterialID())
-                        .materialName(itemMaskResponse.getMaterial().getMaterialName())
-                        .build());
-            });
+            partOfDesignResponse.getItemMasks()
+                    .stream()
+                    .filter(ItemMaskResponse::getStatus)
+                    .forEach(itemMaskResponse -> {
+                        itemMaskInformationList.add(ItemMaskInformation
+                                .builder()
+                                .scaleX(itemMaskResponse.getScaleX())
+                                .scaleY(itemMaskResponse.getScaleY())
+                                .materialID(itemMaskResponse.getMaterial().getMaterialID())
+                                .materialName(itemMaskResponse.getMaterial().getMaterialName())
+                                .build());
+                    });
         });
 
         // Get Min Weight and Max Weight of each Design

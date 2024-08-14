@@ -77,6 +77,8 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Column(name = "bottom_right_radius")
     private Float bottomRightRadius;
 
+    private Boolean status;
+
     @Lob
     @Column(name = "image_url", columnDefinition = "LONGTEXT")
     private byte[] imageUrl;

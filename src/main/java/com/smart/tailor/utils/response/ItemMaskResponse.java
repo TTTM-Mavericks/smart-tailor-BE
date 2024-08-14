@@ -45,6 +45,8 @@ public class ItemMaskResponse {
 
     private String imageUrl;
 
+    private Boolean status;
+
     private PrintType printType;
 
     private String createDate;
