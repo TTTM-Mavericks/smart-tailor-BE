@@ -36,26 +36,24 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
     private final PartOfDesignMapper partOfDesignMapper;
     private final Logger logger = LoggerFactory.getLogger(PartOfDesignServiceImpl.class);
 
+    @Transactional
     @Override
     public List<PartOfDesign> createPartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
         List<PartOfDesign> partOfDesignList = new ArrayList<>();
         for (PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList) {
+
             // Check Whether ImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64ImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getImageUrl()).isPresent()) {
-                base64ImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getImageUrl());
-            }
+            byte[] base64ImageUrl = Optional.ofNullable(partOfDesignRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
-            // Check Whether SuccessImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64SuccessImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl()).isPresent()) {
-                base64SuccessImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getSuccessImageUrl());
-            }
+            byte[] base64SuccessImageUrl = Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
-            byte[] base64RealPartImageUrl = null;
-            if (Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl()).isPresent()) {
-                base64RealPartImageUrl = Utilities.encodeStringToBase64(partOfDesignRequest.getRealPartImageUrl());
-            }
+            byte[] base64RealPartImageUrl = Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
             var partOfDesign = PartOfDesign
                     .builder()
@@ -149,13 +147,99 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
     @Transactional
     @Override
-    public void deletePartOfDesignByDesignID(String designID) {
-        itemMaskService.deleteItemMaskByDesignID(designID);
-        partOfDesignRepository.deletePartOfDesignByDesignID(designID);
-    }
-
-    @Override
     public List<PartOfDesign> savePartOfDesign(List<PartOfDesign> partOfDesignList) {
         return partOfDesignRepository.saveAll(partOfDesignList);
+    }
+
+    @Transactional
+    @Override
+    public List<PartOfDesign> updatePartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList) {
+        List<PartOfDesign> partOfDesignList = new ArrayList<>();
+        for (PartOfDesignRequest partOfDesignRequest : partOfDesignRequestList) {
+
+            // Find PartOfDesign By Design ID and PartOfDesignName
+            var existedPartOfDesign = partOfDesignRepository.getPartOfDesignByDesignIDAndPartOfDesignName(
+                    design.getDesignID(),
+                    partOfDesignRequest.getPartOfDesignName()
+            ).orElseThrow(() -> new ItemNotFoundException("Can not find PartOfDesign By DesignID and PartOfDesignName"));
+
+            // Check Whether ImageUrl is existed or not. Then Convert It to Base64
+            byte[] base64ImageUrl = Optional.ofNullable(partOfDesignRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
+
+            byte[] base64SuccessImageUrl = Optional.ofNullable(partOfDesignRequest.getSuccessImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
+
+            byte[] base64RealPartImageUrl = Optional.ofNullable(partOfDesignRequest.getRealPartImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
+
+            Material material = null;
+            if (Utilities.isStringNotNullOrEmpty(partOfDesignRequest.getMaterialID())) {
+                if (!Utilities.isValidCustomKey(partOfDesignRequest.getMaterialID())) {
+                    throw new BadRequestException("Invalid Type String of MaterialID: " + partOfDesignRequest.getMaterialID());
+                }
+
+                material = materialService.findMaterialByID(partOfDesignRequest.getMaterialID()).
+                        orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + partOfDesignRequest.getMaterialID()));
+            }
+
+            if (Optional.ofNullable(partOfDesignRequest.getItemMask()).isEmpty()) {
+                continue;
+            }
+
+            logger.info("Before Remove old ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
+            for(ItemMask itemMask : existedPartOfDesign.getItemMaskList()){
+               logger.info("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());
+            }
+
+            var oldItemMasks = itemMaskService.getAllItemMaskByPartOfDesignID(existedPartOfDesign.getPartOfDesignID());
+            for(var oldItemMask : oldItemMasks){
+                itemMaskService.changeStatusItemMask(oldItemMask, false);
+            }
+            existedPartOfDesign.getItemMaskList().clear();
+
+            logger.info("After Remove old ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
+            for(ItemMask itemMask :  existedPartOfDesign.getItemMaskList()){
+                logger.warn("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());
+            }
+
+            try {
+                existedPartOfDesign.getItemMaskList().addAll(itemMaskService.updateItemMask(existedPartOfDesign, partOfDesignRequest.getItemMask()));
+            } catch (BadRequestException ex) {
+                logger.error("Bad Request Exception in create Item Mask {}", ex.getMessage());
+                throw new BadRequestException(ex.getMessage());
+            } catch (ItemNotFoundException ex) {
+                logger.error("Item Not Found Exception in create Item Mask {}", ex.getMessage());
+                throw new ItemNotFoundException(ex.getMessage());
+            }
+
+            logger.info("After Add New ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
+            for(ItemMask itemMask :  existedPartOfDesign.getItemMaskList()){
+                logger.warn("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());
+            }
+            var updatedPartOfDesign = partOfDesignRepository.save(
+                    PartOfDesign
+                        .builder()
+                        .partOfDesignID(existedPartOfDesign.getPartOfDesignID())
+                        .design(design)
+                        .partOfDesignName(partOfDesignRequest.getPartOfDesignName())
+                        .imageUrl(base64ImageUrl)
+                        .successImageUrl(base64SuccessImageUrl)
+                        .realPartImageUrl(base64RealPartImageUrl)
+                        .width(partOfDesignRequest.getWidth())
+                        .height(partOfDesignRequest.getHeight())
+                        .material(material)
+                        .itemMaskList(existedPartOfDesign.getItemMaskList())
+                        .build()
+            );
+
+            // Add Correct PartOfDesign to ListPartOfDesign
+            partOfDesignList.add(updatedPartOfDesign);
+        }
+        return partOfDesignList;
+
     }
 }

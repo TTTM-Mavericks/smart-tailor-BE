@@ -86,11 +86,9 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                 throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomRightRadius");
             }
 
-            // Check Whether ImageUrl is existed or not. Then Convert It to Base64
-            byte[] base64ImageUrl = null;
-            if (Optional.ofNullable(itemMaskRequest.getImageUrl()).isPresent()) {
-                base64ImageUrl = Utilities.encodeStringToBase64(itemMaskRequest.getImageUrl());
-            }
+            byte[] base64ImageUrl = Optional.ofNullable(itemMaskRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
 
             String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
             String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
@@ -111,6 +109,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                     .bottomRightRadius(itemMaskRequest.getBottomRightRadius())
                     .topRightRadius(itemMaskRequest.getTopRightRadius())
                     .topLeftRadius(itemMaskRequest.getTopLeftRadius())
+                    .status(true)
                     .imageUrl(base64ImageUrl)
                     .printType(PrintType.valueOf(itemMaskRequest.getPrintType()))
                     .build();
@@ -139,6 +138,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
                 .findAll()
                 .stream()
                 .filter(itemMask -> itemMask.getPartOfDesign().getPartOfDesignID().toString().equals(partOfDesignID.toString()))
+                .filter(itemMask -> itemMask.getStatus())
                 .map(itemMaskMapper::mapperToItemMaskResponse)
                 .collect(Collectors.toList());
     }
@@ -146,7 +146,7 @@ public class ItemMaskServiceImpl implements ItemMaskService {
     @Override
     public ItemMaskResponse getItemMaskByItemMaskID(String itemMaskID) {
         var itemMask = itemMaskRepository.findById(itemMaskID);
-        if (itemMask.isPresent()) {
+        if (itemMask.isPresent() && itemMask.get().getStatus()) {
             return itemMaskMapper.mapperToItemMaskResponse(itemMask.get());
         }
         return null;
@@ -157,19 +157,117 @@ public class ItemMaskServiceImpl implements ItemMaskService {
         return itemMaskRepository
                 .findAll()
                 .stream()
+                .filter(itemMask -> itemMask.getStatus())
                 .map(itemMaskMapper::mapperToItemMaskResponse)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
-    public void deleteItemMaskByPartOfDesignID(String partOfDesignID) {
-        itemMaskRepository.deleteItemMaskByPartOfDesignID(partOfDesignID);
+    public List<ItemMask> getAllItemMaskByPartOfDesignID(String partOfDesignID) {
+        return itemMaskRepository.getAllItemMaskByPartOfDesignID(partOfDesignID);
     }
 
     @Transactional
     @Override
-    public void deleteItemMaskByDesignID(String designID) {
-        itemMaskRepository.deleteItemMaskByDesignID(designID);
+    public void changeStatusItemMask(ItemMask itemMask, Boolean status) {
+        itemMask.setStatus(status);
+        itemMaskRepository.save(itemMask);
+    }
+
+    @Transactional
+    @Override
+    public List<ItemMask> updateItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList) {
+        List<ItemMask> itemMaskList = new ArrayList<>();
+
+        for (ItemMaskRequest itemMaskRequest : itemMaskRequestList) {
+            if (!Utilities.isValidBoolean(itemMaskRequest.getIsSystemItem())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " isSystemItem");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getPositionX())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionX");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getPositionY())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " positionY");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getScaleX())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleX");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getScaleY())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " scaleY");
+            }
+
+            if (!Utilities.isValidInteger(itemMaskRequest.getIndexZ())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " indexZ");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getRotate())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " rotate");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getTopLeftRadius())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " topLeftRadius");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getTopRightRadius())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " topRightRadius");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getBottomLeftRadius())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomLeftRadius");
+            }
+
+            if (!Utilities.isValidFloat(itemMaskRequest.getBottomRightRadius())) {
+                throw new BadRequestException(MessageConstant.INVALID_DATA_TYPE + " bottomRightRadius");
+            }
+
+            // Check Whether ImageUrl is existed or not. Then Convert It to Base64
+            byte[] base64ImageUrl = Optional.ofNullable(itemMaskRequest.getImageUrl())
+                    .map(Utilities::encodeStringToBase64)
+                    .orElse(null);
+
+            String itemMaskName = Optional.ofNullable(itemMaskRequest.getItemMaskName()).orElse(null);
+            String typeOfItem = Optional.ofNullable(itemMaskRequest.getTypeOfItem()).orElse(null);
+
+            Material material = null;
+            if (Utilities.isStringNotNullOrEmpty(itemMaskRequest.getMaterialID())) {
+                if (!Utilities.isValidCustomKey(itemMaskRequest.getMaterialID())) {
+                    throw new BadRequestException("Invalid Type String of MaterialID: " + itemMaskRequest.getMaterialID());
+                }
+
+                material = materialService.findMaterialByID(itemMaskRequest.getMaterialID())
+                        .orElseThrow(() -> new ItemNotFoundException("Can not find Material with MaterialID: " + itemMaskRequest.getMaterialID()));
+            }
+
+            var savedItemMask = itemMaskRepository.save(
+                    ItemMask
+                        .builder()
+                        .partOfDesign(partOfDesign)
+                        .material(material)
+                        .itemMaskName(itemMaskName)
+                        .typeOfItem(typeOfItem)
+                        .isSystemItem(itemMaskRequest.getIsSystemItem())
+                        .positionX(itemMaskRequest.getPositionX())
+                        .positionY(itemMaskRequest.getPositionY())
+                        .scaleX(itemMaskRequest.getScaleX())
+                        .scaleY(itemMaskRequest.getScaleY())
+                        .indexZ(itemMaskRequest.getIndexZ())
+                        .rotate(itemMaskRequest.getRotate())
+                        .bottomLeftRadius(itemMaskRequest.getBottomLeftRadius())
+                        .bottomRightRadius(itemMaskRequest.getBottomRightRadius())
+                        .topRightRadius(itemMaskRequest.getTopRightRadius())
+                        .topLeftRadius(itemMaskRequest.getTopLeftRadius())
+                        .status(true)
+                        .imageUrl(base64ImageUrl)
+                        .printType(PrintType.valueOf(itemMaskRequest.getPrintType()))
+                        .build()
+            );
+
+            itemMaskList.add(savedItemMask);
+        }
+        return itemMaskList;
     }
 }

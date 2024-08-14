@@ -17,7 +17,9 @@ public interface ItemMaskService {
 
     List<ItemMaskResponse> getAllItemMask();
 
-    void deleteItemMaskByPartOfDesignID(String partOfDesignID);
+    List<ItemMask> updateItemMask(PartOfDesign partOfDesign, List<ItemMaskRequest> itemMaskRequestList);
 
-    void deleteItemMaskByDesignID(String designID);
+    List<ItemMask> getAllItemMaskByPartOfDesignID(String partOfDesignID);
+
+    void changeStatusItemMask(ItemMask itemMask, Boolean status);
 }

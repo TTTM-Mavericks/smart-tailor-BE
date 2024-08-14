@@ -19,7 +19,7 @@ public interface PartOfDesignService {
 
     List<PartOfDesignResponse> getAllPartOfDesign();
 
-    void deletePartOfDesignByDesignID(String designID);
-
     List<PartOfDesign> savePartOfDesign(List<PartOfDesign> partOfDesignList);
+
+    List<PartOfDesign> updatePartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList);
 }

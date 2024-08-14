@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import org.hibernate.annotations.Where;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
@@ -53,6 +54,7 @@ public class PartOfDesign extends AuditEntity implements Serializable {
 
     @OneToMany(mappedBy = "partOfDesign")
     @JsonManagedReference
+    @Where(clause = "status = true")
     private List<ItemMask> itemMaskList;
 
     @ManyToOne
