@@ -159,7 +159,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                         );
                     } else if (orderStatus.equals(OrderStatus.SUSPENDED)) {
                         logger.info("Continue Status SUSPENDED");
-                    } else {
+                    } else if (!orderStatus.equals(OrderStatus.CANCEL)) {
                         logger.info("Change Status Delete Order");
                         orderService.changeOrderStatus(
                                 OrderStatusUpdateRequest
