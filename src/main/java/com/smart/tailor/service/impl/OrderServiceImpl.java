@@ -502,9 +502,7 @@ public class OrderServiceImpl implements OrderService {
 //                order.setDetailList(detailList);
                 var status = order.getOrderStatus();
                 var paymentList = paymentService.findAllByOrderID(orderID);
-                if (!isOrderCompletelyPicked(orderID)) {
-                    return convertToOrderCustomResponse(order, detailList);
-                }
+
                 switch (status) {
                     case DEPOSIT -> {
                         logger.error("INCASE DEPOSIT");
@@ -587,7 +585,7 @@ public class OrderServiceImpl implements OrderService {
                                             break;
                                         }
                                     }
-                                    if (isFinish) {
+                                    if (isFinish  && isOrderCompletelyPicked(orderID)) {
                                         var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)
                                                 && p.getOrder().getOrderID().equals(orderID)
                                         ).findFirst();
@@ -628,7 +626,7 @@ public class OrderServiceImpl implements OrderService {
                                             break;
                                         }
                                     }
-                                    if (isFinish) {
+                                    if (isFinish  && isOrderCompletelyPicked(orderID)) {
                                         var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)
                                                 && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                         if (checkDeposited.isEmpty()) {
@@ -668,7 +666,7 @@ public class OrderServiceImpl implements OrderService {
                                             break;
                                         }
                                     }
-                                    if (isFinish) {
+                                    if (isFinish && isOrderCompletelyPicked(orderID)) {
                                         var maxDateTime = LocalDateTime.parse(subOrderList.get(0).getProductionCompletionDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
                                         for (OrderResponse subOrder : subOrderList) {
                                             var completionDate = LocalDateTime.parse(subOrder.getProductionCompletionDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
@@ -680,7 +678,8 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                             }
-                        } else {
+                        }
+                        else {
                             boolean isFinish;
                             isFinish = true;
                             for (OrderResponse subOrder : subOrderList) {
@@ -689,7 +688,7 @@ public class OrderServiceImpl implements OrderService {
                                     break;
                                 }
                             }
-                            if (isFinish) {
+                            if (isFinish  && isOrderCompletelyPicked(orderID)) {
                                 var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.COMPLETED_ORDER)
                                         && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                 if (checkDeposited.isEmpty()) {
