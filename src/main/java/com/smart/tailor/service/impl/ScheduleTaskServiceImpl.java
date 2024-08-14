@@ -142,6 +142,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                              * UPDATE STATUS TO DEPOSIT
                              */
                             logger.info("Change Status PROCESSING Order");
+                            orderService.confirmOrder(order.getOrderID());
                             orderService.changeOrderStatus(
                                     OrderStatusUpdateRequest
                                             .builder()

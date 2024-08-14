@@ -64,6 +64,7 @@ public class OrderServiceImpl implements OrderService {
     private final PayOSService payOSService;
     private static final BigDecimal PIXEL_TO_CENTIMETER = new BigDecimal("0.0264583");
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+    private final Map<String, OrderDetailPriceResponse> calculatePrice = new HashMap<>();
 
     @Value("${client.server.link}")
     private String clientServerLink;
@@ -487,7 +488,7 @@ public class OrderServiceImpl implements OrderService {
             }
             if (order.getOrderType().equals("PARENT_ORDER")) {
 
-                var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
+                var calculatedPrice = calculatePrice.get(orderID);
 
                 List<DesignDetail> designDetailList = detailRepository.findAllByOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -585,7 +586,7 @@ public class OrderServiceImpl implements OrderService {
                                             break;
                                         }
                                     }
-                                    if (isFinish  && isOrderCompletelyPicked(orderID)) {
+                                    if (isFinish && isOrderCompletelyPicked(orderID)) {
                                         var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_1)
                                                 && p.getOrder().getOrderID().equals(orderID)
                                         ).findFirst();
@@ -603,8 +604,8 @@ public class OrderServiceImpl implements OrderService {
                                                             .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
                                                             .paymentRecipientBankCode("OCB")
                                                             .paymentRecipientBankNumber("0163100007285002")
-                                                            .paymentType(PaymentType.valueOf(calculatePrice.getCustomerPriceFirstStage()))
-                                                            .paymentAmount(order.getTotalPrice())
+                                                            .paymentType(PaymentType.STAGE_1)
+                                                            .paymentAmount(Integer.valueOf(calculatedPrice.getCustomerPriceFirstStage()))
                                                             .itemList(null)
                                                             .build()
                                             );
@@ -626,7 +627,7 @@ public class OrderServiceImpl implements OrderService {
                                             break;
                                         }
                                     }
-                                    if (isFinish  && isOrderCompletelyPicked(orderID)) {
+                                    if (isFinish && isOrderCompletelyPicked(orderID)) {
                                         var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.STAGE_2)
                                                 && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                         if (checkDeposited.isEmpty()) {
@@ -644,7 +645,7 @@ public class OrderServiceImpl implements OrderService {
                                                             .paymentRecipientBankCode("OCB")
                                                             .paymentRecipientBankNumber("0163100007285002")
                                                             .paymentType(PaymentType.STAGE_2)
-                                                            .paymentAmount(Integer.valueOf(calculatePrice.getCustomerSecondStage()))
+                                                            .paymentAmount(Integer.valueOf(calculatedPrice.getCustomerSecondStage()))
                                                             .itemList(null)
                                                             .build()
                                             );
@@ -678,8 +679,7 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             boolean isFinish;
                             isFinish = true;
                             for (OrderResponse subOrder : subOrderList) {
@@ -688,7 +688,7 @@ public class OrderServiceImpl implements OrderService {
                                     break;
                                 }
                             }
-                            if (isFinish  && isOrderCompletelyPicked(orderID)) {
+                            if (isFinish && isOrderCompletelyPicked(orderID)) {
                                 var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.COMPLETED_ORDER)
                                         && p.getOrder().getOrderID().equals(orderID)).findFirst();
                                 if (checkDeposited.isEmpty()) {
@@ -707,7 +707,7 @@ public class OrderServiceImpl implements OrderService {
                                                     .paymentRecipientBankNumber("0163100007285002")
                                                     .paymentType(PaymentType.COMPLETED_ORDER)
                                                     .paymentAmount(
-                                                            Integer.parseInt(calculatePrice.getTotalPriceOfParentOrder()) - Integer.parseInt(calculatePrice.getCustomerPriceDeposit())
+                                                            Integer.parseInt(calculatedPrice.getTotalPriceOfParentOrder()) - Integer.parseInt(calculatedPrice.getCustomerPriceDeposit())
                                                     )
                                                     .itemList(null)
                                                     .build()
@@ -722,7 +722,7 @@ public class OrderServiceImpl implements OrderService {
                         var subOrderList = getSubOrderByParentID(orderID);
                         for (var subOrderResponse : subOrderList) {
                             var subOrder = getOrderById(subOrderResponse.getOrderID()).get();
-                            var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                            var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                     .stream()
                                     .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
                                     .findFirst()
@@ -853,7 +853,7 @@ public class OrderServiceImpl implements OrderService {
                         switch (stage) {
                             case 0 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
-                                    var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                    var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                             .stream()
                                             .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
                                             .findFirst()
@@ -912,7 +912,7 @@ public class OrderServiceImpl implements OrderService {
                             }
                             case 1 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
-                                    var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                    var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                             .stream()
                                             .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
                                             .findFirst()
@@ -968,7 +968,7 @@ public class OrderServiceImpl implements OrderService {
                             }
                             case 2 -> {
                                 for (OrderResponse subOrderResponse : subOrderList) {
-                                    var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                    var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                             .stream()
                                             .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
                                             .findFirst()
@@ -1453,9 +1453,9 @@ public class OrderServiceImpl implements OrderService {
                                     }
 
                                     if (isStart) {
-                                        var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
+                                        var calculatedPrice = calculatePrice.get(orderID);
                                         for (var subOrderResponse : subOrderList) {
-                                            var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                            var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                                     .stream()
                                                     .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
                                                     .findFirst()
@@ -1528,9 +1528,9 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                                 case 1 -> {
-                                    var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
+                                    var calculatedPrice = calculatePrice.get(orderID);
                                     for (var subOrderResponse : subOrderList) {
-                                        var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                        var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                                 .stream()
                                                 .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
                                                 .findFirst()
@@ -1572,9 +1572,9 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                                 case 2 -> {
-                                    var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
+                                    var calculatedPrice = calculatePrice.get(orderID);
                                     for (var subOrderResponse : subOrderList) {
-                                        var subPrice = calculatePrice.getBrandDetailPriceResponseList()
+                                        var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                                 .stream()
                                                 .filter(brandPrice -> brandPrice.getSubOrderID().equals(subOrderResponse.getOrderID()))
                                                 .findFirst()
@@ -2141,6 +2141,7 @@ public class OrderServiceImpl implements OrderService {
         return brandResponses;
     }
 
+
     @Override
     public void confirmOrder(String orderID) {
         try {
@@ -2170,6 +2171,7 @@ public class OrderServiceImpl implements OrderService {
             stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.PROCESSING).currentQuantity(0).status(false).build());
 
             stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.COMPLETED).currentQuantity(quantity).status(false).build());
+            calculatePrice.put(orderID, calculateTotalPriceForSpecificOrder(orderID));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
