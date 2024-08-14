@@ -162,7 +162,7 @@ public class SecurityConfig {
 
                             /* Order API */
                             auth.requestMatchers("/api/v1/order/get-order-status-detail").hasRole(RoleType.ADMIN.name());
-                            auth.requestMatchers("/api/v1/order/calculate-order-status-detail-growth-percentage").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/order/calculate-order-growth-percentage-for-current-and-previous-month").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/order/get-order-by-brand-id/**").hasRole(RoleType.BRAND.name());
                             auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
 
