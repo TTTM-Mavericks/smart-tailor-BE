@@ -9,9 +9,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import org.hibernate.annotations.Where;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -24,7 +27,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "partOfDesignID")
-public class PartOfDesign extends AuditEntity implements Serializable {
+public class PartOfDesign  implements Serializable {
     @Id
     @Column(name = "part_of_design_id", columnDefinition = "varchar(14)")
     private String partOfDesignID;
@@ -62,8 +65,27 @@ public class PartOfDesign extends AuditEntity implements Serializable {
     @JsonManagedReference
     private Material material;
 
+    @CreatedDate
+    @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
+    private LocalDateTime createDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date", columnDefinition = "datetime(2)", nullable = true, insertable = false)
+    private LocalDateTime lastModifiedDate;
+
     @PrePersist
     private void prePersist() {
-        this.partOfDesignID = Utilities.generateCustomPrimaryKey();
+        if (this.partOfDesignID == null){
+            this.partOfDesignID = Utilities.generateCustomPrimaryKey();
+        }
+
+        if (this.createDate == null) {
+            this.createDate = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.lastModifiedDate = LocalDateTime.now();
     }
 }

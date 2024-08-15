@@ -4,9 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -19,7 +22,7 @@ import java.util.Date;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-public class Customer extends AuditEntity implements Serializable {
+public class Customer  implements Serializable {
     @Id
     @Column(name = "customer_id", columnDefinition = "varchar(14)")
     private String customerID;
@@ -48,4 +51,24 @@ public class Customer extends AuditEntity implements Serializable {
 
     @Column(name = "number_of_violations")
     private Integer numberOfViolations = 0;
+
+    @CreatedDate
+    @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
+    private LocalDateTime createDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date", columnDefinition = "datetime(2)", nullable = true, insertable = false)
+    private LocalDateTime lastModifiedDate;
+
+    @PrePersist
+    private void prePersist() {
+        if (this.createDate == null) {
+            this.createDate = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.lastModifiedDate = LocalDateTime.now();
+    }
 }

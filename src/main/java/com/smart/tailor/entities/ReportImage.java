@@ -6,9 +6,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -19,7 +22,7 @@ import java.io.Serializable;
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReportImage extends AuditEntity implements Serializable {
+public class ReportImage  implements Serializable {
     @Id
     @Column(name = "report_image_id", columnDefinition = "varchar(14)")
     private String reportImageID;
@@ -36,8 +39,29 @@ public class ReportImage extends AuditEntity implements Serializable {
     @JsonBackReference
     private Report report;
 
+    private Boolean reportImageStatus;
+
+    @CreatedDate
+    @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
+    private LocalDateTime createDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date", columnDefinition = "datetime(2)", nullable = true, insertable = false)
+    private LocalDateTime lastModifiedDate;
+
     @PrePersist
     private void prePersist() {
-        this.reportImageID = Utilities.generateCustomPrimaryKey();
+        if (this.reportImageID == null){
+            this.reportImageID = Utilities.generateCustomPrimaryKey();
+        }
+
+        if (this.createDate == null) {
+            this.createDate = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.lastModifiedDate = LocalDateTime.now();
     }
 }
