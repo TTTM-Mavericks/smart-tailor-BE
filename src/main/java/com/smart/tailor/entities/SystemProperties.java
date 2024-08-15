@@ -5,9 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -19,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-public class SystemProperties extends AuditEntity implements Serializable {
+public class SystemProperties  implements Serializable {
     @Id
     @Column(name = "property_id", columnDefinition = "varchar(14)")
     private String propertyID;
@@ -45,8 +48,27 @@ public class SystemProperties extends AuditEntity implements Serializable {
     @OneToMany(mappedBy = "systemProperties")
     private List<BrandProperties> brandProperties;
 
+    @CreatedDate
+    @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
+    private LocalDateTime createDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date", columnDefinition = "datetime(2)", nullable = true, insertable = false)
+    private LocalDateTime lastModifiedDate;
+
     @PrePersist
     private void prePersist() {
-        this.propertyID = Utilities.generateCustomPrimaryKey();
+        if (this.propertyID == null){
+            this.propertyID = Utilities.generateCustomPrimaryKey();
+        }
+
+        if (this.createDate == null) {
+            this.createDate = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.lastModifiedDate = LocalDateTime.now();
     }
 }

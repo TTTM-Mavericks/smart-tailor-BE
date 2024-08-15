@@ -9,9 +9,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -23,7 +26,7 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "itemMaskID")
-public class ItemMask extends AuditEntity implements Serializable {
+public class ItemMask  implements Serializable {
     @Id
     @Column(name = "item_mask_id", columnDefinition = "varchar(14)")
     private String itemMaskID;
@@ -87,8 +90,27 @@ public class ItemMask extends AuditEntity implements Serializable {
     @Column(name = "print_type")
     private PrintType printType;
 
+    @CreatedDate
+    @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
+    private LocalDateTime createDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date", columnDefinition = "datetime(2)", nullable = true, insertable = false)
+    private LocalDateTime lastModifiedDate;
+
     @PrePersist
     private void prePersist() {
-        this.itemMaskID = Utilities.generateCustomPrimaryKey();
+        if (this.itemMaskID == null){
+            this.itemMaskID = Utilities.generateCustomPrimaryKey();
+        }
+
+        if (this.createDate == null) {
+            this.createDate = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.lastModifiedDate = LocalDateTime.now();
     }
 }

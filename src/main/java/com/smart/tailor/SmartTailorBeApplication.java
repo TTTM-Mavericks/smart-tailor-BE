@@ -12,7 +12,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 
 @SpringBootApplication
-@EnableJpaAuditing()
+@EnableJpaAuditing
 @EnableCaching
 @EnableScheduling
 public class SmartTailorBeApplication {

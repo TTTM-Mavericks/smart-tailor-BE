@@ -5,9 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -18,7 +21,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Size extends AuditEntity implements Serializable {
+public class Size  implements Serializable {
     @Id
     @Column(name = "size_id", columnDefinition = "varchar(14)")
     private String sizeID;
@@ -28,8 +31,27 @@ public class Size extends AuditEntity implements Serializable {
 
     private Boolean status;
 
+    @CreatedDate
+    @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
+    private LocalDateTime createDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date", columnDefinition = "datetime(2)", nullable = true, insertable = false)
+    private LocalDateTime lastModifiedDate;
+
     @PrePersist
     private void prePersist() {
-        this.sizeID = Utilities.generateCustomPrimaryKey();
+        if (this.sizeID == null){
+            this.sizeID = Utilities.generateCustomPrimaryKey();
+        }
+
+        if (this.createDate == null) {
+            this.createDate = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.lastModifiedDate = LocalDateTime.now();
     }
 }
