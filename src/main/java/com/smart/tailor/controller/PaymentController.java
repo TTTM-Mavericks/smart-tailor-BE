@@ -10,6 +10,7 @@ import com.smart.tailor.utils.request.PaymentRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -114,5 +115,16 @@ public class PaymentController {
         } catch (Exception ex) {
             throw ex;
         }
+    }
+
+    @GetMapping(PaymentAPI.CALCULATE_PAYMENT_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK)
+    ResponseEntity<ObjectNode> calculatePaymentGrowthPercentageForCurrentAndPreviousWeek(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        Float growthPercentage = paymentService.calculatePaymentGrowthPercentageForCurrentAndPreviousWeek();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate New Customer Growth Percentage For Current and Previous Week Successfully");
+        response.put("data", growthPercentage);
+        return ResponseEntity.ok(response);
     }
 }

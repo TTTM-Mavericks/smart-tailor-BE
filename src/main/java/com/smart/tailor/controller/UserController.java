@@ -121,4 +121,26 @@ public class UserController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(APIConstant.UserAPI.CALCULATE_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH)
+    public ResponseEntity<ObjectNode> calculateUserGrowthPercentageForCurrentAndPreviousMonth() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        Float growthPercentage = userService.calculateUserGrowthPercentageForCurrentAndPreviousMonth();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate User Growth Percentage For Current and Previous Month Successfully");
+        response.put("data", growthPercentage);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(APIConstant.UserAPI.CALCULATE_NEW_CUSTOMER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK)
+    public ResponseEntity<ObjectNode> calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        Float growthPercentage = userService.calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate New Customer Growth Percentage For Current and Previous Week Successfully");
+        response.put("data", growthPercentage);
+        return ResponseEntity.ok(response);
+    }
 }

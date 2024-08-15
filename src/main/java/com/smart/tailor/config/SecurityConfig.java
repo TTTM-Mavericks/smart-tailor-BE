@@ -63,6 +63,8 @@ public class SecurityConfig {
 
                             /* User API */
                             auth.requestMatchers("/api/v1/user/get-all-admin").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/user/calculate-user-growth-percentage-for-current-and-previous-month").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/user/calculate-new-customer-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/user/**").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name());
 
                             /* Customer API */
@@ -159,11 +161,15 @@ public class SecurityConfig {
                             auth.requestMatchers("/api/v1/design-detail/**").hasAnyRole(authenticatedRole);
 
                             /* Order API */
-                            auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
+                            auth.requestMatchers("/api/v1/order/get-order-status-detail").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/order/calculate-order-growth-percentage-for-current-and-previous-month").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/order/get-order-by-brand-id/**").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
 
                             /* Payment API */
+                            auth.requestMatchers("/api/v1/payment/calculate-payment-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
+
 
                             auth.requestMatchers(WHITE_LIST_URL).permitAll();
                             auth.anyRequest().permitAll();

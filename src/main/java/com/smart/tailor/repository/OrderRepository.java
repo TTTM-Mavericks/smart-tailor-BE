@@ -36,4 +36,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     @Query(nativeQuery = true, value = "select o.* from orders o join orders sub on sub.parent_order_id = o.order_id where sub.order_id = ?1")
     Optional<Order>  getParentOrderBySubOrderID(String subOrderID);
+
+    @Query(nativeQuery = true, value = "SELECT o.* FROM orders o where o.order_type = 'PARENT_ORDER'")
+    List<Order> getAllParentOrder();
 }

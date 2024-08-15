@@ -294,4 +294,24 @@ public class OrderController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(OrderAPI.GET_ORDER_STATUS_DETAIL)
+    public ResponseEntity<ObjectNode> getOrderStatusDetail() {
+        ObjectNode response = objectMapper.createObjectNode();
+        var orderDetailShippingResponse = orderService.getAllOrderStatusDetailResponse();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Get Order Status Detail Successfully");
+        response.set("data", objectMapper.valueToTree(orderDetailShippingResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(OrderAPI.CALCULATE_ORDER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH)
+    public ResponseEntity<ObjectNode> calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
+        ObjectNode response = objectMapper.createObjectNode();
+        Float growthPercentage = orderService.calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate Order Growth Percentage For Current and Previous Month Successfully");
+        response.put("data", growthPercentage);
+        return ResponseEntity.ok(response);
+    }
 }

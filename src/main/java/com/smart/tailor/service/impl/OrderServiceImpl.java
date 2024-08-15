@@ -20,6 +20,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -2600,5 +2602,89 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
+    }
+
+    @Override
+    public OrderStatusDetailResponse getAllOrderStatusDetailResponse() {
+        var totalParentOrder = orderRepository.getAllParentOrder();
+
+        long totalPreOrder = totalParentOrder.stream()
+                .filter(order ->
+                            order.getOrderStatus() == OrderStatus.NOT_VERIFY ||
+                            order.getOrderStatus() == OrderStatus.PENDING
+                )
+                .count();
+
+        long totalProcessingOrder = totalParentOrder.stream()
+                .filter(order ->
+                            order.getOrderStatus() == OrderStatus.DEPOSIT ||
+                            order.getOrderStatus() == OrderStatus.PREPARING ||
+                            order.getOrderStatus() == OrderStatus.PROCESSING ||
+                            order.getOrderStatus() == OrderStatus.SUSPENDED ||
+                            order.getOrderStatus() == OrderStatus.COMPLETED
+                )
+                .count();
+
+        long totalFullyCompletedOrder = totalParentOrder.stream()
+                .filter(order -> order.getOrderStatus() == OrderStatus.DELIVERED)
+                .count();
+
+        long totalCancelOrder = totalParentOrder.stream()
+                .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL)
+                .count();
+
+        List<Pair<String, Long>> orderStatusDetailList = List.of(
+                Pair.of("Total Parent Order", (long) totalParentOrder.size()),
+                Pair.of("Total Pre Order", totalPreOrder),
+                Pair.of("Total Processing Order", totalProcessingOrder),
+                Pair.of("Total Fully Completed Order", totalFullyCompletedOrder),
+                Pair.of("Total Cancel Order", totalCancelOrder)
+        );
+
+        return OrderStatusDetailResponse.builder()
+                .orderStatusDetailList(orderStatusDetailList)
+                .build();
+    }
+
+    @Override
+    public Float calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
+        var totalParentOrder = orderRepository.getAllParentOrder();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        YearMonth currentMonth = YearMonth.from(now);
+        LocalDateTime startOfCurrentMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfCurrentMonth = now;
+
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+        LocalDateTime startOfPreviousMonth = previousMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfPreviousMonth = previousMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+
+        long currentMonthOrderCount = totalParentOrder
+                .stream()
+                .filter(order -> {
+                    LocalDateTime createDate = order.getCreateDate();
+                    return !createDate.isBefore(startOfCurrentMonth) && !createDate.isAfter(endOfCurrentMonth);
+                })
+                .count();
+
+        long previousMonthOrderCount = totalParentOrder
+                .stream()
+                .filter(order -> {
+                    LocalDateTime createDate = order.getCreateDate();
+                    return !createDate.isBefore(startOfPreviousMonth) && !createDate.isAfter(endOfPreviousMonth);
+                })
+                .count();
+
+        if (previousMonthOrderCount == 0) {
+            return currentMonthOrderCount > 0 ? 100.0f : 0.0f;
+        }
+
+        float growthPercentage = ((float) (currentMonthOrderCount - previousMonthOrderCount) / previousMonthOrderCount) * 100.0f;
+
+        return BigDecimal
+                .valueOf(growthPercentage)
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
     }
 }
