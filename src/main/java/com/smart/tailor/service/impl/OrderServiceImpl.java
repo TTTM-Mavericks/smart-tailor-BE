@@ -2687,4 +2687,17 @@ public class OrderServiceImpl implements OrderService {
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
     }
+
+    @Override
+    public List<Pair<Object, Integer>> getAllTotalOrderOfEachBrand() {
+        List<Pair<Object, Integer>> totalSubOrderDetails = new ArrayList<>();
+        var brandList = brandService.getAllBrandInformation();
+
+        for(var brandInformation : brandList){
+            var totalOrderForBrand = orderRepository.getOrderByBrandID(brandInformation.getBrandID()).size();
+            totalSubOrderDetails.add(Pair.of(brandInformation, totalOrderForBrand));
+        }
+
+        return totalSubOrderDetails;
+    }
 }

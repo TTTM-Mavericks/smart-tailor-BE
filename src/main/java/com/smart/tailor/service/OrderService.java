@@ -7,6 +7,7 @@ import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.request.RatingOrderRequest;
 import com.smart.tailor.utils.response.*;
+import org.springframework.data.util.Pair;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,4 +71,6 @@ public interface OrderService {
     OrderStatusDetailResponse getAllOrderStatusDetailResponse();
 
     Float calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
+
+    List<Pair<Object, Integer>> getAllTotalOrderOfEachBrand();
 }

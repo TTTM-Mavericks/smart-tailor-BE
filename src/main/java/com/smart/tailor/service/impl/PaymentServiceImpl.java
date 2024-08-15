@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,8 @@ import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.*;
 
 @Service
@@ -678,4 +681,24 @@ public class PaymentServiceImpl implements PaymentService {
                 .floatValue();
     }
 
+    @Override
+    public List<Pair<String, Integer>> getTotalPaymentOfEachMonth() {
+        var listPayment = paymentRepository.findAll();
+        Map<Integer, Integer> map = new HashMap<>();
+        for(Payment payment : listPayment){
+            int month = payment.getCreateDate().getMonthValue();
+
+            // Sum the payments for the corresponding month
+            map.merge(month, payment.getPaymentAmount(), Integer::sum);
+        }
+
+        List<Pair<String, Integer>> listPaymentDetail = new ArrayList<>();
+        for(int i = 1; i <= 12; ++i){
+            String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+            int total = map.get(i);
+            listPaymentDetail.add(Pair.of(monthName, total));
+        }
+
+        return listPaymentDetail;
+    }
 }

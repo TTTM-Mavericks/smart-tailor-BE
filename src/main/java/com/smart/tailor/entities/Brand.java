@@ -63,13 +63,13 @@ public class Brand implements Serializable {
     private BrandStatus brandStatus;
 
     @Column(name = "number_of_violations")
-    private Integer numberOfViolations = 0;
+    private Integer numberOfViolations;
 
-    private Float rating = 1.0f;
+    private Float rating;
 
-    private Integer numberOfRatings = 1;
+    private Integer numberOfRatings;
 
-    private Float totalRatingScore = 1.0f;
+    private Float totalRatingScore;
 
     private String taxCode;
 
@@ -89,6 +89,10 @@ public class Brand implements Serializable {
 
     @PrePersist
     private void prePersist() {
+        this.numberOfViolations = 0;
+        this.numberOfRatings = 1;
+        this.totalRatingScore = 1.0f;
+        this.rating = 1.0f;
         if (this.createDate == null) {
             this.createDate = LocalDateTime.now();
         }

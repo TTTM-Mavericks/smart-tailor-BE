@@ -264,6 +264,7 @@ public class APIConstant {
         public static final String GET_ORDER_SHIPPING_DETAIL_BY_LABEL_ID = "/get-order-shipping-detail-by-label-id";
         public static final String GET_ORDER_STATUS_DETAIL = "/get-order-status-detail";
         public static final String CALCULATE_ORDER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH = "/calculate-order-growth-percentage-for-current-and-previous-month";
+        public static final String GET_TOTAL_ORDER_OF_EACH_BRAND = "/get-order-detail-of-each-brand";
     }
 
     /**
@@ -327,6 +328,7 @@ public class APIConstant {
         public static final String GET_ALL_PAYMENT = "/get-all-payment";
         public static final String CONFIRM_PAYMENT = "/confirm-payment";
         public static final String CALCULATE_PAYMENT_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-payment-growth-percentage-for-current-and-previous-week";
+        public static final String GET_TOTAL_PAYMENT_OF_EACH_MONTH = "/get-total-payment-of-each-month";
     }
 
     /**

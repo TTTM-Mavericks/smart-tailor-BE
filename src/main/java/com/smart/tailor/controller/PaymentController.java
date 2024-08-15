@@ -127,4 +127,15 @@ public class PaymentController {
         response.put("data", growthPercentage);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(PaymentAPI.GET_TOTAL_PAYMENT_OF_EACH_MONTH)
+    ResponseEntity<ObjectNode> getTotalPaymentOfEachMonth(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var totalPaymentOfEachMonth = paymentService.getTotalPaymentOfEachMonth();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Get Total Payment of Each Month Successfully");
+        response.put("data", objectMapper.valueToTree(totalPaymentOfEachMonth));
+        return ResponseEntity.ok(response);
+    }
 }
