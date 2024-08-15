@@ -695,7 +695,7 @@ public class PaymentServiceImpl implements PaymentService {
         List<Pair<String, Integer>> listPaymentDetail = new ArrayList<>();
         for(int i = 1; i <= 12; ++i){
             String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-            int total = map.get(i);
+            int total = map.getOrDefault(i, 0);
             listPaymentDetail.add(Pair.of(monthName, total));
         }
 

@@ -2695,7 +2695,7 @@ public class OrderServiceImpl implements OrderService {
 
         for(var brandInformation : brandList){
             var totalOrderForBrand = orderRepository.getOrderByBrandID(brandInformation.getBrandID()).size();
-            totalSubOrderDetails.add(Pair.of(brandInformation, totalOrderForBrand));
+            totalSubOrderDetails.add(Pair.of(brandInformation.getBrandName(), totalOrderForBrand));
         }
 
         return totalSubOrderDetails;

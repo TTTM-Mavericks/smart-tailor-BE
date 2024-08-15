@@ -9,7 +9,8 @@ import java.util.Base64;
 
 @Mapper(componentModel = "spring")
 public interface BrandImageMapper {
-
+    @Mapping(source = "brandImage.createDate", target = "createDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
+    @Mapping(source = "brandImage.lastModifiedDate", target = "lastModifiedDate", dateFormat = "dd-MM-yyyy HH:mm:ss")
     @Mapping(target = "imageUrl", expression = "java(decodeByteArrayToString(brandImage.getImageUrl()))")
     @Mapping(target = "status", source = "brandImage.status")
     BrandImageResponse mapToBrandImageResponse(BrandImage brandImage);
