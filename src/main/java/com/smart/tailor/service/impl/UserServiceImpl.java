@@ -30,6 +30,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -329,17 +330,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Pair<String, Long> calculateTotalOfUserByRoleName(String roleName) {
-        try{
-            RoleType.valueOf(roleName.toUpperCase());
-        } catch (IllegalArgumentException e){
-            throw new IllegalArgumentException("RoleName: " + roleName + " must be any of enum RoleType");
-        }
-        var totalUserByRole = userRepository.findAll()
-                .stream()
-                .filter(user -> user.getRoles().getRoleName().equalsIgnoreCase(roleName))
-                .toList();
+    public List<Pair<String, Long>> calculateTotalOfUser() {
+        List<Pair<String, Long>> list = new ArrayList<>();
+       for(RoleType roleName : RoleType.values()){
+           long countUserByRoleName = userRepository
+                   .findAll()
+                   .stream()
+                   .filter(user -> user.getRoles().getRoleName().equalsIgnoreCase(roleName.name()))
+                   .count();
 
-        return Pair.of(roleName.toUpperCase(), totalUserByRole.stream().count());
+           list.add(Pair.of(roleName.name(), countUserByRoleName));
+       }
+       return list;
     }
 }

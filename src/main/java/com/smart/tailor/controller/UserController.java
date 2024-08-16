@@ -159,13 +159,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(APIConstant.UserAPI.CALCULATE_TOTAL_OF_USER_BY_ROLE_NAME + "/{roleName}")
-    public ResponseEntity<ObjectNode> calculateTotalOfUserByRoleName(@PathVariable("roleName") String roleName) {
+    @GetMapping(APIConstant.UserAPI.CALCULATE_TOTAL_OF_USER)
+    public ResponseEntity<ObjectNode> calculateTotalOfUserByRoleName() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        var totalUserResponse = userService.calculateTotalOfUserByRoleName(roleName);
+        var totalUserResponse = userService.calculateTotalOfUser();
         response.put("status", HttpStatus.OK.value());
-        response.put("message", "Calculate Total Of User By Role Name Successfully");
+        response.put("message", "Calculate Total Of User Successfully");
         response.set("data", objectMapper.valueToTree(totalUserResponse));
         return ResponseEntity.ok(response);
     }

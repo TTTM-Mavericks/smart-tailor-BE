@@ -47,5 +47,5 @@ public interface UserService {
 
     GrowthPercentageResponse calculateNewUserGrowthPercentageForCurrentAndPreviousDayByRole(String roleName);
 
-    Pair<String, Long> calculateTotalOfUserByRoleName(String roleName);
+    List<Pair<String, Long>> calculateTotalOfUser();
 }
