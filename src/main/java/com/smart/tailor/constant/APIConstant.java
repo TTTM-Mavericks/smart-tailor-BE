@@ -330,7 +330,11 @@ public class APIConstant {
         public static final String GET_ALL_PAYMENT = "/get-all-payment";
         public static final String CONFIRM_PAYMENT = "/confirm-payment";
         public static final String CALCULATE_PAYMENT_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-payment-growth-percentage-for-current-and-previous-week";
+        public static final String CALCULATE_INCOME_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-income-growth-percentage-for-current-and-previous-week";
+        public static final String CALCULATE_REFUND_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH = "/calculate-refund-growth-percentage-for-current-and-previous-month";
         public static final String GET_TOTAL_PAYMENT_OF_EACH_MONTH = "/get-total-payment-of-each-month";
+        public static final String GET_TOTAL_INCOME_OF_EACH_MONTH = "/get-total-income-of-each-month";
+        public static final String GET_TOTAL_REFUND_OF_EACH_MONTH = "/get-total-refund-of-each-month";
     }
 
     /**

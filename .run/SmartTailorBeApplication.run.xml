@@ -1,0 +1,36 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="SmartTailorBeApplication" type="SpringBootApplicationConfigurationType"
+                   factoryName="Spring Boot" nameIsGenerated="true">
+        <option name="DEBUG_MODE" value="true"/>
+        <envs>
+            <env name="spring.datasource.password" value="12345"/>
+            <env name="spring.security.oauth2.client.registration.google.clientId"
+                 value="1051460649548-ijlrpmgdcmd5td1apidcpauh3dhv7u26.apps.googleusercontent.com"/>
+            <env name="spring.security.oauth2.client.registration.google.clientSecret"
+                 value="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"/>
+            <env name="application.security.jwt.secret-key"
+                 value="y1KJOk+zRelneGgg4cVhAoAvRmwxOkGZyCi6dcHnNYl/p+d170Av17/pqLma7HNI"/>
+            <env name="spring.mail.username" value="smarttailor.tttm@gmail.com"/>
+            <env name="spring.mail.password" value="aarmramwhhutitlx"/>
+            <env name="PAYOS_CLIENT_ID" value="339a703f-b5c3-4c1b-b30e-c776ae2b881e"/>
+            <env name="PAYOS_API_KEY" value="c64c9846-1eab-4b9d-8a8c-53b242e0c6f4"/>
+            <env name="PAYOS_CHECKSUM_KEY" value="468cbcdcd6630412d201ca0b54d5ec44bb6513e1124a8b2c42077dd799835e58"/>
+            <env name="BRAND_PAYOS_CLIENT_ID" value="a215c244-cffd-4b06-9e93-8c1d2fcc6070"/>
+            <env name="BRAND_PAYOS_API_KEY" value="ba01ae8d-d649-4251-8951-4f4bd74220e0"/>
+            <env name="BRAND_PAYOS_CHECKSUM_KEY"
+                 value="8d0e5ea88e1ccdb87585ae13c7d98dba56b80fdbabc050106e86f5be8e9e6d24"/>
+            <env name="REFUND_PAYOS_CLIENT_ID" value="31c14f0c-4575-4ae1-8906-82692788cf8a"/>
+            <env name="REFUND_PAYOS_API_KEY" value="5d077f25-eb49-4314-8152-295d0d294de9"/>
+            <env name="REFUND_PAYOS_CHECKSUM_KEY"
+                 value="b593bf2c6d889a8815883c9c2ae1fca15951c21fcde1c68e9aa820fc054bae32"/>
+            <env name="VNPAY_TMN_CODE" value="Y4I09HOS"/>
+            <env name="VNPAY_CHECKSUM_KEY" value="ARM3J6JB3FYN8J5THUQJAXSQSDQROKFX"/>
+            <env name="GHTK_SHPPING_API_TOKEN_KEY" value="53ea6ee92eb6d22ae2d39ad59222b93ff8d09571"/>
+        </envs>
+        <module name="smart-tailor-BE"/>
+        <option name="SPRING_BOOT_MAIN_CLASS" value="com.smart.tailor.SmartTailorBeApplication"/>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
+</component>

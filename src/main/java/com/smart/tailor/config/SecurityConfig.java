@@ -170,8 +170,12 @@ public class SecurityConfig {
                             auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
 
                             /* Payment API */
-                            auth.requestMatchers("/api/v1/payment/calculate-payment-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/payment/calculate-payment-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ACCOUNTANT.name());
+                            auth.requestMatchers("/api/v1/payment/calculate-income-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ACCOUNTANT.name());
+                            auth.requestMatchers("/api/v1/payment/calculate-refund-growth-percentage-for-current-and-previous-month").hasRole(RoleType.ACCOUNTANT.name());
                             auth.requestMatchers("/api/v1/payment/get-total-payment-of-each-month").hasRole(RoleType.ACCOUNTANT.name());
+                            auth.requestMatchers("/api/v1/payment/get-total-refund-of-each-month").hasRole(RoleType.ACCOUNTANT.name());
+                            auth.requestMatchers("/api/v1/payment/get-total-income-of-each-month").hasRole(RoleType.ACCOUNTANT.name());
                             auth.requestMatchers("/api/v1/payment/**").hasAnyRole(authenticatedRole);
 
                             auth.requestMatchers(WHITE_LIST_URL).permitAll();

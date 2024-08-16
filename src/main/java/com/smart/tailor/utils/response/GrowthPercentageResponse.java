@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class GrowthPercentageResponse {
-    private Long previousData;
+    private Object previousData;
 
-    private Long currentData;
+    private Object currentData;
 
-    private Float growthPercentage;
+    private Object growthPercentage;
 }
