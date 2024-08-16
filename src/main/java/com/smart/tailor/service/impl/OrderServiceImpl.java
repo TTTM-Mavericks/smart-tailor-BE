@@ -20,7 +20,6 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2248,9 +2247,20 @@ public class OrderServiceImpl implements OrderService {
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
         // Convert estimated dates to LocalDateTime
-        LocalDateTime estimatedDateFinishFirstStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishFirstStage(), outputFormatter);
-        LocalDateTime estimatedDateFinishSecondStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishSecondStage(), outputFormatter);
-        LocalDateTime estimatedDateCompletion = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage(), outputFormatter);
+        LocalDateTime estimatedDateFinishFirstStage = null;
+        if(estimateOrderTimeLine.getEstimatedDateFinishFirstStage() == null){
+            estimatedDateFinishFirstStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishFirstStage(), outputFormatter);
+        }
+
+        LocalDateTime estimatedDateFinishSecondStage = null;
+        if(estimateOrderTimeLine.getEstimatedDateFinishSecondStage() == null){
+            estimatedDateFinishSecondStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishSecondStage(), outputFormatter);
+        }
+
+        LocalDateTime estimatedDateCompletion = null;
+        if(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage() == null){
+            estimatedDateCompletion = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage(), outputFormatter);
+        }
 
         logger.info("Estimated Date Finish First Stage: {}", estimatedDateFinishFirstStage);
         logger.info("Estimated Date Finish Second Stage: {}", estimatedDateFinishSecondStage);
@@ -2273,24 +2283,30 @@ public class OrderServiceImpl implements OrderService {
 
                 // Compare the stages and calculate counters based on dates
                 if (subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)) {
-                    if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishFirstStage)) {
-                        completedAheadOfSchedule++;
-                    } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishFirstStage)) {
-                        completedLate++;
+                    if(estimatedDateFinishFirstStage != null){
+                        if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishFirstStage)) {
+                            completedAheadOfSchedule++;
+                        } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishFirstStage)) {
+                            completedLate++;
+                        }
                     }
                     logger.error("Last Modified Date Time At Finish First Stage: {}", lastModifiedDateTimeFormatted);
                 } else if (subOrderStage.getStage().equals(OrderStatus.FINISH_SECOND_STAGE)) {
-                    if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishSecondStage)) {
-                        completedAheadOfSchedule++;
-                    } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishSecondStage)) {
-                        completedLate++;
+                    if(estimatedDateFinishSecondStage != null){
+                        if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishSecondStage)) {
+                            completedAheadOfSchedule++;
+                        } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishSecondStage)) {
+                            completedLate++;
+                        }
                     }
                     logger.error("Last Modified Date Time At Finish Second Stage: {}", lastModifiedDateTimeFormatted);
                 } else if (subOrderStage.getStage().equals(OrderStatus.COMPLETED)) {
-                    if (lastModifiedDateTimeFormatted.isBefore(estimatedDateCompletion)) {
-                        completedAheadOfSchedule++;
-                    } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateCompletion)) {
-                        completedLate++;
+                    if(estimatedDateCompletion != null){
+                        if (lastModifiedDateTimeFormatted.isBefore(estimatedDateCompletion)) {
+                            completedAheadOfSchedule++;
+                        } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateCompletion)) {
+                            completedLate++;
+                        }
                     }
                     logger.error("Last Modified Date Time At Finish Complete Stage: {}", lastModifiedDateTimeFormatted);
                 }
