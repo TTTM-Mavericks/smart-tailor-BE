@@ -14,5 +14,5 @@ public class GrowthPercentageResponse {
 
     private Object currentData;
 
-    private Float growthPercentage;
+    private Object growthPercentage;
 }

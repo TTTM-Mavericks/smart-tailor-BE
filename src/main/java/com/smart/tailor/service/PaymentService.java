@@ -35,9 +35,9 @@ public interface PaymentService {
 
     GrowthPercentageResponse calculateRefundGrowthPercentageForCurrentAndPreviousMonth();
 
-    List<Pair<String, BigDecimal>> getTotalPaymentOfEachMonth();
+    List<Pair<String, String>> getTotalPaymentOfEachMonth();
 
-    List<Pair<String, BigDecimal>> getTotalRefundPaymentOfEachMonth();
+    List<Pair<String, String>> getTotalRefundPaymentOfEachMonth();
 
-    List<Pair<String, BigDecimal>> getTotalIncomePaymentOfEachMonth();
+    List<Pair<String, String>> getTotalIncomePaymentOfEachMonth();
 }
