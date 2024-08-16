@@ -2,9 +2,11 @@ package com.smart.tailor.service;
 
 import com.smart.tailor.entities.Payment;
 import com.smart.tailor.utils.request.PaymentRequest;
+import com.smart.tailor.utils.response.GrowthPercentageResponse;
 import com.smart.tailor.utils.response.PaymentResponse;
 import org.springframework.data.util.Pair;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -27,7 +29,15 @@ public interface PaymentService {
 
     List<PaymentResponse> getPaymentByUserID(String userID);
 
-    Float calculatePaymentGrowthPercentageForCurrentAndPreviousWeek();
+    GrowthPercentageResponse calculatePaymentGrowthPercentageForCurrentAndPreviousWeek();
 
-    List<Pair<String, Integer>> getTotalPaymentOfEachMonth();
+    GrowthPercentageResponse calculateIncomeGrowthPercentageForCurrentAndPreviousWeek();
+
+    GrowthPercentageResponse calculateRefundGrowthPercentageForCurrentAndPreviousMonth();
+
+    List<Pair<String, BigDecimal>> getTotalPaymentOfEachMonth();
+
+    List<Pair<String, BigDecimal>> getTotalRefundPaymentOfEachMonth();
+
+    List<Pair<String, BigDecimal>> getTotalIncomePaymentOfEachMonth();
 }

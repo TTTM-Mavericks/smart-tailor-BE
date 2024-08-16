@@ -6,6 +6,7 @@ import com.smart.tailor.config.VNPayConfig;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.entities.Payment;
+import com.smart.tailor.entities.SystemProperties;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import com.smart.tailor.enums.RoleType;
@@ -15,10 +16,13 @@ import com.smart.tailor.repository.OrderRepository;
 import com.smart.tailor.repository.PaymentRepository;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.service.PaymentService;
+import com.smart.tailor.service.SystemPropertiesService;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.PayOSItem;
 import com.smart.tailor.utils.request.PayOSRequest;
 import com.smart.tailor.utils.request.PaymentRequest;
+import com.smart.tailor.utils.response.GrowthPercentageResponse;
 import com.smart.tailor.utils.response.PayOSCreationResponse;
 import com.smart.tailor.utils.response.PaymentResponse;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,12 +47,10 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.Month;
+import java.time.*;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +60,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PayOSService payOSService;
     private final UserService userService;
     private final PaymentMapper paymentMapper;
+    private final SystemPropertiesService systemPropertiesService;
     private final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
     @Value("${CLIENT_URL}")
@@ -642,7 +645,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Float calculatePaymentGrowthPercentageForCurrentAndPreviousWeek() {
+    public GrowthPercentageResponse calculatePaymentGrowthPercentageForCurrentAndPreviousWeek() {
         LocalDateTime now = LocalDateTime.now();
 
         LocalDateTime startOfCurrentWeek = now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
@@ -651,54 +654,224 @@ public class PaymentServiceImpl implements PaymentService {
         LocalDateTime startOfPreviousWeek = startOfCurrentWeek.minusWeeks(1);
         LocalDateTime endOfPreviousWeek = startOfCurrentWeek.minusSeconds(1);
 
-        var totalPayments = paymentRepository.findAll();
+        BigDecimal currentWeekPayment = BigDecimal.valueOf(0);
+        BigDecimal previousWeekPayment = BigDecimal.valueOf(0);
 
-        long currentWeekPaymentCount = totalPayments
-                .stream()
-                .filter(payment -> {
-                    LocalDateTime createDate = payment.getCreateDate();
-                    return !createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek);
-                })
-                .count();
+        List<Payment> payments = paymentRepository.findAll();
 
-        long previousWeekPaymentCount = totalPayments
-                .stream()
-                .filter(payment -> {
-                    LocalDateTime createDate = payment.getCreateDate();
-                    return !createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek);
-                })
-                .count();
+        for(Payment payment : payments){
+            LocalDateTime createDate = payment.getCreateDate();
 
-        if (previousWeekPaymentCount == 0) {
-            return currentWeekPaymentCount > 0 ? 100.0f : 0.0f;
+            if(!createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek)) {
+                currentWeekPayment = currentWeekPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
+            }
+
+            if(!createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek)){
+                previousWeekPayment = previousWeekPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
+            }
         }
 
-        float growthPercentage = ((float) (currentWeekPaymentCount - previousWeekPaymentCount) / previousWeekPaymentCount) * 100.0f;
+        if (previousWeekPayment.equals(BigDecimal.ZERO)) {
+            return GrowthPercentageResponse
+                    .builder()
+                    .currentData(currentWeekPayment)
+                    .previousData(previousWeekPayment)
+                    .growthPercentage(currentWeekPayment.compareTo(BigDecimal.valueOf(0)) > 0 ? 100.0f : 0.0f)
+                    .build();
+        }
 
-        return BigDecimal
-                .valueOf(growthPercentage)
+        BigDecimal growthPercentage = currentWeekPayment.subtract(previousWeekPayment).divide(previousWeekPayment).multiply(BigDecimal.valueOf(100.0f));
+
+        var roundGrowthPercentage = growthPercentage
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
+
+        return GrowthPercentageResponse
+                .builder()
+                .currentData(currentWeekPayment)
+                .previousData(previousWeekPayment)
+                .growthPercentage(roundGrowthPercentage)
+                .build();
     }
 
     @Override
-    public List<Pair<String, Integer>> getTotalPaymentOfEachMonth() {
+    public GrowthPercentageResponse calculateIncomeGrowthPercentageForCurrentAndPreviousWeek() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime startOfCurrentWeek = now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
+        LocalDateTime endOfCurrentWeek = now;
+
+        LocalDateTime startOfPreviousWeek = startOfCurrentWeek.minusWeeks(1);
+        LocalDateTime endOfPreviousWeek = startOfCurrentWeek.minusSeconds(1);
+
+        var orderFeePercentage = Integer.parseInt(systemPropertiesService.getByName("ORDER_FEE_PERCENTAGE").getPropertyValue());
+        BigDecimal currentWeekIncomePayment = BigDecimal.valueOf(0);
+        BigDecimal previousWeekIncomePayment = BigDecimal.valueOf(0);
+
+        List<Payment> payments = paymentRepository.findAll();
+
+        for(Payment payment : payments){
+            if(payment.getOrder().getOrderType().equalsIgnoreCase("PARENT_ORDER") &&
+                    payment.getPaymentType().name().equals(PaymentType.DEPOSIT.name())){
+
+                LocalDateTime createDate = payment.getCreateDate();
+
+                if(!createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek)) {
+                    currentWeekIncomePayment = currentWeekIncomePayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getOrder().getTotalPrice()).multiply(BigDecimal.valueOf(orderFeePercentage)).divide(BigDecimal.valueOf(100.0))));
+                }
+
+                if(!createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek)){
+                    previousWeekIncomePayment = previousWeekIncomePayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getOrder().getTotalPrice()).multiply(BigDecimal.valueOf(orderFeePercentage).divide(BigDecimal.valueOf(100.0)))));
+                }
+            }
+        }
+
+        if (previousWeekIncomePayment.equals(BigDecimal.ZERO)) {
+            return GrowthPercentageResponse
+                    .builder()
+                    .currentData(currentWeekIncomePayment)
+                    .previousData(previousWeekIncomePayment)
+                    .growthPercentage(currentWeekIncomePayment.compareTo(BigDecimal.valueOf(0)) > 0 ? 100.0f : 0.0f)
+                    .build();
+        }
+
+        BigDecimal growthPercentage = currentWeekIncomePayment.subtract(previousWeekIncomePayment).divide(previousWeekIncomePayment).multiply(BigDecimal.valueOf(100.0f));
+
+        var roundGrowthPercentage = growthPercentage
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
+
+        return GrowthPercentageResponse
+                .builder()
+                .currentData(currentWeekIncomePayment)
+                .previousData(previousWeekIncomePayment)
+                .growthPercentage(roundGrowthPercentage)
+                .build();
+
+    }
+
+    @Override
+    public GrowthPercentageResponse calculateRefundGrowthPercentageForCurrentAndPreviousMonth() {
+        LocalDateTime now = LocalDateTime.now();
+
+        YearMonth currentMonth = YearMonth.from(now);
+        LocalDateTime startOfCurrentMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfCurrentMonth = now;
+
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+        LocalDateTime startOfPreviousMonth = previousMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfPreviousMonth = previousMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+
+        BigDecimal currentWeekRefundPayment = BigDecimal.valueOf(0);
+        BigDecimal previousWeekRefundPayment = BigDecimal.valueOf(0);
+
+        List<Payment> payments = paymentRepository.findAll();
+
+        for(Payment payment : payments){
+            LocalDateTime createDate = payment.getCreateDate();
+            if(payment.getPaymentType().name().equals(PaymentType.ORDER_REFUND.name())){
+                if(!createDate.isBefore(startOfCurrentMonth) && !createDate.isAfter(endOfCurrentMonth)) {
+                    currentWeekRefundPayment = currentWeekRefundPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
+                }
+
+                if(!createDate.isBefore(startOfPreviousMonth) && !createDate.isAfter(endOfPreviousMonth)){
+                    previousWeekRefundPayment = previousWeekRefundPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
+                }
+            }
+        }
+
+        if (previousWeekRefundPayment.equals(BigDecimal.ZERO)) {
+            return GrowthPercentageResponse
+                    .builder()
+                    .currentData(currentWeekRefundPayment)
+                    .previousData(previousWeekRefundPayment)
+                    .growthPercentage(currentWeekRefundPayment.compareTo(BigDecimal.valueOf(0)) > 0 ? 100.0f : 0.0f)
+                    .build();
+        }
+
+        BigDecimal growthPercentage = currentWeekRefundPayment.subtract(previousWeekRefundPayment).divide(previousWeekRefundPayment).multiply(BigDecimal.valueOf(100.0f));
+
+        var roundGrowthPercentage = growthPercentage
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
+
+        return GrowthPercentageResponse
+                .builder()
+                .currentData(currentWeekRefundPayment)
+                .previousData(previousWeekRefundPayment)
+                .growthPercentage(roundGrowthPercentage)
+                .build();
+    }
+
+    @Override
+    public List<Pair<String, BigDecimal>> getTotalPaymentOfEachMonth() {
         var listPayment = paymentRepository.findAll();
-        Map<Integer, Integer> map = new HashMap<>();
+        Map<Integer, BigDecimal> map = new HashMap<>();
         for(Payment payment : listPayment){
             int month = payment.getCreateDate().getMonthValue();
 
-            // Sum the payments for the corresponding month
-            map.merge(month, payment.getPaymentAmount(), Integer::sum);
+            BigDecimal paymentAmount = BigDecimal.valueOf(payment.getPaymentAmount());
+            map.merge(month, paymentAmount, BigDecimal::add);
         }
 
-        List<Pair<String, Integer>> listPaymentDetail = new ArrayList<>();
+        List<Pair<String, BigDecimal>> listPaymentDetail = new ArrayList<>();
         for(int i = 1; i <= 12; ++i){
             String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-            int total = map.getOrDefault(i,0);
+            BigDecimal total = map.getOrDefault(i,BigDecimal.ZERO);
             listPaymentDetail.add(Pair.of(monthName, total));
         }
 
         return listPaymentDetail;
     }
+
+    @Override
+    public List<Pair<String, BigDecimal>> getTotalRefundPaymentOfEachMonth() {
+        var listPayment = paymentRepository.findAll();
+        Map<Integer, BigDecimal> map = new HashMap<>();
+        for(Payment payment : listPayment){
+            if(payment.getPaymentType().name().equals(PaymentType.ORDER_REFUND.name())) {
+                int month = payment.getCreateDate().getMonthValue();
+
+                BigDecimal paymentAmount = BigDecimal.valueOf(payment.getPaymentAmount());
+                map.merge(month, paymentAmount, BigDecimal::add);
+            }
+        }
+
+        List<Pair<String, BigDecimal>> listPaymentDetail = new ArrayList<>();
+        for(int i = 1; i <= 12; ++i){
+            String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+            BigDecimal total = map.getOrDefault(i,BigDecimal.ZERO);
+            listPaymentDetail.add(Pair.of(monthName, total));
+        }
+
+        return listPaymentDetail;
+    }
+
+    @Override
+    public List<Pair<String, BigDecimal>> getTotalIncomePaymentOfEachMonth() {
+        var listPayment = paymentRepository.findAll();
+        Map<Integer, BigDecimal> map = new HashMap<>();
+        var orderFeePercentage = Integer.parseInt(systemPropertiesService.getByName("ORDER_FEE_PERCENTAGE").getPropertyValue());
+        for(Payment payment : listPayment){
+            if(payment.getOrder().getOrderType().equalsIgnoreCase("PARENT_ORDER") &&
+                    payment.getPaymentType().name().equals(PaymentType.DEPOSIT.name())) {
+
+                int month = payment.getCreateDate().getMonthValue();
+
+                BigDecimal paymentAmount = BigDecimal.valueOf(payment.getPaymentAmount()).multiply(BigDecimal.valueOf(orderFeePercentage)).divide(BigDecimal.valueOf(100.0));
+                map.merge(month, paymentAmount, BigDecimal::add);
+            }
+        }
+
+        List<Pair<String, BigDecimal>> listPaymentDetail = new ArrayList<>();
+        for(int i = 1; i <= 12; ++i){
+            String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+            BigDecimal total = map.getOrDefault(i,BigDecimal.ZERO);
+            listPaymentDetail.add(Pair.of(monthName, total));
+        }
+
+        return listPaymentDetail;
+    }
+
+
 }

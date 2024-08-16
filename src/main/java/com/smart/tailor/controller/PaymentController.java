@@ -121,10 +121,32 @@ public class PaymentController {
     ResponseEntity<ObjectNode> calculatePaymentGrowthPercentageForCurrentAndPreviousWeek(){
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        Float growthPercentage = paymentService.calculatePaymentGrowthPercentageForCurrentAndPreviousWeek();
+        var growthPercentageResponse = paymentService.calculatePaymentGrowthPercentageForCurrentAndPreviousWeek();
         response.put("status", HttpStatus.OK.value());
-        response.put("message", "Calculate New Customer Growth Percentage For Current and Previous Week Successfully");
-        response.put("data", growthPercentage);
+        response.put("message", "Calculate Payment Growth Percentage For Current and Previous Week Successfully");
+        response.set("data", objectMapper.valueToTree(growthPercentageResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(PaymentAPI.CALCULATE_INCOME_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK)
+    ResponseEntity<ObjectNode> calculateIncomeGrowthPercentageForCurrentAndPreviousWeek(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var growthPercentageResponse = paymentService.calculateIncomeGrowthPercentageForCurrentAndPreviousWeek();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate Income Growth Percentage For Current and Previous Week Successfully");
+        response.set("data", objectMapper.valueToTree(growthPercentageResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(PaymentAPI.CALCULATE_REFUND_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH)
+    ResponseEntity<ObjectNode> calculateRefundGrowthPercentageForCurrentAndPreviousMonth(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var growthPercentageResponse = paymentService.calculateRefundGrowthPercentageForCurrentAndPreviousMonth();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate Refund Growth Percentage For Current and Previous Month Successfully");
+        response.set("data", objectMapper.valueToTree(growthPercentageResponse));
         return ResponseEntity.ok(response);
     }
 
@@ -135,7 +157,29 @@ public class PaymentController {
         var totalPaymentOfEachMonth = paymentService.getTotalPaymentOfEachMonth();
         response.put("status", HttpStatus.OK.value());
         response.put("message", "Get Total Payment of Each Month Successfully");
-        response.put("data", objectMapper.valueToTree(totalPaymentOfEachMonth));
+        response.set("data", objectMapper.valueToTree(totalPaymentOfEachMonth));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(PaymentAPI.GET_TOTAL_INCOME_OF_EACH_MONTH)
+    ResponseEntity<ObjectNode> getTotalIncomePaymentOfEachMonth(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var totalIncomePaymentOfEachMonth = paymentService.getTotalIncomePaymentOfEachMonth();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Get Total Income of Each Month Successfully");
+        response.set("data", objectMapper.valueToTree(totalIncomePaymentOfEachMonth));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(PaymentAPI.GET_TOTAL_REFUND_OF_EACH_MONTH)
+    ResponseEntity<ObjectNode> getTotalRefundPaymentOfEachMonth(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var totalRefundPaymentOfEachMonth = paymentService.getTotalRefundPaymentOfEachMonth();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Get Total Refund of Each Month Successfully");
+        response.set("data", objectMapper.valueToTree(totalRefundPaymentOfEachMonth));
         return ResponseEntity.ok(response);
     }
 }
