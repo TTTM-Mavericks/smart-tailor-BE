@@ -5,7 +5,10 @@ import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.response.GrowthPercentageResponse;
 import com.smart.tailor.utils.response.UserResponse;
+import org.apache.commons.lang3.tuple.Triple;
+import org.springframework.data.util.Pair;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +41,11 @@ public interface UserService {
 
     void deleteUnverifiedUser(String userID);
 
-    Float calculateUserGrowthPercentageForCurrentAndPreviousMonth();
+    GrowthPercentageResponse calculateUserGrowthPercentageForCurrentAndPreviousWeek();
 
-    Float calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek();
+    GrowthPercentageResponse calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek();
+
+    GrowthPercentageResponse calculateNewUserGrowthPercentageForCurrentAndPreviousDayByRole(String roleName);
+
+    Pair<String, Long> calculateTotalOfUserByRoleName(String roleName);
 }

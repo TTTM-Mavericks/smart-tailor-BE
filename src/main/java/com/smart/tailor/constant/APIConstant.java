@@ -203,8 +203,10 @@ public class APIConstant {
         public static final String GET_ALL_ACCOUNTANT = "/get-all-accountant";
         public static final String GET_ALL_MANAGER = "/get-all-manager";
         public static final String GET_ALL_ADMIN = "/get-all-admin";
-        public static final String CALCULATE_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH = "/calculate-user-growth-percentage-for-current-and-previous-month";
+        public static final String CALCULATE_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-user-growth-percentage-for-current-and-previous-week";
         public static final String CALCULATE_NEW_CUSTOMER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-new-customer-growth-percentage-for-current-and-previous-week";
+        public static final String CALCULATE_NEW_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_DAY_BY_ROLE_NAME = "/calculate-new-user-growth-percentage-for-current-and-previous-day-by-role-name";
+        public static final String CALCULATE_TOTAL_OF_USER_BY_ROLE_NAME = "/calculate-total-of-user-by-role-name";
     }
 
     /**

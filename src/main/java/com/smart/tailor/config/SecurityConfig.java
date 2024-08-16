@@ -63,8 +63,10 @@ public class SecurityConfig {
 
                             /* User API */
                             auth.requestMatchers("/api/v1/user/get-all-admin").hasRole(RoleType.ADMIN.name());
-                            auth.requestMatchers("/api/v1/user/calculate-user-growth-percentage-for-current-and-previous-month").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/user/calculate-user-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/user/calculate-new-customer-growth-percentage-for-current-and-previous-week").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/user/calculate-new-user-growth-percentage-for-current-and-previous-day-by-role/**").hasRole(RoleType.ADMIN.name());
+                            auth.requestMatchers("/api/v1/user/calculate-total-of-user-by-role-name/**").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/user/**").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name());
 
                             /* Customer API */

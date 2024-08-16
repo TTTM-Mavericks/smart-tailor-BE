@@ -8,6 +8,7 @@ import com.smart.tailor.enums.Provider;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.enums.TypeOfVerification;
 import com.smart.tailor.enums.UserStatus;
+import com.smart.tailor.exception.BadRequestException;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.UserMapper;
 import com.smart.tailor.repository.UserRepository;
@@ -16,8 +17,11 @@ import com.smart.tailor.service.TokenService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.service.VerificationTokenService;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.response.GrowthPercentageResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Triple;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -158,7 +162,59 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Float calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek() {
+    public GrowthPercentageResponse calculateUserGrowthPercentageForCurrentAndPreviousWeek() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime startOfCurrentWeek = now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
+        LocalDateTime endOfCurrentWeek = now;
+
+        LocalDateTime startOfPreviousWeek = startOfCurrentWeek.minusWeeks(1);
+        LocalDateTime endOfPreviousWeek = startOfCurrentWeek.minusSeconds(1);
+
+        var totalUser = userRepository.findAll();
+
+        var currentWeekUserCount = totalUser
+                .stream()
+                .filter(user -> {
+                    LocalDateTime createDate = user.getCreateDate();
+                    return !createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek);
+                })
+                .count();
+
+        var previousWeekUserCount = totalUser
+                .stream()
+                .filter(user -> {
+                    LocalDateTime createDate = user.getCreateDate();
+                    return !createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek);
+                })
+                .count();
+
+        if (previousWeekUserCount == 0) {
+            return GrowthPercentageResponse
+                    .builder()
+                    .currentData(currentWeekUserCount)
+                    .previousData(previousWeekUserCount)
+                    .growthPercentage(currentWeekUserCount > 0 ? 100.0f : 0.0f)
+                    .build();
+        }
+
+        float growthPercentage = ((float) (currentWeekUserCount - previousWeekUserCount) / previousWeekUserCount) * 100.0f;
+
+        var roundGrowthPercentage =  BigDecimal
+                .valueOf(growthPercentage)
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
+
+        return GrowthPercentageResponse
+                .builder()
+                .currentData(currentWeekUserCount)
+                .previousData(previousWeekUserCount)
+                .growthPercentage(roundGrowthPercentage)
+                .build();
+    }
+
+    @Override
+    public GrowthPercentageResponse calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek() {
         LocalDateTime now = LocalDateTime.now();
 
         LocalDateTime startOfCurrentWeek = now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
@@ -189,57 +245,101 @@ public class UserServiceImpl implements UserService {
                 .count();
 
         if (previousWeekCustomerCount == 0) {
-            return currentWeekCustomerCount > 0 ? 100.0f : 0.0f;
+            return GrowthPercentageResponse
+                    .builder()
+                    .currentData(currentWeekCustomerCount)
+                    .previousData(previousWeekCustomerCount)
+                    .growthPercentage(currentWeekCustomerCount > 0 ? 100.0f : 0.0f)
+                    .build();
         }
 
         float growthPercentage = ((float) (currentWeekCustomerCount - previousWeekCustomerCount) / previousWeekCustomerCount) * 100.0f;
 
-        return BigDecimal
+        var roundGrowthPercentage =  BigDecimal
                 .valueOf(growthPercentage)
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
+
+        return GrowthPercentageResponse
+                .builder()
+                .currentData(currentWeekCustomerCount)
+                .previousData(previousWeekCustomerCount)
+                .growthPercentage(roundGrowthPercentage)
+                .build();
     }
 
     @Override
-    public Float calculateUserGrowthPercentageForCurrentAndPreviousMonth() {
-        // Get the current date and time
+    public GrowthPercentageResponse calculateNewUserGrowthPercentageForCurrentAndPreviousDayByRole(String roleName) {
+        try{
+           RoleType.valueOf(roleName.toUpperCase());
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("RoleName: " + roleName + " must be any of enum RoleType");
+        }
         LocalDateTime now = LocalDateTime.now();
 
-        YearMonth currentMonth = YearMonth.from(now);
-        LocalDateTime startOfCurrentMonth = currentMonth.atDay(1).atStartOfDay();
-        LocalDateTime endOfCurrentMonth = now;
+        LocalDateTime startOfCurrentDay = now.toLocalDate().atStartOfDay();
+        LocalDateTime endOfCurrentDay = now;
 
-        YearMonth previousMonth = currentMonth.minusMonths(1);
-        LocalDateTime startOfPreviousMonth = previousMonth.atDay(1).atStartOfDay();
-        LocalDateTime endOfPreviousMonth = previousMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+        LocalDateTime startOfPreviousDay = startOfCurrentDay.minusDays(1);
+        LocalDateTime endOfPreviousDay = startOfCurrentDay.minusSeconds(1);
 
-        var totalUser = userRepository.findAll();
+        var totalUserByRole = userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRoles().getRoleName().equalsIgnoreCase(roleName))
+                .toList();
 
-        var currentMonthUserCount = totalUser
+        var currentDayUserCount = totalUserByRole
                 .stream()
                 .filter(user -> {
                     LocalDateTime createDate = user.getCreateDate();
-                    return !createDate.isBefore(startOfCurrentMonth) && !createDate.isAfter(endOfCurrentMonth);
+                    return !createDate.isBefore(startOfCurrentDay) && !createDate.isAfter(endOfCurrentDay);
                 })
                 .count();
 
-        var previousMonthUserCount = totalUser
+        var previousDayUserCount = totalUserByRole
                 .stream()
                 .filter(user -> {
                     LocalDateTime createDate = user.getCreateDate();
-                    return !createDate.isBefore(startOfPreviousMonth) && !createDate.isAfter(endOfPreviousMonth);
+                    return !createDate.isBefore(startOfPreviousDay) && !createDate.isAfter(endOfPreviousDay);
                 })
                 .count();
 
-        if (previousMonthUserCount == 0) {
-            return currentMonthUserCount > 0 ? 100.0f : 0.0f;
+        if (previousDayUserCount == 0) {
+            return GrowthPercentageResponse
+                    .builder()
+                    .currentData(currentDayUserCount)
+                    .previousData(previousDayUserCount)
+                    .growthPercentage(currentDayUserCount > 0 ? 100.0f : 0.0f)
+                    .build();
         }
 
-        float growthPercentage = ((float) (currentMonthUserCount - previousMonthUserCount) / previousMonthUserCount) * 100.0f;
+        float growthPercentage = ((float) (currentDayUserCount - previousDayUserCount) / previousDayUserCount) * 100.0f;
 
-        return BigDecimal
+        var roundGrowthPercentage =  BigDecimal
                 .valueOf(growthPercentage)
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
+
+        return GrowthPercentageResponse
+                .builder()
+                .currentData(currentDayUserCount)
+                .previousData(previousDayUserCount)
+                .growthPercentage(roundGrowthPercentage)
+                .build();
+    }
+
+    @Override
+    public Pair<String, Long> calculateTotalOfUserByRoleName(String roleName) {
+        try{
+            RoleType.valueOf(roleName.toUpperCase());
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("RoleName: " + roleName + " must be any of enum RoleType");
+        }
+        var totalUserByRole = userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRoles().getRoleName().equalsIgnoreCase(roleName))
+                .toList();
+
+        return Pair.of(roleName.toUpperCase(), totalUserByRole.stream().count());
     }
 }

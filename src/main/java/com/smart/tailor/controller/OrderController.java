@@ -304,10 +304,10 @@ public class OrderController {
     @GetMapping(OrderAPI.CALCULATE_ORDER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH)
     public ResponseEntity<ObjectNode> calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
         ObjectNode response = objectMapper.createObjectNode();
-        Float growthPercentage = orderService.calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
+        var growthResponse = orderService.calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
         response.put("status", HttpStatus.OK.value());
         response.put("message", "Calculate Order Growth Percentage For Current and Previous Month Successfully");
-        response.put("data", growthPercentage);
+        response.set("data", objectMapper.valueToTree(growthResponse));
         return ResponseEntity.ok(response);
     }
 

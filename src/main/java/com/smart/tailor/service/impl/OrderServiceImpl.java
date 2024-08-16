@@ -20,6 +20,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2647,7 +2648,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Float calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
+    public GrowthPercentageResponse calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
         var totalParentOrder = orderRepository.getAllParentOrder();
 
         LocalDateTime now = LocalDateTime.now();
@@ -2677,15 +2678,27 @@ public class OrderServiceImpl implements OrderService {
                 .count();
 
         if (previousMonthOrderCount == 0) {
-            return currentMonthOrderCount > 0 ? 100.0f : 0.0f;
+            return GrowthPercentageResponse
+                    .builder()
+                    .currentData(currentMonthOrderCount)
+                    .previousData(previousMonthOrderCount)
+                    .growthPercentage(currentMonthOrderCount > 0 ? 100.0f : 0.0f)
+                    .build();
         }
 
         float growthPercentage = ((float) (currentMonthOrderCount - previousMonthOrderCount) / previousMonthOrderCount) * 100.0f;
 
-        return BigDecimal
+        var groundGrowthPercentage = BigDecimal
                 .valueOf(growthPercentage)
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
+
+        return GrowthPercentageResponse
+                .builder()
+                .currentData(currentMonthOrderCount)
+                .previousData(previousMonthOrderCount)
+                .growthPercentage(groundGrowthPercentage)
+                .build();
     }
 
     @Override
