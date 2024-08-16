@@ -59,3 +59,4 @@ public class BrandImage implements Serializable {
         this.lastModifiedDate = LocalDateTime.now();
     }
 }
+

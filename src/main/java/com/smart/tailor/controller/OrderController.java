@@ -6,22 +6,18 @@ import com.smart.tailor.constant.APIConstant.OrderAPI;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.enums.OrderStatus;
 import com.smart.tailor.event.CreateOrderEvent;
-import com.smart.tailor.exception.UnauthorizedAccessException;
-import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.OrderService;
 import com.smart.tailor.utils.request.OrderPickingRequest;
 import com.smart.tailor.utils.request.OrderRequest;
 import com.smart.tailor.utils.request.OrderStatusUpdateRequest;
 import com.smart.tailor.utils.request.RatingOrderRequest;
 import com.smart.tailor.utils.response.OrderResponse;
-import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -308,10 +304,20 @@ public class OrderController {
     @GetMapping(OrderAPI.CALCULATE_ORDER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH)
     public ResponseEntity<ObjectNode> calculateOrderGrowthPercentageForCurrentAndPreviousMonth() {
         ObjectNode response = objectMapper.createObjectNode();
-        Float growthPercentage = orderService.calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
+        var growthResponse = orderService.calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
         response.put("status", HttpStatus.OK.value());
         response.put("message", "Calculate Order Growth Percentage For Current and Previous Month Successfully");
-        response.put("data", growthPercentage);
+        response.set("data", objectMapper.valueToTree(growthResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(OrderAPI.GET_TOTAL_ORDER_OF_EACH_BRAND)
+    public ResponseEntity<ObjectNode> getTotalOrderOfEachBrand() {
+        ObjectNode response = objectMapper.createObjectNode();
+        var orderDetailShippingResponse = orderService.getAllTotalOrderOfEachBrand();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Get Total Order Of Each Brand Successfully");
+        response.set("data", objectMapper.valueToTree(orderDetailShippingResponse));
         return ResponseEntity.ok(response);
     }
 }

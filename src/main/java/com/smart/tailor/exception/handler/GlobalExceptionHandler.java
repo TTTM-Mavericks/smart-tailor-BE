@@ -118,4 +118,16 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ObjectNode> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ObjectNode response = objectMapper.createObjectNode();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String timestamp = LocalDateTime.now().format(dateTimeFormatter);
+
+        response.put("timestamp", timestamp);
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }

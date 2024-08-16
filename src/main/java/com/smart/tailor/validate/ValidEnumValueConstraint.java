@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ValidEnumValueConstraint implements ConstraintValidator<ValidEnumValue, CharSequence> {
-    private List acceptValues;
+    private List<String> acceptValues;
 
     @Override
     public void initialize(ValidEnumValue validEnumValue) {

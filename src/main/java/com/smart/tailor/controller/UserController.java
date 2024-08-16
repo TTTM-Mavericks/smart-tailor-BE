@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
+import com.smart.tailor.enums.PrintType;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.service.UserService;
+import com.smart.tailor.validate.ValidEnumValue;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -122,14 +126,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(APIConstant.UserAPI.CALCULATE_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH)
-    public ResponseEntity<ObjectNode> calculateUserGrowthPercentageForCurrentAndPreviousMonth() {
+    @GetMapping(APIConstant.UserAPI.CALCULATE_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK)
+    public ResponseEntity<ObjectNode> calculateUserGrowthPercentageForCurrentAndPreviousWeek() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        Float growthPercentage = userService.calculateUserGrowthPercentageForCurrentAndPreviousMonth();
+        var growthResponse = userService.calculateUserGrowthPercentageForCurrentAndPreviousWeek();
         response.put("status", HttpStatus.OK.value());
-        response.put("message", "Calculate User Growth Percentage For Current and Previous Month Successfully");
-        response.put("data", growthPercentage);
+        response.put("message", "Calculate User Growth Percentage For Current and Previous Week Successfully");
+        response.set("data", objectMapper.valueToTree(growthResponse));
         return ResponseEntity.ok(response);
     }
 
@@ -137,10 +141,32 @@ public class UserController {
     public ResponseEntity<ObjectNode> calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        Float growthPercentage = userService.calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek();
+        var growthResponse = userService.calculateNewCustomerGrowthPercentageForCurrentAndPreviousWeek();
         response.put("status", HttpStatus.OK.value());
         response.put("message", "Calculate New Customer Growth Percentage For Current and Previous Week Successfully");
-        response.put("data", growthPercentage);
+        response.set("data", objectMapper.valueToTree(growthResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(APIConstant.UserAPI.CALCULATE_NEW_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_DAY_BY_ROLE_NAME + "/{roleName}")
+    public ResponseEntity<ObjectNode> calculateNewUserGrowthPercentageForCurrentAndPreviousDayByRole(@PathVariable("roleName") String roleName) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var growthResponse = userService.calculateNewUserGrowthPercentageForCurrentAndPreviousDayByRole(roleName);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate New User Growth Percentage For Current and Previous Day By Role Successfully");
+        response.set("data", objectMapper.valueToTree(growthResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(APIConstant.UserAPI.CALCULATE_TOTAL_OF_USER)
+    public ResponseEntity<ObjectNode> calculateTotalOfUserByRoleName() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+        var totalUserResponse = userService.calculateTotalOfUser();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Calculate Total Of User Successfully");
+        response.set("data", objectMapper.valueToTree(totalUserResponse));
         return ResponseEntity.ok(response);
     }
 }
