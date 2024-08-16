@@ -9,6 +9,7 @@ public enum OrderStatus {
     SUSPENDED,
     CANCEL,     // huy
     COMPLETED,   // hoan thanh nhung chua giao
+    FINAL_CHECKING,
     DELIVERED,  // da giao
 
     /**

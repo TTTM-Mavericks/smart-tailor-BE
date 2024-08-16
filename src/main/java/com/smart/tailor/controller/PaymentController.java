@@ -61,7 +61,7 @@ public class PaymentController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode response = objectMapper.createObjectNode();
-            var value = paymentService.createManualPayment(paymentRequest);
+            var value = paymentService.createPayOSPayment(paymentRequest);
             response.put("status", 200);
             response.put("message", MessageConstant.CREATE_PAYMENT_SUCCESSFULLY);
             response.set("data", objectMapper.valueToTree(value));
