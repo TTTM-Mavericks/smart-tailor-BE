@@ -85,23 +85,23 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
 
             var savedPartOfDesign = partOfDesignRepository.save(partOfDesign);
 
-            if (Optional.ofNullable(partOfDesignRequest.getItemMask()).isEmpty()) {
-                continue;
-            }
-            List<ItemMask> itemMaskList = null;
-            try {
-                itemMaskList = itemMaskService.createItemMask(savedPartOfDesign, partOfDesignRequest.getItemMask());
-            } catch (BadRequestException ex) {
-                logger.error("Bad Request Exception in create Item Mask {}", ex.getMessage());
-                throw new BadRequestException(ex.getMessage());
-            } catch (ItemNotFoundException ex) {
-                logger.error("Item Not Found Exception in create Item Mask {}", ex.getMessage());
-                throw new ItemNotFoundException(ex.getMessage());
-            }
-
-            // Set List Of ItemMask belong to PartOfDesign
+//            if (Optional.ofNullable(partOfDesignRequest.getItemMask()).isEmpty()) {
+//                continue;
+//            }
+//            List<ItemMask> itemMaskList = null;
+//            try {
+//                itemMaskList = itemMaskService.createItemMask(savedPartOfDesign, partOfDesignRequest.getItemMask());
+//            } catch (BadRequestException ex) {
+//                logger.error("Bad Request Exception in create Item Mask {}", ex.getMessage());
+//                throw new BadRequestException(ex.getMessage());
+//            } catch (ItemNotFoundException ex) {
+//                logger.error("Item Not Found Exception in create Item Mask {}", ex.getMessage());
+//                throw new ItemNotFoundException(ex.getMessage());
+//            }
+//
+//            // Set List Of ItemMask belong to PartOfDesign
 //            savedPartOfDesign.setItemMaskList(itemMaskList);
-            // Add Correct PartOfDesign to ListPartOfDesign
+//            // Add Correct PartOfDesign to ListPartOfDesign
             partOfDesignList.add(savedPartOfDesign);
         }
         return partOfDesignList;
