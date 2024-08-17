@@ -150,6 +150,7 @@ public class APIConstant {
         public static final String GET_ALL_DESIGN_BY_BRAND_ID = "/get-all-design-by-brand-id";
         public static final String UPDATE_PUBLIC_STATUS_BY_DESIGN_ID = "/update-public-status-design-id";
         public static final String UPDATE_DESIGN = "/update-design";
+        public static final String CREATE_CLONE_DESIGN_FROM_BASE_DESIGN = "/create-clone-design-from-base-design";
     }
 
     /**

@@ -142,4 +142,14 @@ public class DesignController {
         response.set("data", objectMapper.valueToTree(apiResponse.getData()));
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping(APIConstant.DesignAPI.CREATE_CLONE_DESIGN_FROM_BASE_DESIGN + "/{baseDesignID}")
+    public ResponseEntity<ObjectNode> createCloneDesignFromBaseDesign(@PathVariable("baseDesignID") String baseDesignID) {
+        var designResponse = designService.createCloneDesignFromBaseDesign(baseDesignID);
+        ObjectNode response = objectMapper.createObjectNode();
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Create Clone Design From Base Design Successfully");
+        response.set("data", objectMapper.valueToTree(designResponse));
+        return ResponseEntity.ok(response);
+    }
 }
