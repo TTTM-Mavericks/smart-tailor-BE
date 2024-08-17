@@ -117,7 +117,8 @@ public class DesignServiceImpl implements DesignService {
 
     @Override
     public DesignResponse getDesignByOrderID(String orderID) {
-        return designMapper.mapperToDesignResponse(designRepository.findByOrderID(orderID));
+//        return designMapper.mapperToDesignResponse(designRepository.findByOrderID(orderID));
+        return getDesignResponseByID(designRepository.findByOrderID(orderID).getDesignID());
     }
 
     @Override
