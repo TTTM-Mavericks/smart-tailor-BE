@@ -242,4 +242,45 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
         return partOfDesignList;
 
     }
+
+    @Transactional
+    @Override
+    public List<PartOfDesign> createClonePartOfDesign(Design cloneDesign, List<PartOfDesign> basePartOfDesignList) {
+        List<PartOfDesign> partOfDesignList = new ArrayList<>();
+        for (PartOfDesign basePartOfDesign : basePartOfDesignList) {
+            var clonePartOfDesign = partOfDesignRepository.save(
+                    PartOfDesign
+                            .builder()
+                            .design(cloneDesign)
+                            .partOfDesignName(basePartOfDesign.getPartOfDesignName())
+                            .imageUrl(basePartOfDesign.getImageUrl())
+                            .successImageUrl(basePartOfDesign.getSuccessImageUrl())
+                            .realPartImageUrl(basePartOfDesign.getRealPartImageUrl())
+                            .width(basePartOfDesign.getWidth())
+                            .height(basePartOfDesign.getHeight())
+                            .material(basePartOfDesign.getMaterial())
+                            .build()
+            );
+
+            List<ItemMask> itemMaskList = new ArrayList<>();
+            if(!basePartOfDesign.getItemMaskList().isEmpty()){
+                try {
+                    itemMaskList = itemMaskService.createCloneItemMask(clonePartOfDesign, basePartOfDesign.getItemMaskList());
+                } catch (BadRequestException ex) {
+                    logger.error("Bad Request Exception in create Item Mask {}", ex.getMessage());
+                    throw new BadRequestException(ex.getMessage());
+                } catch (ItemNotFoundException ex) {
+                    logger.error("Item Not Found Exception in create Item Mask {}", ex.getMessage());
+                    throw new ItemNotFoundException(ex.getMessage());
+                }
+                clonePartOfDesign.setItemMaskList(itemMaskList);
+                var clonePartOfDesignUpdated = partOfDesignRepository.save(clonePartOfDesign);
+                // Add Correct PartOfDesign to ListPartOfDesign
+                partOfDesignList.add(clonePartOfDesignUpdated);
+            }
+            else partOfDesignList.add(clonePartOfDesign);
+        }
+        return partOfDesignList;
+    }
+
 }

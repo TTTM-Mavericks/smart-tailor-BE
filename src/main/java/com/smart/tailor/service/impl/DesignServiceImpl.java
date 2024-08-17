@@ -117,7 +117,8 @@ public class DesignServiceImpl implements DesignService {
 
     @Override
     public DesignResponse getDesignByOrderID(String orderID) {
-        return designMapper.mapperToDesignResponse(designRepository.findByOrderID(orderID));
+//        return designMapper.mapperToDesignResponse(designRepository.findByOrderID(orderID));
+        return getDesignResponseByID(designRepository.findByOrderID(orderID).getDesignID());
     }
 
     @Override
@@ -401,4 +402,43 @@ public class DesignServiceImpl implements DesignService {
                 .data(designMapper.mapperToDesignCustomResponse(updateDesign))
                 .build();
     }
+
+    @Transactional
+    @Override
+    public Design createCloneDesignFromBaseDesign(String baseDesignID) {
+        var design = designRepository.findById(baseDesignID)
+                .orElseThrow(() -> new ItemNotFoundException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN));
+
+        var cloneDesign = designRepository.save(
+                Design
+                        .builder()
+                        .user(design.getUser())
+                        .expertTailoring(design.getExpertTailoring())
+                        .titleDesign(design.getTitleDesign())
+                        .publicStatus(design.getPublicStatus())
+                        .color(design.getColor())
+                        .minWeight(design.getMinWeight())
+                        .maxWeight(design.getMaxWeight())
+                        .imageUrl(design.getImageUrl())
+                        .build()
+        );
+
+        List<PartOfDesign> partOfDesignList = null;
+        try {
+            partOfDesignList = partOfDesignService.createClonePartOfDesign(cloneDesign, design.getPartOfDesignList());
+        } catch (BadRequestException ex) {
+            logger.error("Bad Request Exception in Update Part Of Design {}", ex.getMessage());
+            throw new BadRequestException(ex.getMessage());
+        } catch (ItemNotFoundException ex) {
+            logger.error("Item Not Found Exception in Update Part Of Design {}", ex.getMessage());
+            throw new ItemNotFoundException(ex.getMessage());
+        }
+
+        cloneDesign.setPartOfDesignList(partOfDesignList);
+        var cloneDesignUpdate = designRepository.save(cloneDesign);
+
+//        return designMapper.mapperToDesignResponse(cloneDesignUpdate);
+        return cloneDesignUpdate;
+    }
+
 }

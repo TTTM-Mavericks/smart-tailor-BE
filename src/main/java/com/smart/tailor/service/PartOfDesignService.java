@@ -22,4 +22,6 @@ public interface PartOfDesignService {
     List<PartOfDesign> savePartOfDesign(List<PartOfDesign> partOfDesignList);
 
     List<PartOfDesign> updatePartOfDesign(Design design, List<PartOfDesignRequest> partOfDesignRequestList);
+
+    List<PartOfDesign> createClonePartOfDesign(Design cloneDesign, List<PartOfDesign> basePartOfDesignList);
 }

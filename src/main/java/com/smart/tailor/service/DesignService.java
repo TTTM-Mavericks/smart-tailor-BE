@@ -33,4 +33,6 @@ public interface DesignService {
     void addNewCloneDesignFromBrandDesign(String jwtToken, CloneDesignRequest cloneDesignRequest);
 
     APIResponse updateDesign(String jwtToken, String designID, DesignRequest designRequest);
+
+    Design createCloneDesignFromBaseDesign(String baseDesignID);
 }
