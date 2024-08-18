@@ -248,10 +248,11 @@ public class OrderController {
     }
 
     @PostMapping(OrderAPI.RATING_ORDER)
-    public ResponseEntity<ObjectNode> ratingOrder(@Valid @RequestBody RatingOrderRequest ratingOrderRequest) {
+    public ResponseEntity<ObjectNode> ratingOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                  @Valid @RequestBody RatingOrderRequest ratingOrderRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode response = objectMapper.createObjectNode();
-        orderService.ratingOrder(ratingOrderRequest);
+        orderService.ratingOrder(jwtToken, ratingOrderRequest);
         response.put("status", HttpStatus.OK.value());
         response.put("message", MessageConstant.RATING_ORDER_SUCCESSFULLY);
         return ResponseEntity.ok(response);

@@ -103,8 +103,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             if (designDetailRequest.getDesignId() == null) {
                 throw new BadRequestException(MessageConstant.MISSING_ARGUMENT + ": designId");
             }
-            String designId = designDetailRequest.getDesignId();
-            Design baseDesign = designService.getDesignByID(designId);
+            Design baseDesign = designService.getDesignByID(designDetailRequest.getDesignId());
 
             var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
             if(!baseDesign.getUser().getUserID().equals(userIDFromJwtToken)){
@@ -185,10 +184,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 //            logger.error("DESIGN ID: {}", designId);
 
             Order parentOrder = null;
-//            DesignResponse designResponse = designService.getDesignResponseByID(designId);
-//            UserResponse userResponse = designResponse.getUser();
-//            CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
-            Design design = designService.createCloneDesignFromBaseDesign(designId);
+            Design design = designService.createCloneDesignFromBaseDesign(designDetailRequest.getDesignId());
             CustomerResponse customerResponse = customerService.getCustomerByUserID(design.getUser().getUserID());
             String address = "";
             String province = "";
@@ -250,7 +246,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             OrderResponse parentOrderResponse = orderService.createOrder(
                     OrderRequest
                             .builder()
-                            .designID(designId)
+                            .designID(design.getDesignID())
                             .quantity(totalQuantity)
                             .parentOrderID(null)
                             .orderType("PARENT_ORDER")
