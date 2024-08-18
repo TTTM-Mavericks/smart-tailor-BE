@@ -167,6 +167,7 @@ public class SecurityConfig {
                             auth.requestMatchers("/api/v1/order/get-order-detail-of-each-brand").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/order/calculate-order-growth-percentage-for-current-and-previous-month").hasRole(RoleType.ADMIN.name());
                             auth.requestMatchers("/api/v1/order/get-order-by-brand-id/**").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/order/get-sub-order-invoice-by-sub-order-id/**").permitAll();
                             auth.requestMatchers("/api/v1/order/**").hasAnyRole(authenticatedRole);
 
                             /* Payment API */
