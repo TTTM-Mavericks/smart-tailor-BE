@@ -270,4 +270,39 @@ public class ItemMaskServiceImpl implements ItemMaskService {
         }
         return itemMaskList;
     }
+
+    @Transactional
+    @Override
+    public List<ItemMask> createCloneItemMask(PartOfDesign clonePartOfDesign, List<ItemMask> baseItemMaskList) {
+        List<ItemMask> itemMaskList = new ArrayList<>();
+
+        for (ItemMask baseItemMask : baseItemMaskList) {
+
+            var cloneItemMask = itemMaskRepository.save(
+                    ItemMask
+                            .builder()
+                            .partOfDesign(clonePartOfDesign)
+                            .itemMaskName(baseItemMask.getItemMaskName())
+                            .typeOfItem(baseItemMask.getTypeOfItem())
+                            .isSystemItem(baseItemMask.getIsSystemItem())
+                            .positionX(baseItemMask.getPositionX())
+                            .positionY(baseItemMask.getPositionY())
+                            .scaleX(baseItemMask.getScaleX())
+                            .scaleY(baseItemMask.getScaleY())
+                            .indexZ(baseItemMask.getIndexZ())
+                            .rotate(baseItemMask.getRotate())
+                            .bottomLeftRadius(baseItemMask.getBottomLeftRadius())
+                            .bottomRightRadius(baseItemMask.getBottomRightRadius())
+                            .topRightRadius(baseItemMask.getTopRightRadius())
+                            .topLeftRadius(baseItemMask.getTopLeftRadius())
+                            .status(true)
+                            .imageUrl(baseItemMask.getImageUrl())
+                            .material(baseItemMask.getMaterial())
+                            .printType(baseItemMask.getPrintType())
+                            .build()
+            );
+            itemMaskList.add(cloneItemMask);
+        }
+        return itemMaskList;
+    }
 }

@@ -110,90 +110,82 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 throw new UnauthorizedAccessException("You are not authorized to access this resource.");
             }
 
-            Design clone = new Design();
-            clone.setUser(baseDesign.getUser());
-            clone.setExpertTailoring(baseDesign.getExpertTailoring());
-            clone.setTitleDesign(baseDesign.getTitleDesign());
-            clone.setPublicStatus(false);
-            clone.setMinWeight(baseDesign.getMinWeight());
-            clone.setMaxWeight(baseDesign.getMaxWeight());
-            clone.setImageUrl(baseDesign.getImageUrl());
-            clone.setColor(baseDesign.getColor());
+//            Design clone = new Design();
+//            clone.setUser(baseDesign.getUser());
+//            clone.setExpertTailoring(baseDesign.getExpertTailoring());
+//            clone.setTitleDesign(baseDesign.getTitleDesign());
+//            clone.setPublicStatus(false);
+//            clone.setMinWeight(baseDesign.getMinWeight());
+//            clone.setMaxWeight(baseDesign.getMaxWeight());
+//            clone.setImageUrl(baseDesign.getImageUrl());
+//            clone.setColor(baseDesign.getColor());
+//
+//            var basePartOfDesign = partOfDesignService.getListPartOfDesignObjectByDesignID(designId);
+//
+//            List<PartOfDesignRequest> clonePart = new ArrayList<>();
+//            for (var partOfDesign : basePartOfDesign) {
+//                var itemMaskList = partOfDesign
+//                        .getItemMaskList()
+//                        .stream()
+//                        .filter(ItemMask::getStatus)
+//                        .toList();
+//
+//                List<ItemMaskRequest> cloneItemMark = new ArrayList<>();
+//
+//                for (var itemMask : itemMaskList) {
+//                    cloneItemMark.add(
+//                            ItemMaskRequest
+//                                    .builder()
+//                                    .itemMaskName(itemMask.getItemMaskName())
+//                                    .typeOfItem(itemMask.getTypeOfItem())
+//                                    .materialID(itemMask.getMaterial().getMaterialID())
+//                                    .isSystemItem(itemMask.getIsSystemItem())
+//                                    .positionX(itemMask.getPositionX())
+//                                    .positionY(itemMask.getPositionY())
+//                                    .scaleX(itemMask.getScaleX())
+//                                    .scaleY(itemMask.getScaleY())
+//                                    .rotate(itemMask.getRotate())
+//                                    .topLeftRadius(itemMask.getTopLeftRadius())
+//                                    .topRightRadius(itemMask.getTopRightRadius())
+//                                    .bottomLeftRadius(itemMask.getBottomLeftRadius())
+//                                    .bottomRightRadius(itemMask.getBottomRightRadius())
+//                                    .indexZ(itemMask.getIndexZ())
+//                                    .imageUrl(Utilities.decodeBase64ToString(itemMask.getImageUrl()))
+//                                    .printType(itemMask.getPrintType().name())
+//                                    .build()
+//                    );
+//                }
+//
+//                clonePart.add(
+//                        PartOfDesignRequest
+//                                .builder()
+//                                .partOfDesignName(partOfDesign.getPartOfDesignName())
+//                                .imageUrl(Utilities.decodeBase64ToString(partOfDesign.getImageUrl()))
+//                                .materialID(partOfDesign.getMaterial().getMaterialID())
+//                                .successImageUrl(Utilities.decodeBase64ToString(partOfDesign.getSuccessImageUrl()))
+//                                .realPartImageUrl(Utilities.decodeBase64ToString(partOfDesign.getRealPartImageUrl()))
+//                                .width(partOfDesign.getWidth())
+//                                .height(partOfDesign.getHeight())
+//                                .itemMask(cloneItemMark)
+//                                .build()
+//                );
+//            }
+//
+//            var design = designService.saveDesign(clone);
+//            if (design == null) {
+//                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
+//            }
+//            var newPart = partOfDesignService.createPartOfDesign(design, clonePart);
+//            design.setPartOfDesignList(newPart);
+//
+//            designService.saveDesign(design);
+//
+//            designId = design.getDesignID();
+//            logger.error("DESIGN ID: {}", designId);
 
-            var basePartOfDesign = partOfDesignService.getListPartOfDesignObjectByDesignID(designId);
-
-            List<PartOfDesignRequest> clonePart = new ArrayList<>();
-            for (var partOfDesign : basePartOfDesign) {
-                var itemMaskList = partOfDesign
-                        .getItemMaskList()
-                        .stream()
-                        .filter(ItemMask::getStatus)
-                        .toList();
-
-                List<ItemMaskRequest> cloneItemMark = new ArrayList<>();
-
-                for (var itemMask : itemMaskList) {
-                    cloneItemMark.add(
-                            ItemMaskRequest
-                                    .builder()
-                                    .itemMaskName(itemMask.getItemMaskName())
-                                    .typeOfItem(itemMask.getTypeOfItem())
-                                    .materialID(itemMask.getMaterial().getMaterialID())
-                                    .isSystemItem(itemMask.getIsSystemItem())
-                                    .positionX(itemMask.getPositionX())
-                                    .positionY(itemMask.getPositionY())
-                                    .scaleX(itemMask.getScaleX())
-                                    .scaleY(itemMask.getScaleY())
-                                    .rotate(itemMask.getRotate())
-                                    .topLeftRadius(itemMask.getTopLeftRadius())
-                                    .topRightRadius(itemMask.getTopRightRadius())
-                                    .bottomLeftRadius(itemMask.getBottomLeftRadius())
-                                    .bottomRightRadius(itemMask.getBottomRightRadius())
-                                    .indexZ(itemMask.getIndexZ())
-                                    .imageUrl(Utilities.decodeBase64ToString(itemMask.getImageUrl()))
-                                    .printType(itemMask.getPrintType().name())
-                                    .build()
-                    );
-                }
-
-                clonePart.add(
-                        PartOfDesignRequest
-                                .builder()
-                                .partOfDesignName(partOfDesign.getPartOfDesignName())
-                                .imageUrl(Utilities.decodeBase64ToString(partOfDesign.getImageUrl()))
-                                .materialID(partOfDesign.getMaterial().getMaterialID())
-                                .successImageUrl(Utilities.decodeBase64ToString(partOfDesign.getSuccessImageUrl()))
-                                .realPartImageUrl(Utilities.decodeBase64ToString(partOfDesign.getRealPartImageUrl()))
-                                .width(partOfDesign.getWidth())
-                                .height(partOfDesign.getHeight())
-                                .itemMask(cloneItemMark)
-                                .build()
-                );
-            }
-
-            var design = designService.saveDesign(clone);
-            if (design == null) {
-                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_ANY_DESIGN + " with id: " + designId);
-            }
-            var newPart = partOfDesignService.createPartOfDesign(design, clonePart);
-            design.setPartOfDesignList(newPart);
-
-            designService.saveDesign(design);
-
-            designId = design.getDesignID();
-            logger.error("DESIGN ID: {}", designId);
             Order parentOrder = null;
-<<<<<<< Updated upstream
-            DesignResponse designResponse = designService.getDesignResponseByID(designId);
-            UserResponse userResponse = designResponse.getUser();
-            CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
-=======
-//            DesignResponse designResponse = designService.getDesignResponseByID(designId);
-//            UserResponse userResponse = designResponse.getUser();
-//            CustomerResponse customerResponse = customerService.getCustomerByUserID(userResponse.getUserID());
             Design design = designService.createCloneDesignFromBaseDesign(designDetailRequest.getDesignId());
             CustomerResponse customerResponse = customerService.getCustomerByUserID(design.getUser().getUserID());
->>>>>>> Stashed changes
             String address = "";
             String province = "";
             String district = "";

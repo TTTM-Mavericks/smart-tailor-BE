@@ -22,4 +22,6 @@ public interface ItemMaskService {
     List<ItemMask> getAllItemMaskByPartOfDesignID(String partOfDesignID);
 
     void changeStatusItemMask(ItemMask itemMask, Boolean status);
+
+    List<ItemMask> createCloneItemMask(PartOfDesign clonePartOfDesign, List<ItemMask> baseItemMaskList);
 }
