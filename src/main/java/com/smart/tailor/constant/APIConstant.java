@@ -268,6 +268,7 @@ public class APIConstant {
         public static final String GET_ORDER_STATUS_DETAIL = "/get-order-status-detail";
         public static final String CALCULATE_ORDER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_MONTH = "/calculate-order-growth-percentage-for-current-and-previous-month";
         public static final String GET_TOTAL_ORDER_OF_EACH_BRAND = "/get-order-detail-of-each-brand";
+        public static final String GET_SUB_ORDER_INVOICE_BY_SUB_ORDER_ID = "/get-sub-order-invoice-by-sub-order-id";
     }
 
     /**

@@ -321,4 +321,14 @@ public class OrderController {
         response.set("data", objectMapper.valueToTree(orderDetailShippingResponse));
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(OrderAPI.GET_SUB_ORDER_INVOICE_BY_SUB_ORDER_ID + "/{subOrderID}")
+    public ResponseEntity<ObjectNode> getSubOrderInvoiceBySubOrderID(@PathVariable("subOrderID") String subOrderID) throws Exception {
+        ObjectNode response = objectMapper.createObjectNode();
+        var orderDetailShippingResponse = orderService.getSubOrderInvoiceBySubOrderID(subOrderID);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Get Sub Order Invoice By SubOrderID Successfully");
+        response.set("data", objectMapper.valueToTree(orderDetailShippingResponse));
+        return ResponseEntity.ok(response);
+    }
 }

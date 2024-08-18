@@ -20,6 +20,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1121,10 +1123,13 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
     }
-
     @Override
+    @Caching
     public List<OrderResponse> getAllOrder() {
-        return orderRepository.findAll().stream().map(this::safeMapToOrderResponse).toList();
+        return orderRepository.findAll().stream()
+                .map(this::safeMapToOrderResponse)
+                .filter(Objects::nonNull) // Loại bỏ các giá trị null nếu cần
+                .toList();
     }
 
     @Override
@@ -2550,23 +2555,23 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<FullOrderResponse> getFullProp() throws JsonProcessingException {
         try {
-            var listOrder = orderRepository.findAll().stream()
-                    .filter(order -> order.getOrderType().equals("PARENT_ORDER")
-                                    &&
-                                    (order.getOrderStatus() == OrderStatus.CANCEL
-                                            || order.getOrderStatus() == OrderStatus.DELIVERED) // Trạng thái đơn hàng là CANCEL hoặc DELIVERED
-//                                    && getSubOrderByParentID(order.getOrderID()).stream()
-//                                    .flatMap(subOrder -> Optional.ofNullable(subOrder.getPaymentList()).orElseGet(List::of).stream()) // Xử lý paymentList có thể là null
-//                                    .findAny() // Tìm bất kỳ thanh toán nào
-//                                    .isPresent() // Kiểm tra xem có tồn tại thanh toán hay không
-                    )
+            var listOrder = orderRepository.getAllParentOrder().stream()
+                    .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL
+                            || order.getOrderStatus() == OrderStatus.DELIVERED)
                     .toList();
-            List<FullOrderResponse> response = new ArrayList<>();
-            for (Order order : listOrder) {
-                FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
-                if (fullOrderResponse.getPaymentList() != null && !fullOrderResponse.getPaymentList().isEmpty())
-                    response.add(fullOrderResponse);
-            }
+
+            List<FullOrderResponse> response = listOrder.stream()
+                    .map(order -> {
+                        try {
+                            return orderMapper.mapToFullOrderResponse(order);
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(fullOrderResponse -> fullOrderResponse.getPaymentList() != null
+                            && !fullOrderResponse.getPaymentList().isEmpty())
+                    .toList();
+
             return response;
         } catch (Exception ex) {
             throw ex;
@@ -2734,5 +2739,40 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return totalSubOrderDetails;
+    }
+
+    @Override
+    public SubOrderInvoice getSubOrderInvoiceBySubOrderID(String subOrderID) throws Exception {
+        var orderCustomResponse = getOrderByOrderID(subOrderID);;
+
+        var subOrderQuantity = orderCustomResponse.getQuantity();
+        var designDetails = detailRepository.getDesignDetailBySubOrderID(subOrderID);
+        var brand = designDetails
+                .stream()
+                .map(DesignDetail::getBrand)
+                .findFirst()
+                .orElse(null);
+
+        var brandLaborQuantity = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(
+                brand.getBrandID(),
+                subOrderQuantity
+        ).getLaborCostPerQuantity();
+
+        var designResponse = orderCustomResponse.getDesignResponse();
+        List<BrandMaterialResponse> brandMaterialResponseList = new ArrayList<>();
+        for(var materialDetail : designResponse.getMaterialDetail()){
+            brandMaterialResponseList.add(
+                    brandMaterialService.getBrandMaterialResponseByBrandIDAndMaterialID(
+                            brand.getBrandID(),
+                            materialDetail.getMaterialResponse().getMaterialID())
+            );
+        }
+
+        return SubOrderInvoice
+                .builder()
+                .orderCustomResponse(orderCustomResponse)
+                .brandMaterialResponseList(brandMaterialResponseList)
+                .brandLaborQuantity(brandLaborQuantity)
+                .build();
     }
 }
