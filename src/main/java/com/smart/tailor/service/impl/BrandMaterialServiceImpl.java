@@ -551,4 +551,9 @@ public class BrandMaterialServiceImpl implements BrandMaterialService {
     public Integer getBrandPriceByBrandIDAndMaterialID(String brandID, String materialID) {
         return brandMaterialRepository.getBrandPriceByBrandIDAndMaterialID(brandID, materialID);
     }
+
+    @Override
+    public BrandMaterialResponse getBrandMaterialResponseByBrandIDAndMaterialID(String brandID, String materialID) {
+        return brandMaterialMapper.mapperToBrandMaterialResponse(brandMaterialRepository.getBrandMaterialByBrandIDAndMaterialID(brandID, materialID));
+    }
 }

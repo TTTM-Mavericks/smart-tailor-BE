@@ -30,4 +30,6 @@ public interface BrandMaterialService {
     Optional<BrandMaterial> getPriceByID(BrandMaterialKey key);
 
     Integer getBrandPriceByBrandIDAndMaterialID(String brandID, String materialID);
+
+    BrandMaterialResponse getBrandMaterialResponseByBrandIDAndMaterialID(String brandID, String materialID);
 }

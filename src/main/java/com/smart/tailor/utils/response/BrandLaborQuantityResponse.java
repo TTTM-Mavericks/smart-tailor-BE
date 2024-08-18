@@ -18,13 +18,13 @@ public class BrandLaborQuantityResponse {
 
     private Integer laborQuantityMaxQuantity;
 
-    private Double laborQuantityMinPrice;
+    private Integer laborQuantityMinPrice;
 
-    private Double laborQuantityMaxPrice;
+    private Integer laborQuantityMaxPrice;
 
     private Boolean laborQuantityStatus;
 
-    private Double laborCostPerQuantity;
+    private Integer laborCostPerQuantity;
 
     private Boolean brandLaborQuantityStatus;
 

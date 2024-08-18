@@ -18,9 +18,9 @@ public class LaborQuantityResponse {
 
     private Integer laborQuantityMaxQuantity;
 
-    private Double laborQuantityMinPrice;
+    private Integer laborQuantityMinPrice;
 
-    private Double laborQuantityMaxPrice;
+    private Integer laborQuantityMaxPrice;
 
     private Boolean status;
 

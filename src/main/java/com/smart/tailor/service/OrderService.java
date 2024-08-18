@@ -74,4 +74,6 @@ public interface OrderService {
     GrowthPercentageResponse calculateOrderGrowthPercentageForCurrentAndPreviousMonth();
 
     List<Pair<Object, Integer>> getAllTotalOrderOfEachBrand();
+
+    SubOrderInvoice getSubOrderInvoiceBySubOrderID(String subOrderID) throws Exception;
 }
