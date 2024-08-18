@@ -2225,7 +2225,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public void ratingOrder(RatingOrderRequest ratingOrderRequest) {
+    public void ratingOrder(String jwtToken, RatingOrderRequest ratingOrderRequest) {
+        var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(ratingOrderRequest.getUserID())){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
         var user = userService.getUserByUserID(ratingOrderRequest.getUserID())
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find User with UserID: " + ratingOrderRequest.getUserID()));
 
@@ -2248,24 +2253,24 @@ public class OrderServiceImpl implements OrderService {
 
         // Convert estimated dates to LocalDateTime
         LocalDateTime estimatedDateFinishFirstStage = null;
-        if(estimateOrderTimeLine.getEstimatedDateFinishFirstStage() == null){
+        if(estimateOrderTimeLine.getEstimatedDateFinishFirstStage() != null){
+            logger.error("Inside estimatedDateFinishFirstStage Line 2258 {}", estimateOrderTimeLine.getEstimatedDateFinishFirstStage());
             estimatedDateFinishFirstStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishFirstStage(), outputFormatter);
         }
 
         LocalDateTime estimatedDateFinishSecondStage = null;
-        if(estimateOrderTimeLine.getEstimatedDateFinishSecondStage() == null){
+        if(estimateOrderTimeLine.getEstimatedDateFinishSecondStage() != null){
             estimatedDateFinishSecondStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishSecondStage(), outputFormatter);
         }
 
         LocalDateTime estimatedDateCompletion = null;
-        if(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage() == null){
+        if(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage() != null){
             estimatedDateCompletion = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage(), outputFormatter);
         }
 
         logger.info("Estimated Date Finish First Stage: {}", estimatedDateFinishFirstStage);
         logger.info("Estimated Date Finish Second Stage: {}", estimatedDateFinishSecondStage);
         logger.info("Estimated Date Completion: {}", estimatedDateCompletion);
-
         for (var subOrder : subOrderList) {
             var designDetail = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
             var brand = designDetail.stream().map(DesignDetail::getBrand).findFirst();
@@ -2324,8 +2329,9 @@ public class OrderServiceImpl implements OrderService {
             if (brandOrderRating <= 0) brandOrderRating = 0.0f;
             else if (brandOrderRating > 5) brandOrderRating = 5.0f;
 
-            logger.warn("Brand {} Complete A Head of Schedule {}", brand.get().getUser().getEmail(), completedAheadOfSchedule);
-            logger.warn("Brand {} Complete Late {}", brand.get().getUser().getEmail(), completedLate);
+            logger.error("Brand Infor Joining Order {} {}", brand.get().getUser().getEmail(), brand.get().getUser().getUserID());
+            logger.warn("Complete A Head of Schedule {}", completedAheadOfSchedule);
+            logger.warn("Complete Late {}", completedLate);
             logger.warn("Order Rating {}", brandOrderRating);
 
             // Update the rating for the brand

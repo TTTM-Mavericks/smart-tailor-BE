@@ -53,7 +53,7 @@ public interface OrderService {
 
     List<OrderStageResponse> getOrderStageByOrderID(String orderID);
 
-    void ratingOrder(RatingOrderRequest ratingOrderRequest);
+    void ratingOrder(String jwtToken, RatingOrderRequest ratingOrderRequest);
 
     OrderTimeLineResponse getOrderTimeLineByParentOrderID(String parentOrderID);
 
