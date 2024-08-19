@@ -14,9 +14,11 @@ import java.math.BigDecimal;
 public class DesignMaterialDetailResponse {
     private String detailName; // It can be PartOfDesignName, ItemMaskName, BrandLaborQuantity
 
-    private BigDecimal meterSquare;
+    private Object minMeterSquare;
 
-    private BigDecimal minPriceMaterial;
+    private Object maxMeterSquare;
 
-    private BigDecimal maxPriceMaterial;
+    private Object minPriceMaterial;
+
+    private Object maxPriceMaterial;
 }

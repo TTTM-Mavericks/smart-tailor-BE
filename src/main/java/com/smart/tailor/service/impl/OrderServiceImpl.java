@@ -371,6 +371,7 @@ public class OrderServiceImpl implements OrderService {
                     var pricePartOfDesign = calculatePartOfDesignResponse.getSecond();
                     totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(pricePartOfDesign);
                     updateDesignMaterialDetailMap(designMaterialDetailResponseMap, partOfDesignName, areaPartOfDesign, pricePartOfDesign);
+                    logger.info("Line code 374 {} {} {} {}", brand.getBrandID(), partOfDesignName, areaPartOfDesign, pricePartOfDesign);
                 }
 
                 // Calculate Total Price Of ItemMask of SubOrder
@@ -383,6 +384,7 @@ public class OrderServiceImpl implements OrderService {
                     var priceItemMask = calculateItemMaskResponse.getSecond();
                     totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(priceItemMask);
                     updateDesignMaterialDetailMap(designMaterialDetailResponseMap, itemMaskID + " " + itemMaskName, areaItemMask, priceItemMask);
+                    logger.info("Line Code 387 {} {} {} {}", brand.getBrandID(), itemMaskID + " " + itemMaskName, areaItemMask, priceItemMask);
                 }
 
                 // Get Labor Quantity of Each Brand for SubOrder
@@ -509,13 +511,16 @@ public class OrderServiceImpl implements OrderService {
     private void updateDesignMaterialDetailMap(Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap, String detailName, BigDecimal area, BigDecimal price) {
         DesignMaterialDetailResponse response = designMaterialDetailResponseMap.get(detailName);
         if(response != null){
-            response.setMinPriceMaterial(response.getMinPriceMaterial().min(price));
-            response.setMaxPriceMaterial(response.getMaxPriceMaterial().max(price));
+            response.setMinPriceMaterial(((BigDecimal)response.getMinPriceMaterial()).min(price));
+            response.setMaxPriceMaterial(((BigDecimal)response.getMaxPriceMaterial()).max(price));
+            response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
+            response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
         } else {
             response = DesignMaterialDetailResponse
                     .builder()
                     .detailName(detailName)
-                    .meterSquare(area)
+                    .minMeterSquare(area)
+                    .maxMeterSquare(area)
                     .minPriceMaterial(price)
                     .maxPriceMaterial(price)
                     .build();

@@ -803,11 +803,18 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
 
-        List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>(designMaterialDetailResponseMap.values());
-        for(DesignMaterialDetailResponse response : designMaterialDetailResponseList){
-            logger.warn("Line Code 439 {}");
-            logger.error("{}", response);
-            logger.warn("Line Code 441 {}");
+        List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>();
+        for(DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()){
+            designMaterialDetailResponseList.add(
+                    DesignMaterialDetailResponse
+                            .builder()
+                            .detailName(response.getDetailName().toString())
+                            .minMeterSquare(response.getMinMeterSquare().toString())
+                            .maxMeterSquare(response.getMaxMeterSquare().toString())
+                            .minPriceMaterial(response.getMinPriceMaterial().toString())
+                            .maxPriceMaterial(response.getMaxPriceMaterial().toString())
+                            .build()
+            );
         }
 
         // Get Order Fee Percentage to calculate Commission for Each Order
@@ -879,13 +886,16 @@ public class DesignDetailServiceImpl implements DesignDetailService {
     private void updateDesignMaterialDetailMap(Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap, String detailName, BigDecimal area, BigDecimal price) {
         DesignMaterialDetailResponse response = designMaterialDetailResponseMap.get(detailName);
         if(response != null){
-            response.setMinPriceMaterial(response.getMinPriceMaterial().min(price));
-            response.setMaxPriceMaterial(response.getMaxPriceMaterial().max(price));
+            response.setMinPriceMaterial(((BigDecimal)response.getMinPriceMaterial()).min(price));
+            response.setMaxPriceMaterial(((BigDecimal)response.getMaxPriceMaterial()).max(price));
+            response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
+            response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
         } else {
             response = DesignMaterialDetailResponse
                     .builder()
                     .detailName(detailName)
-                    .meterSquare(area)
+                    .minMeterSquare(area)
+                    .maxMeterSquare(area)
                     .minPriceMaterial(price)
                     .maxPriceMaterial(price)
                     .build();
