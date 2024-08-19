@@ -36,12 +36,6 @@ public class CreateOrderEventListener implements ApplicationListener<CreateOrder
             // send Mail to selected Brand for Specific Order
             var sender = orderCustomResponse.getEmployeeID();
             for (var brandEmailSelected : listBrandEmailSelected) {
-                mailService.sendMailToSelectedBrandsForSpecificOrder(
-                        brandEmailSelected,
-                        "Order Design For Brand",
-                        clientServerLink + "/" + orderResponse.getOrderID(),
-                        orderCustomResponse
-                );
                 var brand = userService.getUserByEmail(brandEmailSelected).getUserID();
                 notificationService.sendPrivateNotification(
                         NotificationRequest
@@ -53,6 +47,14 @@ public class CreateOrderEventListener implements ApplicationListener<CreateOrder
                                 .targetID(orderResponse.getOrderID())
                                 .message("An order has been created. Please confirm to accept!")
                                 .build()
+                );
+            }
+            for (var brandEmailSelected : listBrandEmailSelected) {
+                mailService.sendMailToSelectedBrandsForSpecificOrder(
+                        brandEmailSelected,
+                        "Order Design For Brand",
+                        clientServerLink + "/" + orderResponse.getOrderID(),
+                        orderCustomResponse
                 );
             }
         } catch (Exception e) {
