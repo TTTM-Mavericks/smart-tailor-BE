@@ -3,6 +3,7 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.entities.PayOSData;
 import com.smart.tailor.repository.PayOSDataRepository;
 import com.smart.tailor.service.PayOSDataService;
+import com.smart.tailor.utils.response.PayOSDataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,5 +24,23 @@ public class PayOSDataServiceImpl implements PayOSDataService {
     @Override
     public Optional<PayOSData> findByOrderCode(Integer id) {
         return payOSDataRepository.findByOrderCode(id);
+    }
+
+    @Override
+    public PayOSDataResponse getPayOSDataResponseByOrderCode(Integer code) {
+        var checkPayOS = findByOrderCode(code);
+        if (checkPayOS.isEmpty()) {
+            return null;
+        }
+        var payOSData = checkPayOS.get();
+        return PayOSDataResponse
+                .builder()
+                .payOSID(payOSData.getPayOSID())
+                .orderCode(payOSData.getOrderCode())
+                .amount(payOSData.getAmount())
+                .status(payOSData.getStatus())
+                .checkoutUrl(payOSData.getCheckoutUrl())
+                .qrCode(payOSData.getQrCode())
+                .build();
     }
 }

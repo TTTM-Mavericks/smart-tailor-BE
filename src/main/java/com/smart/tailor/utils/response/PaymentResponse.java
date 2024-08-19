@@ -1,5 +1,6 @@
 package com.smart.tailor.utils.response;
 
+import com.smart.tailor.entities.PayOSData;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
 import lombok.AllArgsConstructor;
@@ -34,7 +35,7 @@ public class PaymentResponse {
     private String orderID;
     private String paymentURl;
     private PayOSResponse payOSResponse;
-
+    private PayOSDataResponse payOSData;
     private String createDate;
 }
 

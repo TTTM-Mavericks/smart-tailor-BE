@@ -149,7 +149,6 @@ public class DesignServiceImpl implements DesignService {
             List<DesignMaterialDetail> materialDetailList = new ArrayList<>();
 
             List<PartOfDesignResponse> partOfDesignList = designResponse.getPartOfDesign();
-            logger.error("Part: {}", partOfDesignList);
             for (PartOfDesignResponse partOfDesign : partOfDesignList) {
                 MaterialResponse materialResponse = partOfDesign.getMaterial();
                 DesignMaterialDetail designMaterialDetail = DesignMaterialDetail

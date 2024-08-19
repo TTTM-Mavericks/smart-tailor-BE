@@ -1050,7 +1050,24 @@ public class OrderServiceImpl implements OrderService {
     public OrderCustomResponse getOrderDetailByOrderID(String jwtToken, String orderID) throws Exception {
         var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
         var parentOrderList = orderRepository.getParentOrderByUserID(userIDFromJwtToken);
-        updatePayOS();
+
+        var listPayment = paymentService.findAllByOrderID(orderID);
+        for(var payment : listPayment){
+            PayOSResponse payOS = null;
+            if (payment.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
+                payOS = payOSService.getBrandPaymentInfo(payment.getPaymentCode());
+            } else {
+                if (payment.getPaymentType().equals(PaymentType.ORDER_REFUND)) {
+                    payOS = payOSService.getRefundPaymentInfo(payment.getPaymentCode());
+                } else
+                    payOS = payOSService.getPaymentInfo(payment.getPaymentCode());
+            }
+            if (payOS != null) {
+                payment.setPaymentStatus(payOS.getData().getStatus().equals("PAID"));
+                paymentService.updatePayment(payment);
+            }
+        }
+
         boolean isAuthorized = parentOrderList
                 .stream()
                 .anyMatch(order -> order.getOrderID().equals(orderID));
@@ -2576,6 +2593,8 @@ public class OrderServiceImpl implements OrderService {
                     .toList();
 
             List<FullOrderResponse> response = listOrder.stream()
+                    .filter(fullOrderResponse -> fullOrderResponse.getPaymentList() != null
+                            && !fullOrderResponse.getPaymentList().isEmpty())
                     .map(order -> {
                         try {
                             return orderMapper.mapToFullOrderResponse(order);
@@ -2583,8 +2602,6 @@ public class OrderServiceImpl implements OrderService {
                             throw new RuntimeException(e);
                         }
                     })
-                    .filter(fullOrderResponse -> fullOrderResponse.getPaymentList() != null
-                            && !fullOrderResponse.getPaymentList().isEmpty())
                     .toList();
 
             return response;

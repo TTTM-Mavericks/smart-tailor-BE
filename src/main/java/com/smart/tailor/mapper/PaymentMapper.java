@@ -3,6 +3,7 @@ package com.smart.tailor.mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smart.tailor.entities.Payment;
 import com.smart.tailor.enums.PaymentType;
+import com.smart.tailor.service.PayOSDataService;
 import com.smart.tailor.service.PayOSService;
 import com.smart.tailor.utils.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public interface PaymentMapper {
 @Component
 class PaymentMapperImpl implements PaymentMapper {
     private final PayOSService payOSService;
+    private final PayOSDataService payOSDataService;
     private final Logger logger = LoggerFactory.getLogger(PaymentMapperImpl.class);
 
     @Override
@@ -40,19 +42,20 @@ class PaymentMapperImpl implements PaymentMapper {
                     .paymentStatus(payment.getPaymentStatus())
                     .paymentType(payment.getPaymentType())
                     .orderID(payment.getOrder() != null ? payment.getOrder().getOrderID() : null)
-                    .payOSResponse(
-                            payment.getPaymentType().equals(PaymentType.BRAND_INVOICE) ?
-                                    payOSService.getBrandPaymentInfo(payment.getPaymentCode())
-                                    :
-                                    payment.getPaymentType().equals(PaymentType.ORDER_REFUND) ?
-                                            payOSService.getRefundPaymentInfo(payment.getPaymentCode())
-                                            :
-                                            payOSService.getPaymentInfo(payment.getPaymentCode())
-                    )
+//                    .payOSResponse(
+//                            payment.getPaymentType().equals(PaymentType.BRAND_INVOICE) ?
+//                                    payOSService.getBrandPaymentInfo(payment.getPaymentCode())
+//                                    :
+//                                    payment.getPaymentType().equals(PaymentType.ORDER_REFUND) ?
+//                                            payOSService.getRefundPaymentInfo(payment.getPaymentCode())
+//                                            :
+//                                            payOSService.getPaymentInfo(payment.getPaymentCode())
+//                    )
+                    .payOSData(payOSDataService.getPayOSDataResponseByOrderCode(payment.getPaymentCode()))
                     .createDate(payment.getCreateDate().toString())
                     .paymentURl(payment.getPaymentURl())
                     .build();
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             logger.error("Error processing payment JSON", e);
             throw new RuntimeException(e);
         }
