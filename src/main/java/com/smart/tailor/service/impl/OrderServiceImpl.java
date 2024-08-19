@@ -2186,11 +2186,24 @@ public class OrderServiceImpl implements OrderService {
             var convertMaxDate = LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
 //            LocalDateTime maxDate = subOrderList.get(0).getExpectedProductCompletionDate();
             int quantity = 0;
+            var calculatePrice = calculateTotalPriceForSpecificOrder(orderID);
             for (var subOrder : subOrderList) {
                 var expectedCompleteDate = subOrder.getExpectedProductCompletionDate();
                 var convertExpectedCompleteDate = LocalDateTime.parse(expectedCompleteDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
                 maxDate = convertExpectedCompleteDate.isAfter(convertMaxDate) ? expectedCompleteDate : maxDate;
                 quantity += subOrder.getQuantity();
+
+                var brandPrice = calculatePrice.getBrandDetailPriceResponseList().stream()
+                        .filter(bp -> bp.getSubOrderID().equals(subOrder.getOrderID()))
+                        .findFirst().get();
+                var subOrderObject = getOrderById(subOrder.getOrderID()).get();
+                subOrderObject.setTotalPrice(
+                        Integer.parseInt(brandPrice.getBrandPriceDeposit())
+                        +
+                        Integer.parseInt(brandPrice.getBrandPriceFirstStage())
+                        +
+                        Integer.parseInt(brandPrice.getBrandPriceSecondStage())
+                );
             }
             order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
             updateOrder(order);
