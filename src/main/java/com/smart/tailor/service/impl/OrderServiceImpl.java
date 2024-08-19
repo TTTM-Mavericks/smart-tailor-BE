@@ -262,9 +262,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
-        var orderCustomResponse = getOrderByOrderID(parentOrderID);
+        var orderCustomResponse = getOrderById(parentOrderID).get();
         var listSubOrders = getSubOrderByParentID(parentOrderID);
-        var designResponse = orderCustomResponse.getDesignResponse();
+        var designResponse = designService.getDesignByOrderID(parentOrderID);
         var expertTailoring = designResponse.getExpertTailoring();
         List<PartOfDesignInformation> partOfDesignInformationList = new ArrayList<>();
         List<ItemMaskInformation> itemMaskInformationList = new ArrayList<>();
@@ -492,7 +492,7 @@ public class OrderServiceImpl implements OrderService {
             }
             if (order.getOrderType().equals("PARENT_ORDER")) {
 
-                var calculatedPrice = calculatePrice.get(orderID);
+                var calculatedPrice = calculateTotalPriceForSpecificOrder(orderID);
 
                 List<DesignDetail> designDetailList = detailRepository.findAllByOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -1460,7 +1460,7 @@ public class OrderServiceImpl implements OrderService {
                                     }
 
                                     if (isStart) {
-                                        var calculatedPrice = calculatePrice.get(orderID);
+                                        var calculatedPrice = calculateTotalPriceForSpecificOrder(orderID);
                                         for (var subOrderResponse : subOrderList) {
                                             var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                                     .stream()
@@ -1535,7 +1535,7 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                                 case 1 -> {
-                                    var calculatedPrice = calculatePrice.get(orderID);
+                                    var calculatedPrice = calculateTotalPriceForSpecificOrder(orderID);
                                     for (var subOrderResponse : subOrderList) {
                                         var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                                 .stream()
@@ -1579,7 +1579,7 @@ public class OrderServiceImpl implements OrderService {
                                     }
                                 }
                                 case 2 -> {
-                                    var calculatedPrice = calculatePrice.get(orderID);
+                                    var calculatedPrice = calculateTotalPriceForSpecificOrder(orderID);
                                     for (var subOrderResponse : subOrderList) {
                                         var subPrice = calculatedPrice.getBrandDetailPriceResponseList()
                                                 .stream()
@@ -2204,7 +2204,7 @@ public class OrderServiceImpl implements OrderService {
 
                 stageService.createOrderStage(OrderStageRequest.builder().orderID(orderID).stage(OrderStatus.COMPLETED).currentQuantity(quantity).status(false).build());
             }
-            calculatePrice.put(orderID, calculateTotalPriceForSpecificOrder(orderID));
+//            calculatePrice.put(orderID, calculateTotalPriceForSpecificOrder(orderID));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
