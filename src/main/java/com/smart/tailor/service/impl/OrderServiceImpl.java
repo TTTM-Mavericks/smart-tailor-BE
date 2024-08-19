@@ -20,12 +20,12 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Caching;
-import org.springframework.data.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +35,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1123,6 +1122,7 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
     }
+
     @Override
     @Caching
     public List<OrderResponse> getAllOrder() {
@@ -1367,7 +1367,8 @@ public class OrderServiceImpl implements OrderService {
                                      * TODO
                                      * Refund 80% of the deposited payment
                                      */
-                                    int price = (int) (depositPayment.getPaymentAmount() * 0.8);
+                                    Integer property = Integer.valueOf(systemPropertiesService.getByName("FEE_CANCEL_IN_DURATION").getPropertyValue());
+                                    int price = (int) (depositPayment.getPaymentAmount() * (1 - property));
                                     var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
                                     var sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
                                     var recipient = orderResponse.getDesignResponse().getUser();
@@ -1506,7 +1507,8 @@ public class OrderServiceImpl implements OrderService {
                                     } else {
                                         logger.error("CREATE CUS REFUND");
                                         var depositPayment = paymentService.findAllByOrderID(orderID).stream().filter(p -> p.getPaymentType().equals(PaymentType.DEPOSIT)).findFirst().orElse(null);
-                                        int price = (int) (depositPayment.getPaymentAmount() * 0.8);
+                                        Integer property = Integer.valueOf(systemPropertiesService.getByName("FEE_CANCEL_IN_DURATION").getPropertyValue());
+                                        int price = (int) (depositPayment.getPaymentAmount() * (1 - property));
                                         var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
                                         var sender = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
                                         var recipient = orderResponse.getDesignResponse().getUser();
@@ -2199,10 +2201,10 @@ public class OrderServiceImpl implements OrderService {
                 var subOrderObject = getOrderById(subOrder.getOrderID()).get();
                 subOrderObject.setTotalPrice(
                         Integer.parseInt(brandPrice.getBrandPriceDeposit())
-                        +
-                        Integer.parseInt(brandPrice.getBrandPriceFirstStage())
-                        +
-                        Integer.parseInt(brandPrice.getBrandPriceSecondStage())
+                                +
+                                Integer.parseInt(brandPrice.getBrandPriceFirstStage())
+                                +
+                                Integer.parseInt(brandPrice.getBrandPriceSecondStage())
                 );
             }
             order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
@@ -2245,7 +2247,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void ratingOrder(String jwtToken, RatingOrderRequest ratingOrderRequest) {
         var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
-        if(!userID.equals(ratingOrderRequest.getUserID())){
+        if (!userID.equals(ratingOrderRequest.getUserID())) {
             throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
 
@@ -2271,18 +2273,18 @@ public class OrderServiceImpl implements OrderService {
 
         // Convert estimated dates to LocalDateTime
         LocalDateTime estimatedDateFinishFirstStage = null;
-        if(estimateOrderTimeLine.getEstimatedDateFinishFirstStage() != null){
+        if (estimateOrderTimeLine.getEstimatedDateFinishFirstStage() != null) {
             logger.error("Inside estimatedDateFinishFirstStage Line 2258 {}", estimateOrderTimeLine.getEstimatedDateFinishFirstStage());
             estimatedDateFinishFirstStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishFirstStage(), outputFormatter);
         }
 
         LocalDateTime estimatedDateFinishSecondStage = null;
-        if(estimateOrderTimeLine.getEstimatedDateFinishSecondStage() != null){
+        if (estimateOrderTimeLine.getEstimatedDateFinishSecondStage() != null) {
             estimatedDateFinishSecondStage = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishSecondStage(), outputFormatter);
         }
 
         LocalDateTime estimatedDateCompletion = null;
-        if(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage() != null){
+        if (estimateOrderTimeLine.getEstimatedDateFinishCompleteStage() != null) {
             estimatedDateCompletion = LocalDateTime.parse(estimateOrderTimeLine.getEstimatedDateFinishCompleteStage(), outputFormatter);
         }
 
@@ -2306,7 +2308,7 @@ public class OrderServiceImpl implements OrderService {
 
                 // Compare the stages and calculate counters based on dates
                 if (subOrderStage.getStage().equals(OrderStatus.FINISH_FIRST_STAGE)) {
-                    if(estimatedDateFinishFirstStage != null){
+                    if (estimatedDateFinishFirstStage != null) {
                         if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishFirstStage)) {
                             completedAheadOfSchedule++;
                         } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishFirstStage)) {
@@ -2315,7 +2317,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                     logger.error("Last Modified Date Time At Finish First Stage: {}", lastModifiedDateTimeFormatted);
                 } else if (subOrderStage.getStage().equals(OrderStatus.FINISH_SECOND_STAGE)) {
-                    if(estimatedDateFinishSecondStage != null){
+                    if (estimatedDateFinishSecondStage != null) {
                         if (lastModifiedDateTimeFormatted.isBefore(estimatedDateFinishSecondStage)) {
                             completedAheadOfSchedule++;
                         } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateFinishSecondStage)) {
@@ -2324,7 +2326,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                     logger.error("Last Modified Date Time At Finish Second Stage: {}", lastModifiedDateTimeFormatted);
                 } else if (subOrderStage.getStage().equals(OrderStatus.COMPLETED)) {
-                    if(estimatedDateCompletion != null){
+                    if (estimatedDateCompletion != null) {
                         if (lastModifiedDateTimeFormatted.isBefore(estimatedDateCompletion)) {
                             completedAheadOfSchedule++;
                         } else if (lastModifiedDateTimeFormatted.isAfter(estimatedDateCompletion)) {
@@ -2651,18 +2653,18 @@ public class OrderServiceImpl implements OrderService {
 
         long totalPreOrder = totalParentOrder.stream()
                 .filter(order ->
-                            order.getOrderStatus() == OrderStatus.NOT_VERIFY ||
-                            order.getOrderStatus() == OrderStatus.PENDING
+                        order.getOrderStatus() == OrderStatus.NOT_VERIFY ||
+                                order.getOrderStatus() == OrderStatus.PENDING
                 )
                 .count();
 
         long totalProcessingOrder = totalParentOrder.stream()
                 .filter(order ->
-                            order.getOrderStatus() == OrderStatus.DEPOSIT ||
-                            order.getOrderStatus() == OrderStatus.PREPARING ||
-                            order.getOrderStatus() == OrderStatus.PROCESSING ||
-                            order.getOrderStatus() == OrderStatus.SUSPENDED ||
-                            order.getOrderStatus() == OrderStatus.COMPLETED
+                        order.getOrderStatus() == OrderStatus.DEPOSIT ||
+                                order.getOrderStatus() == OrderStatus.PREPARING ||
+                                order.getOrderStatus() == OrderStatus.PROCESSING ||
+                                order.getOrderStatus() == OrderStatus.SUSPENDED ||
+                                order.getOrderStatus() == OrderStatus.COMPLETED
                 )
                 .count();
 
@@ -2746,7 +2748,7 @@ public class OrderServiceImpl implements OrderService {
         List<Pair<Object, Integer>> totalSubOrderDetails = new ArrayList<>();
         var brandList = brandService.getAllBrandInformation();
 
-        for(var brandInformation : brandList){
+        for (var brandInformation : brandList) {
             var totalOrderForBrand = orderRepository.getOrderByBrandID(brandInformation.getBrandID()).size();
             totalSubOrderDetails.add(Pair.of(brandInformation.getBrandName(), totalOrderForBrand));
         }
@@ -2756,7 +2758,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public SubOrderInvoice getSubOrderInvoiceBySubOrderID(String subOrderID) throws Exception {
-        var orderCustomResponse = getOrderByOrderID(subOrderID);;
+        var orderCustomResponse = getOrderByOrderID(subOrderID);
+        ;
 
         var subOrderQuantity = orderCustomResponse.getQuantity();
         var designDetails = detailRepository.getDesignDetailBySubOrderID(subOrderID);
@@ -2773,7 +2776,7 @@ public class OrderServiceImpl implements OrderService {
 
         var designResponse = orderCustomResponse.getDesignResponse();
         List<BrandMaterialResponse> brandMaterialResponseList = new ArrayList<>();
-        for(var materialDetail : designResponse.getMaterialDetail()){
+        for (var materialDetail : designResponse.getMaterialDetail()) {
             brandMaterialResponseList.add(
                     brandMaterialService.getBrandMaterialResponseByBrandIDAndMaterialID(
                             brand.getBrandID(),
