@@ -809,8 +809,12 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                     DesignMaterialDetailResponse
                             .builder()
                             .detailName(response.getDetailName().toString())
-                            .minMeterSquare(response.getMinMeterSquare().toString())
-                            .maxMeterSquare(response.getMaxMeterSquare().toString())
+                            .minMeterSquare(
+                                    response.getMinMeterSquare() != null ? ((BigDecimal)response.getMinMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                            )
+                            .maxMeterSquare(
+                                    response.getMaxMeterSquare() != null ? ((BigDecimal)response.getMaxMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                            )
                             .minPriceMaterial(response.getMinPriceMaterial().toString())
                             .maxPriceMaterial(response.getMaxPriceMaterial().toString())
                             .build()

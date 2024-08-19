@@ -190,7 +190,7 @@ public class OrderServiceImpl implements OrderService {
 //        updateOrder(order);
 //    }
 
-    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails) {
+    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails,  List<DesignMaterialDetailResponse> designMaterialDetailResponseList) {
         return OrderCustomResponse
                 .builder()
                 .designResponse(designService.getDesignByOrderID(order.getOrderID()))
@@ -227,6 +227,7 @@ public class OrderServiceImpl implements OrderService {
                                 .map(paymentMapper::mapperToPaymentResponse)
                                 .toList()
                 )
+                .designMaterialDetailResponseList(designMaterialDetailResponseList)
                 .build();
     }
 
@@ -262,7 +263,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
-        var orderCustomResponse = getOrderById(parentOrderID).get();
+        var orderCustomResponse = getOrderByOrderID(parentOrderID);
         var listSubOrders = getSubOrderByParentID(parentOrderID);
         var designResponse = designService.getDesignByOrderID(parentOrderID);
         var expertTailoring = designResponse.getExpertTailoring();
@@ -371,7 +372,6 @@ public class OrderServiceImpl implements OrderService {
                     var pricePartOfDesign = calculatePartOfDesignResponse.getSecond();
                     totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(pricePartOfDesign);
                     updateDesignMaterialDetailMap(designMaterialDetailResponseMap, partOfDesignName, areaPartOfDesign, pricePartOfDesign);
-                    logger.info("Line code 374 {} {} {} {}", brand.getBrandID(), partOfDesignName, areaPartOfDesign, pricePartOfDesign);
                 }
 
                 // Calculate Total Price Of ItemMask of SubOrder
@@ -384,14 +384,13 @@ public class OrderServiceImpl implements OrderService {
                     var priceItemMask = calculateItemMaskResponse.getSecond();
                     totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(priceItemMask);
                     updateDesignMaterialDetailMap(designMaterialDetailResponseMap, itemMaskID + " " + itemMaskName, areaItemMask, priceItemMask);
-                    logger.info("Line Code 387 {} {} {} {}", brand.getBrandID(), itemMaskID + " " + itemMaskName, areaItemMask, priceItemMask);
                 }
 
                 // Get Labor Quantity of Each Brand for SubOrder
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
                 BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
 
-                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", BigDecimal.ZERO, brandLaborCostPerQuantity);
+                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, brandLaborCostPerQuantity);
                 totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
             }
 
@@ -436,11 +435,30 @@ public class OrderServiceImpl implements OrderService {
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
 
-        List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>(designMaterialDetailResponseMap.values());
-        for(DesignMaterialDetailResponse response : designMaterialDetailResponseList){
-            logger.warn("Line Code 439 {}");
-            logger.error("{}", response);
-            logger.warn("Line Code 441 {}");
+        List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>();
+        for(DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()){
+            designMaterialDetailResponseList.add(
+                    DesignMaterialDetailResponse
+                            .builder()
+                            .detailName(response.getDetailName().toString())
+                            .minMeterSquare(
+                                    response.getMinMeterSquare() != null ? ((BigDecimal)response.getMinMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                            )
+                            .maxMeterSquare(
+                                    response.getMaxMeterSquare() != null ? ((BigDecimal)response.getMaxMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                            )
+                            .minPriceMaterial(
+                                    response.getMinPriceMaterial() != null
+                                            ? response.getMinPriceMaterial().toString()
+                                            : null
+                            )
+                            .maxPriceMaterial(
+                                    response.getMaxPriceMaterial() != null
+                                            ? response.getMaxPriceMaterial().toString()
+                                            : null
+                            )
+                            .build()
+            );
         }
 
         // Get Order Fee Percentage to calculate Commission for Each Order
@@ -505,6 +523,7 @@ public class OrderServiceImpl implements OrderService {
                 .customerSecondStage(customerSecondStage.toString())
                 .customerShippingFee(shippingFee.toString())
                 .brandDetailPriceResponseList(brandDetailPriceResponseList)
+                .designMaterialDetailResponseList(designMaterialDetailResponseList)
                 .build();
     }
 
@@ -1073,7 +1092,7 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                 }
-                return convertToOrderCustomResponse(order, detailList);
+                return convertToOrderCustomResponse(order, detailList, calculatedPrice.getDesignMaterialDetailResponseList());
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -1086,7 +1105,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
 //                order.setDetailList(detailList);
-                return convertToOrderCustomResponse(order, detailList);
+                return convertToOrderCustomResponse(order, detailList, null);
             }
         } catch (Exception ex) {
             throw ex;
