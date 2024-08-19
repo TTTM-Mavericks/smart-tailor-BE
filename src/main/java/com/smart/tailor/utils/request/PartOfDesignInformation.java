@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class PartOfDesignInformation {
+    private String partOfDesignName;
+
     private Integer width;
 
     private Integer height;
