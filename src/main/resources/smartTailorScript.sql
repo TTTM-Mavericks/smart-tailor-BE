@@ -54,7 +54,10 @@ VALUES (GenerateCustomKeyString(), current_timestamp, null,
         '0.2'),
        (GenerateCustomKeyString(), current_timestamp, null,
         'Rating reduction if order is canceled after it starts.', 'RATING_REDUCTION_AFTER_START', 'FLOAT', true, 'SCORE',
-        '0.8');
+        '0.8'),
+       (GenerateCustomKeyString(), current_timestamp, null,
+        '.', 'FEE_CANCEL_IN_DURATION', 'PERCENTAGE', true, 'PERCENT',
+        '20');
 
 -- INSERT INTO SYSTEM IMAGE
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date, last_modified_date)

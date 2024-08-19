@@ -415,7 +415,7 @@ public class DesignServiceImpl implements DesignService {
                         .user(design.getUser())
                         .expertTailoring(design.getExpertTailoring())
                         .titleDesign(design.getTitleDesign())
-                        .publicStatus(design.getPublicStatus())
+                        .publicStatus(false)
                         .color(design.getColor())
                         .minWeight(design.getMinWeight())
                         .maxWeight(design.getMaxWeight())
