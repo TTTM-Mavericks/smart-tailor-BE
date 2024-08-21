@@ -212,7 +212,7 @@ public class OrderServiceImpl implements OrderService {
                 .estimatedDeliveryDate(Utilities.convertLocalDateTimeToString(order.getEstimatedDeliveryDate()))
                 .productionStartDate(Utilities.convertLocalDateTimeToString(order.getProductionStartDate()))
                 .productionCompletionDate(Utilities.convertLocalDateTimeToString(order.getProductionCompletionDate()))
-                .createDate(order.getCreateDate() != null ? order.getCreateDate().toString() : null)
+                .createDate(order.getCreateDate() != null ? Utilities.convertLocalDateTimeToString(order.getCreateDate()) : null)
                 .detailList(
                         designDetails
                                 .stream()
