@@ -67,7 +67,7 @@ VALUES (GenerateCustomKeyString(), current_timestamp, null,
         (GenerateCustomKeyString(), current_timestamp, null, 'The province of Smart Tailor Company', 'SMART_TAILOR_PROVINCE',
         'STRING', true, 'PROVINCE', 'Hồ Chí Minh'),
          (GenerateCustomKeyString(), current_timestamp, null, 'The conversion ratio from pixel to centimeters', 'PIXEL_TO_CENTIMETER',
-        'DOUBLE', true, 'CENTIMETER', '0.02645833');
+        'DOUBLE', true, 'CENTIMETER', '0.02645833'),
        (GenerateCustomKeyString(), current_timestamp, null,
         '.', 'FEE_CANCEL_IN_DURATION', 'PERCENTAGE', true, 'PERCENT',
         '20');
