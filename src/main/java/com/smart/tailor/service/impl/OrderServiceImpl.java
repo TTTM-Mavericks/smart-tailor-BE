@@ -189,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
 //        updateOrder(order);
 //    }
 
-    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails,  List<DesignMaterialDetailResponse> designMaterialDetailResponseList) {
+    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails, List<DesignMaterialDetailResponse> designMaterialDetailResponseList) {
         return OrderCustomResponse
                 .builder()
                 .designResponse(designService.getDesignByOrderID(order.getOrderID()))
@@ -301,7 +301,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
         var orderCustomResponse = getOrderById(parentOrderID).get();
         var listSubOrders = getSubOrderByParentID(parentOrderID);
-        if(listSubOrders.isEmpty()){
+        if (listSubOrders.isEmpty()) {
             listSubOrders = List.of(safeMapToOrderResponse(orderCustomResponse));
         }
         var designResponse = designService.getDesignByOrderID(parentOrderID);
@@ -383,7 +383,7 @@ public class OrderServiceImpl implements OrderService {
         List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
         for (var subOrder : listSubOrders) {
             List<DesignDetail> designDetailList = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
-            if(subOrder.getBrand() != null){
+            if (subOrder.getBrand() != null) {
                 int totalQuantityOfSubOrder = designDetailList
                         .stream()
                         .mapToInt(DesignDetail::getQuantity)
@@ -474,7 +474,7 @@ public class OrderServiceImpl implements OrderService {
                 // Add Total Price Of SubOrder to ParentOrder
                 totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
 
-            } else{
+            } else {
                 for (DesignDetail designDetail : designDetailList) {
                     var size = designDetail.getSize();
 
@@ -516,7 +516,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>();
-        for(DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()){
+        for (DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()) {
             designMaterialDetailResponseList.add(
                     DesignMaterialDetailResponse
                             .builder()
@@ -607,14 +607,14 @@ public class OrderServiceImpl implements OrderService {
 
     private void updateDesignMaterialDetailMap(Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap, String detailName, BigDecimal area, BigDecimal price) {
         DesignMaterialDetailResponse response = designMaterialDetailResponseMap.get(detailName);
-        if(response != null){
-            if(price != null){
-                response.setMinPriceMaterial(((BigDecimal)response.getMinPriceMaterial()).min(price));
-                response.setMaxPriceMaterial(((BigDecimal)response.getMaxPriceMaterial()).max(price));
+        if (response != null) {
+            if (price != null) {
+                response.setMinPriceMaterial(((BigDecimal) response.getMinPriceMaterial()).min(price));
+                response.setMaxPriceMaterial(((BigDecimal) response.getMaxPriceMaterial()).max(price));
             }
-            if(area != null){
-                response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
-                response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
+            if (area != null) {
+                response.setMinMeterSquare(((BigDecimal) response.getMinMeterSquare()).min(area));
+                response.setMaxMeterSquare(((BigDecimal) response.getMaxMeterSquare()).max(area));
             }
         } else {
             response = DesignMaterialDetailResponse
@@ -1226,7 +1226,7 @@ public class OrderServiceImpl implements OrderService {
         var parentOrderList = orderRepository.getParentOrderByUserID(userIDFromJwtToken);
 
         var listPayment = paymentService.findAllByOrderID(orderID);
-        for(var payment : listPayment){
+        for (var payment : listPayment) {
             PayOSResponse payOS = null;
             if (payment.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
                 payOS = payOSService.getBrandPaymentInfo(payment.getPaymentCode());
@@ -2403,6 +2403,7 @@ public class OrderServiceImpl implements OrderService {
                                 Integer.parseInt(brandPrice.getBrandPriceSecondStage())
                 );
             }
+            order.setTotalPrice(Integer.valueOf(calculatePrice.getTotalPriceOfParentOrder()));
             order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
             updateOrder(order);
 
