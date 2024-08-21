@@ -95,8 +95,8 @@ public class PaymentServiceImpl implements PaymentService {
             String paymentRecipientBankCode = paymentRequest.getPaymentRecipientBankCode();
             String paymentRecipientBankNumber = paymentRequest.getPaymentRecipientBankNumber();
 
-            Integer paymentAmount = paymentRequest.getPaymentAmount();
-//            Integer paymentAmount = 10000;
+//            Integer paymentAmount = paymentRequest.getPaymentAmount();
+            Integer paymentAmount = 10000;
             PaymentMethod paymentMethod = paymentRequest.getPaymentMethod();
             Boolean paymentStatus = false;
             PaymentType paymentType = paymentRequest.getPaymentType();

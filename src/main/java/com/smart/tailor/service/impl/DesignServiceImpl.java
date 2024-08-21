@@ -181,7 +181,7 @@ public class DesignServiceImpl implements DesignService {
                 }
 
                 List<ItemMaskResponse> itemMaskResponseList = partOfDesign.getItemMasks();
-                logger.error("itemMaskResponseList: {}", itemMaskResponseList);
+//                logger.error("itemMaskResponseList: {}", itemMaskResponseList);
                 if (itemMaskResponseList != null) {
                     for (ItemMaskResponse itemMaskResponse : itemMaskResponseList) {
                         if (itemMaskResponse.getMaterial() != null && itemMaskResponse.getStatus()) {
