@@ -122,7 +122,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         String orderType = orderRequest.getOrderType();
-
         if (orderRequest.getParentOrderID() != null) {
             var parentOrderID = orderRequest.getParentOrderID();
             Optional<Order> parentOrder = orderRepository.findById(parentOrderID);
@@ -189,7 +188,7 @@ public class OrderServiceImpl implements OrderService {
 //        updateOrder(order);
 //    }
 
-    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails) {
+    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails,  List<DesignMaterialDetailResponse> designMaterialDetailResponseList) {
         return OrderCustomResponse
                 .builder()
                 .designResponse(designService.getDesignByOrderID(order.getOrderID()))
@@ -226,27 +225,29 @@ public class OrderServiceImpl implements OrderService {
                                 .map(paymentMapper::mapperToPaymentResponse)
                                 .toList()
                 )
+                .designMaterialDetailResponseList(designMaterialDetailResponseList)
                 .build();
     }
 
-    private BigDecimal calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, String brandID) {
+    private Pair<BigDecimal, BigDecimal> calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, String brandID, BigDecimal pixelToCentimeter, Float pixelRatioRealFromWeb) {
         // Convert scales from pixels to centimeters
-        BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(PIXEL_TO_CENTIMETER);
-        BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(PIXEL_TO_CENTIMETER);
+        BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(pixelToCentimeter);
+        BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(pixelToCentimeter);
+        BigDecimal actual_ScaleX_Centimeter = scaleX_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
+        BigDecimal actual_ScaleY_Centimeter = scaleY_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
 
         String materialID = itemMaskInfo.getMaterialID();
         BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
-
         // Calculate area in square meters
-        BigDecimal area = scaleX_Centimeter.multiply(scaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
+        BigDecimal area = actual_ScaleX_Centimeter.multiply(actual_ScaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
 
         // Calculate price, rounding up to the nearest whole number
         BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, RoundingMode.CEILING);
 
-        return price;
+        return Pair.of(area, price);
     }
 
-    private BigDecimal calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, String brandID, BigDecimal ratio) {
+    private Pair<BigDecimal, BigDecimal> calculatePartOfDesignByBrandMaterial(PartOfDesignInformation partInfo, String brandID, BigDecimal ratio) {
         BigDecimal width = BigDecimal.valueOf(partInfo.getWidth()).multiply(ratio); // in Centimeter
         BigDecimal height = BigDecimal.valueOf(partInfo.getHeight()).multiply(ratio); // in Centimeter
 
@@ -257,7 +258,7 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Keeping 10 decimal places for precision
         BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, RoundingMode.CEILING); // Rounding up to nearest whole number
 
-        return price;
+        return Pair.of(area, price);
     }
 
     public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
@@ -271,6 +272,7 @@ public class OrderServiceImpl implements OrderService {
         designResponse.getPartOfDesign().forEach(partOfDesignResponse -> {
             partOfDesignInformationList.add(PartOfDesignInformation
                     .builder()
+                    .partOfDesignName(partOfDesignResponse.getPartOfDesignName())
                     .width(partOfDesignResponse.getWidth())
                     .height(partOfDesignResponse.getHeight())
                     .materialID(partOfDesignResponse.getMaterial().getMaterialID())
@@ -279,6 +281,8 @@ public class OrderServiceImpl implements OrderService {
             partOfDesignResponse.getItemMasks().forEach(itemMaskResponse -> {
                 itemMaskInformationList.add(ItemMaskInformation
                         .builder()
+                        .itemMaskID(itemMaskResponse.getItemMaskID())
+                        .itemMaskName(itemMaskResponse.getItemMaskName())
                         .scaleX(itemMaskResponse.getScaleX())
                         .scaleY(itemMaskResponse.getScaleY())
                         .materialID(itemMaskResponse.getMaterial().getMaterialID())
@@ -286,7 +290,6 @@ public class OrderServiceImpl implements OrderService {
                         .build());
             });
         });
-
         // Get Min Weight and Max Weight of each Design
         var minWeightParentOrder = designResponse.getMinWeight() * orderCustomResponse.getQuantity();
         var maxWeightParentOrder = designResponse.getMaxWeight() * orderCustomResponse.getQuantity();
@@ -298,19 +301,23 @@ public class OrderServiceImpl implements OrderService {
         // Calculate Shipping fee based on Address and Weight of Customer
         if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
                 orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
-
+            var smartTailorAddress = systemPropertiesService.getByName("SMART_TAILOR_ADDRESS").getPropertyValue();
+            var smartTailorProvince = systemPropertiesService.getByName("SMART_TAILOR_PROVINCE").getPropertyValue();
+            var smartTailorDistrict = systemPropertiesService.getByName("SMART_TAILOR_DISTRICT").getPropertyValue();
+            var smartTailorWard = systemPropertiesService.getByName("SMART_TAILOR_WARD").getPropertyValue();
             OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
                     new OrderShippingRequest.OrderShippingDetailRequest(
-                            "344 Lê Văn Việt",
-                            "Hồ Chí Minh",
-                            "Thủ Đức",
-                            "Tăng Nhơn Phú B",
+                            smartTailorAddress,
+                            smartTailorProvince,
+                            smartTailorDistrict,
+                            smartTailorWard,
                             orderCustomResponse.getAddress(),
                             orderCustomResponse.getProvince(),
                             orderCustomResponse.getDistrict(),
                             orderCustomResponse.getWard(),
                             averageWeightParentOrder
                     );
+
 
             var orderShippingRequest =
                     OrderShippingRequest
@@ -326,11 +333,13 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
         var divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+        var pixelToCentimeter = BigDecimal.valueOf(Double.parseDouble(systemPropertiesService.getByName("PIXEL_TO_CENTIMETER").getPropertyValue()));
+        var pixelRatioRealFromWeb = Float.parseFloat(systemPropertiesService.getByName("PIXEL_RATIO_REAL_FROM_WEB").getPropertyValue());
         var maxQuantity = Integer.MIN_VALUE;
         var minQuantity = Integer.MAX_VALUE;
         List<BigDecimal> subOrderIncludeTwoStage = new ArrayList<>();
         List<List<BigDecimal>> subOrderIncludeFourStage = new ArrayList<>();
-
+        Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap = new HashMap<>();
         List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
         for (var subOrder : listSubOrders) {
             List<DesignDetail> designDetailList = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
@@ -360,19 +369,35 @@ public class OrderServiceImpl implements OrderService {
                 // Calculate Total Price Of PartOfDesign of SubOrder
                 BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
                 for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
-                    totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio));
+                    if(partOfDesignInformation != null){
+                        var calculatePartOfDesignResponse = calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio);
+                        var partOfDesignName = partOfDesignInformation.getPartOfDesignName();
+                        var areaPartOfDesign = calculatePartOfDesignResponse.getFirst();
+                        var pricePartOfDesign = calculatePartOfDesignResponse.getSecond();
+                        totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(pricePartOfDesign);
+                        updateDesignMaterialDetailMap(designMaterialDetailResponseMap, partOfDesignName, areaPartOfDesign, pricePartOfDesign);
+                    }
                 }
 
                 // Calculate Total Price Of ItemMask of SubOrder
                 BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
                 for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
-                    totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID()));
+                    if(itemMaskInformation != null){
+                        var calculateItemMaskResponse = calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID(), pixelToCentimeter, pixelRatioRealFromWeb);
+                        var itemMaskID = itemMaskInformation.getItemMaskID();
+                        var itemMaskName = itemMaskInformation.getItemMaskName();
+                        var areaItemMask = calculateItemMaskResponse.getFirst();
+                        var priceItemMask = calculateItemMaskResponse.getSecond();
+                        totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(priceItemMask);
+                        updateDesignMaterialDetailMap(designMaterialDetailResponseMap, itemMaskID + " " + itemMaskName, areaItemMask, priceItemMask);
+                    }
                 }
 
                 // Get Labor Quantity of Each Brand for SubOrder
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
                 BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
 
+                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, brandLaborCostPerQuantity);
                 totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
             }
             totalPriceOfEachSubOrder = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
@@ -401,7 +426,6 @@ public class OrderServiceImpl implements OrderService {
                 fourStage.add(brandSecondStage);
                 subOrderIncludeFourStage.add(fourStage);
             }
-
             BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
                     .builder()
                     .brandID(brand.getBrandID())
@@ -414,6 +438,29 @@ public class OrderServiceImpl implements OrderService {
 
             // Add Total Price Of SubOrder to ParentOrder
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
+        }
+        List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>();
+        for(DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()){
+            designMaterialDetailResponseList.add(
+                    DesignMaterialDetailResponse
+                            .builder()
+                            .detailName(
+                                    !response.getDetailName().isEmpty() ? response.getDetailName().toString() : null
+                            )
+                            .minMeterSquare(
+                                    response.getMinMeterSquare() != null ? ((BigDecimal) response.getMinMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                            )
+                            .maxMeterSquare(
+                                    response.getMaxMeterSquare() != null ? ((BigDecimal) response.getMaxMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                            )
+                            .minPriceMaterial(
+                                    response.getMinPriceMaterial() != null ? response.getMinPriceMaterial().toString() : null
+                            )
+                            .maxPriceMaterial(
+                                    response.getMaxPriceMaterial() != null ? response.getMaxPriceMaterial().toString() : null
+                            )
+                            .build()
+            );
         }
 
         // Get Order Fee Percentage to calculate Commission for Each Order
@@ -478,7 +525,30 @@ public class OrderServiceImpl implements OrderService {
                 .customerSecondStage(customerSecondStage.toString())
                 .customerShippingFee(shippingFee.toString())
                 .brandDetailPriceResponseList(brandDetailPriceResponseList)
+                .designMaterialDetailResponseList(designMaterialDetailResponseList)
                 .build();
+    }
+
+    private void updateDesignMaterialDetailMap(Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap, String detailName, BigDecimal area, BigDecimal price) {
+        DesignMaterialDetailResponse response = designMaterialDetailResponseMap.get(detailName);
+        if(response != null){
+            response.setMinPriceMaterial(((BigDecimal)response.getMinPriceMaterial()).min(price));
+            response.setMaxPriceMaterial(((BigDecimal)response.getMaxPriceMaterial()).max(price));
+            if(area != null){
+                response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
+                response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
+            }
+        } else {
+            response = DesignMaterialDetailResponse
+                    .builder()
+                    .detailName(detailName)
+                    .minMeterSquare(area)
+                    .maxMeterSquare(area)
+                    .minPriceMaterial(price)
+                    .maxPriceMaterial(price)
+                    .build();
+        }
+        designMaterialDetailResponseMap.put(detailName, response);
     }
 
     @Override
@@ -1026,7 +1096,7 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                 }
-                return convertToOrderCustomResponse(order, detailList);
+                return convertToOrderCustomResponse(order, detailList, calculatedPrice.getDesignMaterialDetailResponseList().isEmpty() ? new ArrayList<>() : calculatedPrice.getDesignMaterialDetailResponseList());
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -1039,7 +1109,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
 //                order.setDetailList(detailList);
-                return convertToOrderCustomResponse(order, detailList);
+                return convertToOrderCustomResponse(order, detailList, new ArrayList<>());
             }
         } catch (Exception ex) {
             throw ex;

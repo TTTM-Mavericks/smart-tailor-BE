@@ -7,5 +7,5 @@ public interface ScheduleTaskService {
 
     void updatePayOS() throws Exception;
 
-//    void createOrderDelivery() throws Exception;
+    void createOrderDelivery() throws Exception;
 }

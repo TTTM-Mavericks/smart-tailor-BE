@@ -35,7 +35,7 @@ public class DesignController {
     public ResponseEntity<ObjectNode> addNewDesign(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
                                                    @Valid @RequestBody DesignRequest designRequest) {
         ObjectNode response = objectMapper.createObjectNode();
-        var apiResponse = designService.addNewDesign(jwtToken, designRequest);
+        var apiResponse = designService.createDesign(jwtToken, designRequest);
         response.put("status", apiResponse.getStatus());
         response.put("message", apiResponse.getMessage());
         response.set("data", objectMapper.valueToTree(apiResponse.getData()));

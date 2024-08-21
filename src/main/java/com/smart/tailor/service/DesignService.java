@@ -10,7 +10,7 @@ import java.util.List;
 
 
 public interface DesignService {
-    APIResponse addNewDesign(String jwtToken, DesignRequest designRequest);
+    APIResponse createDesign(String jwtToken, DesignRequest designRequest);
 
     Design getDesignByID(String designID);
 

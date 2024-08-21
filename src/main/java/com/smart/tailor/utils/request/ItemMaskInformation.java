@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ItemMaskInformation {
+    private String itemMaskID;
+
+    private String itemMaskName;
+
     private Float scaleX;
 
     private Float scaleY;
