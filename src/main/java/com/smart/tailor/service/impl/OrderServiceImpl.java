@@ -261,9 +261,36 @@ public class OrderServiceImpl implements OrderService {
         return Pair.of(area, price);
     }
 
+    private BigDecimal calculatePartOfDesignWithoutBrand(PartOfDesignInformation partInfo, BigDecimal ratio) {
+        BigDecimal width = BigDecimal.valueOf(partInfo.getWidth()).multiply(ratio); // in Centimeter
+        BigDecimal height = BigDecimal.valueOf(partInfo.getHeight()).multiply(ratio); // in Centimeter
+
+        // Correct calculation
+        BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Keeping 10 decimal places for precision
+
+        return area;
+    }
+
+    private BigDecimal calculateItemMaskWithoutBrand(ItemMaskInformation itemMaskInfo, BigDecimal pixelToCentimeter, Float pixelRatioRealFromWeb) {
+        // Convert scales from pixels to centimeters
+        BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(pixelToCentimeter);
+        BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(pixelToCentimeter);
+        BigDecimal actual_ScaleX_Centimeter = scaleX_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
+        BigDecimal actual_ScaleY_Centimeter = scaleY_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
+
+        // Calculate area in square meters
+        BigDecimal area = actual_ScaleX_Centimeter.multiply(actual_ScaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
+
+        return area;
+    }
+
+
     public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
         var orderCustomResponse = getOrderById(parentOrderID).get();
         var listSubOrders = getSubOrderByParentID(parentOrderID);
+        if(listSubOrders.isEmpty()){
+            listSubOrders = List.of(safeMapToOrderResponse(orderCustomResponse));
+        }
         var designResponse = designService.getDesignByOrderID(parentOrderID);
         var expertTailoring = designResponse.getExpertTailoring();
         List<PartOfDesignInformation> partOfDesignInformationList = new ArrayList<>();
@@ -343,33 +370,32 @@ public class OrderServiceImpl implements OrderService {
         List<BrandDetailPriceResponse> brandDetailPriceResponseList = new ArrayList<>();
         for (var subOrder : listSubOrders) {
             List<DesignDetail> designDetailList = detailRepository.getDesignDetailBySubOrderID(subOrder.getOrderID());
+            if(subOrder.getBrand() != null){
+                int totalQuantityOfSubOrder = designDetailList
+                        .stream()
+                        .mapToInt(DesignDetail::getQuantity)
+                        .sum();
 
-            int totalQuantityOfSubOrder = designDetailList
-                    .stream()
-                    .mapToInt(DesignDetail::getQuantity)
-                    .sum();
+                BigDecimal totalPriceOfEachSubOrder = BigDecimal.ZERO;
+                maxQuantity = Math.max(maxQuantity, totalQuantityOfSubOrder);
+                minQuantity = Math.min(minQuantity, totalQuantityOfSubOrder);
 
-            BigDecimal totalPriceOfEachSubOrder = BigDecimal.ZERO;
-            maxQuantity = Math.max(maxQuantity, totalQuantityOfSubOrder);
-            minQuantity = Math.min(minQuantity, totalQuantityOfSubOrder);
+                Brand brand = null;
+                for (DesignDetail designDetail : designDetailList) {
+                    brand = designDetail.getBrand();
+                    var designDetailQuantity = BigDecimal.valueOf(designDetail.getQuantity());
+                    var size = designDetail.getSize();
 
-            Brand brand = null;
-            for (DesignDetail designDetail : designDetailList) {
-                brand = designDetail.getBrand();
-                var designDetailQuantity = BigDecimal.valueOf(designDetail.getQuantity());
-                var size = designDetail.getSize();
+                    var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
+                            expertTailoring.getExpertTailoringID(),
+                            size.getSizeID()
+                    );
 
-                var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
-                        expertTailoring.getExpertTailoringID(),
-                        size.getSizeID()
-                );
+                    var ratio = BigDecimal.valueOf(sizeExpertTailoring.getRatio());
 
-                var ratio = BigDecimal.valueOf(sizeExpertTailoring.getRatio());
-
-                // Calculate Total Price Of PartOfDesign of SubOrder
-                BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
-                for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
-                    if(partOfDesignInformation != null){
+                    // Calculate Total Price Of PartOfDesign of SubOrder
+                    BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
+                    for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
                         var calculatePartOfDesignResponse = calculatePartOfDesignByBrandMaterial(partOfDesignInformation, brand.getBrandID(), ratio);
                         var partOfDesignName = partOfDesignInformation.getPartOfDesignName();
                         var areaPartOfDesign = calculatePartOfDesignResponse.getFirst();
@@ -377,12 +403,10 @@ public class OrderServiceImpl implements OrderService {
                         totalPricePartOfDesignOfSubOrder = totalPricePartOfDesignOfSubOrder.add(pricePartOfDesign);
                         updateDesignMaterialDetailMap(designMaterialDetailResponseMap, partOfDesignName, areaPartOfDesign, pricePartOfDesign);
                     }
-                }
 
-                // Calculate Total Price Of ItemMask of SubOrder
-                BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
-                for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
-                    if(itemMaskInformation != null){
+                    // Calculate Total Price Of ItemMask of SubOrder
+                    BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
+                    for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
                         var calculateItemMaskResponse = calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID(), pixelToCentimeter, pixelRatioRealFromWeb);
                         var itemMaskID = itemMaskInformation.getItemMaskID();
                         var itemMaskName = itemMaskInformation.getItemMaskName();
@@ -391,53 +415,84 @@ public class OrderServiceImpl implements OrderService {
                         totalPriceItemMaskOfSubOrder = totalPriceItemMaskOfSubOrder.add(priceItemMask);
                         updateDesignMaterialDetailMap(designMaterialDetailResponseMap, itemMaskID + " " + itemMaskName, areaItemMask, priceItemMask);
                     }
+
+                    // Get Labor Quantity of Each Brand for SubOrder
+                    var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
+                    BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
+                    updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, brandLaborCostPerQuantity);
+                    totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
                 }
+                totalPriceOfEachSubOrder = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
+                BigDecimal brandDepositStage = BigDecimal.valueOf(-1);
+                BigDecimal brandFirstStage = BigDecimal.valueOf(-1);
+                BigDecimal brandSecondStage = BigDecimal.valueOf(-1);
+                if (maxQuantity < divideNumber) {
+                    brandDepositStage = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
+                    subOrderIncludeTwoStage.add(brandDepositStage);
+                } else {
+                    brandDepositStage = totalPriceOfEachSubOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+                    brandFirstStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
+                    brandSecondStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).subtract(brandFirstStage).setScale(0, RoundingMode.HALF_UP);
 
-                // Get Labor Quantity of Each Brand for SubOrder
-                var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
-                BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
+                    // Round Brand Price at Deposit, First, Second Stage to nearest Thousand
+                    brandDepositStage = Utilities.roundToNearestThousand(brandDepositStage);
+                    brandFirstStage = Utilities.roundToNearestThousand(brandFirstStage);
+                    brandSecondStage = Utilities.roundToNearestThousand(brandSecondStage);
 
-                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, brandLaborCostPerQuantity);
-                totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
+                    // Update Total Price Of SubOrder with new Nearest Stage of Deposit, First, Second Stage
+                    totalPriceOfEachSubOrder = brandDepositStage.add(brandFirstStage).add(brandSecondStage);
+
+                    List<BigDecimal> fourStage = new ArrayList<>();
+                    fourStage.add(brandDepositStage);
+                    fourStage.add(brandFirstStage);
+                    fourStage.add(brandSecondStage);
+                    subOrderIncludeFourStage.add(fourStage);
+                }
+                BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
+                        .builder()
+                        .brandID(brand.getBrandID())
+                        .subOrderID(subOrder.getOrderID())
+                        .brandPriceDeposit(brandDepositStage.toString())
+                        .brandPriceFirstStage(brandFirstStage.toString())
+                        .brandPriceSecondStage(brandSecondStage.toString())
+                        .build();
+                brandDetailPriceResponseList.add(brandDetailPriceResponse);
+
+                // Add Total Price Of SubOrder to ParentOrder
+                totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
+
+            } else{
+                for (DesignDetail designDetail : designDetailList) {
+                    var size = designDetail.getSize();
+
+                    var sizeExpertTailoring = sizeExpertTailoringService.findSizeExpertTailoringByExpertTailoringIDAndSizeID(
+                            expertTailoring.getExpertTailoringID(),
+                            size.getSizeID()
+                    );
+
+                    var ratio = BigDecimal.valueOf(sizeExpertTailoring.getRatio());
+
+                    // Calculate Total Price Of PartOfDesign of SubOrder
+                    BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
+                    for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
+                        var areaPartOfDesign = calculatePartOfDesignWithoutBrand(partOfDesignInformation, ratio);
+                        var partOfDesignName = partOfDesignInformation.getPartOfDesignName();
+                        updateDesignMaterialDetailMap(designMaterialDetailResponseMap, partOfDesignName, areaPartOfDesign, null);
+                    }
+
+                    // Calculate Total Price Of ItemMask of SubOrder
+                    BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
+                    for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
+                        var areaItemMask = calculateItemMaskWithoutBrand(itemMaskInformation, pixelToCentimeter, pixelRatioRealFromWeb);
+                        var itemMaskID = itemMaskInformation.getItemMaskID();
+                        var itemMaskName = itemMaskInformation.getItemMaskName();
+                        updateDesignMaterialDetailMap(designMaterialDetailResponseMap, itemMaskID + " " + itemMaskName, areaItemMask, null);
+                    }
+
+                    // Get Labor Quantity of Each Brand for SubOrder
+                    updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, null);
+                }
             }
-            totalPriceOfEachSubOrder = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
-            BigDecimal brandDepositStage = BigDecimal.valueOf(-1);
-            BigDecimal brandFirstStage = BigDecimal.valueOf(-1);
-            BigDecimal brandSecondStage = BigDecimal.valueOf(-1);
-            if (maxQuantity < divideNumber) {
-                brandDepositStage = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
-                subOrderIncludeTwoStage.add(brandDepositStage);
-            } else {
-                brandDepositStage = totalPriceOfEachSubOrder.divide(BigDecimal.valueOf(3), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-                brandFirstStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
-                brandSecondStage = totalPriceOfEachSubOrder.subtract(brandDepositStage).subtract(brandFirstStage).setScale(0, RoundingMode.HALF_UP);
-
-                // Round Brand Price at Deposit, First, Second Stage to nearest Thousand
-                brandDepositStage = Utilities.roundToNearestThousand(brandDepositStage);
-                brandFirstStage = Utilities.roundToNearestThousand(brandFirstStage);
-                brandSecondStage = Utilities.roundToNearestThousand(brandSecondStage);
-
-                // Update Total Price Of SubOrder with new Nearest Stage of Deposit, First, Second Stage
-                totalPriceOfEachSubOrder = brandDepositStage.add(brandFirstStage).add(brandSecondStage);
-
-                List<BigDecimal> fourStage = new ArrayList<>();
-                fourStage.add(brandDepositStage);
-                fourStage.add(brandFirstStage);
-                fourStage.add(brandSecondStage);
-                subOrderIncludeFourStage.add(fourStage);
-            }
-            BrandDetailPriceResponse brandDetailPriceResponse = BrandDetailPriceResponse
-                    .builder()
-                    .brandID(brand.getBrandID())
-                    .subOrderID(subOrder.getOrderID())
-                    .brandPriceDeposit(brandDepositStage.toString())
-                    .brandPriceFirstStage(brandFirstStage.toString())
-                    .brandPriceSecondStage(brandSecondStage.toString())
-                    .build();
-            brandDetailPriceResponseList.add(brandDetailPriceResponse);
-
-            // Add Total Price Of SubOrder to ParentOrder
-            totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
         List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>();
         for(DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()){
@@ -445,7 +500,7 @@ public class OrderServiceImpl implements OrderService {
                     DesignMaterialDetailResponse
                             .builder()
                             .detailName(
-                                    !response.getDetailName().isEmpty() ? response.getDetailName().toString() : null
+                                    Utilities.isNonNullOrEmpty(response.getDetailName()) ? response.getDetailName() : null
                             )
                             .minMeterSquare(
                                     response.getMinMeterSquare() != null ? ((BigDecimal) response.getMinMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
@@ -532,8 +587,10 @@ public class OrderServiceImpl implements OrderService {
     private void updateDesignMaterialDetailMap(Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap, String detailName, BigDecimal area, BigDecimal price) {
         DesignMaterialDetailResponse response = designMaterialDetailResponseMap.get(detailName);
         if(response != null){
-            response.setMinPriceMaterial(((BigDecimal)response.getMinPriceMaterial()).min(price));
-            response.setMaxPriceMaterial(((BigDecimal)response.getMaxPriceMaterial()).max(price));
+            if(price != null){
+                response.setMinPriceMaterial(((BigDecimal)response.getMinPriceMaterial()).min(price));
+                response.setMaxPriceMaterial(((BigDecimal)response.getMaxPriceMaterial()).max(price));
+            }
             if(area != null){
                 response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
                 response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
@@ -1196,7 +1253,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getSubOrderByParentID(String parentOrderID) {
-        return orderRepository.findAll().stream().filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID) && !order.getOrderStatus().equals(OrderStatus.CANCEL)).map(this::safeMapToOrderResponse).toList();
+        return orderRepository
+                .findAll()
+                .stream()
+                .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID) && !order.getOrderStatus().equals(OrderStatus.CANCEL))
+                .map(this::safeMapToOrderResponse)
+                .toList();
     }
 
     private OrderResponse safeMapToOrderResponse(Order order) {
