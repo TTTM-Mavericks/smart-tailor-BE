@@ -65,7 +65,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
                     errors.add("Brand Labor Cost must be between Min Price and Max Price");
                 }
 
-                var brandLaborQuantityExisted = brandLaborQuantityRepository.findBrandLaborQuantitiesByLaborQuantityIDAndBrandID(laborQuantityID, brandID);
+                var brandLaborQuantityExisted = brandLaborQuantityRepository.getBrandLaborQuantitiesByLaborQuantityIDAndBrandID(laborQuantityID, brandID);
 
                 if (brandLaborQuantityExisted != null) {
                     errors.add("Brand Labor Quantity is existed");
@@ -134,7 +134,7 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
             throw new BadRequestException("Brand Labor Cost must be between Min and Max Price");
         }
 
-        var brandLaborQuantityExisted = brandLaborQuantityRepository.findBrandLaborQuantitiesByLaborQuantityIDAndBrandID(laborQuantityID, brandID);
+        var brandLaborQuantityExisted = brandLaborQuantityRepository.getBrandLaborQuantitiesByLaborQuantityIDAndBrandID(laborQuantityID, brandID);
         if (brandLaborQuantityExisted == null) {
             throw new ItemNotFoundException("Can not find Brand Labor Quantity");
         }
@@ -160,7 +160,25 @@ public class BrandLaborQuantityServiceImpl implements BrandLaborQuantityService 
     @Override
     public BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(String brandID, Integer brandQuantity) {
         return brandLaborQuantityMapper.mapToLaborQuantityResponse(
-                brandLaborQuantityRepository.findLaborQuantityByBrandIDAndBrandQuantity(brandID, brandQuantity)
+                brandLaborQuantityRepository.getLaborQuantityByBrandIDAndBrandQuantity(brandID, brandQuantity)
         );
+    }
+
+    @Override
+    public Integer getMinBrandLaborQuantityCostByQuantity(Integer quantity) {
+        var brandLaborQuantityCost = brandLaborQuantityRepository.getMinBrandLaborQuantityCostByQuantity(quantity);
+        if (brandLaborQuantityCost == null){
+            return 0;
+        }
+        return brandLaborQuantityCost;
+    }
+
+    @Override
+    public Integer getMaxBrandLaborQuantityCostByQuantity(Integer quantity) {
+        var brandLaborQuantityCost = brandLaborQuantityRepository.getMaxBrandLaborQuantityCostByQuantity(quantity);
+        if (brandLaborQuantityCost == null){
+            return 0;
+        }
+        return brandLaborQuantityCost;
     }
 }

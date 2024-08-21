@@ -20,6 +20,7 @@ import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.*;
 import com.smart.tailor.utils.response.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -261,27 +262,39 @@ public class OrderServiceImpl implements OrderService {
         return Pair.of(area, price);
     }
 
-    private BigDecimal calculatePartOfDesignWithoutBrand(PartOfDesignInformation partInfo, BigDecimal ratio) {
+    private Triple<BigDecimal, BigDecimal, BigDecimal> calculatePartOfDesignWithoutBrand(PartOfDesignInformation partInfo, BigDecimal ratio) {
         BigDecimal width = BigDecimal.valueOf(partInfo.getWidth()).multiply(ratio); // in Centimeter
         BigDecimal height = BigDecimal.valueOf(partInfo.getHeight()).multiply(ratio); // in Centimeter
 
+        String materialID = partInfo.getMaterialID();
+        BigDecimal minBrandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getMinPriceByMaterialID(materialID));
+        BigDecimal maxBrandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getMaxPriceByMaterialID(materialID));
+
         // Correct calculation
         BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Keeping 10 decimal places for precision
+        BigDecimal minPrice = area.multiply(minBrandPriceMaterial).setScale(0, RoundingMode.CEILING);
+        BigDecimal maxPrice = area.multiply(maxBrandPriceMaterial).setScale(0,  RoundingMode.CEILING);
 
-        return area;
+        return Triple.of(area, minPrice, maxPrice);
     }
 
-    private BigDecimal calculateItemMaskWithoutBrand(ItemMaskInformation itemMaskInfo, BigDecimal pixelToCentimeter, Float pixelRatioRealFromWeb) {
+    private Triple<BigDecimal, BigDecimal, BigDecimal> calculateItemMaskWithoutBrand(ItemMaskInformation itemMaskInfo, BigDecimal pixelToCentimeter, Float pixelRatioRealFromWeb) {
         // Convert scales from pixels to centimeters
         BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(pixelToCentimeter);
         BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(pixelToCentimeter);
         BigDecimal actual_ScaleX_Centimeter = scaleX_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
         BigDecimal actual_ScaleY_Centimeter = scaleY_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
 
+        String materialID = itemMaskInfo.getMaterialID();
+        BigDecimal minBrandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getMinPriceByMaterialID(materialID));
+        BigDecimal maxBrandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getMaxPriceByMaterialID(materialID));
+
         // Calculate area in square meters
         BigDecimal area = actual_ScaleX_Centimeter.multiply(actual_ScaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
+        BigDecimal minPrice = area.multiply(minBrandPriceMaterial).setScale(0, RoundingMode.CEILING);
+        BigDecimal maxPrice = area.multiply(maxBrandPriceMaterial).setScale(0,  RoundingMode.CEILING);
 
-        return area;
+        return Triple.of(area, minPrice, maxPrice);
     }
 
 
@@ -475,22 +488,30 @@ public class OrderServiceImpl implements OrderService {
                     // Calculate Total Price Of PartOfDesign of SubOrder
                     BigDecimal totalPricePartOfDesignOfSubOrder = BigDecimal.ZERO;
                     for (PartOfDesignInformation partOfDesignInformation : partOfDesignInformationList) {
-                        var areaPartOfDesign = calculatePartOfDesignWithoutBrand(partOfDesignInformation, ratio);
+                        var calculatePartOfDesignWithoutBrand = calculatePartOfDesignWithoutBrand(partOfDesignInformation, ratio);
                         var partOfDesignName = partOfDesignInformation.getPartOfDesignName();
-                        updateDesignMaterialDetailMap(designMaterialDetailResponseMap, partOfDesignName, areaPartOfDesign, null);
+                        var areaPartOfDesign = calculatePartOfDesignWithoutBrand.getLeft();
+                        var minPricePartOfDesign = calculatePartOfDesignWithoutBrand.getMiddle();
+                        var maxPricePartOfDesign = calculatePartOfDesignWithoutBrand.getRight();
+                        updateDesignMaterialDetailWithoutBrandMap(designMaterialDetailResponseMap, partOfDesignName, areaPartOfDesign, minPricePartOfDesign, maxPricePartOfDesign);
                     }
 
                     // Calculate Total Price Of ItemMask of SubOrder
                     BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
                     for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
-                        var areaItemMask = calculateItemMaskWithoutBrand(itemMaskInformation, pixelToCentimeter, pixelRatioRealFromWeb);
+                        var calculateItemMaskWithoutBrand = calculateItemMaskWithoutBrand(itemMaskInformation, pixelToCentimeter, pixelRatioRealFromWeb);
                         var itemMaskID = itemMaskInformation.getItemMaskID();
                         var itemMaskName = itemMaskInformation.getItemMaskName();
-                        updateDesignMaterialDetailMap(designMaterialDetailResponseMap, itemMaskID + " " + itemMaskName, areaItemMask, null);
+                        var areaItemMask = calculateItemMaskWithoutBrand.getLeft();
+                        var minPriceItemMask = calculateItemMaskWithoutBrand.getMiddle();
+                        var maxPriceItemMask = calculateItemMaskWithoutBrand.getRight();
+                        updateDesignMaterialDetailWithoutBrandMap(designMaterialDetailResponseMap, itemMaskID + " " + itemMaskName, areaItemMask, minPriceItemMask, maxPriceItemMask);
                     }
 
                     // Get Labor Quantity of Each Brand for SubOrder
-                    updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, null);
+                    var minLaborQuantityCost = BigDecimal.valueOf(brandLaborQuantityService.getMinBrandLaborQuantityCostByQuantity(subOrder.getQuantity()));
+                    var maxLaborQuantityCost = BigDecimal.valueOf(brandLaborQuantityService.getMaxBrandLaborQuantityCostByQuantity(subOrder.getQuantity()));
+                    updateDesignMaterialDetailWithoutBrandMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, minLaborQuantityCost, maxLaborQuantityCost);
                 }
             }
         }
@@ -608,6 +629,32 @@ public class OrderServiceImpl implements OrderService {
         designMaterialDetailResponseMap.put(detailName, response);
     }
 
+    private void updateDesignMaterialDetailWithoutBrandMap(Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap, String detailName, BigDecimal area, BigDecimal minPrice, BigDecimal maxPrice) {
+        DesignMaterialDetailResponse response = designMaterialDetailResponseMap.get(detailName);
+        if(response != null){
+            if(minPrice != null && maxPrice != null){
+                BigDecimal minOfBoth = minPrice.min(maxPrice);
+                BigDecimal maxOfBoth = minPrice.max(maxPrice);
+
+                response.setMinPriceMaterial(((BigDecimal) response.getMinPriceMaterial()).min(minOfBoth));
+                response.setMaxPriceMaterial(((BigDecimal) response.getMaxPriceMaterial()).max(maxOfBoth));
+            }
+            if(area != null){
+                response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
+                response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
+            }
+        } else {
+            response = DesignMaterialDetailResponse
+                    .builder()
+                    .detailName(detailName)
+                    .minMeterSquare(area)
+                    .maxMeterSquare(area)
+                    .minPriceMaterial(minPrice)
+                    .maxPriceMaterial(maxPrice)
+                    .build();
+        }
+        designMaterialDetailResponseMap.put(detailName, response);
+    }
     @Override
     public OrderCustomResponse getOrderByOrderID(String orderID) throws Exception {
         try {

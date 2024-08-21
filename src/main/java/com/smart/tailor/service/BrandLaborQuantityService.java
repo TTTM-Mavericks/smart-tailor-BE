@@ -15,4 +15,8 @@ public interface BrandLaborQuantityService {
     void updateBrandLaborQuantity(String jwtToken, String brandID, BrandLaborQuantityRequest brandLaborQuantityListRequest);
 
     BrandLaborQuantityResponse findLaborQuantityByBrandIDAndBrandQuantity(String brandID, Integer brandQuantity);
+
+    Integer getMinBrandLaborQuantityCostByQuantity(Integer quantity);
+
+    Integer getMaxBrandLaborQuantityCostByQuantity(Integer quantity);
 }
