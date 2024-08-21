@@ -819,31 +819,31 @@ public class OrderServiceImpl implements OrderService {
                                 }
                             }
                             if (isFinish && isOrderCompletelyPicked(orderID)) {
-                                var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.COMPLETED_ORDER)
-                                        && p.getOrder().getOrderID().equals(orderID)).findFirst();
-                                if (checkDeposited.isEmpty()) {
-                                    logger.error("CREATE COMPLETE_ORDER");
-                                    paymentService.createPayOSPayment(
-                                            PaymentRequest
-                                                    .builder()
-                                                    .orderID(orderID)
-                                                    .paymentSenderID(sender.getUserID())
-                                                    .paymentSenderName(order.getBuyerName())
-                                                    .paymentSenderBankCode("")
-                                                    .paymentSenderBankNumber("")
-                                                    .paymentRecipientID(recipient.getUserID())
-                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
-                                                    .paymentRecipientBankCode("OCB")
-                                                    .paymentRecipientBankNumber("0163100007285002")
-                                                    .paymentType(PaymentType.COMPLETED_ORDER)
-                                                    .paymentAmount(
-                                                            Integer.parseInt(calculatedPrice.getTotalPriceOfParentOrder()) - Integer.parseInt(calculatedPrice.getCustomerPriceDeposit())
-                                                    )
-                                                    .itemList(null)
-                                                    .build()
-                                    );
-                                }
-                                logger.info("Change Status PROCESSING Order");
+//                                var checkDeposited = paymentList.stream().filter(p -> p.getPaymentType().equals(PaymentType.COMPLETED_ORDER)
+//                                        && p.getOrder().getOrderID().equals(orderID)).findFirst();
+//                                if (checkDeposited.isEmpty()) {
+//                                    logger.error("CREATE COMPLETE_ORDER");
+//                                    paymentService.createPayOSPayment(
+//                                            PaymentRequest
+//                                                    .builder()
+//                                                    .orderID(orderID)
+//                                                    .paymentSenderID(sender.getUserID())
+//                                                    .paymentSenderName(order.getBuyerName())
+//                                                    .paymentSenderBankCode("")
+//                                                    .paymentSenderBankNumber("")
+//                                                    .paymentRecipientID(recipient.getUserID())
+//                                                    .paymentRecipientName("NGUYEN HOANG LAM TRUONG")
+//                                                    .paymentRecipientBankCode("OCB")
+//                                                    .paymentRecipientBankNumber("0163100007285002")
+//                                                    .paymentType(PaymentType.COMPLETED_ORDER)
+//                                                    .paymentAmount(
+//                                                            Integer.parseInt(calculatedPrice.getTotalPriceOfParentOrder()) - Integer.parseInt(calculatedPrice.getCustomerPriceDeposit())
+//                                                    )
+//                                                    .itemList(null)
+//                                                    .build()
+//                                    );
+//                                }
+//                                logger.info("Change Status PROCESSING Order");
                                 changeOrderStatus(OrderStatusUpdateRequest.builder().orderID(orderID).status(OrderStatus.COMPLETED.name()).build());
                             }
                         }
