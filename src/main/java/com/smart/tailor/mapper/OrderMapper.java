@@ -16,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public interface OrderMapper {
     OrderResponse mapToOrderResponse(Order order) throws JsonProcessingException;
@@ -75,10 +73,7 @@ class OrderMapperImpl implements OrderMapper {
                                 .toList() : null);
 
         try {
-            List<PaymentResponse> paymentResponseList = order.getPaymentList() != null ?
-                    order.getPaymentList().stream()
-                            .map(paymentMapper::mapperToPaymentResponse)
-                            .toList() :
+            List<PaymentResponse> paymentResponseList =
                     paymentService.findAllByOrderID(order.getOrderID())
                             .stream()
                             .map(paymentMapper::mapperToPaymentResponse)
@@ -213,6 +208,12 @@ class OrderMapperImpl implements OrderMapper {
                                 .map(detailMapper::mapperToDesignDetailResponse)
                                 .toList() : null);
         orderResponse.paymentStatus(false);
+        var orderPayment = paymentService.findAllByOrderID(order.getOrderID());
+        orderResponse.paymentList(
+                orderPayment.stream()
+                        .map(paymentMapper::mapperToPaymentResponse)
+                        .toList()
+        );
 //        try {
 //            List<PaymentResponse> paymentResponseList = Optional.ofNullable(order)
 //                    .map(Order::getOrderID)
@@ -233,10 +234,7 @@ class OrderMapperImpl implements OrderMapper {
             if (!order.getOrderType().equals("SUB_ORDER")) {
                 List<OrderResponse> subOrderList = orderRepository.findAll().stream()
                         .filter(o -> "SUB_ORDER".equals(o.getOrderType()) &&
-                                o.getParentOrder() != null &&
-                                order.getOrderID() != null &&
-                                order.getOrderID().equals(o.getParentOrder().getOrderID()) &&
-                                !o.getPaymentList().isEmpty()
+                                o.getParentOrder().getOrderID().equals(order.getOrderID())
                         )
                         .map(this::mapToOrderResponse)
                         .toList();
