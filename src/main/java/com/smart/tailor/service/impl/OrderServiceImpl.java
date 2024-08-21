@@ -2658,8 +2658,8 @@ public class OrderServiceImpl implements OrderService {
     public List<FullOrderResponse> getFullProp() throws JsonProcessingException {
         try {
             var listOrder = orderRepository.getAllParentOrder().stream()
-                    .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL
-                            || order.getOrderStatus() == OrderStatus.DELIVERED)
+//                    .filter(order -> order.getOrderStatus() == OrderStatus.CANCEL
+//                            || order.getOrderStatus() == OrderStatus.DELIVERED)
                     .toList();
 
             List<FullOrderResponse> response = listOrder.stream()

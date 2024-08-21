@@ -21,4 +21,8 @@ public class PayOSDataResponse {
     private String checkoutUrl; // Link thanh toán
 
     private String qrCode; // Mã VietQR dạng text
+
+    private String createDate;
+
+    private String lastModifiedDate;
 }

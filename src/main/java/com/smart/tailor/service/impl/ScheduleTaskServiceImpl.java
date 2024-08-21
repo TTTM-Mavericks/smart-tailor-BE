@@ -73,31 +73,31 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
                     var sender = design.getUser();
                     var recipient = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
 
-                    var paymentList = paymentService.findAllByOrderID(orderResponse.getOrderID());
-                    if (paymentList != null && !paymentList.isEmpty()) {
-                        for (Payment p : paymentList) {
-                            var orderCode = p.getPaymentCode();
-                            PayOSResponseData onlinePayOS;
-                            if (p.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
-                                onlinePayOS = payOSService.getBrandPaymentInfo(orderCode).getData();
-                            } else {
-                                if (p.getPaymentType().equals(PaymentType.ORDER_REFUND)) {
-                                    onlinePayOS = payOSService.getRefundPaymentInfo(orderCode).getData();
-                                } else {
-                                    onlinePayOS = payOSService.getPaymentInfo(orderCode).getData();
-                                }
-                            }
-                            var checkPayOSData = payOSDataService.findByOrderCode(orderCode);
-                            if (checkPayOSData.isPresent()) {
-                                var payOSData = checkPayOSData.get();
-                                payOSData.setStatus(onlinePayOS.getStatus());
-                                payOSDataService.save(payOSData);
-                                p.setPaymentStatus(payOSData.getStatus().equals("PAID"));
-                                paymentService.updatePayment(p);
-                            }
-                        }
-                    }
-                    logger.error("PAYMENT LIST: {}", paymentList);
+//                    var paymentList = paymentService.findAllByOrderID(orderResponse.getOrderID());
+//                    if (paymentList != null && !paymentList.isEmpty()) {
+//                        for (Payment p : paymentList) {
+//                            var orderCode = p.getPaymentCode();
+//                            PayOSResponseData onlinePayOS;
+//                            if (p.getPaymentType().equals(PaymentType.BRAND_INVOICE)) {
+//                                onlinePayOS = payOSService.getBrandPaymentInfo(orderCode).getData();
+//                            } else {
+//                                if (p.getPaymentType().equals(PaymentType.ORDER_REFUND)) {
+//                                    onlinePayOS = payOSService.getRefundPaymentInfo(orderCode).getData();
+//                                } else {
+//                                    onlinePayOS = payOSService.getPaymentInfo(orderCode).getData();
+//                                }
+//                            }
+//                            var checkPayOSData = payOSDataService.findByOrderCode(orderCode);
+//                            if (checkPayOSData.isPresent()) {
+//                                var payOSData = checkPayOSData.get();
+//                                payOSData.setStatus(onlinePayOS.getStatus());
+//                                payOSDataService.save(payOSData);
+//                                p.setPaymentStatus(payOSData.getStatus().equals("PAID"));
+//                                paymentService.updatePayment(p);
+//                            }
+//                        }
+//                    }
+//                    logger.error("PAYMENT LIST: {}", paymentList);
                     switch (orderStatus) {
                         case PENDING -> {
                             logger.error("INCASE PENDING");
