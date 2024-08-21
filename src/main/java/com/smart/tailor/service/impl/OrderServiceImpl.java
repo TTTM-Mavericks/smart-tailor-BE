@@ -189,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
 //        updateOrder(order);
 //    }
 
-    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails) {
+    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails,  List<DesignMaterialDetailResponse> designMaterialDetailResponseList) {
         return OrderCustomResponse
                 .builder()
                 .designResponse(designService.getDesignByOrderID(order.getOrderID()))
@@ -226,6 +226,7 @@ public class OrderServiceImpl implements OrderService {
                                 .map(paymentMapper::mapperToPaymentResponse)
                                 .toList()
                 )
+                .designMaterialDetailResponseList(designMaterialDetailResponseList)
                 .build();
     }
 
@@ -261,7 +262,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
-        var orderCustomResponse = getOrderByOrderID(parentOrderID);
+        var orderCustomResponse = getOrderById(parentOrderID).get();
         var listSubOrders = getSubOrderByParentID(parentOrderID);
         var designResponse = designService.getDesignByOrderID(parentOrderID);
         var expertTailoring = designResponse.getExpertTailoring();
@@ -271,7 +272,6 @@ public class OrderServiceImpl implements OrderService {
         designResponse.getPartOfDesign().forEach(partOfDesignResponse -> {
             partOfDesignInformationList.add(PartOfDesignInformation
                     .builder()
-                    .partOfDesignName(partOfDesignResponse.getPartOfDesignName())
                     .width(partOfDesignResponse.getWidth())
                     .height(partOfDesignResponse.getHeight())
                     .materialID(partOfDesignResponse.getMaterial().getMaterialID())
@@ -280,8 +280,6 @@ public class OrderServiceImpl implements OrderService {
             partOfDesignResponse.getItemMasks().forEach(itemMaskResponse -> {
                 itemMaskInformationList.add(ItemMaskInformation
                         .builder()
-                        .itemMaskID(itemMaskResponse.getItemMaskID())
-                        .itemMaskName(itemMaskResponse.getItemMaskName())
                         .scaleX(itemMaskResponse.getScaleX())
                         .scaleY(itemMaskResponse.getScaleY())
                         .materialID(itemMaskResponse.getMaterial().getMaterialID())
@@ -348,7 +346,6 @@ public class OrderServiceImpl implements OrderService {
             minQuantity = Math.min(minQuantity, totalQuantityOfSubOrder);
 
             Brand brand = null;
-
             for (DesignDetail designDetail : designDetailList) {
                 brand = designDetail.getBrand();
                 var designDetailQuantity = BigDecimal.valueOf(designDetail.getQuantity());
@@ -388,10 +385,9 @@ public class OrderServiceImpl implements OrderService {
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
                 BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
 
-                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, brandLaborCostPerQuantity);
+                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", BigDecimal.ZERO, brandLaborCostPerQuantity);
                 totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
             }
-
             totalPriceOfEachSubOrder = Utilities.roundToNearestThousand(totalPriceOfEachSubOrder);
             BigDecimal brandDepositStage = BigDecimal.valueOf(-1);
             BigDecimal brandFirstStage = BigDecimal.valueOf(-1);
@@ -432,7 +428,6 @@ public class OrderServiceImpl implements OrderService {
             // Add Total Price Of SubOrder to ParentOrder
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
-
         List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>();
         for(DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()){
             designMaterialDetailResponseList.add(
@@ -445,16 +440,8 @@ public class OrderServiceImpl implements OrderService {
                             .maxMeterSquare(
                                     response.getMaxMeterSquare() != null ? ((BigDecimal)response.getMaxMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
                             )
-                            .minPriceMaterial(
-                                    response.getMinPriceMaterial() != null
-                                            ? response.getMinPriceMaterial().toString()
-                                            : null
-                            )
-                            .maxPriceMaterial(
-                                    response.getMaxPriceMaterial() != null
-                                            ? response.getMaxPriceMaterial().toString()
-                                            : null
-                            )
+                            .minPriceMaterial(response.getMinPriceMaterial().toString())
+                            .maxPriceMaterial(response.getMaxPriceMaterial().toString())
                             .build()
             );
         }
@@ -1090,7 +1077,7 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                 }
-                return convertToOrderCustomResponse(order, detailList);
+                return convertToOrderCustomResponse(order, detailList, calculatedPrice.getDesignMaterialDetailResponseList());
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -1103,7 +1090,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
 //                order.setDetailList(detailList);
-                return convertToOrderCustomResponse(order, detailList);
+                return convertToOrderCustomResponse(order, detailList, null);
             }
         } catch (Exception ex) {
             throw ex;

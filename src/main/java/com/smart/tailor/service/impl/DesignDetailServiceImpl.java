@@ -660,7 +660,6 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                         .build());
             });
         });
-
         // Get Min Weight and Max Weight of each Design
         var minWeightParentOrder = designResponse.getMinWeight() * orderCustomResponse.getQuantity();
         var maxWeightParentOrder = designResponse.getMaxWeight() * orderCustomResponse.getQuantity();
