@@ -5,9 +5,9 @@ import com.smart.tailor.entities.User;
 import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.enums.UserStatus;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.request.UserUpdateRequest;
 import com.smart.tailor.utils.response.GrowthPercentageResponse;
 import com.smart.tailor.utils.response.UserResponse;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.util.Pair;
 
 import java.util.List;
@@ -32,6 +32,8 @@ public interface UserService {
     Boolean updateStatusAccount(String email, UserStatus userStatus);
 
     User updateUserProfile(UserRequest userRequest);
+
+    UserResponse updateUserProfile(String userID, UserUpdateRequest userUpdateRequest) throws Exception;
 
     Optional<User> getUserByUserID(String String);
 

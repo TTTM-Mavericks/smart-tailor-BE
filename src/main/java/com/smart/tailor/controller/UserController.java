@@ -4,22 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.smart.tailor.constant.APIConstant;
 import com.smart.tailor.constant.MessageConstant;
-import com.smart.tailor.enums.PrintType;
 import com.smart.tailor.enums.RoleType;
+import com.smart.tailor.exception.UnauthorizedAccessException;
+import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.UserService;
-import com.smart.tailor.validate.ValidEnumValue;
+import com.smart.tailor.utils.request.UserUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(APIConstant.UserAPI.USER)
@@ -29,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final JwtService jwtService;
 
     @GetMapping(APIConstant.UserAPI.GET_ALL_CUSTOMER)
     public ResponseEntity<ObjectNode> getAllCustomer() {
@@ -166,6 +166,25 @@ public class UserController {
         var totalUserResponse = userService.calculateTotalOfUser();
         response.put("status", HttpStatus.OK.value());
         response.put("message", "Calculate Total Of User Successfully");
+        response.set("data", objectMapper.valueToTree(totalUserResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(APIConstant.UserAPI.UPDATE_USER + "/{userID}")
+    public ResponseEntity<ObjectNode> updateUser(@PathVariable("userID") String userID,
+                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                 @Valid @RequestBody UserUpdateRequest userUpdateRequest) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+
+        var userIDFromJwtToken = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if (!userID.equals(userIDFromJwtToken)) {
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
+        var totalUserResponse = userService.updateUserProfile(userID, userUpdateRequest);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Update User Successfully");
         response.set("data", objectMapper.valueToTree(totalUserResponse));
         return ResponseEntity.ok(response);
     }

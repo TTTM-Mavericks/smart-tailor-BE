@@ -16,25 +16,23 @@ import com.smart.tailor.service.RoleService;
 import com.smart.tailor.service.TokenService;
 import com.smart.tailor.service.UserService;
 import com.smart.tailor.service.VerificationTokenService;
+import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.UserRequest;
+import com.smart.tailor.utils.request.UserUpdateRequest;
 import com.smart.tailor.utils.response.GrowthPercentageResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -126,6 +124,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponse updateUserProfile(String userID, UserUpdateRequest userRequest) throws Exception {
+        var invalidInfor = !Utilities.isStringNotNullOrEmpty(userRequest.getPhoneNumber())
+                && !Utilities.isStringNotNullOrEmpty(userRequest.getFullName())
+                && !Utilities.isStringNotNullOrEmpty(userRequest.getImageUrl());
+
+        if (invalidInfor) {
+            throw new BadRequestException("MISSING ARGUMENT");
+        }
+
+        var user = userRepository.findById(userID).orElseThrow(() -> {
+            return new BadRequestException("CAN NOT FIND USER!");
+        });
+
+        if (Utilities.isStringNotNullOrEmpty(userRequest.getPhoneNumber())
+                && Utilities.isValidVietnamesePhoneNumber(userRequest.getPhoneNumber())) {
+            user.setPhoneNumber(userRequest.getPhoneNumber());
+        }
+
+        if (Utilities.isStringNotNullOrEmpty(userRequest.getFullName())) {
+            user.setFullName(userRequest.getFullName());
+        }
+
+        if (Utilities.isStringNotNullOrEmpty(userRequest.getImageUrl())) {
+            user.setImageUrl(userRequest.getImageUrl());
+        }
+
+        var updated = userRepository.save(user);
+
+        return userMapper.mapperToUserResponse(updated);
+    }
+
+    @Override
     public Optional<User> getUserByUserID(String String) {
         return userRepository.findById(String);
     }
@@ -201,7 +231,7 @@ public class UserServiceImpl implements UserService {
 
         float growthPercentage = ((float) (currentWeekUserCount - previousWeekUserCount) / previousWeekUserCount) * 100.0f;
 
-        var roundGrowthPercentage =  BigDecimal
+        var roundGrowthPercentage = BigDecimal
                 .valueOf(growthPercentage)
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
@@ -256,7 +286,7 @@ public class UserServiceImpl implements UserService {
 
         float growthPercentage = ((float) (currentWeekCustomerCount - previousWeekCustomerCount) / previousWeekCustomerCount) * 100.0f;
 
-        var roundGrowthPercentage =  BigDecimal
+        var roundGrowthPercentage = BigDecimal
                 .valueOf(growthPercentage)
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
@@ -271,9 +301,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public GrowthPercentageResponse calculateNewUserGrowthPercentageForCurrentAndPreviousDayByRole(String roleName) {
-        try{
-           RoleType.valueOf(roleName.toUpperCase());
-        } catch (IllegalArgumentException e){
+        try {
+            RoleType.valueOf(roleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("RoleName: " + roleName + " must be any of enum RoleType");
         }
         LocalDateTime now = LocalDateTime.now();
@@ -316,7 +346,7 @@ public class UserServiceImpl implements UserService {
 
         float growthPercentage = ((float) (currentDayUserCount - previousDayUserCount) / previousDayUserCount) * 100.0f;
 
-        var roundGrowthPercentage =  BigDecimal
+        var roundGrowthPercentage = BigDecimal
                 .valueOf(growthPercentage)
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
@@ -332,15 +362,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Pair<String, Long>> calculateTotalOfUser() {
         List<Pair<String, Long>> list = new ArrayList<>();
-       for(RoleType roleName : RoleType.values()){
-           long countUserByRoleName = userRepository
-                   .findAll()
-                   .stream()
-                   .filter(user -> user.getRoles().getRoleName().equalsIgnoreCase(roleName.name()))
-                   .count();
+        for (RoleType roleName : RoleType.values()) {
+            long countUserByRoleName = userRepository
+                    .findAll()
+                    .stream()
+                    .filter(user -> user.getRoles().getRoleName().equalsIgnoreCase(roleName.name()))
+                    .count();
 
-           list.add(Pair.of(roleName.name(), countUserByRoleName));
-       }
-       return list;
+            list.add(Pair.of(roleName.name(), countUserByRoleName));
+        }
+        return list;
     }
 }

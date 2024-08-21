@@ -208,6 +208,7 @@ public class APIConstant {
         public static final String CALCULATE_NEW_CUSTOMER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_WEEK = "/calculate-new-customer-growth-percentage-for-current-and-previous-week";
         public static final String CALCULATE_NEW_USER_GROWTH_PERCENTAGE_FOR_CURRENT_AND_PREVIOUS_DAY_BY_ROLE_NAME = "/calculate-new-user-growth-percentage-for-current-and-previous-day-by-role-name";
         public static final String CALCULATE_TOTAL_OF_USER = "/calculate-total-of-user";
+        public static final String UPDATE_USER = "/update-user";
     }
 
     /**
