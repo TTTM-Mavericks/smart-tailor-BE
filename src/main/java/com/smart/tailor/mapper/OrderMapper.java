@@ -91,6 +91,19 @@ class OrderMapperImpl implements OrderMapper {
             logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
             throw ex;
         }
+//        try {
+//            List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
+//                    .stream()
+//                    .map(paymentMapper::mapperToPaymentResponse)
+//                    .toList();
+//
+//            if (!paymentResponseList.isEmpty()) {
+//                orderResponse.paymentList(paymentResponseList);
+//            }
+//        } catch (Exception ex) {
+//            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
+//            throw ex;
+//        }
         try {
             if (order.getOrderType().equals("SUB_ORDER")) {
                 if (order.getDetailList() != null && !order.getDetailList().isEmpty()) {
@@ -200,23 +213,22 @@ class OrderMapperImpl implements OrderMapper {
                                 .map(detailMapper::mapperToDesignDetailResponse)
                                 .toList() : null);
         orderResponse.paymentStatus(false);
-        try {
-            List<PaymentResponse> paymentResponseList = Optional.ofNullable(order)
-                    .map(Order::getOrderID)
-                    .map(orderID -> paymentService.findAllByOrderID(orderID))
-                    .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu không có giá trị
-                    .stream()
-                    .map(paymentMapper::mapperToPaymentResponse)
-                    .toList();
-
-
-            if (!paymentResponseList.isEmpty()) {
-                orderResponse.paymentList(paymentResponseList);
-            }
-        } catch (Exception ex) {
-            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
-            throw ex;
-        }
+//        try {
+//            List<PaymentResponse> paymentResponseList = Optional.ofNullable(order)
+//                    .map(Order::getOrderID)
+//                    .map(orderID -> paymentService.findAllByOrderID(orderID))
+//                    .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu không có giá trị
+//                    .stream()
+//                    .map(paymentMapper::mapperToPaymentResponse)
+//                    .toList();
+//
+//            if (!paymentResponseList.isEmpty()) {
+//                orderResponse.paymentList(paymentResponseList);
+//            }
+//        } catch (Exception ex) {
+//            logger.error("Lỗi khi ánh xạ thanh toán cho đơn hàng ID: " + order.getOrderID(), ex);
+//            throw ex;
+//        }
         try {
             if (!order.getOrderType().equals("SUB_ORDER")) {
                 List<OrderResponse> subOrderList = orderRepository.findAll().stream()

@@ -153,7 +153,6 @@ public class DesignServiceImpl implements DesignService {
             List<DesignMaterialDetail> materialDetailList = new ArrayList<>();
 
             List<PartOfDesignResponse> partOfDesignList = designResponse.getPartOfDesign();
-            logger.error("Part: {}", partOfDesignList);
             for (PartOfDesignResponse partOfDesign : partOfDesignList) {
                 MaterialResponse materialResponse = partOfDesign.getMaterial();
                 DesignMaterialDetail designMaterialDetail = DesignMaterialDetail
@@ -419,7 +418,7 @@ public class DesignServiceImpl implements DesignService {
                         .user(design.getUser())
                         .expertTailoring(design.getExpertTailoring())
                         .titleDesign(design.getTitleDesign())
-                        .publicStatus(design.getPublicStatus())
+                        .publicStatus(false)
                         .color(design.getColor())
                         .minWeight(design.getMinWeight())
                         .maxWeight(design.getMaxWeight())

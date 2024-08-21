@@ -11,6 +11,8 @@ public enum OrderStatus {
     COMPLETED,   // hoan thanh nhung chua giao
     FINAL_CHECKING,
     DELIVERED,  // da giao
+    RECEIVED,
+    REFUND_REQUEST,
 
     /**
      * SUB ORDER
