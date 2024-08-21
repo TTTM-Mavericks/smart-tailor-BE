@@ -39,5 +39,4 @@ public class OrderCustomResponse {
     private String lastModifiedDate;
     private List<DesignDetailResponse> detailList;
     private List<PaymentResponse> paymentList;
-    private List<DesignMaterialDetailResponse> designMaterialDetailResponseList;
 }

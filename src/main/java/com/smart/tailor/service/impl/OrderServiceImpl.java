@@ -123,7 +123,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         String orderType = orderRequest.getOrderType();
-
         if (orderRequest.getParentOrderID() != null) {
             var parentOrderID = orderRequest.getParentOrderID();
             Optional<Order> parentOrder = orderRepository.findById(parentOrderID);
@@ -190,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
 //        updateOrder(order);
 //    }
 
-    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails,  List<DesignMaterialDetailResponse> designMaterialDetailResponseList) {
+    private OrderCustomResponse convertToOrderCustomResponse(Order order, List<DesignDetail> designDetails) {
         return OrderCustomResponse
                 .builder()
                 .designResponse(designService.getDesignByOrderID(order.getOrderID()))
@@ -227,7 +226,6 @@ public class OrderServiceImpl implements OrderService {
                                 .map(paymentMapper::mapperToPaymentResponse)
                                 .toList()
                 )
-                .designMaterialDetailResponseList(designMaterialDetailResponseList)
                 .build();
     }
 
@@ -1092,7 +1090,7 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                 }
-                return convertToOrderCustomResponse(order, detailList, calculatedPrice.getDesignMaterialDetailResponseList());
+                return convertToOrderCustomResponse(order, detailList);
             } else {
                 List<DesignDetail> designDetailList = detailRepository.findAllBySubOrderID(orderID);
                 List<DesignDetail> detailList = null;
@@ -1105,7 +1103,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
 //                order.setDetailList(detailList);
-                return convertToOrderCustomResponse(order, detailList, null);
+                return convertToOrderCustomResponse(order, detailList);
             }
         } catch (Exception ex) {
             throw ex;

@@ -4,14 +4,13 @@ import com.smart.tailor.entities.Design;
 import com.smart.tailor.utils.request.CloneDesignRequest;
 import com.smart.tailor.utils.request.DesignRequest;
 import com.smart.tailor.utils.response.APIResponse;
-import com.smart.tailor.utils.response.DesignMaterialDetailResponse;
 import com.smart.tailor.utils.response.DesignResponse;
 
 import java.util.List;
 
 
 public interface DesignService {
-    APIResponse addNewDesign(String jwtToken, DesignRequest designRequest);
+    APIResponse createDesign(String jwtToken, DesignRequest designRequest);
 
     Design getDesignByID(String designID);
 
