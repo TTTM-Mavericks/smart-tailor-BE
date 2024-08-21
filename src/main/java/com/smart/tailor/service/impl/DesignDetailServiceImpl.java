@@ -30,8 +30,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class DesignDetailServiceImpl implements DesignDetailService {
-
-    private static final BigDecimal PIXEL_TO_CENTIMETER = new BigDecimal("0.0264583");
     private final DesignDetailRepository designDetailRepository;
     private final DesignDetailMapper designDetailMapper;
     private final DesignMapper designMapper;
@@ -600,16 +598,17 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 //        return price;
 //    }
 
-    private Pair<BigDecimal, BigDecimal> calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, String brandID) {
+    private Pair<BigDecimal, BigDecimal> calculateItemMaskByBrandMaterial(ItemMaskInformation itemMaskInfo, String brandID, BigDecimal pixelToCentimeter, Float pixelRatioRealFromWeb) {
         // Convert scales from pixels to centimeters
-        BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(PIXEL_TO_CENTIMETER);
-        BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(PIXEL_TO_CENTIMETER);
+        BigDecimal scaleX_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleX())).multiply(pixelToCentimeter);
+        BigDecimal scaleY_Centimeter = BigDecimal.valueOf(Math.abs(itemMaskInfo.getScaleY())).multiply(pixelToCentimeter);
+        BigDecimal actual_ScaleX_Centimeter = scaleX_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
+        BigDecimal actual_ScaleY_Centimeter = scaleY_Centimeter.multiply(BigDecimal.valueOf(pixelRatioRealFromWeb));
 
         String materialID = itemMaskInfo.getMaterialID();
         BigDecimal brandPriceMaterial = BigDecimal.valueOf(brandMaterialService.getBrandPriceByBrandIDAndMaterialID(brandID, materialID));
-
         // Calculate area in square meters
-        BigDecimal area = scaleX_Centimeter.multiply(scaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
+        BigDecimal area = actual_ScaleX_Centimeter.multiply(actual_ScaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
 
         // Calculate price, rounding up to the nearest whole number
         BigDecimal price = area.multiply(brandPriceMaterial).setScale(0, RoundingMode.CEILING);
@@ -667,24 +666,26 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
 
         BigDecimal shippingFee = BigDecimal.valueOf(-1);
-
         // Calculate Shipping fee based on Address and Weight of Customer
         if (orderCustomResponse.getAddress() != null && orderCustomResponse.getProvince() != null &&
                 orderCustomResponse.getDistrict() != null && orderCustomResponse.getWard() != null && averageWeightParentOrder < maximumShippingWeight) {
 
+            var smartTailorAddress = systemPropertiesService.getByName("SMART_TAILOR_ADDRESS").getPropertyValue();
+            var smartTailorProvince = systemPropertiesService.getByName("SMART_TAILOR_PROVINCE").getPropertyValue();
+            var smartTailorDistrict = systemPropertiesService.getByName("SMART_TAILOR_DISTRICT").getPropertyValue();
+            var smartTailorWard = systemPropertiesService.getByName("SMART_TAILOR_WARD").getPropertyValue();
             OrderShippingRequest.OrderShippingDetailRequest orderShippingDetailRequest =
                     new OrderShippingRequest.OrderShippingDetailRequest(
-                            "344 Lê Văn Việt",
-                            "Hồ Chí Minh",
-                            "Thủ Đức",
-                            "Tăng Nhơn Phú B",
+                            smartTailorAddress,
+                            smartTailorProvince,
+                            smartTailorDistrict,
+                            smartTailorWard,
                             orderCustomResponse.getAddress(),
                             orderCustomResponse.getProvince(),
                             orderCustomResponse.getDistrict(),
                             orderCustomResponse.getWard(),
                             averageWeightParentOrder
                     );
-
             var orderShippingRequest =
                     OrderShippingRequest
                             .builder()
@@ -699,6 +700,8 @@ public class DesignDetailServiceImpl implements DesignDetailService {
 
         BigDecimal totalPriceOfParentOrder = BigDecimal.ZERO;
         var divideNumber = Integer.parseInt(systemPropertiesService.getByName("DIVIDE_NUMBER").getPropertyValue());
+        var pixelToCentimeter = BigDecimal.valueOf(Double.parseDouble(systemPropertiesService.getByName("PIXEL_TO_CENTIMETER").getPropertyValue()));
+        var pixelRatioRealFromWeb = Float.parseFloat(systemPropertiesService.getByName("PIXEL_RATIO_REAL_FROM_WEB").getPropertyValue());
         var maxQuantity = Integer.MIN_VALUE;
         var minQuantity = Integer.MAX_VALUE;
         List<BigDecimal> subOrderIncludeTwoStage = new ArrayList<>();
@@ -745,7 +748,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 // Calculate Total Price Of ItemMask of SubOrder
                 BigDecimal totalPriceItemMaskOfSubOrder = BigDecimal.ZERO;
                 for (ItemMaskInformation itemMaskInformation : itemMaskInformationList) {
-                    var calculateItemMaskResponse = calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID());
+                    var calculateItemMaskResponse = calculateItemMaskByBrandMaterial(itemMaskInformation, brand.getBrandID(), pixelToCentimeter, pixelRatioRealFromWeb);
                     var itemMaskID = itemMaskInformation.getItemMaskID();
                     var itemMaskName = itemMaskInformation.getItemMaskName();
                     var areaItemMask = calculateItemMaskResponse.getFirst();
@@ -758,7 +761,7 @@ public class DesignDetailServiceImpl implements DesignDetailService {
                 var brandLaborQuantityOfSubOrder = brandLaborQuantityService.findLaborQuantityByBrandIDAndBrandQuantity(brand.getBrandID(), totalQuantityOfSubOrder);
                 BigDecimal brandLaborCostPerQuantity = BigDecimal.valueOf(brandLaborQuantityOfSubOrder.getLaborCostPerQuantity());
 
-                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", BigDecimal.ZERO, brandLaborCostPerQuantity);
+                updateDesignMaterialDetailMap(designMaterialDetailResponseMap, "Brand Labor Quantity", null, brandLaborCostPerQuantity);
                 totalPriceOfEachSubOrder = totalPriceOfEachSubOrder.add(totalPricePartOfDesignOfSubOrder.add(totalPriceItemMaskOfSubOrder).add(brandLaborCostPerQuantity).multiply(designDetailQuantity));
             }
 
@@ -802,21 +805,26 @@ public class DesignDetailServiceImpl implements DesignDetailService {
             // Add Total Price Of SubOrder to ParentOrder
             totalPriceOfParentOrder = totalPriceOfParentOrder.add(totalPriceOfEachSubOrder);
         }
-
         List<DesignMaterialDetailResponse> designMaterialDetailResponseList = new ArrayList<>();
         for(DesignMaterialDetailResponse response : designMaterialDetailResponseMap.values()){
             designMaterialDetailResponseList.add(
                     DesignMaterialDetailResponse
                             .builder()
-                            .detailName(response.getDetailName().toString())
+                            .detailName(
+                                    !response.getDetailName().isEmpty() ? response.getDetailName().toString() : null
+                            )
                             .minMeterSquare(
-                                    response.getMinMeterSquare() != null ? ((BigDecimal)response.getMinMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                                    response.getMinMeterSquare() != null ? ((BigDecimal) response.getMinMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
                             )
                             .maxMeterSquare(
-                                    response.getMaxMeterSquare() != null ? ((BigDecimal)response.getMaxMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
+                                    response.getMaxMeterSquare() != null ? ((BigDecimal) response.getMaxMeterSquare()).setScale(4, RoundingMode.HALF_UP).toString() : null
                             )
-                            .minPriceMaterial(response.getMinPriceMaterial().toString())
-                            .maxPriceMaterial(response.getMaxPriceMaterial().toString())
+                            .minPriceMaterial(
+                                    response.getMinPriceMaterial() != null ? response.getMinPriceMaterial().toString() : null
+                            )
+                            .maxPriceMaterial(
+                                    response.getMaxPriceMaterial() != null ? response.getMaxPriceMaterial().toString() : null
+                            )
                             .build()
             );
         }
@@ -892,8 +900,10 @@ public class DesignDetailServiceImpl implements DesignDetailService {
         if(response != null){
             response.setMinPriceMaterial(((BigDecimal)response.getMinPriceMaterial()).min(price));
             response.setMaxPriceMaterial(((BigDecimal)response.getMaxPriceMaterial()).max(price));
-            response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
-            response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
+            if(area != null){
+                response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
+                response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
+            }
         } else {
             response = DesignMaterialDetailResponse
                     .builder()

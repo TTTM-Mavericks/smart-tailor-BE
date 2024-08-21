@@ -54,7 +54,20 @@ VALUES (GenerateCustomKeyString(), current_timestamp, null,
         '0.2'),
        (GenerateCustomKeyString(), current_timestamp, null,
         'Rating reduction if order is canceled after it starts.', 'RATING_REDUCTION_AFTER_START', 'FLOAT', true, 'SCORE',
-        '0.8');
+        '0.8'),
+        (GenerateCustomKeyString(), current_timestamp, null,
+        'The actual pixel ratio is 4 times of the ratio of pixels on the web screen', 'PIXEL_RATIO_REAL_FROM_WEB',
+        'FLOAT', true, 'RATIO', '4'),
+        (GenerateCustomKeyString(), current_timestamp, null, 'The address of Smart Tailor Company', 'SMART_TAILOR_ADDRESS',
+         'STRING', true, 'ADDRESS_LINE', '344 Lê Văn Việt'),
+        (GenerateCustomKeyString(), current_timestamp, null, 'The ward of Smart Tailor Company', 'SMART_TAILOR_WARD',
+         'STRING', true, 'WARD', 'Tăng Nhơn Phú B'),
+        (GenerateCustomKeyString(), current_timestamp, null, 'The district of Smart Tailor Company', 'SMART_TAILOR_DISTRICT',
+        'STRING', true, 'DISTRICT', 'Thủ Đức'),
+        (GenerateCustomKeyString(), current_timestamp, null, 'The province of Smart Tailor Company', 'SMART_TAILOR_PROVINCE',
+        'STRING', true, 'PROVINCE', 'Hồ Chí Minh'),
+         (GenerateCustomKeyString(), current_timestamp, null, 'The conversion ratio from pixel to centimeters', 'PIXEL_TO_CENTIMETER',
+        'DOUBLE', true, 'CENTIMETER', '0.02645833');
 
 -- INSERT INTO SYSTEM IMAGE
 INSERT INTO system_image (image_id, image_name, image_url, image_status, image_type, is_premium, create_date, last_modified_date)
