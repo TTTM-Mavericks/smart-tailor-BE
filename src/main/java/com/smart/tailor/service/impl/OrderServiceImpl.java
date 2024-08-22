@@ -176,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
             var response = orderMapper.mapToOrderResponse(order);
             orderResponse.add(response);
         }
-        return orderResponse;
+        return orderResponse.stream().sorted(Comparator.comparing(OrderResponse::getCreateDate).reversed()).toList();
     }
 
 //    @Override
@@ -223,7 +223,9 @@ public class OrderServiceImpl implements OrderService {
                 .paymentList(
                         paymentService.findAllByOrderID(order.getOrderID())
                                 .stream()
+                                .filter(p -> !p.getPaymentType().equals(PaymentType.ORDER_REFUND))
                                 .map(paymentMapper::mapperToPaymentResponse)
+                                .sorted(Comparator.comparing(PaymentResponse::getCreateDate).reversed())
                                 .toList()
                 )
                 .designMaterialDetailResponseList(designMaterialDetailResponseList)
@@ -273,7 +275,7 @@ public class OrderServiceImpl implements OrderService {
         // Correct calculation
         BigDecimal area = width.multiply(height).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Keeping 10 decimal places for precision
         BigDecimal minPrice = area.multiply(minBrandPriceMaterial).setScale(0, RoundingMode.CEILING);
-        BigDecimal maxPrice = area.multiply(maxBrandPriceMaterial).setScale(0,  RoundingMode.CEILING);
+        BigDecimal maxPrice = area.multiply(maxBrandPriceMaterial).setScale(0, RoundingMode.CEILING);
 
         return Triple.of(area, minPrice, maxPrice);
     }
@@ -292,7 +294,7 @@ public class OrderServiceImpl implements OrderService {
         // Calculate area in square meters
         BigDecimal area = actual_ScaleX_Centimeter.multiply(actual_ScaleY_Centimeter).divide(BigDecimal.valueOf(10000), 10, RoundingMode.HALF_UP); // Rounding to 10 decimal places
         BigDecimal minPrice = area.multiply(minBrandPriceMaterial).setScale(0, RoundingMode.CEILING);
-        BigDecimal maxPrice = area.multiply(maxBrandPriceMaterial).setScale(0,  RoundingMode.CEILING);
+        BigDecimal maxPrice = area.multiply(maxBrandPriceMaterial).setScale(0, RoundingMode.CEILING);
 
         return Triple.of(area, minPrice, maxPrice);
     }
@@ -643,17 +645,17 @@ public class OrderServiceImpl implements OrderService {
 
     private void updateDesignMaterialDetailWithoutBrandMap(Map<String, DesignMaterialDetailResponse> designMaterialDetailResponseMap, String detailName, BigDecimal area, BigDecimal minPrice, BigDecimal maxPrice) {
         DesignMaterialDetailResponse response = designMaterialDetailResponseMap.get(detailName);
-        if(response != null){
-            if(minPrice != null && maxPrice != null){
+        if (response != null) {
+            if (minPrice != null && maxPrice != null) {
                 BigDecimal minOfBoth = minPrice.min(maxPrice);
                 BigDecimal maxOfBoth = minPrice.max(maxPrice);
 
                 response.setMinPriceMaterial(((BigDecimal) response.getMinPriceMaterial()).min(minOfBoth));
                 response.setMaxPriceMaterial(((BigDecimal) response.getMaxPriceMaterial()).max(maxOfBoth));
             }
-            if(area != null){
-                response.setMinMeterSquare(((BigDecimal)response.getMinMeterSquare()).min(area));
-                response.setMaxMeterSquare(((BigDecimal)response.getMaxMeterSquare()).max(area));
+            if (area != null) {
+                response.setMinMeterSquare(((BigDecimal) response.getMinMeterSquare()).min(area));
+                response.setMaxMeterSquare(((BigDecimal) response.getMaxMeterSquare()).max(area));
             }
         } else {
             response = DesignMaterialDetailResponse
@@ -667,6 +669,7 @@ public class OrderServiceImpl implements OrderService {
         }
         designMaterialDetailResponseMap.put(detailName, response);
     }
+
     @Override
     public OrderCustomResponse getOrderByOrderID(String orderID) throws Exception {
         try {
@@ -1292,7 +1295,7 @@ public class OrderServiceImpl implements OrderService {
         for (Order o : listOrder) {
             responseList.add(getOrderByOrderID(o.getOrderID()));
         }
-        return responseList;
+        return responseList.stream().sorted(Comparator.comparing(OrderCustomResponse::getCreateDate).reversed()).toList();
     }
 
 
@@ -1307,7 +1310,7 @@ public class OrderServiceImpl implements OrderService {
         for (Order o : orderList) {
             responseList.add(getOrderByOrderID(o.getOrderID()));
         }
-        return responseList;
+        return responseList.stream().sorted(Comparator.comparing(OrderCustomResponse::getCreateDate).reversed()).toList();
     }
 
     @Override
@@ -1317,6 +1320,7 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID) && !order.getOrderStatus().equals(OrderStatus.CANCEL))
                 .map(this::safeMapToOrderResponse)
+                .sorted(Comparator.comparing(OrderResponse::getCreateDate).reversed())
                 .toList();
     }
 
@@ -1326,6 +1330,7 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID))
                 .map(this::safeMapToOrderResponse)
+                .sorted(Comparator.comparing(OrderResponse::getCreateDate).reversed())
                 .toList();
     }
 
@@ -1346,6 +1351,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll().stream()
                 .map(this::safeMapToOrderResponse)
                 .filter(Objects::nonNull) // Loại bỏ các giá trị null nếu cần
+                .sorted(Comparator.comparing(OrderResponse::getCreateDate).reversed())
                 .toList();
     }
 
@@ -2447,7 +2453,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderStageResponse> getOrderStageByOrderID(String orderID) {
-        return stageService.getOrderStageByOrderID(orderID);
+        return stageService.getOrderStageByOrderID(orderID).stream()
+                .sorted(Comparator.comparing(OrderStageResponse::getCreatedDate).reversed())
+                .toList();
     }
 
     private Employee getSuitableEmp() {
@@ -2805,6 +2813,7 @@ public class OrderServiceImpl implements OrderService {
                             throw new RuntimeException(e);
                         }
                     })
+                    .sorted(Comparator.comparing(FullOrderResponse::getCreateDate).reversed())
                     .toList();
 
             return response;
@@ -2816,13 +2825,26 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<FullOrderResponse> getFullPropByBrandID(String brandID) throws JsonProcessingException {
         try {
-            var listOrder = orderRepository.findAll().stream().filter(order -> order.getOrderType().equals("SUB_ORDER") && (order.getOrderStatus() == OrderStatus.CANCEL || order.getOrderStatus() == OrderStatus.COMPLETED) && order.getDetailList() != null && !order.getDetailList().isEmpty() && order.getDetailList().get(0).getBrand() != null && order.getDetailList().get(0).getBrand().getBrandID().equals(brandID) && order.getPaymentList() != null && !order.getPaymentList().isEmpty()).toList();
+            var listOrder = orderRepository
+                    .findAll()
+                    .stream()
+                    .filter(order -> order.getOrderType().equals("SUB_ORDER")
+                            && (order.getOrderStatus() == OrderStatus.CANCEL
+                            || order.getOrderStatus() == OrderStatus.COMPLETED)
+                            && order.getDetailList() != null
+                            && !order.getDetailList().isEmpty()
+                            && order.getDetailList().get(0).getBrand() != null
+                            && order.getDetailList().get(0).getBrand().getBrandID().equals(brandID)
+                            && order.getPaymentList() != null
+                            && !order.getPaymentList().isEmpty()
+                    )
+                    .toList();
             List<FullOrderResponse> response = new ArrayList<>();
             for (Order order : listOrder) {
                 FullOrderResponse fullOrderResponse = orderMapper.mapToFullOrderResponse(order);
                 response.add(fullOrderResponse);
             }
-            return response;
+            return response.stream().sorted(Comparator.comparing(FullOrderResponse::getCreateDate).reversed()).toList();
         } catch (Exception ex) {
             throw ex;
         }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -102,6 +103,7 @@ public class ReportServiceImpl implements ReportService {
                 .findAll()
                 .stream()
                 .map(reportMapper::mapperToReportResponse)
+                .sorted(Comparator.comparing(ReportResponse::getCreateDate).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -112,6 +114,7 @@ public class ReportServiceImpl implements ReportService {
                 .stream()
                 .filter(report -> report.getOrder().getOrderID().toString().equals(orderID.toString()))
                 .map(reportMapper::mapperToReportResponse)
+                .sorted(Comparator.comparing(ReportResponse::getCreateDate).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -127,6 +130,7 @@ public class ReportServiceImpl implements ReportService {
                 .stream()
                 .filter(report -> report.getUser().getUserID().equals(userID))
                 .map(reportMapper::mapperToReportResponse)
+                .sorted(Comparator.comparing(ReportResponse::getCreateDate).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -142,6 +146,7 @@ public class ReportServiceImpl implements ReportService {
                 .stream()
                 .filter(report -> report.getUser().getUserID().equals(brandID))
                 .map(reportMapper::mapperToReportResponse)
+                .sorted(Comparator.comparing(ReportResponse::getCreateDate).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -165,6 +170,6 @@ public class ReportServiceImpl implements ReportService {
                 .map(this::getAllReportByOrderID)
                 .forEach(reportResponseList::addAll);
 
-        return reportResponseList;
+        return reportResponseList.stream().sorted(Comparator.comparing(ReportResponse::getCreateDate).reversed()).toList();
     }
 }

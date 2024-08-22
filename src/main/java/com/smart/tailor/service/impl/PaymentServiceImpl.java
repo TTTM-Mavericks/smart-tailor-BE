@@ -6,10 +6,8 @@ import com.smart.tailor.config.VNPayConfig;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.Order;
 import com.smart.tailor.entities.Payment;
-import com.smart.tailor.entities.SystemProperties;
 import com.smart.tailor.enums.PaymentMethod;
 import com.smart.tailor.enums.PaymentType;
-import com.smart.tailor.enums.RoleType;
 import com.smart.tailor.exception.ItemNotFoundException;
 import com.smart.tailor.mapper.PaymentMapper;
 import com.smart.tailor.repository.OrderRepository;
@@ -50,7 +48,6 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.TextStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -599,7 +596,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<Payment> findAllByOrderID(String orderID) {
-        return paymentRepository.findAllByOrderID(orderID);
+        return paymentRepository.findAllByOrderID(orderID).stream().sorted(Comparator.comparing(Payment::getCreateDate).reversed()).toList();
     }
 
     @Override
@@ -609,7 +606,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<Payment> getAllPayment() {
-        return paymentRepository.findAll().stream().toList();
+        return paymentRepository.findAll().stream().sorted(Comparator.comparing(Payment::getCreateDate).reversed()).toList();
     }
 
     @Override
@@ -617,6 +614,7 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findAll()
                 .stream()
                 .map(paymentMapper::mapperToPaymentResponse)
+                .sorted(Comparator.comparing(PaymentResponse::getCreateDate).reversed())
                 .toList();
     }
 
@@ -637,6 +635,7 @@ public class PaymentServiceImpl implements PaymentService {
                             ||
                             p.getPaymentSender().getUserID().equals(userID))
                     .map(paymentMapper::mapperToPaymentResponse)
+                    .sorted(Comparator.comparing(PaymentResponse::getCreateDate).reversed())
                     .toList();
         } catch (Exception ex) {
             logger.error("ERROR: {}", ex.getMessage());
@@ -658,14 +657,14 @@ public class PaymentServiceImpl implements PaymentService {
         BigDecimal previousWeekPayment = BigDecimal.ZERO;
 
         List<Payment> payments = paymentRepository.findAll();
-        for(Payment payment : payments){
+        for (Payment payment : payments) {
             LocalDateTime createDate = payment.getCreateDate();
 
-            if(!createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek)) {
+            if (!createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek)) {
                 currentWeekPayment = currentWeekPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
             }
 
-            if(!createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek)){
+            if (!createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek)) {
                 previousWeekPayment = previousWeekPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
             }
         }
@@ -712,13 +711,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         List<Payment> payments = paymentRepository.findAll();
 
-        for(Payment payment : payments){
-            if(payment.getOrder().getOrderType().equalsIgnoreCase("PARENT_ORDER") &&
-                    payment.getPaymentType().name().equals(PaymentType.DEPOSIT.name())){
+        for (Payment payment : payments) {
+            if (payment.getOrder().getOrderType().equalsIgnoreCase("PARENT_ORDER") &&
+                    payment.getPaymentType().name().equals(PaymentType.DEPOSIT.name())) {
 
                 LocalDateTime createDate = payment.getCreateDate();
 
-                if(!createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek)) {
+                if (!createDate.isBefore(startOfCurrentWeek) && !createDate.isAfter(endOfCurrentWeek)) {
                     currentWeekIncomePayment = currentWeekIncomePayment.add(
                             Utilities.roundToNearestThousand(
                                     BigDecimal.valueOf(payment.getOrder().getTotalPrice())
@@ -727,7 +726,7 @@ public class PaymentServiceImpl implements PaymentService {
                             ));
                 }
 
-                if(!createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek)){
+                if (!createDate.isBefore(startOfPreviousWeek) && !createDate.isAfter(endOfPreviousWeek)) {
                     previousWeekIncomePayment = previousWeekIncomePayment.add(Utilities.roundToNearestThousand(
                             BigDecimal.valueOf(payment.getOrder().getTotalPrice())
                                     .multiply(BigDecimal.valueOf(orderFeePercentage))
@@ -781,14 +780,14 @@ public class PaymentServiceImpl implements PaymentService {
 
         List<Payment> payments = paymentRepository.findAll();
 
-        for(Payment payment : payments){
+        for (Payment payment : payments) {
             LocalDateTime createDate = payment.getCreateDate();
-            if(payment.getPaymentType().name().equals(PaymentType.ORDER_REFUND.name())){
-                if(!createDate.isBefore(startOfCurrentMonth) && !createDate.isAfter(endOfCurrentMonth)) {
+            if (payment.getPaymentType().name().equals(PaymentType.ORDER_REFUND.name())) {
+                if (!createDate.isBefore(startOfCurrentMonth) && !createDate.isAfter(endOfCurrentMonth)) {
                     currentWeekRefundPayment = currentWeekRefundPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
                 }
 
-                if(!createDate.isBefore(startOfPreviousMonth) && !createDate.isAfter(endOfPreviousMonth)){
+                if (!createDate.isBefore(startOfPreviousMonth) && !createDate.isAfter(endOfPreviousMonth)) {
                     previousWeekRefundPayment = previousWeekRefundPayment.add(Utilities.roundToNearestThousand(BigDecimal.valueOf(payment.getPaymentAmount())));
                 }
             }
@@ -824,7 +823,7 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Pair<String, String>> getTotalPaymentOfEachMonth() {
         var listPayment = paymentRepository.findAll();
         Map<Integer, BigDecimal> map = new HashMap<>();
-        for(Payment payment : listPayment){
+        for (Payment payment : listPayment) {
             int month = payment.getCreateDate().getMonthValue();
 
             BigDecimal paymentAmount = BigDecimal.valueOf(payment.getPaymentAmount());
@@ -832,9 +831,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         List<Pair<String, String>> listPaymentDetail = new ArrayList<>();
-        for(int i = 1; i <= 12; ++i){
+        for (int i = 1; i <= 12; ++i) {
             String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-            BigDecimal total = map.getOrDefault(i,BigDecimal.ZERO);
+            BigDecimal total = map.getOrDefault(i, BigDecimal.ZERO);
             listPaymentDetail.add(Pair.of(monthName, total.toString()));
         }
 
@@ -845,8 +844,8 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Pair<String, String>> getTotalRefundPaymentOfEachMonth() {
         var listPayment = paymentRepository.findAll();
         Map<Integer, BigDecimal> map = new HashMap<>();
-        for(Payment payment : listPayment){
-            if(payment.getPaymentType().name().equals(PaymentType.ORDER_REFUND.name())) {
+        for (Payment payment : listPayment) {
+            if (payment.getPaymentType().name().equals(PaymentType.ORDER_REFUND.name())) {
                 int month = payment.getCreateDate().getMonthValue();
 
                 BigDecimal paymentAmount = BigDecimal.valueOf(payment.getPaymentAmount());
@@ -855,9 +854,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         List<Pair<String, String>> listPaymentDetail = new ArrayList<>();
-        for(int i = 1; i <= 12; ++i){
+        for (int i = 1; i <= 12; ++i) {
             String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-            BigDecimal total = map.getOrDefault(i,BigDecimal.ZERO);
+            BigDecimal total = map.getOrDefault(i, BigDecimal.ZERO);
             listPaymentDetail.add(Pair.of(monthName, total.toString()));
         }
 
@@ -869,8 +868,8 @@ public class PaymentServiceImpl implements PaymentService {
         var listPayment = paymentRepository.findAll();
         Map<Integer, BigDecimal> map = new HashMap<>();
         var orderFeePercentage = Integer.parseInt(systemPropertiesService.getByName("ORDER_FEE_PERCENTAGE").getPropertyValue());
-        for(Payment payment : listPayment){
-            if(payment.getOrder().getOrderType().equalsIgnoreCase("PARENT_ORDER") &&
+        for (Payment payment : listPayment) {
+            if (payment.getOrder().getOrderType().equalsIgnoreCase("PARENT_ORDER") &&
                     payment.getPaymentType().name().equals(PaymentType.DEPOSIT.name())) {
 
                 int month = payment.getCreateDate().getMonthValue();
@@ -885,9 +884,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         List<Pair<String, String>> listPaymentDetail = new ArrayList<>();
-        for(int i = 1; i <= 12; ++i){
+        for (int i = 1; i <= 12; ++i) {
             String monthName = Month.of(i).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-            BigDecimal total = map.getOrDefault(i,BigDecimal.ZERO);
+            BigDecimal total = map.getOrDefault(i, BigDecimal.ZERO);
             listPaymentDetail.add(Pair.of(monthName, total.toString()));
         }
 
