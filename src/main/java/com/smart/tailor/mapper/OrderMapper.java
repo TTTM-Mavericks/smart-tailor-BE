@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 public interface OrderMapper {
@@ -73,11 +74,11 @@ class OrderMapperImpl implements OrderMapper {
                                 .toList() : null);
 
         try {
-            List<PaymentResponse> paymentResponseList =
-                    paymentService.findAllByOrderID(order.getOrderID())
-                            .stream()
-                            .map(paymentMapper::mapperToPaymentResponse)
-                            .toList();
+            List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
+                    .stream()
+                    .map(paymentMapper::mapperToPaymentResponse)
+                    .sorted(Comparator.comparing(PaymentResponse::getCreateDate).reversed())
+                    .toList();
 
             if (!paymentResponseList.isEmpty()) {
                 orderResponse.paymentList(paymentResponseList);
@@ -161,6 +162,7 @@ class OrderMapperImpl implements OrderMapper {
             List<PaymentResponse> paymentResponseList = paymentService.findAllByOrderID(order.getOrderID())
                     .stream()
                     .map(paymentMapper::mapperToPaymentResponse)
+                    .sorted(Comparator.comparing(PaymentResponse::getCreateDate).reversed())
                     .toList();
 
             if (!paymentResponseList.isEmpty()) {
@@ -212,6 +214,7 @@ class OrderMapperImpl implements OrderMapper {
         orderResponse.paymentList(
                 orderPayment.stream()
                         .map(paymentMapper::mapperToPaymentResponse)
+                        .sorted(Comparator.comparing(PaymentResponse::getCreateDate).reversed())
                         .toList()
         );
 //        try {
@@ -238,6 +241,7 @@ class OrderMapperImpl implements OrderMapper {
                                 o.getParentOrder().getOrderID().equals(order.getOrderID())
                         )
                         .map(this::mapToOrderResponse)
+                        .sorted(Comparator.comparing(OrderResponse::getCreateDate).reversed())
                         .toList();
 
                 orderResponse.subOrderList(subOrderList);
