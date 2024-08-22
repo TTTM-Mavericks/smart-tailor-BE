@@ -234,6 +234,7 @@ class OrderMapperImpl implements OrderMapper {
             if (!order.getOrderType().equals("SUB_ORDER")) {
                 List<OrderResponse> subOrderList = orderRepository.findAll().stream()
                         .filter(o -> "SUB_ORDER".equals(o.getOrderType()) &&
+                                o.getParentOrder() != null &&
                                 o.getParentOrder().getOrderID().equals(order.getOrderID())
                         )
                         .map(this::mapToOrderResponse)
