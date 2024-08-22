@@ -94,6 +94,7 @@ public class SecurityConfig {
                             auth.requestMatchers("/api/v1/brand-material/**").hasRole(RoleType.BRAND.name());
 
                             /* Labor Quantity API */
+                            auth.requestMatchers("/api/v1/labor-quantity/get-all-labor-quantity").hasAnyRole(RoleType.ADMIN.name(), RoleType.BRAND.name(), RoleType.MANAGER.name());
                             auth.requestMatchers("/api/v1/labor-quantity/**").hasRole(RoleType.ADMIN.name());
 
                             /* Brand Labor Quantity API */
