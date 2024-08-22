@@ -1978,8 +1978,10 @@ public class OrderServiceImpl implements OrderService {
                     }
 
                     if (!existedOrder.getOrderStatus().equals(OrderStatus.PENDING)) {
+                        logger.error("SUB ORDER IS NOT PENDING....");
+
                         int price = (int) (parentOrder.getTotalPrice());
-                        var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
+//                        var orderResponse = orderMapper.mapToOrderCustomResponse(existedOrder);
                         var sender = curBrand;
                         var recipient = userService.getUserByEmail("accountantsmarttailor123@gmail.com");
                         /*
