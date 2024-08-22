@@ -57,7 +57,6 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> {
                             /* Authentication API */
-                            auth.requestMatchers("/api/v1/auth/log-out").hasAnyRole(authenticatedRole);
                             auth.requestMatchers("/api/v1/auth/refresh-token").hasAnyRole(authenticatedRole);
                             auth.requestMatchers("/api/v1/auth/**").permitAll();
 

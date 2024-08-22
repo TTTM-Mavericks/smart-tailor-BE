@@ -144,7 +144,7 @@ VALUES (GenerateCustomKeyString(), current_timestamp, true, NULL, 'Fabric'),
        (GenerateCustomKeyString(), current_timestamp, true, NULL, 'Zipper'),
        (GenerateCustomKeyString(), current_timestamp, true, NULL, 'Manual Printing'),
        (GenerateCustomKeyString(), current_timestamp, true, NULL, 'Heat Printing'),
-       (GenerateCustomKeyString(), current_timestamp, true, NULL, 'Embroider');
+       (GenerateCustomKeyString(), current_timestamp, true, NULL, 'Embroidery');
 
 
 -- INSERT INTO MATERIAL
@@ -158,6 +158,27 @@ VALUES
     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
     (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 5407101002, 'Linen Fabric', 1, 'meter',
     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 58013600, 'Jacquard Fabric', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 52083900, 'Cool Cotton', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 6000, 58011000, 'Velvet Fleece', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 7000, 53092900, 'Silk Linen', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 51111100, 'Merino Wool', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 55161200, 'Pure Viscose', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 6000, 55162200, 'Bamboo Fabric', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 7000, 54071000, 'Chiffon Fabric', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 58021000, 'Terrycloth Fabric', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 54024600, 'Spandex Fabric', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Fabric')),
+
 
 -- Thread Category
     (GenerateCustomKeyString(), current_timestamp, NULL, 1000, 5508100000, 'Polyester Thread', 1, 'spool',
@@ -166,6 +187,24 @@ VALUES
     (SELECT category_id FROM category WHERE category_name = 'Thread')),
     (GenerateCustomKeyString(), current_timestamp, NULL, 2000, 5508100002, 'Cotton Thread', 1, 'spool',
     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 54033100, 'Viscose Thread', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 50040000, 'Silk Thread', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 6000, 54023100, 'Polyamide Thread', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 7000, 54011000, 'Core-Spun Thread', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 54033100, 'Rayon Thread', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 54023100, 'Weaving Thread', 1, 'spool',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 54023300, 'Serger Thread', 1, 'spool',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 3000, 54023900, 'Twist Thread', 1, 'spool',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 54023300, 'Knitting Thread', 1, 'spool',
+     (SELECT category_id FROM category WHERE category_name = 'Thread')),
 
 -- Cotton Category
     (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 5201000000, 'Organic Cotton', 1, 'kilogram',
@@ -257,15 +296,15 @@ VALUES
     (GenerateCustomKeyString(), current_timestamp, NULL, 6000, 39199020, 'Heat Transfer Film', 1, 'roll',
     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
 
--- Embroider Category
+-- Embroidery Category
     (GenerateCustomKeyString(), current_timestamp, NULL, 9000, 44140000, 'Embroidery Hoops', 1, 'piece',
-    (SELECT category_id FROM category WHERE category_name = 'Embroider')),
+    (SELECT category_id FROM category WHERE category_name = 'Embroidery')),
     (GenerateCustomKeyString(), current_timestamp, NULL, 9000, 73199010, 'Embroidery Needles', 1, 'pack',
-    (SELECT category_id FROM category WHERE category_name = 'Embroider')),
+    (SELECT category_id FROM category WHERE category_name = 'Embroidery')),
     (GenerateCustomKeyString(), current_timestamp, NULL, 1000, 62043300, 'Embroidery Floss', 1, 'skein',
-    (SELECT category_id FROM category WHERE category_name = 'Embroider')),
+    (SELECT category_id FROM category WHERE category_name = 'Embroidery')),
     (GenerateCustomKeyString(), current_timestamp, NULL, 1000, 73199020, 'Embroidery Scissors', 1, 'pair',
-    (SELECT category_id FROM category WHERE category_name = 'Embroider'));
+    (SELECT category_id FROM category WHERE category_name = 'Embroidery'));
 
 -- INSERT INTO SIZE
 INSERT INTO size (size_id, size_name, status, create_date, last_modified_date)
@@ -966,6 +1005,156 @@ INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, las
            JOIN brand b ON u.user_id = b.brand_id
   WHERE u.email = 'tunmse161130@fpt.edu.vn'),
  (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1000, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Jacquard Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Jacquard Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cool Cotton'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Cool Cotton'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Velvet Fleece'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Velvet Fleece'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Linen'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Linen'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Merino Wool'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Merino Wool'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Pure Viscose'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Pure Viscose'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Bamboo Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Bamboo Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Chiffon Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Chiffon Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Viscose Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Viscose Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyamide Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Polyamide Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Core-Spun Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Core-Spun Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Rayon Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Rayon Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Terrycloth Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Terrycloth Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Spandex Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Spandex Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Weaving Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Weaving Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Serger Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Serger Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Twist Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Twist Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Knitting Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Knitting Thread'),
+ CURRENT_TIMESTAMP, NULL),
 
 -- BRAND MATERIAL WITH EMAIL tammtse161087@fpt.edu.vn
 ((SELECT b.brand_id
@@ -1188,6 +1377,157 @@ INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, las
            JOIN brand b ON u.user_id = b.brand_id
   WHERE u.email = 'tammtse161087@fpt.edu.vn'),
  (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1000, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Jacquard Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Jacquard Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cool Cotton'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Cool Cotton'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Velvet Fleece'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Velvet Fleece'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Linen'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Linen'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Merino Wool'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Merino Wool'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Pure Viscose'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Pure Viscose'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Bamboo Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Bamboo Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Chiffon Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Chiffon Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Viscose Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Viscose Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyamide Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Polyamide Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Core-Spun Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Core-Spun Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Rayon Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Rayon Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Terrycloth Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Terrycloth Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Spandex Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Spandex Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Weaving Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Weaving Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Serger Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Serger Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Twist Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Twist Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Knitting Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Knitting Thread'),
+ CURRENT_TIMESTAMP, NULL),
 
 -- BRAND MATERIAL WITH EMAIL truongnhlse160191@fpt.edu.vn
 ((SELECT b.brand_id
@@ -1409,7 +1749,158 @@ INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, las
   FROM users u
            JOIN brand b ON u.user_id = b.brand_id
   WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
- (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1000, CURRENT_TIMESTAMP, NULL);
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Embroidery Scissors'), 1000, CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Jacquard Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Jacquard Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Cool Cotton'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Cool Cotton'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Velvet Fleece'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Velvet Fleece'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Linen'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Linen'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Merino Wool'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Merino Wool'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Pure Viscose'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Pure Viscose'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Bamboo Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Bamboo Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Chiffon Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Chiffon Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Viscose Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Viscose Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Polyamide Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Polyamide Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Core-Spun Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Core-Spun Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Rayon Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Rayon Thread'),
+ CURRENT_TIMESTAMP, NULL),
+ 
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Terrycloth Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Terrycloth Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Spandex Fabric'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Spandex Fabric'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Weaving Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Weaving Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Serger Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Serger Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Twist Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Twist Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+  JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Knitting Thread'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Knitting Thread'),
+ CURRENT_TIMESTAMP, NULL);
 
 -- INSERT INTO BRAND PROPERTY
 INSERT INTO brand_properties (brand_property_id, brand_id, property_id, brand_property_value, brand_property_status,
@@ -1453,6 +1944,27 @@ VALUES
  (SELECT material_id FROM material WHERE material_name = 'Silk Fabric'), true, current_timestamp, NULL),
 ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
  (SELECT material_id FROM material WHERE material_name = 'Linen Fabric'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+(SELECT material_id FROM material WHERE material_name = 'Jacquard Fabric'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Cool Cotton'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Velvet Fleece'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Silk Linen'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Merino Wool'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Pure Viscose'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Bamboo Fabric'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Chiffon Fabric'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Terrycloth Fabric'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Spandex Fabric'), true, CURRENT_TIMESTAMP, NULL),
+
 
 -- ExpertTailoring : shirtModel and Category : Thread
 ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
@@ -1460,4 +1972,22 @@ VALUES
 ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
  (SELECT material_id FROM material WHERE material_name = 'Nylon Thread'), true, current_timestamp, NULL),
 ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Cotton Thread'), true, current_timestamp, NULL);
+ (SELECT material_id FROM material WHERE material_name = 'Cotton Thread'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Viscose Thread'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Silk Thread'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Polyamide Thread'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Core-Spun Thread'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Rayon Thread'), true, current_timestamp, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Weaving Thread'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Serger Thread'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Twist Thread'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Knitting Thread'), true, CURRENT_TIMESTAMP, NULL);
