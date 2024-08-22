@@ -285,6 +285,19 @@ VALUES
     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
     (GenerateCustomKeyString(), current_timestamp, NULL, 2000, 55111010, 'Embroidery Thread', 1, 'spool',
     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 3000, 84433000, 'Screen Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 2000, 84433900, 'Block Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 2000, 84433900, 'Silk Screen Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 2000, 84433900, 'Stencil Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 3000, 48239000, 'Wax Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 96110000, 'Batik Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Manual Printing')),
+
 
 -- Heat Printing Category
     (GenerateCustomKeyString(), current_timestamp, NULL, 2000, 84629950, 'Heat Press Machine', 1, 'unit',
@@ -295,6 +308,16 @@ VALUES
     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
     (GenerateCustomKeyString(), current_timestamp, NULL, 6000, 39199020, 'Heat Transfer Film', 1, 'roll',
     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 5000, 84433900, 'Sublimation Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 6000, 84433900, 'Foil Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 7000, 84433900, 'Holographic Printing', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 84433000, 'Heat Transfer Vinyl', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
+    (GenerateCustomKeyString(), current_timestamp, NULL, 4000, 84433900, 'Plastisol Transfers', 1, 'meter',
+     (SELECT category_id FROM category WHERE category_name = 'Heat Printing')),
 
 -- Embroidery Category
     (GenerateCustomKeyString(), current_timestamp, NULL, 9000, 44140000, 'Embroidery Hoops', 1, 'piece',
@@ -1155,6 +1178,94 @@ INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, las
  (SELECT m.material_id FROM material m WHERE m.material_name = 'Knitting Thread'),
  (SELECT m.base_price FROM material m WHERE m.material_name = 'Knitting Thread'),
  CURRENT_TIMESTAMP, NULL),
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Screen Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Stencil Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Stencil Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Wax Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Wax Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Batik Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Batik Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Block Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Block Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Screen Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+-- Heat Printing
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sublimation Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Sublimation Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Foil Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Foil Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Holographic Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Holographic Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Vinyl'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Heat Transfer Vinyl'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tunmse161130@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastisol Transfers'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Plastisol Transfers'),
+ CURRENT_TIMESTAMP, NULL),
 
 -- BRAND MATERIAL WITH EMAIL tammtse161087@fpt.edu.vn
 ((SELECT b.brand_id
@@ -1529,6 +1640,95 @@ INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, las
  (SELECT m.base_price FROM material m WHERE m.material_name = 'Knitting Thread'),
  CURRENT_TIMESTAMP, NULL),
 
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Screen Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Stencil Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Stencil Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Wax Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Wax Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Batik Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Batik Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Block Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Block Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Screen Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+-- Heat Printing
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sublimation Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Sublimation Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Foil Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Foil Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Holographic Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Holographic Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Vinyl'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Heat Transfer Vinyl'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'tammtse161087@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastisol Transfers'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Plastisol Transfers'),
+ CURRENT_TIMESTAMP, NULL),
+
 -- BRAND MATERIAL WITH EMAIL truongnhlse160191@fpt.edu.vn
 ((SELECT b.brand_id
   FROM users u
@@ -1900,6 +2100,95 @@ INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, las
   WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
  (SELECT m.material_id FROM material m WHERE m.material_name = 'Knitting Thread'),
  (SELECT m.base_price FROM material m WHERE m.material_name = 'Knitting Thread'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Screen Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Screen Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Stencil Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Stencil Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Wax Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Wax Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Batik Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Batik Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Block Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Block Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Silk Screen Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Silk Screen Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+-- Heat Printing
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Sublimation Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Sublimation Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Foil Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Foil Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Holographic Printing'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Holographic Printing'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Heat Transfer Vinyl'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Heat Transfer Vinyl'),
+ CURRENT_TIMESTAMP, NULL),
+
+((SELECT b.brand_id
+  FROM users u
+           JOIN brand b ON u.user_id = b.brand_id
+  WHERE u.email = 'truongnhlse160191@fpt.edu.vn'),
+ (SELECT m.material_id FROM material m WHERE m.material_name = 'Plastisol Transfers'),
+ (SELECT m.base_price FROM material m WHERE m.material_name = 'Plastisol Transfers'),
  CURRENT_TIMESTAMP, NULL);
 
 -- INSERT INTO BRAND PROPERTY
@@ -1990,4 +2279,30 @@ VALUES
 ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
  (SELECT material_id FROM material WHERE material_name = 'Twist Thread'), true, CURRENT_TIMESTAMP, NULL),
 ((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
- (SELECT material_id FROM material WHERE material_name = 'Knitting Thread'), true, CURRENT_TIMESTAMP, NULL);
+ (SELECT material_id FROM material WHERE material_name = 'Knitting Thread'), true, CURRENT_TIMESTAMP, NULL),
+
+-- Manual Printing
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Screen Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Stencil Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Wax Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Batik Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Block Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Silk Screen Printing'), true, CURRENT_TIMESTAMP, NULL),
+
+-- Heat Printing
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Sublimation Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Foil Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Holographic Printing'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Heat Transfer Vinyl'), true, CURRENT_TIMESTAMP, NULL),
+((SELECT expert_tailoring_id FROM expert_tailoring WHERE expert_tailoring_name = 'shirtModel'),
+ (SELECT material_id FROM material WHERE material_name = 'Plastisol Transfers'), true, CURRENT_TIMESTAMP, NULL);
