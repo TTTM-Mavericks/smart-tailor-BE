@@ -1308,7 +1308,8 @@ public class OrderServiceImpl implements OrderService {
         var orderList = orderRepository.getParentOrderByUserID(userID);
         List<OrderCustomResponse> responseList = new ArrayList<>();
         for (Order o : orderList) {
-            responseList.add(getOrderByOrderID(o.getOrderID()));
+//            responseList.add(getOrderByOrderID(o.getOrderID()));
+            responseList.add(orderMapper.mapToOrderCustomResponse(o));
         }
         return responseList.stream().sorted(Comparator.comparing(OrderCustomResponse::getCreateDate).reversed()).toList();
     }
