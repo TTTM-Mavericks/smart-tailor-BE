@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
     private final PayOSService payOSService;
     private static final BigDecimal PIXEL_TO_CENTIMETER = new BigDecimal("0.0264583");
     private final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
-    private final Map<String, OrderDetailPriceResponse> calculatePrice = new HashMap<>();
+//    private final Map<String, OrderDetailPriceResponse> calculatePrice = new HashMap<>();
 
     @Value("${client.server.link}")
     private String clientServerLink;
@@ -300,7 +300,7 @@ public class OrderServiceImpl implements OrderService {
 
     public OrderDetailPriceResponse calculateTotalPriceForSpecificOrder(String parentOrderID) throws Exception {
         var orderCustomResponse = getOrderById(parentOrderID).get();
-        var listSubOrders = getSubOrderByParentID(parentOrderID);
+        var listSubOrders = getSubOrderByParentIDNOTCHECKSTATUS(parentOrderID);
         if (listSubOrders.isEmpty()) {
             listSubOrders = List.of(safeMapToOrderResponse(orderCustomResponse));
         }
@@ -592,6 +592,18 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal customerPriceDeposit = customerDepositStage.add(commission);
         BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(commission);
 
+        logger.error("CHECK: {}", OrderDetailPriceResponse
+                .builder()
+                .totalPriceOfParentOrder(adjustedTotalPriceOfParentOrder.toString())
+                .customerCommissionFee(commission.toString())
+                .customerPriceDeposit(customerPriceDeposit.toString())
+                .customerPriceFirstStage(customerFirstStage.toString())
+                .customerSecondStage(customerSecondStage.toString())
+                .customerShippingFee(shippingFee.toString())
+                .brandDetailPriceResponseList(brandDetailPriceResponseList)
+                .designMaterialDetailResponseList(designMaterialDetailResponseList)
+                .build());
+
         return OrderDetailPriceResponse
                 .builder()
                 .totalPriceOfParentOrder(adjustedTotalPriceOfParentOrder.toString())
@@ -666,7 +678,7 @@ public class OrderServiceImpl implements OrderService {
             if (order.getOrderType().equals("PARENT_ORDER")) {
 
                 var calculatedPrice = calculateTotalPriceForSpecificOrder(orderID);
-
+                logger.error("BUG HERE: {}", calculatedPrice);
                 List<DesignDetail> designDetailList = detailRepository.findAllByOrderID(orderID);
                 List<DesignDetail> detailList = null;
                 if (!designDetailList.isEmpty()) {
@@ -1304,6 +1316,15 @@ public class OrderServiceImpl implements OrderService {
                 .findAll()
                 .stream()
                 .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID) && !order.getOrderStatus().equals(OrderStatus.CANCEL))
+                .map(this::safeMapToOrderResponse)
+                .toList();
+    }
+
+    public List<OrderResponse> getSubOrderByParentIDNOTCHECKSTATUS(String parentOrderID) {
+        return orderRepository
+                .findAll()
+                .stream()
+                .filter(order -> order.getParentOrder() != null && order.getParentOrder().getOrderID().equals(parentOrderID))
                 .map(this::safeMapToOrderResponse)
                 .toList();
     }
