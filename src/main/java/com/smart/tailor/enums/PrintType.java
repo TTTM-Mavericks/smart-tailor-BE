@@ -1,7 +1,8 @@
 package com.smart.tailor.enums;
 
 public enum PrintType {
-    PRINT,
+    HEAT_PRINT,
+    MANUAL_PRINT,
     EMBROIDER
 }
 
