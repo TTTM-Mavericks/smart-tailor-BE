@@ -23,7 +23,7 @@ public class DatabaseSetupConfig {
                  Statement statement = connection.createStatement()) {
 
                 if (!isSchemaAlreadyInitialized(connection)) {
-                    statement.execute("USE smart_tailor_be");
+                    statement.execute("USE railway");
                     // Drop the function if it exists
                     statement.execute("DROP FUNCTION IF EXISTS GenerateCustomKeyString");
 
@@ -89,8 +89,10 @@ public class DatabaseSetupConfig {
         try (Statement statement = connection.createStatement()) {
             // Kiểm tra sự tồn tại của bảng schema_version
             ResultSet resultSet = statement.executeQuery(
+//                    "SELECT COUNT(*) " +
+//                            "FROM smart_tailor_be.roles");
                     "SELECT COUNT(*) " +
-                            "FROM smart_tailor_be.roles");
+                            "FROM railway.roles");
             if (resultSet.next()) {
                 int count = resultSet.getInt(1);
                 return count > 0;
