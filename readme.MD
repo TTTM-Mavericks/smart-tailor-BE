@@ -26,10 +26,10 @@
 
 ## Docker guideline
 ### 1. Build Docker Image
-`docker build -t <account>/smart_tailor_be:0.0.1 .`
+`docker build -t <account>/smart_tailor_be:<tag_name> .`
 
 ### 2. Push Docker Image to Docker Hub
-`docker image push <account>/smart_tailor_be:0.0.1`
+`docker image push <account>/smart_tailor_be:<tag_name>`
 
 ### 3. Create Docker Network
 `docker network create smart_tailor_be_network`
@@ -38,7 +38,7 @@
 `docker run --network smart_tailor_be_network --name mysql -p 3307:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:8.0.39-debian`
 
 ### 5. Run Your Application in Docker Network
-`docker run --name smart_tailor_be --network smart_tailor_be_network -p 6968:6969 -e DBMS_CONNECTION=jdbc:mysql://mysql:3306/smart_tailor_be <account>/smart_tailor_be:0.0.1`
+`docker run --name smart_tailor_be --network smart_tailor_be_network -p 6968:6969 -e DBMS_CONNECTION=jdbc:mysql://mysql:3306/smart_tailor_be <account>/smart_tailor_be:<tag_name>`
 
 ## Installing Docker on Ubuntu
 
