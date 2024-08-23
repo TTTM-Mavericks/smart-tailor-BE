@@ -3,7 +3,7 @@ name: Build & Deploy Smart Tailor Application
 on:
   push:
     branches:
-      - feature_be0099_docker
+      - main
 
 jobs:
   build-deploy:
