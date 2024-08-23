@@ -1,5 +1,5 @@
 -- use smart_tailor_be;
-use railway;
+-- use railway;
 
 -- INSERT INTO ROLES
 INSERT INTO roles(role_id, create_date, last_modified_date, role_name)
@@ -2054,7 +2054,7 @@ INSERT INTO brand_material (brand_id, material_id, brand_price, create_date, las
  (SELECT m.material_id FROM material m WHERE m.material_name = 'Rayon Thread'),
  (SELECT m.base_price FROM material m WHERE m.material_name = 'Rayon Thread'),
  CURRENT_TIMESTAMP, NULL),
- 
+
 ((SELECT b.brand_id
   FROM users u
   JOIN brand b ON u.user_id = b.brand_id
