@@ -26,7 +26,6 @@ import com.smart.tailor.utils.request.UserRequest;
 import com.smart.tailor.utils.response.AuthenticationResponse;
 import com.smart.tailor.utils.response.UserResponse;
 import com.smart.tailor.validate.ValidEmail;
-import com.smart.tailor.validate.ValidCustomKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -57,24 +56,28 @@ public class AuthenticationController {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RegistrationCompleteEventListener registrationCompleteEventListener;
     private final LogoutService logoutService;
+    private final HttpServletResponse response;
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String clientId;
 
     @GetMapping(APIConstant.AuthenticationAPI.VERIFY + "/{token}")
-    public ResponseEntity<ObjectNode> verifyAccount( @PathVariable("token") String token) {
+    public ResponseEntity<String> verifyAccount(@PathVariable("token") String token) {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode respon = objectMapper.createObjectNode();
         try {
             var message = authenticationService.verifyUser(token);
             if (message.equalsIgnoreCase(MessageConstant.TOKEN_IS_VALID)) {
-                respon.put("status", 200);
-                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
-                return ResponseEntity.ok(respon);
+//                respon.put("status", 200);
+//                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
+//                return ResponseEntity.ok(respon);
+                response.sendRedirect("http://localhost:3000/auth/verify/smarttailor.tttm@gmail.com");
+                return ResponseEntity.ok(MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
+
             } else {
-                respon.put("status", 400);
-                respon.put("message", message);
-                return ResponseEntity.ok(respon);
+//                respon.put("status", 400);
+//                respon.put("message", message);
+                return ResponseEntity.ok("FAIL");
             }
         } catch (Exception ex) {
             if (ex instanceof CustomExeption) {
@@ -83,7 +86,7 @@ public class AuthenticationController {
             respon.put("status", ErrorConstant.INTERNAL_SERVER_ERROR.getStatusCode());
             respon.put("message", ErrorConstant.INTERNAL_SERVER_ERROR.getMessage());
             logger.error("ERROR IN VERIFY ACCOUNT. ERROR MESSAGE: {}", ex.getMessage());
-            return ResponseEntity.ok(respon);
+            return ResponseEntity.ok(ex.getMessage());
         }
     }
 
