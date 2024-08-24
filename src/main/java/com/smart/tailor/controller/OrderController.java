@@ -22,7 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -78,7 +78,7 @@ public class OrderController {
 
     @GetMapping(OrderAPI.GET_ORDER_BY_USER_ID + "/{userID}")
     public ResponseEntity<ObjectNode> getOrderByUserID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
-                                                       @PathVariable("userID") String userID) throws Exception{
+                                                       @PathVariable("userID") String userID) throws Exception {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", 200);
         response.put("message", MessageConstant.GET_ORDER_SUCCESSFULLY);
@@ -103,7 +103,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_PARENT_ORDER_BY_DESIGN_ID + "/{designID}")
-    public ResponseEntity<ObjectNode> getParentOrderByDesignID( @PathVariable("designID") String designID) {
+    public ResponseEntity<ObjectNode> getParentOrderByDesignID(@PathVariable("designID") String designID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -118,7 +118,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ALL_ORDER + "/{parentID}")
-    public ResponseEntity<ObjectNode> getAllSubOrderByParentOrderID( @PathVariable("parentID") String parentID) {
+    public ResponseEntity<ObjectNode> getAllSubOrderByParentOrderID(@PathVariable("parentID") String parentID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -188,6 +188,9 @@ public class OrderController {
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
             logger.error("ERROR IN ORDER CONTROLLER: {}", ex.getMessage());
+            if (ex instanceof ResponseStatusException) {
+                return new ResponseEntity<>(((ResponseStatusException) ex).getStatusCode());
+            }
             return null;
         }
     }
@@ -223,7 +226,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_STAGE_BY_ID + "/{orderID}")
-    public ResponseEntity<ObjectNode> getOrderStageByID( @PathVariable("orderID") String orderID) {
+    public ResponseEntity<ObjectNode> getOrderStageByID(@PathVariable("orderID") String orderID) {
         try {
             ObjectNode response = objectMapper.createObjectNode();
             response.put("status", 200);
@@ -238,7 +241,7 @@ public class OrderController {
     }
 
     @GetMapping("/filter-brand-by-design-id/{designID}")
-    public ResponseEntity<ObjectNode> filterBrandForSpecificOrderBaseOnDesign( @PathVariable("designID") String designID) {
+    public ResponseEntity<ObjectNode> filterBrandForSpecificOrderBaseOnDesign(@PathVariable("designID") String designID) {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", 200);
         response.put("message", "Filter Brand For Specific Order Base On Design");
@@ -259,7 +262,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.ORDER_TIME_LINE_BY_PARENT_ORDER_ID + "/{parentOrderID}")
-    public ResponseEntity<ObjectNode> orderTimeLineByParentOrderID( @PathVariable("parentOrderID") String parentOrderID) {
+    public ResponseEntity<ObjectNode> orderTimeLineByParentOrderID(@PathVariable("parentOrderID") String parentOrderID) {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", "Order Time Line by Parent Order ID Successfully");
@@ -268,7 +271,7 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.ORDER_TIME_LINE_BY_SUB_ORDER_ID + "/{subOrderID}")
-    public ResponseEntity<ObjectNode> orderTimeLineSubOrderID( @PathVariable("subOrderID") String subOrderID) {
+    public ResponseEntity<ObjectNode> orderTimeLineSubOrderID(@PathVariable("subOrderID") String subOrderID) {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("status", HttpStatus.OK.value());
         response.put("message", "Order Time Line by Sub Order ID Successfully");
@@ -277,14 +280,14 @@ public class OrderController {
     }
 
     @GetMapping(OrderAPI.GET_ORDER_SHIPPING_DETAIL_BY_LABEL_ID + "/{labelID}")
-    public ResponseEntity<ObjectNode> getOrderDetailShippingResponseByLabelID( @PathVariable("labelID") String labelID) {
+    public ResponseEntity<ObjectNode> getOrderDetailShippingResponseByLabelID(@PathVariable("labelID") String labelID) {
         ObjectNode response = objectMapper.createObjectNode();
         var orderDetailShippingResponse = orderService.getOrderDetailShippingResponseByLabelID(labelID);
-        if(orderDetailShippingResponse.isSuccess()){
+        if (orderDetailShippingResponse.isSuccess()) {
             response.put("status", HttpStatus.OK.value());
             response.put("message", "Get Order Detail Shipping Response By Label ID Successfully");
             response.set("data", objectMapper.valueToTree(orderDetailShippingResponse));
-        } else{
+        } else {
             response.put("status", HttpStatus.NOT_FOUND.value());
             response.put("message", orderDetailShippingResponse.getMessage());
         }

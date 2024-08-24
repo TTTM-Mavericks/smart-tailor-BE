@@ -27,8 +27,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -1262,7 +1267,7 @@ public class OrderServiceImpl implements OrderService {
                 .anyMatch(order -> order.getOrderID().equals(orderID));
 
         if (!isAuthorized) {
-            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access to the order");
         }
 
         var response = getOrderByOrderID(orderID);
