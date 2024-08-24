@@ -39,6 +39,8 @@ public class APIConstant {
         public static final String UPLOAD_BRAND_INFOR = "/upload-brand-infor";
         public static final String GET_BRAND_REGISTRATION_PAYMENT = "/get-brand-registration-payment";
         public static final String ADD_EXPERT_TAILORING_FOR_BRAND = "/add-expert-tailoring-for-brand";
+        public static final String UPDATE_EXPERT_TAILORING_FOR_BRAND = "/update-expert-tailoring-for-brand";
+        public static final String GET_ALL_EXPERT_TAILORING_BY_BRAND_ID = "/get-all-expert-tailoring-by-brand-id";
         public static final String VERIFY = "/verify";
         public static final String ACCEPT_BRAND = "/accept-brand";
         public static final String REJECT_BRAND = "/reject-brand";

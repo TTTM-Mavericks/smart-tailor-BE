@@ -2,7 +2,6 @@ package com.smart.tailor.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.smart.tailor.config.CustomExeption;
 import com.smart.tailor.constant.APIConstant.BrandAPI;
 import com.smart.tailor.constant.ErrorConstant;
 import com.smart.tailor.constant.MessageConstant;
@@ -17,13 +16,13 @@ import com.smart.tailor.service.*;
 import com.smart.tailor.utils.Utilities;
 import com.smart.tailor.utils.request.BrandExpertTailoringRequest;
 import com.smart.tailor.utils.request.BrandRequest;
-import com.smart.tailor.utils.request.NotificationRequest;
 import com.smart.tailor.utils.request.UserRequest;
-import com.smart.tailor.validate.ValidCustomKey;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -211,55 +210,29 @@ public class BrandController {
     }
 
     @PostMapping(BrandAPI.ADD_EXPERT_TAILORING_FOR_BRAND)
-    public ResponseEntity<ObjectNode> addExpertTailoringForBrand(@RequestBody BrandExpertTailoringRequest brandExpertTailoringRequest) {
+    public ResponseEntity<ObjectNode> addExpertTailoringForBrand(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                                 @Valid @RequestBody BrandExpertTailoringRequest brandExpertTailoringRequest) {
         ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode respon = objectMapper.createObjectNode();
-        try {
-            if (brandExpertTailoringRequest == null) {
-                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
-                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
-                return ResponseEntity.ok(respon);
-            }
+        ObjectNode response = objectMapper.createObjectNode();
 
-            var brandID = brandExpertTailoringRequest.getBrand_id();
-            if (brandID == null) {
-                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
-                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-
-            var expectTailoringID = brandExpertTailoringRequest.getExpert_tailoring_id();
-            if (expectTailoringID == null) {
-                respon.put("status", ErrorConstant.MISSING_ARGUMENT.getStatusCode());
-                respon.put("message", ErrorConstant.MISSING_ARGUMENT.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-
-            var checked = brandExpertTailoringService.addExpertTailoringForBrand(brandID, expectTailoringID);
-            if (checked) {
-                respon.put("status", 200);
-                respon.put("message", MessageConstant.ADD_BRAND_EXPERT_TAILORING_SUCCESSFULLY);
-                return ResponseEntity.ok(respon);
-            } else {
-                respon.put("status", ErrorConstant.BAD_REQUEST.getStatusCode());
-                respon.put("message", ErrorConstant.BAD_REQUEST.getMessage());
-                return ResponseEntity.ok(respon);
-            }
-        } catch (Exception ex) {
-            if (ex instanceof CustomExeption customExeption) {
-                respon.put("status", customExeption.getErrorConstant().getStatusCode());
-                respon.put("message", customExeption.getErrorConstant().getMessage());
-                logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
-            } else {
-                respon.put("status", -1);
-                respon.put("message", MessageConstant.INTERNAL_SERVER_ERROR);
-                logger.error("ERROR IN CHECK VERIFY BRAND. ERROR MESSAGE: {}", ex.getMessage());
-            }
-            return ResponseEntity.ok(respon);
-        }
+        brandExpertTailoringService.createExpertTailoringForBrand(jwtToken, brandExpertTailoringRequest);
+        response.put("status", 200);
+        response.put("message", MessageConstant.ADD_BRAND_EXPERT_TAILORING_SUCCESSFULLY);
+        return ResponseEntity.ok(response);
     }
 
-    //    @PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_ADMIN')")
+    @GetMapping(BrandAPI.GET_ALL_EXPERT_TAILORING_BY_BRAND_ID + "/{brandID}")
+    public ResponseEntity<ObjectNode> getAllBrandExpertTailoringByBrandID(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
+                                                                          @PathVariable("brandID") String brandID) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode response = objectMapper.createObjectNode();
+
+        response.put("status", 200);
+        response.put("message", "Get All Brand Expert Tailoring By Brand ID Successfully");
+        response.set("data", objectMapper.valueToTree(brandExpertTailoringService.getAllBrandExpertTailoringByBrandID(jwtToken, brandID)));
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(BrandAPI.ACCEPT_BRAND + "/{brandID}")
     public ResponseEntity<ObjectNode> acceptBrand(@PathVariable("brandID") String brandID) {
         ObjectMapper objectMapper = new ObjectMapper();

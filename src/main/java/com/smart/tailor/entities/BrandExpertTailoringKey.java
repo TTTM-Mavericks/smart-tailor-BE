@@ -18,14 +18,6 @@ public class BrandExpertTailoringKey implements Serializable {
     @Column(name = "expert_tailoring_id", columnDefinition = "varchar(14)")
     private String expertTailoringID;
 
-    @ManyToOne
-    @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id", nullable = false, insertable = false, updatable = false)
-    private ExpertTailoring expertTailoring;
-
     @Column(name = "brand_id", columnDefinition = "varchar(14)")
     private String brandID;
-
-    @ManyToOne
-    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
-    private Brand brand;
 }
