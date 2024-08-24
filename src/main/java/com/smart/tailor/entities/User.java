@@ -65,8 +65,8 @@ public class User  implements Serializable, OAuth2User, UserDetails {
     private UserStatus userStatus;
 
     @Lob
-    @Column(name = "image_url", columnDefinition = "TEXT")
-    private String imageUrl;
+    @Column(name = "image_url", columnDefinition = "LONGTEXT", unique = false, nullable = true)
+    private byte[] imageUrl;
 
     @OneToOne(mappedBy = "user")
     private Brand brand;
