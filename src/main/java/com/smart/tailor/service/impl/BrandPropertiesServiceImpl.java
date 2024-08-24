@@ -3,10 +3,14 @@ package com.smart.tailor.service.impl;
 import com.smart.tailor.constant.MessageConstant;
 import com.smart.tailor.entities.BrandProperties;
 import com.smart.tailor.exception.BadRequestException;
+import com.smart.tailor.exception.ItemAlreadyExistException;
+import com.smart.tailor.exception.ItemNotFoundException;
+import com.smart.tailor.exception.UnauthorizedAccessException;
 import com.smart.tailor.mapper.BrandPropertiesMapper;
 import com.smart.tailor.repository.BrandPropertiesRepository;
 import com.smart.tailor.service.BrandPropertiesService;
 import com.smart.tailor.service.BrandService;
+import com.smart.tailor.service.JwtService;
 import com.smart.tailor.service.SystemPropertiesService;
 import com.smart.tailor.utils.request.BrandPropertiesRequest;
 import com.smart.tailor.utils.response.BrandPropertiesResponse;
@@ -24,6 +28,7 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
     private final BrandService brandService;
     private final BrandPropertiesRepository brandPropertiesRepository;
     private final BrandPropertiesMapper brandPropertiesMapper;
+    private final JwtService jwtService;
 
     @Override
     public List<BrandPropertiesResponse> getAllByBrandID(String brandID) {
@@ -64,40 +69,44 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
 
     @Transactional
     @Override
-    public BrandPropertiesResponse addNew(BrandPropertiesRequest brandRequest) throws Exception {
-        try {
-            String brandID = brandRequest.getBrandID();
-
-            var brand = brandService.getBrandById(brandID);
-            if (brand.isEmpty()) {
-                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
-            }
-
-            String systemPropertyID = brandRequest.getSystemPropertyID();
-            var systemProperty = systemService.getObjectByID(systemPropertyID);
-            if (systemProperty.isEmpty()) {
-                throw new BadRequestException(MessageConstant.CAN_NOT_FIND_SYSTEM_PROPERTY);
-            }
-
-            String brandPropertyValue = brandRequest.getBrandPropertyValue().trim().toUpperCase();
-            Boolean brandPropertyStatus = brandRequest.getBrandPropertyStatus() != null ? brandRequest.getBrandPropertyStatus() : true;
-
-            var newBrandProperties = brandPropertiesRepository.save(
-                    BrandProperties
-                            .builder()
-                            .systemProperties(systemProperty.get())
-                            .brand(brand.get())
-                            .brandPropertyValue(brandPropertyValue)
-                            .brandPropertyStatus(brandPropertyStatus)
-                            .build()
-            );
-            if (newBrandProperties == null) {
-                return null;
-            }
-            return brandPropertiesMapper.mapperToBrandPropertiesResponse(newBrandProperties);
-        } catch (Exception ex) {
-            throw ex;
+    public BrandPropertiesResponse addNew(String jwtToken, BrandPropertiesRequest brandRequest) throws Exception {
+        var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(brandRequest.getBrandID())){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
         }
+
+        String brandID = brandRequest.getBrandID();
+
+        var brand = brandService.getBrandById(brandID);
+        if (brand.isEmpty()) {
+            throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
+        }
+
+
+        String systemPropertyID = brandRequest.getSystemPropertyID();
+        var systemProperty = systemService.getObjectByID(systemPropertyID);
+        if (systemProperty.isEmpty()) {
+            throw new BadRequestException(MessageConstant.CAN_NOT_FIND_SYSTEM_PROPERTY);
+        }
+
+        String brandPropertyValue = brandRequest.getBrandPropertyValue().trim().toUpperCase();
+        Boolean brandPropertyStatus = brandRequest.getBrandPropertyStatus() != null ? brandRequest.getBrandPropertyStatus() : true;
+
+        var existedBrandProperties = getByBrandIDAndPropertyID(brandID, systemPropertyID);
+        if(existedBrandProperties != null){
+            throw new ItemAlreadyExistException("Brand Properties already existed");
+        }
+
+        var newBrandProperties = brandPropertiesRepository.save(
+                BrandProperties
+                        .builder()
+                        .systemProperties(systemProperty.get())
+                        .brand(brand.get())
+                        .brandPropertyValue(brandPropertyValue)
+                        .brandPropertyStatus(brandPropertyStatus)
+                        .build()
+        );
+        return brandPropertiesMapper.mapperToBrandPropertiesResponse(newBrandProperties);
     }
 
     @Override
@@ -117,5 +126,60 @@ public class BrandPropertiesServiceImpl implements BrandPropertiesService {
         } catch (Exception ex) {
             throw ex;
         }
+    }
+
+    @Override
+    public BrandPropertiesResponse getBrandProductivityByBrandID(String jwtToken, String brandID) {
+        var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(brandID)){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
+        var brand = brandService.findBrandById(brandID)
+                .orElseThrow(() -> new ItemNotFoundException("Can not find Brand by BrandID: " + brandID));
+
+        return brandPropertiesMapper.mapperToBrandPropertiesResponse(
+                brandPropertiesRepository.getBrandProductivityByBrandID(brandID)
+        );
+    }
+
+    @Override
+    public BrandPropertiesResponse updateBrandProperties(String jwtToken, BrandPropertiesRequest brandRequest) throws Exception {
+        var userID = jwtService.extractUserIDFromJwtToken(jwtToken);
+        if(!userID.equals(brandRequest.getBrandID())){
+            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+        }
+
+        String brandID = brandRequest.getBrandID();
+
+        var brand = brandService.getBrandById(brandID);
+        if (brand.isEmpty()) {
+            throw new BadRequestException(MessageConstant.CAN_NOT_FIND_BRAND);
+        }
+
+        String systemPropertyID = brandRequest.getSystemPropertyID();
+        var systemProperty = systemService.getObjectByID(systemPropertyID);
+        if (systemProperty.isEmpty()) {
+            throw new BadRequestException(MessageConstant.CAN_NOT_FIND_SYSTEM_PROPERTY);
+        }
+
+        String brandPropertyValue = brandRequest.getBrandPropertyValue().trim().toUpperCase();
+        Boolean brandPropertyStatus = brandRequest.getBrandPropertyStatus() != null ? brandRequest.getBrandPropertyStatus() : true;
+
+        var existedBrandProperties = getByBrandIDAndPropertyID(brandID, systemPropertyID);
+        if(existedBrandProperties == null){
+            throw new ItemNotFoundException("Can not find any BrandProperties");
+        }
+
+        var updateBrandProperties = brandPropertiesRepository.save(
+                BrandProperties
+                        .builder()
+                        .systemProperties(systemProperty.get())
+                        .brand(brand.get())
+                        .brandPropertyValue(brandPropertyValue)
+                        .brandPropertyStatus(brandPropertyStatus)
+                        .build()
+        );
+        return brandPropertiesMapper.mapperToBrandPropertiesResponse(updateBrandProperties);
     }
 }

@@ -319,6 +319,8 @@ public class APIConstant {
         public static final String GET_ALL_BRAND_PROPERTY = "/get-all-brand-properties";
         public static final String GET_ALL_BRAND_PROPERTY_BY_BRAND_ID = "/get-all-brand-properties-by-brand-id";
         public static final String GET_BRAND_PROPERTY = "/get-brand-property";
+        public static final String UPDATE_BRAND_PROPERTY = "/update-brand-property";
+        public static final String GET_BRAND_PRODUCTIVITY_BY_BRAND_ID = "/get-brand-productivity-by-brand-id";
     }
 
     /**

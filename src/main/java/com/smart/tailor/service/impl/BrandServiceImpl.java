@@ -133,8 +133,10 @@ public class BrandServiceImpl implements BrandService {
         }
         if(totalRatingScoreUpdate <= 0) totalRatingScoreUpdate = 0;
         var ratingUpdate = totalRatingScoreUpdate / numberOfRatingsUpdate;
+        ratingUpdate = Math.max(0, Math.min(ratingUpdate, 5));
+
         brandRepository.updateBrandRatingAndScore(
-                Math.max(ratingUpdate, 0),
+                ratingUpdate,
                 numberOfRatingsUpdate,
                 totalRatingScoreUpdate,
                 brandID
@@ -180,10 +182,13 @@ public class BrandServiceImpl implements BrandService {
                 .orElseThrow(() -> new ItemNotFoundException("Cannot find Brand with BrandID: " + brandID));
         var numberOfRatingsUpdate = brand.getNumberOfRatings() + 1;
         var totalRatingScoreUpdate = brand.getTotalRatingScore() - ratingScore;
+
         if(totalRatingScoreUpdate <= 0) totalRatingScoreUpdate = 0;
         var ratingUpdate = totalRatingScoreUpdate / numberOfRatingsUpdate;
+        ratingUpdate = Math.max(0, Math.min(ratingUpdate, 5));
+
         brandRepository.updateBrandRatingAndScore(
-                Math.max(ratingUpdate, 0),
+                ratingUpdate,
                 numberOfRatingsUpdate,
                 totalRatingScoreUpdate,
                 brandID
