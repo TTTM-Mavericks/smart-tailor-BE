@@ -71,7 +71,10 @@ public class AuthenticationController {
 //                respon.put("status", 200);
 //                respon.put("message", MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
 //                return ResponseEntity.ok(respon);
-                response.sendRedirect("http://localhost:3000/auth/verify/smarttailor.tttm@gmail.com");
+                var verificationTokenOptional = verificationTokenService.findByToken(token);
+                var verificationToken = verificationTokenOptional.get();
+                User user = verificationToken.getUser();
+                response.sendRedirect("http://localhost:3000/auth/verify/" + user.getEmail());
                 return ResponseEntity.ok(MessageConstant.ACCOUNT_VERIFIED_SUCCESSFULLY);
 
             } else {
