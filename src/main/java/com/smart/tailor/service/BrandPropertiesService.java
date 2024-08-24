@@ -13,7 +13,11 @@ public interface BrandPropertiesService {
 
     BrandPropertiesResponse getByID(String propertyID);
 
-    BrandPropertiesResponse addNew(BrandPropertiesRequest brandRequest) throws Exception;
+    BrandPropertiesResponse addNew(String jwtToken, BrandPropertiesRequest brandRequest) throws Exception;
 
     BrandPropertiesResponse getByBrandIDAndPropertyID(String brandID, String propertyID);
+
+    BrandPropertiesResponse getBrandProductivityByBrandID(String jwtToken, String brandID);
+
+    BrandPropertiesResponse updateBrandProperties(String jwtToken, BrandPropertiesRequest brandRequest) throws Exception;
 }

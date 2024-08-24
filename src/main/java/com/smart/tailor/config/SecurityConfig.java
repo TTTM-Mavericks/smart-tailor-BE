@@ -100,6 +100,12 @@ public class SecurityConfig {
                             /* Brand Labor Quantity API */
                             auth.requestMatchers("/api/v1/brand-labor-quantity/**").hasRole(RoleType.BRAND.name());
 
+                            /* Brand Property API */
+                            auth.requestMatchers("/api/v1/brand-property/get-brand-productivity-by-brand-id/**").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/brand-property/add-new-brand-property").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/brand-property/update-brand-property").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/brand-property/**").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name(), RoleType.BRAND.name());
+
                              /* Report API */
                             auth.requestMatchers("/api/v1/report/**").hasAnyRole(RoleType.EMPLOYEE.name(), RoleType.BRAND.name(), RoleType.CUSTOMER.name());
                             auth.requestMatchers("/api/v1/report/get-all-report-by-brand-id/**").hasRole(RoleType.BRAND.name());
