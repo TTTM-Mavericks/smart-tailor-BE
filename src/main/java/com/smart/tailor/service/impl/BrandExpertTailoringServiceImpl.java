@@ -62,7 +62,7 @@ public class BrandExpertTailoringServiceImpl implements BrandExpertTailoringServ
                     getBrandExpertTailoringByBrandExpertTailoringKey_BrandIDAndBrandExpertTailoringKey_ExpertTailoringID(brandID, expertTailoringID);
 
             if(brandExpertTailoringExisted != null){
-                errors.add("Brand Expert Tailoring is Existed");
+                errors.add("Brand Expert Tailoring is Existed with Expert Tailoring ID:" + expertTailoringID + " and Brand ID: " + brandID);
             }
 
             if (!errorBrand.isEmpty()) {
