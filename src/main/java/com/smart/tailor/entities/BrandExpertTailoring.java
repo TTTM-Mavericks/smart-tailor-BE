@@ -23,6 +23,14 @@ public class BrandExpertTailoring  implements Serializable {
     @EmbeddedId
     private BrandExpertTailoringKey brandExpertTailoringKey;
 
+    @ManyToOne
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id", nullable = false, insertable = false, updatable = false)
+    private Brand brand;
+
+    @ManyToOne
+    @JoinColumn(name = "expert_tailoring_id", referencedColumnName = "expert_tailoring_id", nullable = false, insertable = false, updatable = false)
+    private ExpertTailoring expertTailoring;
+
     @CreatedDate
     @Column(name = "create_date", columnDefinition = "datetime(2)", nullable = false, updatable = false)
     private LocalDateTime createDate;

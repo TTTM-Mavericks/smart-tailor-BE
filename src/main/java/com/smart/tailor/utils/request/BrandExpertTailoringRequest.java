@@ -1,10 +1,13 @@
 package com.smart.tailor.utils.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 
 
 @Builder
@@ -12,6 +15,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BrandExpertTailoringRequest {
-    private String brand_id;
-    private String expert_tailoring_id;
+    @NotBlank(message = "Brand ID is required")
+    private String brandID;
+
+    @NotEmpty(message = "Expert Tailoring ID List is required")
+    private List<String> expertTailoringIDList;
 }

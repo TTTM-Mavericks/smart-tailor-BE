@@ -161,6 +161,7 @@ public class SecurityConfig {
                             auth.requestMatchers("/api/v1/brand/add-new-brand").permitAll();
                             auth.requestMatchers("/api/v1/brand/upload-brand-infor").hasRole(RoleType.BRAND.name());
                             auth.requestMatchers("/api/v1/brand/add-expert-tailoring-for-brand").hasRole(RoleType.BRAND.name());
+                            auth.requestMatchers("/api/v1/brand/get-all-expert-tailoring-by-brand-id/**").hasRole(RoleType.BRAND.name());
                             auth.requestMatchers("/api/v1/brand/get-brand").hasAnyRole(RoleType.ADMIN.name(), RoleType.MANAGER.name(), RoleType.EMPLOYEE.name(), RoleType.BRAND.name(), RoleType.ACCOUNTANT.name());
                             auth.requestMatchers("/api/v1/brand/get-all-brand-information").hasRole(RoleType.MANAGER.name());
 
