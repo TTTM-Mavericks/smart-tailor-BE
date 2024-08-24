@@ -68,7 +68,7 @@ public class BrandPropertyController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(BrandPropertyAPI.UPDATE_BRAND_PROPERTY)
+    @PutMapping(BrandPropertyAPI.UPDATE_BRAND_PROPERTY)
     public ResponseEntity<ObjectNode> updateBrandProperties(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwtToken,
                                                             @Valid @RequestBody BrandPropertiesRequest request) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
