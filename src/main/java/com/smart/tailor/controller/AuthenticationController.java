@@ -80,6 +80,7 @@ public class AuthenticationController {
             } else {
 //                respon.put("status", 400);
 //                respon.put("message", message);
+                response.sendRedirect("https://tttm-mavericks.github.io/InvalidToken");
                 return ResponseEntity.ok("FAIL");
             }
         } catch (Exception ex) {
