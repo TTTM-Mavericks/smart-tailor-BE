@@ -190,10 +190,10 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
                 continue;
             }
 
-            logger.info("Before Remove old ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
-            for(ItemMask itemMask : existedPartOfDesign.getItemMaskList()){
-               logger.info("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());
-            }
+//            logger.info("Before Remove old ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
+//            for(ItemMask itemMask : existedPartOfDesign.getItemMaskList()){
+//               logger.info("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());
+//            }
 
             var oldItemMasks = itemMaskService.getAllItemMaskByPartOfDesignID(existedPartOfDesign.getPartOfDesignID());
             for(var oldItemMask : oldItemMasks){
@@ -201,10 +201,10 @@ public class PartOfDesignServiceImpl implements PartOfDesignService {
             }
             existedPartOfDesign.getItemMaskList().clear();
 
-            logger.info("After Remove old ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
-            for(ItemMask itemMask :  existedPartOfDesign.getItemMaskList()){
-                logger.warn("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());
-            }
+//            logger.info("After Remove old ItemMask {}",  existedPartOfDesign.getItemMaskList().size());
+//            for(ItemMask itemMask :  existedPartOfDesign.getItemMaskList()){
+//                logger.warn("Item Mask from ExistedPartOfDesign {}", itemMask.getItemMaskID());
+//            }
 
             try {
                 existedPartOfDesign.getItemMaskList().addAll(itemMaskService.updateItemMask(existedPartOfDesign, partOfDesignRequest.getItemMask()));

@@ -219,22 +219,22 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService {
             if(orderResponse.getOrderStatus().name().equals(OrderStatus.DELIVERED.name()) &&
                     Optional.ofNullable(orderResponse.getLabelID()).isEmpty()){
                 var order = orderService.getOrderById(orderResponse.getOrderID()).get();
-                logger.info("Retrieved Order: {}", order);
+//                logger.info("Retrieved Order: {}", order);
 
                 var detail = detailService.findAllByOrderID(orderResponse.getOrderID());
-                logger.info("Retrieved Order Details for OrderID {}: {}", orderResponse.getOrderID(), detail);
+//                logger.info("Retrieved Order Details for OrderID {}: {}", orderResponse.getOrderID(), detail);
 
                 var design = detail.getDesign();
-                logger.info("Design Information: {}", design);
+//                logger.info("Design Information: {}", design);
 
                 var minWeightParentOrder = design.getMinWeight() * order.getQuantity();
-                logger.info("Minimum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), minWeightParentOrder);
+//                logger.info("Minimum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), minWeightParentOrder);
 
                 var maxWeightParentOrder = design.getMaxWeight() * order.getQuantity();
-                logger.info("Maximum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), maxWeightParentOrder);
+//                logger.info("Maximum Weight for Parent Order (Quantity {}): {}", order.getQuantity(), maxWeightParentOrder);
 
                 var averageWeightParentOrder = (float) (minWeightParentOrder + maxWeightParentOrder) / 2;
-                logger.info("Average Weight for Parent Order: {}", averageWeightParentOrder);
+//                logger.info("Average Weight for Parent Order: {}", averageWeightParentOrder);
 
                 var maximumShippingWeight = Integer.parseInt(systemPropertiesService.getByName("MAX_SHIPPING_WEIGHT").getPropertyValue());
                 if(averageWeightParentOrder < maximumShippingWeight){

@@ -599,17 +599,17 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal customerPriceDeposit = customerDepositStage.add(commission);
         BigDecimal adjustedTotalPriceOfParentOrder = totalPriceOfParentOrder.add(commission);
 
-        logger.error("CHECK: {}", OrderDetailPriceResponse
-                .builder()
-                .totalPriceOfParentOrder(adjustedTotalPriceOfParentOrder.toString())
-                .customerCommissionFee(commission.toString())
-                .customerPriceDeposit(customerPriceDeposit.toString())
-                .customerPriceFirstStage(customerFirstStage.toString())
-                .customerSecondStage(customerSecondStage.toString())
-                .customerShippingFee(shippingFee.toString())
-                .brandDetailPriceResponseList(brandDetailPriceResponseList)
-                .designMaterialDetailResponseList(designMaterialDetailResponseList)
-                .build());
+//        logger.error("CHECK: {}", OrderDetailPriceResponse
+//                .builder()
+//                .totalPriceOfParentOrder(adjustedTotalPriceOfParentOrder.toString())
+//                .customerCommissionFee(commission.toString())
+//                .customerPriceDeposit(customerPriceDeposit.toString())
+//                .customerPriceFirstStage(customerFirstStage.toString())
+//                .customerSecondStage(customerSecondStage.toString())
+//                .customerShippingFee(shippingFee.toString())
+//                .brandDetailPriceResponseList(brandDetailPriceResponseList)
+//                .designMaterialDetailResponseList(designMaterialDetailResponseList)
+//                .build());
 
         return OrderDetailPriceResponse
                 .builder()
@@ -2430,13 +2430,16 @@ public class OrderServiceImpl implements OrderService {
                         .filter(bp -> bp.getSubOrderID().equals(subOrder.getOrderID()))
                         .findFirst().get();
                 var subOrderObject = getOrderById(subOrder.getOrderID()).get();
+
+                Integer deposit = Integer.parseInt(brandPrice.getBrandPriceDeposit().equals("-1")?"0":brandPrice.getBrandPriceDeposit());
+                Integer first = Integer.parseInt(brandPrice.getBrandPriceFirstStage().equals("-1")?"0":brandPrice.getBrandPriceFirstStage());
+                Integer second = Integer.parseInt(brandPrice.getBrandPriceSecondStage().equals("-1")?"0":brandPrice.getBrandPriceSecondStage());
+
                 subOrderObject.setTotalPrice(
-                        Integer.parseInt(brandPrice.getBrandPriceDeposit())
-                                +
-                                Integer.parseInt(brandPrice.getBrandPriceFirstStage())
-                                +
-                                Integer.parseInt(brandPrice.getBrandPriceSecondStage())
+                        deposit + first + second
                 );
+                updateOrder(subOrderObject);
+                logger.error("ERROR: AFTER CHECK: {}", subOrder.getTotalPrice());
             }
             order.setTotalPrice(Integer.valueOf(calculatePrice.getTotalPriceOfParentOrder()));
             order.setExpectedProductCompletionDate(LocalDateTime.parse(maxDate, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
